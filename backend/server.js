@@ -23,6 +23,9 @@ app.use(cors());
 //     console.log("DB Sync Failed.............");
 //   });
 
+// ========== IMPORTING ROUTES ========== //
+const userRoute = require("./API/user/router/user.router");
+
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
   try {
@@ -31,6 +34,8 @@ app.get("/", (req, res) => {
     res.status(500).send({ success: false, message: error.message });
   }
 });
+
+app.use("/api/v1/procurement", userRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {
