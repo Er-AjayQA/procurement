@@ -27,6 +27,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      userImage: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

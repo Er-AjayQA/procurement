@@ -5,7 +5,7 @@ const UserController = require("../controller/user.controller");
 const multer = require("multer");
 
 // ========== ROUTES ========== //
-router.post("createUser", UserController.createUser);
+router.post("/createUser", UserController.createUser);
 
 // ========== EXPORT ========== //
-export default router;
+module.exports = router;
