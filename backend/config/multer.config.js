@@ -4,7 +4,7 @@ const path = require("path");
 
 // ========== SET STORAGE ENGINE ========== //
 const storage = multer.diskStorage({
-  destination: () => {
+  destination: (req, file, cb) => {
     cb(null, "public/uploads/");
   },
   filename: (req, file, cb) => {
@@ -19,11 +19,11 @@ const storage = multer.diskStorage({
 // ========== INITIALIZE UPLOAD ========== //
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 1000000 }, // 1MB limit
+  limits: { fileSize: 10000000 }, // 10MB limit
   fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
   },
-}).single("profileImage");
+}).single("userImage");
 
 // ========== CHECK FILE TYPE ========== //
 function checkFileType(file, cb) {
