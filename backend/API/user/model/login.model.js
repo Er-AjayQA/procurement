@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_user = sequelize.define(
-    "USER",
+  const tbl_login = sequelize.define(
+    "LOGIN",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -9,34 +9,21 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      emp_code: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       email: {
         type: Sequelize.STRING,
-        allowNull: false,
         unique: true,
+        allowNull: false,
       },
-      userImage: {
+      password: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      status: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
-      },
     },
     { freezeTableName: true }
   );
-  return tbl_user;
+  return tbl_login;
 };
