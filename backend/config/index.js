@@ -32,12 +32,26 @@ db.tbl_department =
   );
 // Designation Table
 db.tbl_designation =
-  require("../API/configurationMasters//designation/model/designation.model")(
+  require("../API/configurationMasters/designation/model/designation.model")(
+    sequelize,
+    Sequelize
+  );
+// Employment Type Table
+db.tbl_employmentType =
+  require("../API/configurationMasters/employmentType/model/employmentType.model")(
     sequelize,
     Sequelize
   );
 
 // ========== RELATIONS ========== //
+// Relation B/W User and Login Tables
+db.tbl_user.hasMany(db.tbl_login, {
+  foreignKey: "user_id",
+});
+db.tbl_login.belongsTo(db.tbl_user, {
+  foreignKey: "user_id",
+});
+
 // Relation B/W User and Department Tables
 db.tbl_department.hasMany(db.tbl_user, {
   foreignKey: "dep_id",
@@ -54,12 +68,12 @@ db.tbl_user.belongsTo(db.tbl_designation, {
   foreignKey: "designation_id",
 });
 
-// Relation B/W User and Login Tables
-db.tbl_user.hasMany(db.tbl_login, {
-  foreignKey: "user_id",
+// Relation B/W User and Employment-Type Tables
+db.tbl_employmentType.hasMany(db.tbl_user, {
+  foreignKey: "emp_type_id",
 });
-db.tbl_login.belongsTo(db.tbl_user, {
-  foreignKey: "user_id",
+db.tbl_user.belongsTo(db.tbl_employmentType, {
+  foreignKey: "emp_type_id",
 });
 
 // Relation B/W Department and User Tables

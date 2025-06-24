@@ -1,6 +1,5 @@
 // ========== IMPORT STATEMENTS ========== //
 const DB = require("../../../../config/index");
-const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 
 // ========== CREATE DESIGNATION CONTROLLER ========== //
 module.exports.createDesignation = async (req, res) => {

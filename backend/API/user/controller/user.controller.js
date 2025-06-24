@@ -102,15 +102,19 @@ module.exports.getUserDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if user already exist
-    const isUserExist = await DB.tbl_user.findOne({
-      where: {
-        id,
-        isDeleted: false,
-      },
+    const query = `
+    SELECT U.id, U.emp_code, U.name, U.email, U.userImage, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
+    FROM USER AS U
+    LEFT JOIN DEPARTMENT AS D ON D.id=U.dep_id
+    LEFT JOIN DESIGNATION AS DES ON DES.id=U.designation_id
+    LEFT JOIN EMPLOYMENT_TYPE AS E ON E.id=U.emp_type_id
+    WHERE U.id=${id} AND U.isDeleted=false`;
+
+    const getAllData = await DB.sequelize.query(query, {
+      type: DB.sequelize.QueryTypes.SELECT,
     });
 
-    if (!isUserExist) {
+    if (getAllData.length < 1) {
       return res
         .status(400)
         .send({ success: false, message: "User Not Found!" });
@@ -118,7 +122,7 @@ module.exports.getUserDetails = async (req, res) => {
       return res.status(200).send({
         success: true,
         status: "Get User Details Successfully!",
-        data: isUserExist,
+        data: getAllData,
       });
     }
   } catch (error) {
@@ -130,10 +134,11 @@ module.exports.getUserDetails = async (req, res) => {
 module.exports.getAllUserDetails = async (req, res) => {
   try {
     const query = `
-            SELECT U.id, U.emp_code, U.name, U.email, U.userImage, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name
+            SELECT U.id, U.emp_code, U.name, U.email, U.userImage, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
             FROM USER AS U
             LEFT JOIN DEPARTMENT AS D ON D.id=U.dep_id
             LEFT JOIN DESIGNATION AS DES ON DES.id=U.designation_id
+            LEFT JOIN EMPLOYMENT_TYPE AS E ON E.id=U.emp_type_id
             WHERE U.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
