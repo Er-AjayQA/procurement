@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.sequelize
+// db.tbl_department
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -25,6 +25,7 @@ app.use(cors());
 
 // ========== IMPORTING ROUTES ========== //
 const userRoute = require("./API/user/router/user.router");
+const departmentRoute = require("./API/configurationMasters/department/router/department.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/procurement", userRoute);
+app.use("/api/v1/procurement", departmentRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

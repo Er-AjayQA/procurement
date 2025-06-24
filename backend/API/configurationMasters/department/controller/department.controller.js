@@ -1,22 +1,16 @@
 // ========== IMPORT STATEMENTS ========== //
-const DB = require("../../../config/index");
-const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
-const bcrypt = require("bcrypt");
-const salt = 12;
+const DB = require("../../../../config/index");
+const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 
-// ========== CREATE USER CONTROLLER ========== //
-module.exports.createUser = async (req, res) => {
+// ========== CREATE DEPARTMENT CONTROLLER ========== //
+module.exports.createDepartment = async (req, res) => {
   try {
     const data = req.body;
 
-    if (req.file) {
-      data.userImage = req.file.path || null;
-    }
-
-    // Check if user already exist
-    const isAlreadyExist = await DB.tbl_user.findOne({
+    // Check if Department already exist
+    const isAlreadyExist = await DB.tbl_department.findOne({
       where: {
-        email: data.email,
+        name: data.name,
         isDeleted: false,
       },
     });
@@ -24,45 +18,25 @@ module.exports.createUser = async (req, res) => {
     if (isAlreadyExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Email Already Exist!" });
+        .send({ success: false, message: "Department Already Exist!" });
     } else {
-      const isLoginExist = await DB.tbl_login.findOne({
-        where: {
-          email: data.email,
-          isDeleted: false,
-        },
+      let code = await generateUniqueCode("DEP", 3, "dep_code", "DEPARTMENT");
+      data.dep_code = code;
+
+      const newDepartment = await DB.tbl_department.create(data);
+      return res.status(200).send({
+        success: true,
+        status: "Department Created Successfully!",
+        data: newDepartment,
       });
-
-      if (isLoginExist) {
-        return res
-          .status(400)
-          .send({ success: false, message: "Login Details Already Exist!" });
-      } else {
-        let code = await generateUniqueCode("EMP", 3, "emp_code", "USER");
-        data.emp_code = code;
-        let newPwd = "123456789";
-        let hashedPwd = await bcrypt.hash(newPwd, salt);
-
-        const newUser = await DB.tbl_user.create(data);
-        await DB.tbl_login.create({
-          user_id: newUser.id,
-          email: data.email,
-          password: hashedPwd,
-        });
-        return res.status(200).send({
-          success: true,
-          status: "User Created Successfully!",
-          data: newUser,
-        });
-      }
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
   }
 };
 
-// ========== UPDATE USER CONTROLLER ========== //
-module.exports.updateUser = async (req, res) => {
+// ========== UPDATE DEPARTMENT CONTROLLER ========== //
+module.exports.updateDepartment = async (req, res) => {
   try {
     const data = req.body;
     const { id } = req.params;
@@ -97,8 +71,8 @@ module.exports.updateUser = async (req, res) => {
   }
 };
 
-// ========== GET USER DETAILS CONTROLLER ========== //
-module.exports.getUserDetails = async (req, res) => {
+// ========== GET DEPARTMENT DETAILS CONTROLLER ========== //
+module.exports.getDepartmentDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -126,8 +100,8 @@ module.exports.getUserDetails = async (req, res) => {
   }
 };
 
-// ========== GET ALL USER DETAILS CONTROLLER ========== //
-module.exports.getAllUserDetails = async (req, res) => {
+// ========== GET ALL DEPARTMENT DETAILS CONTROLLER ========== //
+module.exports.getAllDepartmentDetails = async (req, res) => {
   try {
     const query = `
             SELECT U.id, U.emp_code, U.name, U.email, U.userImage, U.isDeleted, U.status
@@ -154,8 +128,8 @@ module.exports.getAllUserDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE USER CONTROLLER ========== //
-module.exports.updateUserStatus = async (req, res) => {
+// ========== UPDATE DEPARTMENT CONTROLLER ========== //
+module.exports.updateDepartmentStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -186,8 +160,8 @@ module.exports.updateUserStatus = async (req, res) => {
   }
 };
 
-// ========== UPDATE USER CONTROLLER ========== //
-module.exports.deleteUser = async (req, res) => {
+// ========== UPDATE DEPARTMENT CONTROLLER ========== //
+module.exports.deleteDepartment = async (req, res) => {
   try {
     const { id } = req.params;
 
