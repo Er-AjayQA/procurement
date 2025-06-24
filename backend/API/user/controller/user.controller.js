@@ -130,8 +130,10 @@ module.exports.getUserDetails = async (req, res) => {
 module.exports.getAllUserDetails = async (req, res) => {
   try {
     const query = `
-            SELECT U.id, U.emp_code, U.name, U.email, U.userImage, U.isDeleted, U.status
+            SELECT U.id, U.emp_code, U.name, U.email, U.userImage, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name
             FROM USER AS U
+            LEFT JOIN DEPARTMENT AS D ON D.id=U.dep_id
+            LEFT JOIN DESIGNATION AS DES ON DES.id=U.designation_id
             WHERE U.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {

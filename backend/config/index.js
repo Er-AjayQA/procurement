@@ -38,6 +38,22 @@ db.tbl_designation =
   );
 
 // ========== RELATIONS ========== //
+// Relation B/W User and Department Tables
+db.tbl_department.hasMany(db.tbl_user, {
+  foreignKey: "dep_id",
+});
+db.tbl_user.belongsTo(db.tbl_department, {
+  foreignKey: "dep_id",
+});
+
+// Relation B/W User and Designation Tables
+db.tbl_designation.hasMany(db.tbl_user, {
+  foreignKey: "designation_id",
+});
+db.tbl_user.belongsTo(db.tbl_designation, {
+  foreignKey: "designation_id",
+});
+
 // Relation B/W User and Login Tables
 db.tbl_user.hasMany(db.tbl_login, {
   foreignKey: "user_id",

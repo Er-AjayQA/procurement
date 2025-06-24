@@ -117,7 +117,7 @@ module.exports.getAllDepartmentDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Departments Details Successfully!",
+        status: "Get All Departments List!",
         data: getAllData,
       });
     }
