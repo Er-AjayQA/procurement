@@ -2,13 +2,13 @@
 const DB = require("../../../../config/index");
 const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 
-// ========== CREATE DEPARTMENT CONTROLLER ========== //
-module.exports.createDepartment = async (req, res) => {
+// ========== CREATE DESIGNATION CONTROLLER ========== //
+module.exports.createDesignation = async (req, res) => {
   try {
     const data = req.body;
 
-    // Check if Department already exist
-    const isAlreadyExist = await DB.tbl_department.findOne({
+    // Check if Designation already exist
+    const isAlreadyExist = await DB.tbl_designation.findOne({
       where: {
         name: data.name,
         isDeleted: false,
@@ -18,16 +18,13 @@ module.exports.createDepartment = async (req, res) => {
     if (isAlreadyExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Department Already Exist!" });
+        .send({ success: false, message: "Designation Already Exist!" });
     } else {
-      let code = await generateUniqueCode("DEP", 3, "dep_code", "DEPARTMENT");
-      data.dep_code = code;
-
-      const newDepartment = await DB.tbl_department.create(data);
+      const newDesignation = await DB.tbl_designation.create(data);
       return res.status(200).send({
         success: true,
-        status: "Department Created Successfully!",
-        data: newDepartment,
+        status: "Designation Created Successfully!",
+        data: newDesignation,
       });
     }
   } catch (error) {
@@ -35,30 +32,30 @@ module.exports.createDepartment = async (req, res) => {
   }
 };
 
-// ========== UPDATE DEPARTMENT CONTROLLER ========== //
-module.exports.updateDepartment = async (req, res) => {
+// ========== UPDATE DESIGNATION CONTROLLER ========== //
+module.exports.updateDesignation = async (req, res) => {
   try {
     const data = req.body;
     const { id } = req.params;
 
-    // Check if Department already exist
-    const isDepartmentExist = await DB.tbl_department.findOne({
+    // Check if Designation already exist
+    const isDesignationExist = await DB.tbl_designation.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDepartmentExist) {
+    if (!isDesignationExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Department Not Found!" });
+        .send({ success: false, message: "Designation Not Found!" });
     } else {
-      const updateDepartment = await isDepartmentExist.update(data);
+      const updateDesignation = await isDesignationExist.update(data);
       return res.status(200).send({
         success: true,
-        status: "Department Updated Successfully!",
-        data: updateDepartment,
+        status: "Designation Updated Successfully!",
+        data: updateDesignation,
       });
     }
   } catch (error) {
@@ -66,16 +63,15 @@ module.exports.updateDepartment = async (req, res) => {
   }
 };
 
-// ========== GET DEPARTMENT DETAILS CONTROLLER ========== //
-module.exports.getDepartmentDetails = async (req, res) => {
+// ========== GET DESIGNATION DETAILS CONTROLLER ========== //
+module.exports.getDesignationDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
     const query = `
-    SELECT D.*, U.name AS department_head_name, U.emp_code
-    FROM DEPARTMENT AS D
-    LEFT JOIN USER AS U ON U.id= D.department_head_id
-    WHERE D.isDeleted=false`;
+    SELECT D.*
+    FROM DESIGNATION AS D
+    WHERE D.id=${id}`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -84,11 +80,11 @@ module.exports.getDepartmentDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Department Not Found!" });
+        .send({ success: false, message: "Designation Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Department Details Successfully!",
+        status: "Get Designation Details Successfully!",
         data: getAllData,
       });
     }
@@ -97,14 +93,12 @@ module.exports.getDepartmentDetails = async (req, res) => {
   }
 };
 
-// ========== GET ALL DEPARTMENT DETAILS CONTROLLER ========== //
-module.exports.getAllDepartmentDetails = async (req, res) => {
+// ========== GET ALL DESIGNATION DETAILS CONTROLLER ========== //
+module.exports.getAllDesignationDetails = async (req, res) => {
   try {
     const query = `
-            SELECT D.*, U.emp_code, U.name As department_head_name
-            FROM DEPARTMENT AS D
-            LEFT JOIN USER AS U on U.id=D.department_head_id
-            WHERE D.isDeleted=false`;
+            SELECT D.*
+            FROM DESIGNATION AS D`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -113,11 +107,11 @@ module.exports.getAllDepartmentDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Departments Not Found!" });
+        .send({ success: false, message: "Designations Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Departments Details Successfully!",
+        status: "Get All Designations List!",
         data: getAllData,
       });
     }
@@ -126,26 +120,26 @@ module.exports.getAllDepartmentDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE DEPARTMENT CONTROLLER ========== //
-module.exports.updateDepartmentStatus = async (req, res) => {
+// ========== UPDATE DESIGNATION CONTROLLER ========== //
+module.exports.updateDesignationStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if user already exist
-    const isDepartmentExist = await DB.tbl_department.findOne({
+    // Check if Designation already exist
+    const isDesignationExist = await DB.tbl_designation.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDepartmentExist) {
+    if (!isDesignationExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Department Not Found!" });
+        .send({ success: false, message: "Designation Not Found!" });
     } else {
-      const updateStatus = await isDepartmentExist.update({
-        status: !isDepartmentExist.status,
+      const updateStatus = await isDesignationExist.update({
+        status: !isDesignationExist.status,
       });
       return res.status(200).send({
         success: true,
@@ -158,30 +152,30 @@ module.exports.updateDepartmentStatus = async (req, res) => {
   }
 };
 
-// ========== UPDATE DEPARTMENT CONTROLLER ========== //
-module.exports.deleteDepartment = async (req, res) => {
+// ========== UPDATE DESIGNATION CONTROLLER ========== //
+module.exports.deleteDesignation = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Department already exist
-    const isDepartmentExist = await DB.tbl_department.findOne({
+    // Check if Designation already exist
+    const isDesignationExist = await DB.tbl_designation.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDepartmentExist) {
+    if (!isDesignationExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Department Not Found!" });
+        .send({ success: false, message: "Designation Not Found!" });
     } else {
-      await isDepartmentExist.update({
+      await isDesignationExist.update({
         isDeleted: true,
       });
       return res.status(200).send({
         success: true,
-        status: "Department Deleted Successfully!",
+        status: "Designation Deleted Successfully!",
       });
     }
   } catch (error) {

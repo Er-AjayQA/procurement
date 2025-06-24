@@ -14,11 +14,6 @@ module.exports = (sequelize, Sequelize) => {
         unique: true,
         allowNull: false,
       },
-      designation_code: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: false,
-      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

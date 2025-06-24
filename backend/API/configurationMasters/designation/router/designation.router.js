@@ -1,24 +1,24 @@
 // ========== IMPORT STATEMENTS ========== //
 const express = require("express");
 const router = express.Router();
-const DepartmentController = require("../controller/designation.controller");
+const DesignationController = require("../controller/designation.controller");
 
 // ========== ROUTES ========== //
-router.post("/create-department", DepartmentController.createDepartment);
-router.post("/update-department/:id", DepartmentController.updateDepartment);
+router.post("/create-designation", DesignationController.createDesignation);
+router.post("/update-designation/:id", DesignationController.updateDesignation);
 router.post(
-  "/get-department-details/:id",
-  DepartmentController.getDepartmentDetails
+  "/get-designation-details/:id",
+  DesignationController.getDesignationDetails
 );
 router.post(
-  "/get-all-departments",
-  DepartmentController.getAllDepartmentDetails
+  "/get-all-designations",
+  DesignationController.getAllDesignationDetails
 );
 router.post(
-  "/update-department-status/:id",
-  DepartmentController.updateDepartmentStatus
+  "/update-designation-status/:id",
+  DesignationController.updateDesignationStatus
 );
-router.post("/delete-department/:id", DepartmentController.deleteDepartment);
+router.post("/delete-designation/:id", DesignationController.deleteDesignation);
 
 // ========== EXPORT ========== //
 module.exports = router;
