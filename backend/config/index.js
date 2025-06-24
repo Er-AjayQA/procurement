@@ -30,6 +30,12 @@ db.tbl_department =
     sequelize,
     Sequelize
   );
+// Designation Table
+db.tbl_designation =
+  require("../API/configurationMasters//designation/model/designation.model")(
+    sequelize,
+    Sequelize
+  );
 
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
