@@ -24,6 +24,12 @@ db.sequelize = sequelize;
 db.tbl_user = require("../API/user/model/user.model")(sequelize, Sequelize);
 // Login Details Tables
 db.tbl_login = require("../API/user/model/login.model")(sequelize, Sequelize);
+// Department Table
+db.tbl_department =
+  require("../API/configurationMasters/department/model/department.model")(
+    sequelize,
+    Sequelize
+  );
 
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
@@ -32,6 +38,14 @@ db.tbl_user.hasMany(db.tbl_login, {
 });
 db.tbl_login.belongsTo(db.tbl_user, {
   foreignKey: "user_id",
+});
+
+// Relation B/W Department and User Tables
+db.tbl_user.hasMany(db.tbl_department, {
+  foreignKey: "department_head_id",
+});
+db.tbl_department.belongsTo(db.tbl_user, {
+  foreignKey: "department_head_id",
 });
 
 // ========== EXPORTS ========== //
