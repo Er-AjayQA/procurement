@@ -60,6 +60,13 @@ db.tbl_area_master =
     Sequelize
   );
 
+// Contract Type Master Table
+db.tbl_contractType_master =
+  require("../API/configurationMasters/contractType/model/contractType.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -91,6 +98,14 @@ db.tbl_employmentType_master.hasMany(db.tbl_user_master, {
 });
 db.tbl_user_master.belongsTo(db.tbl_employmentType_master, {
   foreignKey: "emp_type_id",
+});
+
+// Relation B/W User and Contract-Type Master Tables
+db.tbl_contractType_master.hasMany(db.tbl_user_master, {
+  foreignKey: "contract_type_id",
+});
+db.tbl_user_master.belongsTo(db.tbl_contractType_master, {
+  foreignKey: "contract_type_id",
 });
 
 // Relation B/W Department Master and User Tables
