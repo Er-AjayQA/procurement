@@ -22,23 +22,34 @@ db.sequelize = sequelize;
 // ========== MODEL ========== //
 // User Details Tables
 db.tbl_user = require("../API/user/model/user.model")(sequelize, Sequelize);
+
 // Login Details Tables
 db.tbl_login = require("../API/user/model/login.model")(sequelize, Sequelize);
-// Department Table
+
+// Department Master Table
 db.tbl_department =
   require("../API/configurationMasters/department/model/department.model")(
     sequelize,
     Sequelize
   );
-// Designation Table
+
+// Designation Master Table
 db.tbl_designation =
   require("../API/configurationMasters/designation/model/designation.model")(
     sequelize,
     Sequelize
   );
-// Employment Type Table
+
+// Employment Type Master Table
 db.tbl_employmentType =
   require("../API/configurationMasters/employmentType/model/employmentType.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Area Master Table
+db.tbl_area_master =
+  require("../API/configurationMasters/area/model/area.model")(
     sequelize,
     Sequelize
   );
@@ -52,7 +63,7 @@ db.tbl_login.belongsTo(db.tbl_user, {
   foreignKey: "user_id",
 });
 
-// Relation B/W User and Department Tables
+// Relation B/W User and Department Master Tables
 db.tbl_department.hasMany(db.tbl_user, {
   foreignKey: "dep_id",
 });
@@ -60,7 +71,7 @@ db.tbl_user.belongsTo(db.tbl_department, {
   foreignKey: "dep_id",
 });
 
-// Relation B/W User and Designation Tables
+// Relation B/W User and Designation Master Tables
 db.tbl_designation.hasMany(db.tbl_user, {
   foreignKey: "designation_id",
 });
@@ -68,7 +79,7 @@ db.tbl_user.belongsTo(db.tbl_designation, {
   foreignKey: "designation_id",
 });
 
-// Relation B/W User and Employment-Type Tables
+// Relation B/W User and Employment-Type Master Tables
 db.tbl_employmentType.hasMany(db.tbl_user, {
   foreignKey: "emp_type_id",
 });
@@ -76,12 +87,28 @@ db.tbl_user.belongsTo(db.tbl_employmentType, {
   foreignKey: "emp_type_id",
 });
 
-// Relation B/W Department and User Tables
+// Relation B/W Department Master and User Tables
 db.tbl_user.hasMany(db.tbl_department, {
   foreignKey: "department_head_id",
 });
 db.tbl_department.belongsTo(db.tbl_user, {
   foreignKey: "department_head_id",
+});
+
+// Relation B/W Area Master and Department Master Tables
+db.tbl_department.hasMany(db.tbl_area_master, {
+  foreignKey: "dept_id",
+});
+db.tbl_area_master.belongsTo(db.tbl_department, {
+  foreignKey: "dept_id",
+});
+
+// Relation B/W Area Master and User Tables
+db.tbl_area_master.hasMany(db.tbl_user, {
+  foreignKey: "area_id",
+});
+db.tbl_user.belongsTo(db.tbl_area_master, {
+  foreignKey: "area_id",
 });
 
 // ========== EXPORTS ========== //

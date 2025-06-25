@@ -208,7 +208,7 @@ module.exports.updateUserStatus = async (req, res) => {
   }
 };
 
-// ========== UPDATE USER CONTROLLER ========== //
+// ========== DELETE USER CONTROLLER ========== //
 module.exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
