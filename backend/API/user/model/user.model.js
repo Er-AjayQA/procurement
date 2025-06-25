@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_user = sequelize.define(
-    "USER",
+  const tbl_user_master = sequelize.define(
+    "USER_MASTER",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -82,5 +82,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_user;
+  return tbl_user_master;
 };

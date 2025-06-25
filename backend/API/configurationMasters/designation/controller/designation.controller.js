@@ -7,7 +7,7 @@ module.exports.createDesignation = async (req, res) => {
     const data = req.body;
 
     // Check if Designation already exist
-    const isAlreadyExist = await DB.tbl_designation.findOne({
+    const isAlreadyExist = await DB.tbl_designation_master.findOne({
       where: {
         name: data.name,
         isDeleted: false,
@@ -19,7 +19,7 @@ module.exports.createDesignation = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Designation Already Exist!" });
     } else {
-      const newDesignation = await DB.tbl_designation.create(data);
+      const newDesignation = await DB.tbl_designation_master.create(data);
       return res.status(200).send({
         success: true,
         status: "Designation Created Successfully!",
@@ -38,7 +38,7 @@ module.exports.updateDesignation = async (req, res) => {
     const { id } = req.params;
 
     // Check if Designation already exist
-    const isDesignationExist = await DB.tbl_designation.findOne({
+    const isDesignationExist = await DB.tbl_designation_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -69,8 +69,9 @@ module.exports.getDesignationDetails = async (req, res) => {
 
     const query = `
     SELECT D.*
-    FROM DESIGNATION AS D
-    WHERE D.id=${id}`;
+    FROM DESIGNATION_MASTER AS D
+    WHERE D.id=${id}
+    AND D.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -97,7 +98,8 @@ module.exports.getAllDesignationDetails = async (req, res) => {
   try {
     const query = `
             SELECT D.*
-            FROM DESIGNATION AS D`;
+            FROM DESIGNATION_MASTER AS D
+            WHERE D.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -125,7 +127,7 @@ module.exports.updateDesignationStatus = async (req, res) => {
     const { id } = req.params;
 
     // Check if Designation already exist
-    const isDesignationExist = await DB.tbl_designation.findOne({
+    const isDesignationExist = await DB.tbl_designation_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -157,7 +159,7 @@ module.exports.deleteDesignation = async (req, res) => {
     const { id } = req.params;
 
     // Check if Designation already exist
-    const isDesignationExist = await DB.tbl_designation.findOne({
+    const isDesignationExist = await DB.tbl_designation_master.findOne({
       where: {
         id,
         isDeleted: false,

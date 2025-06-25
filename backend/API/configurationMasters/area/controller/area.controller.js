@@ -9,11 +9,9 @@ module.exports.createArea = async (req, res) => {
     // Check if Area already exist
     const isAlreadyExist = await DB.tbl_area_master.findOne({
       where: {
-        [DB.Sequelize.Op.and]: [
-          { name: data.name },
-          { dept_id: data.dept_id },
-          { isDeleted: false },
-        ],
+        name: data.name,
+        dept_id: data.dept_id,
+        isDeleted: false,
       },
     });
 
@@ -40,25 +38,40 @@ module.exports.updateArea = async (req, res) => {
     const data = req.body;
     const { id } = req.params;
 
-    // Check if Designation already exist
-    const isDesignationExist = await DB.tbl_designation.findOne({
+    // Check if Area already exist
+    const isAreaExist = await DB.tbl_area_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDesignationExist) {
+    if (!isAreaExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Designation Not Found!" });
+        .send({ success: false, message: "Area Not Found!" });
     } else {
-      const updateDesignation = await isDesignationExist.update(data);
-      return res.status(200).send({
-        success: true,
-        status: "Designation Updated Successfully!",
-        data: updateDesignation,
+      const duplicateArea = await DB.tbl_area_master.findOne({
+        where: {
+          id: { [DB.Sequelize.Op.ne]: id },
+          name: data.name,
+          dept_id: isAreaExist.dept_id,
+          isDeleted: false,
+        },
       });
+
+      if (duplicateArea) {
+        return res
+          .status(409)
+          .send({ success: false, message: "Area Name Already Exist!" });
+      } else {
+        const updateArea = await isAreaExist.update(data);
+        return res.status(200).send({
+          success: true,
+          status: "Area Updated Successfully!",
+          data: updateArea,
+        });
+      }
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
@@ -71,9 +84,10 @@ module.exports.getAreaDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT D.*
-    FROM DESIGNATION AS D
-    WHERE D.id=${id}`;
+    SELECT A.*, D.name AS department_name
+    FROM AREA_MASTER AS A
+    LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
+    WHERE A.id=${id}`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -82,11 +96,11 @@ module.exports.getAreaDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Designation Not Found!" });
+        .send({ success: false, message: "Area Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Designation Details Successfully!",
+        status: "Get Area Details Successfully!",
         data: getAllData,
       });
     }
@@ -99,8 +113,10 @@ module.exports.getAreaDetails = async (req, res) => {
 module.exports.getAllAreaDetails = async (req, res) => {
   try {
     const query = `
-            SELECT D.*
-            FROM DESIGNATION AS D`;
+    SELECT A.*, D.name AS department_name
+    FROM AREA_MASTER AS A
+    LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
+    WHERE A.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -109,11 +125,11 @@ module.exports.getAllAreaDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Designations Not Found!" });
+        .send({ success: false, message: "Area Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Designations List!",
+        status: "Get All Areas List!",
         data: getAllData,
       });
     }
@@ -127,21 +143,21 @@ module.exports.updateAreaStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Designation already exist
-    const isDesignationExist = await DB.tbl_designation.findOne({
+    // Check if Area already exist
+    const isAreaExist = await DB.tbl_area_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDesignationExist) {
+    if (!isAreaExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Designation Not Found!" });
+        .send({ success: false, message: "Area Not Found!" });
     } else {
-      const updateStatus = await isDesignationExist.update({
-        status: !isDesignationExist.status,
+      const updateStatus = await isAreaExist.update({
+        status: !isAreaExist.status,
       });
       return res.status(200).send({
         success: true,
@@ -159,25 +175,25 @@ module.exports.deleteArea = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Designation already exist
-    const isDesignationExist = await DB.tbl_designation.findOne({
+    // Check if Area already exist
+    const isAreaExist = await DB.tbl_area_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDesignationExist) {
+    if (!isAreaExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Designation Not Found!" });
+        .send({ success: false, message: "Area Not Found!" });
     } else {
-      await isDesignationExist.update({
+      await isAreaExist.update({
         isDeleted: true,
       });
       return res.status(200).send({
         success: true,
-        status: "Designation Deleted Successfully!",
+        status: "Area Deleted Successfully!",
       });
     }
   } catch (error) {

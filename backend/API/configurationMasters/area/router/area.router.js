@@ -7,8 +7,8 @@ const AreaController = require("../controller/area.controller");
 router.post("/create-area", AreaController.createArea);
 router.put("/update-area/:id", AreaController.updateArea);
 router.post("/get-area-details/:id", AreaController.getAreaDetails);
-router.post("/get-all-areas", AreaController.getAllAreaDetails);
-router.post("/update-area-status/:id", AreaController.updateAreaStatus);
+router.post("/get-all-areas-details", AreaController.getAllAreaDetails);
+router.put("/update-area-status/:id", AreaController.updateAreaStatus);
 router.put("/delete-area/:id", AreaController.deleteArea);
 
 // ========== EXPORT ========== //

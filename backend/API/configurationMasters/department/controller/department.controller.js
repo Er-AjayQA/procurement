@@ -8,7 +8,7 @@ module.exports.createDepartment = async (req, res) => {
     const data = req.body;
 
     // Check if Department already exist
-    const isAlreadyExist = await DB.tbl_department.findOne({
+    const isAlreadyExist = await DB.tbl_department_master.findOne({
       where: {
         name: data.name,
         isDeleted: false,
@@ -20,10 +20,15 @@ module.exports.createDepartment = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Department Already Exist!" });
     } else {
-      let code = await generateUniqueCode("DEP", 3, "dep_code", "DEPARTMENT");
+      let code = await generateUniqueCode(
+        "DEP",
+        3,
+        "dep_code",
+        "DEPARTMENT_MASTER"
+      );
       data.dep_code = code;
 
-      const newDepartment = await DB.tbl_department.create(data);
+      const newDepartment = await DB.tbl_department_master.create(data);
       return res.status(200).send({
         success: true,
         status: "Department Created Successfully!",
@@ -42,7 +47,7 @@ module.exports.updateDepartment = async (req, res) => {
     const { id } = req.params;
 
     // Check if Department already exist
-    const isDepartmentExist = await DB.tbl_department.findOne({
+    const isDepartmentExist = await DB.tbl_department_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -73,9 +78,9 @@ module.exports.getDepartmentDetails = async (req, res) => {
 
     const query = `
     SELECT D.*, U.name AS department_head_name, U.emp_code
-    FROM DEPARTMENT AS D
-    LEFT JOIN USER AS U ON U.id= D.department_head_id
-    WHERE D.isDeleted=false`;
+    FROM DEPARTMENT_MASTER AS D
+    LEFT JOIN USER_MASTER AS U ON U.id= D.department_head_id
+    WHERE D.id=${id} AND D.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -102,8 +107,8 @@ module.exports.getAllDepartmentDetails = async (req, res) => {
   try {
     const query = `
             SELECT D.*, U.emp_code, U.name As department_head_name
-            FROM DEPARTMENT AS D
-            LEFT JOIN USER AS U on U.id=D.department_head_id
+            FROM DEPARTMENT_MASTER AS D
+            LEFT JOIN USER_MASTER AS U on U.id=D.department_head_id
             WHERE D.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
@@ -132,7 +137,7 @@ module.exports.updateDepartmentStatus = async (req, res) => {
     const { id } = req.params;
 
     // Check if user already exist
-    const isDepartmentExist = await DB.tbl_department.findOne({
+    const isDepartmentExist = await DB.tbl_department_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -164,7 +169,7 @@ module.exports.deleteDepartment = async (req, res) => {
     const { id } = req.params;
 
     // Check if Department already exist
-    const isDepartmentExist = await DB.tbl_department.findOne({
+    const isDepartmentExist = await DB.tbl_department_master.findOne({
       where: {
         id,
         isDeleted: false,

@@ -15,7 +15,7 @@ module.exports.createUser = async (req, res) => {
     }
 
     // Check if user already exist
-    const isAlreadyExist = await DB.tbl_user.findOne({
+    const isAlreadyExist = await DB.tbl_user_master.findOne({
       where: {
         official_email: data.official_email,
         isDeleted: false,
@@ -27,7 +27,7 @@ module.exports.createUser = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Email Already Exist!" });
     } else {
-      const isLoginExist = await DB.tbl_login.findOne({
+      const isLoginExist = await DB.tbl_login_master.findOne({
         where: {
           official_email: data.official_email,
           isDeleted: false,
@@ -39,13 +39,18 @@ module.exports.createUser = async (req, res) => {
           .status(400)
           .send({ success: false, message: "Login Details Already Exist!" });
       } else {
-        let code = await generateUniqueCode("EMP", 3, "emp_code", "USER");
+        let code = await generateUniqueCode(
+          "EMP",
+          3,
+          "emp_code",
+          "USER_MASTER"
+        );
         data.emp_code = code;
         let newPwd = "123456789";
         let hashedPwd = await bcrypt.hash(newPwd, salt);
 
-        const newUser = await DB.tbl_user.create(data);
-        await DB.tbl_login.create({
+        const newUser = await DB.tbl_user_master.create(data);
+        await DB.tbl_login_master.create({
           user_id: newUser.id,
           official_email: data.official_email,
           password: hashedPwd,
@@ -73,7 +78,7 @@ module.exports.updateUser = async (req, res) => {
     }
 
     // Check if user exist
-    const isUserExist = await DB.tbl_user.findOne({
+    const isUserExist = await DB.tbl_user_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -85,9 +90,11 @@ module.exports.updateUser = async (req, res) => {
         .status(400)
         .send({ success: false, message: "User Not Found!" });
     } else {
-      const emailExist = await DB.tbl_user.findOne({
+      const emailExist = await DB.tbl_user_master.findOne({
         where: {
-          official_email: data.official_email,
+          official_email: data.official_email
+            ? data.official_email
+            : isUserExist.official_email,
           id: { [DB.Sequelize.Op.ne]: id },
         },
       });
@@ -117,11 +124,11 @@ module.exports.getUserDetails = async (req, res) => {
 
     const query = `
             SELECT U.id, U.emp_code, U.name, U.official_email, U.personal_email, U.userImage,U.contact_no, U.alt_contact_no, U.dob, U.gender, U.reporting_manager_id, M.name AS reporting_manager_name, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
-            FROM USER AS U
-            LEFT JOIN DEPARTMENT AS D ON D.id=U.dep_id
-            LEFT JOIN DESIGNATION AS DES ON DES.id=U.designation_id
-            LEFT JOIN EMPLOYMENT_TYPE AS E ON E.id=U.emp_type_id
-            LEFT JOIN USER AS M ON M.id=U.reporting_manager_id
+            FROM USER_MASTER AS U
+            LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
+            LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
+            LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
+            LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
             WHERE U.id=${id} AND U.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
@@ -149,11 +156,11 @@ module.exports.getAllUserDetails = async (req, res) => {
   try {
     const query = `
             SELECT U.id, U.emp_code, U.name, U.official_email, U.personal_email, U.userImage,U.contact_no, U.alt_contact_no, U.dob, U.gender, U.reporting_manager_id, M.name AS reporting_manager_name, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
-            FROM USER AS U
-            LEFT JOIN DEPARTMENT AS D ON D.id=U.dep_id
-            LEFT JOIN DESIGNATION AS DES ON DES.id=U.designation_id
-            LEFT JOIN EMPLOYMENT_TYPE AS E ON E.id=U.emp_type_id
-            LEFT JOIN USER AS M ON M.id=U.reporting_manager_id
+            FROM USER_MASTER AS U
+            LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
+            LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
+            LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
+            LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
             WHERE U.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
@@ -182,7 +189,7 @@ module.exports.updateUserStatus = async (req, res) => {
     const { id } = req.params;
 
     // Check if user already exist
-    const isUserExist = await DB.tbl_user.findOne({
+    const isUserExist = await DB.tbl_user_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -214,7 +221,7 @@ module.exports.deleteUser = async (req, res) => {
     const { id } = req.params;
 
     // Check if user already exist
-    const isUserExist = await DB.tbl_user.findOne({
+    const isUserExist = await DB.tbl_user_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -229,7 +236,7 @@ module.exports.deleteUser = async (req, res) => {
       await isUserExist.update({
         isDeleted: true,
       });
-      await DB.tbl_login.update(
+      await DB.tbl_login_master.update(
         { isDeleted: true },
         { where: { user_id: id } }
       );
