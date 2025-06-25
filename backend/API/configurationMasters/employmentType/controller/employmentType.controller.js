@@ -151,7 +151,7 @@ module.exports.updateEmploymentTypeStatus = async (req, res) => {
   }
 };
 
-// ========== UPDATE EMPLOYMENT TYPE CONTROLLER ========== //
+// ========== DELETE EMPLOYMENT TYPE CONTROLLER ========== //
 module.exports.deleteEmploymentType = async (req, res) => {
   try {
     const { id } = req.params;

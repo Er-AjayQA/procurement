@@ -1,29 +1,32 @@
 // ========== IMPORT STATEMENTS ========== //
 const DB = require("../../../../config/index");
 
-// ========== CREATE DESIGNATION CONTROLLER ========== //
-module.exports.createDesignation = async (req, res) => {
+// ========== CREATE AREA CONTROLLER ========== //
+module.exports.createArea = async (req, res) => {
   try {
     const data = req.body;
 
-    // Check if Designation already exist
-    const isAlreadyExist = await DB.tbl_designation.findOne({
+    // Check if Area already exist
+    const isAlreadyExist = await DB.tbl_area_master.findOne({
       where: {
-        name: data.name,
-        isDeleted: false,
+        [DB.Sequelize.Op.and]: [
+          { name: data.name },
+          { dept_id: data.dept_id },
+          { isDeleted: false },
+        ],
       },
     });
 
     if (isAlreadyExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Designation Already Exist!" });
+        .send({ success: false, message: "Area Already Exist!" });
     } else {
-      const newDesignation = await DB.tbl_designation.create(data);
+      const newArea = await DB.tbl_area_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Designation Created Successfully!",
-        data: newDesignation,
+        status: "Area Created Successfully!",
+        data: newArea,
       });
     }
   } catch (error) {
@@ -31,8 +34,8 @@ module.exports.createDesignation = async (req, res) => {
   }
 };
 
-// ========== UPDATE DESIGNATION CONTROLLER ========== //
-module.exports.updateDesignation = async (req, res) => {
+// ========== UPDATE AREA CONTROLLER ========== //
+module.exports.updateArea = async (req, res) => {
   try {
     const data = req.body;
     const { id } = req.params;
@@ -62,8 +65,8 @@ module.exports.updateDesignation = async (req, res) => {
   }
 };
 
-// ========== GET DESIGNATION DETAILS CONTROLLER ========== //
-module.exports.getDesignationDetails = async (req, res) => {
+// ========== GET AREA DETAILS CONTROLLER ========== //
+module.exports.getAreaDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -92,8 +95,8 @@ module.exports.getDesignationDetails = async (req, res) => {
   }
 };
 
-// ========== GET ALL DESIGNATION DETAILS CONTROLLER ========== //
-module.exports.getAllDesignationDetails = async (req, res) => {
+// ========== GET ALL AREA DETAILS CONTROLLER ========== //
+module.exports.getAllAreaDetails = async (req, res) => {
   try {
     const query = `
             SELECT D.*
@@ -119,8 +122,8 @@ module.exports.getAllDesignationDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE DESIGNATION CONTROLLER ========== //
-module.exports.updateDesignationStatus = async (req, res) => {
+// ========== UPDATE AREA CONTROLLER ========== //
+module.exports.updateAreaStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -151,8 +154,8 @@ module.exports.updateDesignationStatus = async (req, res) => {
   }
 };
 
-// ========== DELETE DESIGNATION CONTROLLER ========== //
-module.exports.deleteDesignation = async (req, res) => {
+// ========== DELETE AREA CONTROLLER ========== //
+module.exports.deleteArea = async (req, res) => {
   try {
     const { id } = req.params;
 

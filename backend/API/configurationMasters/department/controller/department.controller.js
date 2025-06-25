@@ -158,7 +158,7 @@ module.exports.updateDepartmentStatus = async (req, res) => {
   }
 };
 
-// ========== UPDATE DEPARTMENT CONTROLLER ========== //
+// ========== DELETE DEPARTMENT CONTROLLER ========== //
 module.exports.deleteDepartment = async (req, res) => {
   try {
     const { id } = req.params;

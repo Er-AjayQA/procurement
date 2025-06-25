@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_user
+// db.sequelize
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -28,6 +28,7 @@ const userRoute = require("./API/user/router/user.router");
 const departmentRoute = require("./API/configurationMasters/department/router/department.router");
 const designationRoute = require("./API/configurationMasters/designation/router/designation.router");
 const employmentTypeRoute = require("./API/configurationMasters/employmentType/router/employmentType.router");
+const areaRoute = require("./API/configurationMasters/area/router/area.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -42,6 +43,7 @@ app.use("/api/v1/procurement", userRoute);
 app.use("/api/v1/procurement", departmentRoute);
 app.use("/api/v1/procurement", designationRoute);
 app.use("/api/v1/procurement", employmentTypeRoute);
+app.use("/api/v1/procurement", areaRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {
