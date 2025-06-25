@@ -7,7 +7,7 @@ module.exports.createEmploymentType = async (req, res) => {
     const data = req.body;
 
     // Check if Employment Type already exist
-    const isAlreadyExist = await DB.tbl_employmentType.findOne({
+    const isAlreadyExist = await DB.tbl_employmentType_master.findOne({
       where: {
         name: data.name,
         isDeleted: false,
@@ -19,7 +19,7 @@ module.exports.createEmploymentType = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Employment-Type Already Exist!" });
     } else {
-      const newEmploymentType = await DB.tbl_employmentType.create(data);
+      const newEmploymentType = await DB.tbl_employmentType_master.create(data);
       return res.status(200).send({
         success: true,
         status: "Employment-Type Created Successfully!",
@@ -38,7 +38,7 @@ module.exports.updateEmploymentType = async (req, res) => {
     const { id } = req.params;
 
     // Check if Employment Type already exist
-    const isEmploymentTypeExist = await DB.tbl_employmentType.findOne({
+    const isEmploymentTypeExist = await DB.tbl_employmentType_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -69,8 +69,8 @@ module.exports.getEmploymentTypeDetails = async (req, res) => {
 
     const query = `
     SELECT E.*
-    FROM EMPLOYMENT_TYPE AS E
-    WHERE E.id=${id}`;
+    FROM EMPLOYMENT_TYPE_MASTER AS E
+    WHERE E.id=${id} AND E.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -97,7 +97,8 @@ module.exports.getAllEmploymentTypesDetails = async (req, res) => {
   try {
     const query = `
             SELECT E.*
-            FROM EMPLOYMENT_TYPE AS E`;
+            FROM EMPLOYMENT_TYPE_MASTER AS E
+            WHERE E.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -125,7 +126,7 @@ module.exports.updateEmploymentTypeStatus = async (req, res) => {
     const { id } = req.params;
 
     // Check if Employment Type already exist
-    const isEmploymentTypeExist = await DB.tbl_employmentType.findOne({
+    const isEmploymentTypeExist = await DB.tbl_employmentType_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -157,7 +158,7 @@ module.exports.deleteEmploymentType = async (req, res) => {
     const { id } = req.params;
 
     // Check if Employment Type already exist
-    const isEmploymentTypeExist = await DB.tbl_employmentType.findOne({
+    const isEmploymentTypeExist = await DB.tbl_employmentType_master.findOne({
       where: {
         id,
         isDeleted: false,

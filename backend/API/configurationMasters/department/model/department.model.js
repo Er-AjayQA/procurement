@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_department = sequelize.define(
-    "DEPARTMENT",
+  const tbl_department_master = sequelize.define(
+    "DEPARTMENT_MASTER",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -30,5 +30,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_department;
+  return tbl_department_master;
 };

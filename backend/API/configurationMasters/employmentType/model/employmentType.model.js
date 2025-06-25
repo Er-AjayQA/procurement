@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_employmentType = sequelize.define(
-    "EMPLOYMENT_TYPE",
+  const tbl_employmentType_master = sequelize.define(
+    "EMPLOYMENT_TYPE_MASTER",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -25,5 +25,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_employmentType;
+  return tbl_employmentType_master;
 };
