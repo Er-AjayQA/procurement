@@ -16,16 +16,60 @@ module.exports = (sequelize, Sequelize) => {
       },
       name: {
         type: Sequelize.STRING,
-        allowNull: false,
-      },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
+        allowNull: true,
       },
       userImage: {
         type: Sequelize.STRING,
         allowNull: true,
+        defaultValue: null,
+        set(value) {
+          this.setDataValue("userImage", value === "" ? null : value);
+        },
+      },
+      contact_no: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      alt_contact_no: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
+        set(value) {
+          this.setDataValue("alt_contact_no", value === "" ? null : value);
+        },
+      },
+      dob: {
+        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        allowNull: false,
+      },
+      gender: {
+        type: Sequelize.ENUM("Male", "Female", "Other"),
+        allowNull: false,
+      },
+      personal_email: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
+        set(value) {
+          this.setDataValue("personal_email", value === "" ? null : value);
+        },
+      },
+      official_email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      reporting_manager_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
+        set(value) {
+          this.setDataValue(
+            "reporting_manager_id",
+            value === "" ? null : value
+          );
+        },
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,

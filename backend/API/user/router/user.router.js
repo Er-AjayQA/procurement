@@ -48,15 +48,15 @@ router.post(
   upload.single("userImage"),
   UserController.createUser
 );
-router.post(
+router.put(
   "/update-user/:id",
   upload.single("userImage"),
   UserController.updateUser
 );
 router.post("/get-user-details/:id", UserController.getUserDetails);
 router.post("/get-all-users", UserController.getAllUserDetails);
-router.post("/update-user-status/:id", UserController.updateUserStatus);
-router.post("/delete-user/:id", UserController.deleteUser);
+router.put("/update-user-status/:id", UserController.updateUserStatus);
+router.delete("/delete-user/:id", UserController.deleteUser);
 
 // ========== EXPORT ========== //
 module.exports = router;

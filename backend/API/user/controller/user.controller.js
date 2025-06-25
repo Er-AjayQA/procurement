@@ -1,4 +1,5 @@
 // ========== IMPORT STATEMENTS ========== //
+// const { where } = require("sequelize");
 const DB = require("../../../config/index");
 const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 const bcrypt = require("bcrypt");
@@ -16,7 +17,7 @@ module.exports.createUser = async (req, res) => {
     // Check if user already exist
     const isAlreadyExist = await DB.tbl_user.findOne({
       where: {
-        email: data.email,
+        official_email: data.official_email,
         isDeleted: false,
       },
     });
@@ -28,7 +29,7 @@ module.exports.createUser = async (req, res) => {
     } else {
       const isLoginExist = await DB.tbl_login.findOne({
         where: {
-          email: data.email,
+          official_email: data.official_email,
           isDeleted: false,
         },
       });
@@ -46,7 +47,7 @@ module.exports.createUser = async (req, res) => {
         const newUser = await DB.tbl_user.create(data);
         await DB.tbl_login.create({
           user_id: newUser.id,
-          email: data.email,
+          official_email: data.official_email,
           password: hashedPwd,
         });
         return res.status(200).send({
@@ -71,8 +72,7 @@ module.exports.updateUser = async (req, res) => {
       data.userImage = req.file.path || null;
     }
 
-    // Check if user already exist
-    // const getUserQuery=
+    // Check if user exist
     const isUserExist = await DB.tbl_user.findOne({
       where: {
         id,
@@ -85,12 +85,25 @@ module.exports.updateUser = async (req, res) => {
         .status(400)
         .send({ success: false, message: "User Not Found!" });
     } else {
-      const updateUser = await isUserExist.update(data);
-      return res.status(200).send({
-        success: true,
-        status: "User Updated Successfully!",
-        data: updateUser,
+      const emailExist = await DB.tbl_user.findOne({
+        where: {
+          official_email: data.official_email,
+          id: { [DB.Sequelize.Op.ne]: id },
+        },
       });
+
+      if (emailExist) {
+        return res
+          .status(409)
+          .send({ success: false, message: "Official Email Already Exist!" });
+      } else {
+        const updateUser = await isUserExist.update(data);
+        return res.status(200).send({
+          success: true,
+          status: "User Updated Successfully!",
+          data: updateUser,
+        });
+      }
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
@@ -103,12 +116,13 @@ module.exports.getUserDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT U.id, U.emp_code, U.name, U.email, U.userImage, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
-    FROM USER AS U
-    LEFT JOIN DEPARTMENT AS D ON D.id=U.dep_id
-    LEFT JOIN DESIGNATION AS DES ON DES.id=U.designation_id
-    LEFT JOIN EMPLOYMENT_TYPE AS E ON E.id=U.emp_type_id
-    WHERE U.id=${id} AND U.isDeleted=false`;
+            SELECT U.id, U.emp_code, U.name, U.official_email, U.personal_email, U.userImage,U.contact_no, U.alt_contact_no, U.dob, U.gender, U.reporting_manager_id, M.name AS reporting_manager_name, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
+            FROM USER AS U
+            LEFT JOIN DEPARTMENT AS D ON D.id=U.dep_id
+            LEFT JOIN DESIGNATION AS DES ON DES.id=U.designation_id
+            LEFT JOIN EMPLOYMENT_TYPE AS E ON E.id=U.emp_type_id
+            LEFT JOIN USER AS M ON M.id=U.reporting_manager_id
+            WHERE U.id=${id} AND U.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -134,11 +148,12 @@ module.exports.getUserDetails = async (req, res) => {
 module.exports.getAllUserDetails = async (req, res) => {
   try {
     const query = `
-            SELECT U.id, U.emp_code, U.name, U.email, U.userImage, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
+            SELECT U.id, U.emp_code, U.name, U.official_email, U.personal_email, U.userImage,U.contact_no, U.alt_contact_no, U.dob, U.gender, U.reporting_manager_id, M.name AS reporting_manager_name, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
             FROM USER AS U
             LEFT JOIN DEPARTMENT AS D ON D.id=U.dep_id
             LEFT JOIN DESIGNATION AS DES ON DES.id=U.designation_id
             LEFT JOIN EMPLOYMENT_TYPE AS E ON E.id=U.emp_type_id
+            LEFT JOIN USER AS M ON M.id=U.reporting_manager_id
             WHERE U.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
@@ -214,6 +229,10 @@ module.exports.deleteUser = async (req, res) => {
       await isUserExist.update({
         isDeleted: true,
       });
+      await DB.tbl_login.update(
+        { isDeleted: true },
+        { where: { user_id: id } }
+      );
       return res.status(200).send({
         success: true,
         status: "User Deleted Successfully!",
