@@ -50,12 +50,27 @@ module.exports.updateDesignation = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Designation Not Found!" });
     } else {
-      const updateDesignation = await isDesignationExist.update(data);
-      return res.status(200).send({
-        success: true,
-        status: "Designation Updated Successfully!",
-        data: updateDesignation,
+      const duplicateDesignation = await DB.tbl_designation_master.findOne({
+        where: {
+          id: { [DB.Sequelize.Op.ne]: id },
+          name: data.name,
+          isDeleted: false,
+        },
       });
+
+      if (duplicateDesignation) {
+        return res.status(409).send({
+          success: false,
+          message: "Designation Name Already Exist!",
+        });
+      } else {
+        const updateDesignation = await isDesignationExist.update(data);
+        return res.status(200).send({
+          success: true,
+          status: "Designation Updated Successfully!",
+          data: updateDesignation,
+        });
+      }
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });

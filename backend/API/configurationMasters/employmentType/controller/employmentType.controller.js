@@ -50,12 +50,27 @@ module.exports.updateEmploymentType = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Employment-Type Not Found!" });
     } else {
-      const updateEmploymentType = await isEmploymentTypeExist.update(data);
-      return res.status(200).send({
-        success: true,
-        status: "Employment-Type Updated Successfully!",
-        data: updateEmploymentType,
+      const duplicateData = await DB.tbl_employmentType_master.findOne({
+        where: {
+          id: { [DB.Sequelize.Op.ne]: id },
+          name: data.name,
+          isDeleted: false,
+        },
       });
+
+      if (duplicateData) {
+        return res.status(409).send({
+          success: false,
+          message: "Employment-Type Name Already Exist!",
+        });
+      } else {
+        const updateEmploymentType = await isEmploymentTypeExist.update(data);
+        return res.status(200).send({
+          success: true,
+          status: "Employment-Type Updated Successfully!",
+          data: updateEmploymentType,
+        });
+      }
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
