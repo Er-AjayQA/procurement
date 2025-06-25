@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_contractType_master
+// db.tbl_allowance_master
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -30,6 +30,7 @@ const designationRoute = require("./API/configurationMasters/designation/router/
 const employmentTypeRoute = require("./API/configurationMasters/employmentType/router/employmentType.router");
 const areaRoute = require("./API/configurationMasters/area/router/area.router");
 const contractTypeRoute = require("./API/configurationMasters/contractType/router/contractType.router");
+const allowanceRoute = require("./API/configurationMasters/allowance/router/allowance.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -46,6 +47,7 @@ app.use("/api/v1/procurement", designationRoute);
 app.use("/api/v1/procurement", employmentTypeRoute);
 app.use("/api/v1/procurement", areaRoute);
 app.use("/api/v1/procurement", contractTypeRoute);
+app.use("/api/v1/procurement", allowanceRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

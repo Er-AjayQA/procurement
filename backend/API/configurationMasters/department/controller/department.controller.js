@@ -59,12 +59,26 @@ module.exports.updateDepartment = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Department Not Found!" });
     } else {
-      const updateDepartment = await isDepartmentExist.update(data);
-      return res.status(200).send({
-        success: true,
-        status: "Department Updated Successfully!",
-        data: updateDepartment,
+      const duplicateDepartment = await DB.tbl_department_master.findOne({
+        where: {
+          id: { [DB.Sequelize.Op.ne]: id },
+          name: data.name,
+          isDeleted: false,
+        },
       });
+
+      if (duplicateDepartment) {
+        return res
+          .status(409)
+          .send({ success: false, message: "Department Name Already Exist!" });
+      } else {
+        const updateDepartment = await isDepartmentExist.update(data);
+        return res.status(200).send({
+          success: true,
+          status: "Department Updated Successfully!",
+          data: updateDepartment,
+        });
+      }
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });

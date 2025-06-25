@@ -67,6 +67,13 @@ db.tbl_contractType_master =
     Sequelize
   );
 
+// Allowance Master Table
+db.tbl_allowance_master =
+  require("../API/configurationMasters/allowance/model/allowance.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
