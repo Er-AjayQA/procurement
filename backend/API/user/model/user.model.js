@@ -5,14 +5,14 @@ module.exports = (sequelize, Sequelize) => {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        unique: true,
+        // unique: true,
         allowNull: false,
         primaryKey: true,
       },
       emp_code: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        // unique: true,
       },
       name: {
         type: Sequelize.STRING,
@@ -29,7 +29,7 @@ module.exports = (sequelize, Sequelize) => {
       contact_no: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        // unique: true,
       },
       alt_contact_no: {
         type: Sequelize.STRING,
@@ -58,12 +58,16 @@ module.exports = (sequelize, Sequelize) => {
       official_email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        // unique: true,
       },
       reporting_manager_id: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: true,
         defaultValue: null,
+        references: {
+          model: "USER_MASTER", // or 'tbl_user_master'
+          key: "id",
+        },
         set(value) {
           this.setDataValue(
             "reporting_manager_id",

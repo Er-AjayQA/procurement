@@ -74,6 +74,12 @@ db.tbl_allowance_master =
     Sequelize
   );
 
+// User Allowance Master Table
+db.tbl_userAllowance_master = require("../API/user/model/userAllowance.model")(
+  sequelize,
+  Sequelize
+);
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -137,6 +143,22 @@ db.tbl_area_master.hasMany(db.tbl_user_master, {
 });
 db.tbl_user_master.belongsTo(db.tbl_area_master, {
   foreignKey: "area_id",
+});
+
+// Relation B/W Allowance Master and User Allowance Master Tables
+db.tbl_allowance_master.hasMany(db.tbl_userAllowance_master, {
+  foreignKey: "allowance_id",
+});
+db.tbl_userAllowance_master.belongsTo(db.tbl_allowance_master, {
+  foreignKey: "allowance_id",
+});
+
+// Relation B/W User Master and User Allowance Master Tables
+db.tbl_user_master.hasMany(db.tbl_userAllowance_master, {
+  foreignKey: "user_id",
+});
+db.tbl_userAllowance_master.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
 });
 
 // ========== EXPORTS ========== //

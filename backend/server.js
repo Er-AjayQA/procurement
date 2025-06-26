@@ -14,13 +14,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_allowance_master
+// db.tbl_user_master
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
 //   })
 //   .catch((err) => {
 //     console.log("DB Sync Failed.............");
+//     console.error(err);
 //   });
 
 // ========== IMPORTING ROUTES ========== //

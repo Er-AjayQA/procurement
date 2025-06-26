@@ -50,11 +50,23 @@ module.exports.createUser = async (req, res) => {
         let hashedPwd = await bcrypt.hash(newPwd, salt);
 
         const newUser = await DB.tbl_user_master.create(data);
+
+        // Adding the Login Details
         await DB.tbl_login_master.create({
           user_id: newUser.id,
           official_email: data.official_email,
           password: hashedPwd,
         });
+
+        // Adding the User Allowance
+        data.allowances.map(async (allowance) => {
+          await DB.tbl_userAllowance_master.create({
+            user_id: newUser.id,
+            allowance_id: allowance.allowance_id,
+            amount: allowance.amount,
+          });
+        });
+
         return res.status(200).send({
           success: true,
           status: "User Created Successfully!",
@@ -123,13 +135,23 @@ module.exports.getUserDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-            SELECT U.id, U.emp_code, U.name, U.official_email, U.personal_email, U.userImage,U.contact_no, U.alt_contact_no, U.dob, U.gender, U.reporting_manager_id, M.name AS reporting_manager_name, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
+            SELECT U.id, U.emp_code, U.name, U.official_email, U.personal_email, U.userImage,U.contact_no, U.alt_contact_no, U.dob, U.gender, U.reporting_manager_id, M.name AS reporting_manager_name, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type,
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                  'allowance_id', UA.allowance_id,
+                  'amount', UA.amount,
+                  'allowance_name', A.name
+                )
+            ) AS allowances
             FROM USER_MASTER AS U
             LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
             LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
             LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
             LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
-            WHERE U.id=${id} AND U.isDeleted=false`;
+            LEFT JOIN USER_ALLOWANCE_MASTER AS UA ON UA.user_id=U.id
+            LEFT JOIN ALLOWANCE_MASTER AS A ON A.id=UA.allowance_id
+            WHERE U.id=${id} AND U.isDeleted=false
+            GROUP BY U.id;`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
