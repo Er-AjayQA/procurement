@@ -1,5 +1,4 @@
 // ========== IMPORT STATEMENTS ========== //
-// const { where } = require("sequelize");
 const DB = require("../../../config/index");
 const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 const bcrypt = require("bcrypt");
@@ -140,7 +139,8 @@ module.exports.getUserDetails = async (req, res) => {
               JSON_OBJECT(
                   'allowance_id', UA.allowance_id,
                   'amount', UA.amount,
-                  'allowance_name', A.name
+                  'allowance_name', A.name,
+                  'isTaxable', A.is_taxable
                 )
             ) AS allowances
             FROM USER_MASTER AS U
@@ -177,13 +177,24 @@ module.exports.getUserDetails = async (req, res) => {
 module.exports.getAllUserDetails = async (req, res) => {
   try {
     const query = `
-            SELECT U.id, U.emp_code, U.name, U.official_email, U.personal_email, U.userImage,U.contact_no, U.alt_contact_no, U.dob, U.gender, U.reporting_manager_id, M.name AS reporting_manager_name, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type
-            FROM USER_MASTER AS U
-            LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
-            LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
-            LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
-            LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
-            WHERE U.isDeleted=false`;
+    SELECT U.id, U.emp_code, U.name, U.official_email, U.personal_email, U.userImage,U.contact_no, U.alt_contact_no, U.dob, U.gender, U.reporting_manager_id, M.name AS reporting_manager_name, U.isDeleted, U.status, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type,
+    JSON_ARRAYAGG(
+      JSON_OBJECT(
+          'allowance_id', UA.allowance_id,
+          'amount', UA.amount,
+          'allowance_name', A.name,
+          'isTaxable', A.is_taxable
+        )
+    ) AS allowances
+    FROM USER_MASTER AS U
+    LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
+    LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
+    LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
+    LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
+    LEFT JOIN USER_ALLOWANCE_MASTER AS UA ON UA.user_id=U.id
+    LEFT JOIN ALLOWANCE_MASTER AS A ON A.id=UA.allowance_id
+    WHERE U.isDeleted=false
+    GROUP BY U.id;`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -197,7 +208,7 @@ module.exports.getAllUserDetails = async (req, res) => {
       return res.status(200).send({
         success: true,
         status: "Get User Details Successfully!",
-        data: getAllData,
+        data: { count: getAllData.length, ...getAllData },
       });
     }
   } catch (error) {

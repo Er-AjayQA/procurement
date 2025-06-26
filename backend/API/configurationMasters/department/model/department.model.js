@@ -5,18 +5,15 @@ module.exports = (sequelize, Sequelize) => {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        unique: true,
         allowNull: false,
         primaryKey: true,
       },
       name: {
         type: Sequelize.STRING,
-        unique: true,
         allowNull: false,
       },
       dep_code: {
         type: Sequelize.STRING,
-        unique: true,
         allowNull: false,
       },
       isDeleted: {
