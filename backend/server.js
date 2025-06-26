@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.sequelize
+// db.tbl_uom_master
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -32,6 +32,8 @@ const employmentTypeRoute = require("./API/configurationMasters/employmentType/r
 const areaRoute = require("./API/configurationMasters/area/router/area.router");
 const contractTypeRoute = require("./API/configurationMasters/contractType/router/contractType.router");
 const allowanceRoute = require("./API/configurationMasters/allowance/router/allowance.router");
+const itemCategoryRoute = require("./API/configurationMasters/item_master/router/item_category.router");
+const uomRoute = require("./API/configurationMasters/uom/router/uom.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -49,6 +51,8 @@ app.use("/api/v1/procurement", employmentTypeRoute);
 app.use("/api/v1/procurement", areaRoute);
 app.use("/api/v1/procurement", contractTypeRoute);
 app.use("/api/v1/procurement", allowanceRoute);
+app.use("/api/v1/procurement", itemCategoryRoute);
+app.use("/api/v1/procurement", uomRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

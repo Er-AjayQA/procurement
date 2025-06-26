@@ -80,6 +80,19 @@ db.tbl_userAllowance_master = require("../API/user/model/userAllowance.model")(
   Sequelize
 );
 
+// Item Category Master Table
+db.tbl_item_category_master =
+  require("../API/configurationMasters/item_master/model/item_category.model")(
+    sequelize,
+    Sequelize
+  );
+
+// UOM Master Table
+db.tbl_uom_master = require("../API/configurationMasters/uom/model/uom.model")(
+  sequelize,
+  Sequelize
+);
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
