@@ -93,6 +93,20 @@ db.tbl_uom_master = require("../API/configurationMasters/uom/model/uom.model")(
   Sequelize
 );
 
+// Item Master Table
+db.tbl_item_master =
+  require("../API/configurationMasters/item_master/model/item_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Item Specification Master Table
+db.tbl_item_specification =
+  require("../API/configurationMasters/item_master/model/item_specification.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -172,6 +186,30 @@ db.tbl_user_master.hasMany(db.tbl_userAllowance_master, {
 });
 db.tbl_userAllowance_master.belongsTo(db.tbl_user_master, {
   foreignKey: "user_id",
+});
+
+// Relation B/W Item Master and Item Category Tables
+db.tbl_item_category_master.hasMany(db.tbl_item_master, {
+  foreignKey: "item_category_id",
+});
+db.tbl_item_master.belongsTo(db.tbl_item_category_master, {
+  foreignKey: "item_category_id",
+});
+
+// Relation B/W Item Master and Item Specification Tables
+db.tbl_item_master.hasMany(db.tbl_item_specification, {
+  foreignKey: "item_id",
+});
+db.tbl_item_specification.belongsTo(db.tbl_item_master, {
+  foreignKey: "item_id",
+});
+
+// Relation B/W Item Master and UOM Master Tables
+db.tbl_uom_master.hasMany(db.tbl_item_master, {
+  foreignKey: "uom_id",
+});
+db.tbl_item_master.belongsTo(db.tbl_uom_master, {
+  foreignKey: "uom_id",
 });
 
 // ========== EXPORTS ========== //
