@@ -1,29 +1,32 @@
 // ========== IMPORT STATEMENTS ========== //
 const express = require("express");
 const router = express.Router();
-const ItemCategoryController = require("../controller/item_category.controller");
+const ServiceCategoryController = require("../controller/service_category.controller");
 
 // ========== ROUTES ========== //
-router.post("/create-item-category", ItemCategoryController.createItemCategory);
-router.put(
-  "/update-item-category/:id",
-  ItemCategoryController.updateItemCategory
-);
 router.post(
-  "/get-item-category-details/:id",
-  ItemCategoryController.getItemCategoryDetails
-);
-router.post(
-  "/get-all-item-categories",
-  ItemCategoryController.getAllItemCategoryDetails
+  "/create-service-category",
+  ServiceCategoryController.createServiceCategory
 );
 router.put(
-  "/update-item-category-status/:id",
-  ItemCategoryController.updateItemCategoryStatus
+  "/update-service-category/:id",
+  ServiceCategoryController.updateServiceCategory
 );
 router.post(
-  "/delete-item-category/:id",
-  ItemCategoryController.deleteItemCategory
+  "/get-service-category-details/:id",
+  ServiceCategoryController.getServiceCategoryDetails
+);
+router.post(
+  "/get-all-service-categories",
+  ServiceCategoryController.getAllServiceCategoryDetails
+);
+router.put(
+  "/update-service-category-status/:id",
+  ServiceCategoryController.updateServiceCategoryStatus
+);
+router.post(
+  "/delete-service-category/:id",
+  ServiceCategoryController.deleteServiceCategory
 );
 
 // ========== EXPORT ========== //
