@@ -135,6 +135,13 @@ db.tbl_state_master =
     Sequelize
   );
 
+// Bank Master Table
+db.tbl_bank_master =
+  require("../API/configurationMasters/bank_master/model/bank_master.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {

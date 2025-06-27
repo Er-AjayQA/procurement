@@ -75,6 +75,20 @@ module.exports = (sequelize, Sequelize) => {
           );
         },
       },
+      start_working_date: {
+        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        allowNull: true,
+        set(value) {
+          this.setDataValue("start_working_date", value === "" ? null : value);
+        },
+      },
+      probation_end_date: {
+        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        allowNull: true,
+        set(value) {
+          this.setDataValue("probation_end_date", value === "" ? null : value);
+        },
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
