@@ -35,6 +35,8 @@ const allowanceRoute = require("./API/configurationMasters/allowance/router/allo
 const itemCategoryRoute = require("./API/configurationMasters/item_master/router/item_category.router");
 const itemRoute = require("./API/configurationMasters/item_master/router/item_master.router");
 const uomRoute = require("./API/configurationMasters/uom/router/uom.router");
+const serviceCategoryRoute = require("./API/configurationMasters/service_master/router/service_category.router");
+const serviceRoute = require("./API/configurationMasters/service_master/router/service_master.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -55,6 +57,8 @@ app.use("/api/v1/procurement", allowanceRoute);
 app.use("/api/v1/procurement", itemCategoryRoute);
 app.use("/api/v1/procurement", itemRoute);
 app.use("/api/v1/procurement", uomRoute);
+app.use("/api/v1/procurement", serviceCategoryRoute);
+app.use("/api/v1/procurement", serviceRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

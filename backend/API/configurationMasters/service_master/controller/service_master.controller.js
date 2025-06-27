@@ -2,16 +2,16 @@
 const DB = require("../../../../config/index");
 const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 
-// ========== CREATE ITEM CONTROLLER ========== //
-module.exports.createItem = async (req, res) => {
+// ========== CREATE SERVICE CONTROLLER ========== //
+module.exports.createService = async (req, res) => {
   try {
     const data = req.body;
 
-    // Check if Item already exist
-    const isAlreadyExist = await DB.tbl_item_master.findOne({
+    // Check if Service already exist
+    const isAlreadyExist = await DB.tbl_service_master.findOne({
       where: {
         name: data.name,
-        item_category_id: data.item_category_id,
+        service_category_id: data.service_category_id,
         isDeleted: false,
       },
     });
@@ -19,34 +19,23 @@ module.exports.createItem = async (req, res) => {
     if (isAlreadyExist) {
       return res.status(400).send({
         success: false,
-        message: "Item Already Exist in Selected Category!",
+        message: "Service Already Exist in Selected Category!",
       });
     } else {
       let code = await generateUniqueCode(
-        "ITEM",
-        4,
-        "item_code",
-        "ITEM_MASTER"
+        "SRV",
+        3,
+        "service_code",
+        "SERVICE_MASTER"
       );
-      data.item_code = code;
+      data.service_code = code;
 
-      const newItem = await DB.tbl_item_master.create(data);
-
-      // Adding the specifications if any
-      if (data.specifications.length > 0) {
-        data.specifications.map(async (spec) => {
-          await DB.tbl_item_specification.create({
-            spec_type: spec.type,
-            spec_description: spec.description,
-            item_id: newItem.id,
-          });
-        });
-      }
+      const newService = await DB.tbl_service_master.create(data);
 
       return res.status(200).send({
         success: true,
         status: "Item Created Successfully!",
-        data: newItem,
+        data: newService,
       });
     }
   } catch (error) {
@@ -54,59 +43,47 @@ module.exports.createItem = async (req, res) => {
   }
 };
 
-// ========== UPDATE ITEM CONTROLLER ========== //
-module.exports.updateItem = async (req, res) => {
+// ========== UPDATE SERVICE CONTROLLER ========== //
+module.exports.updateService = async (req, res) => {
   try {
     const data = req.body;
     const { id } = req.params;
 
-    // Check if Item already exist
-    const isItemExist = await DB.tbl_item_master.findOne({
+    // Check if Service already exist
+    const isCategoryExist = await DB.tbl_service_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isItemExist) {
+    if (!isCategoryExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Item Not Found!" });
+        .send({ success: false, message: "Service Not Found!" });
     } else {
-      const duplicateItem = await DB.tbl_item_master.findOne({
+      const duplicateService = await DB.tbl_service_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
-          name: data.name ? data.name : isItemExist.name,
-          item_category_id: data.item_category_id
-            ? data.item_category_id
-            : isItemExist.item_category_id,
+          name: data.name ? data.name : isCategoryExist.name,
+          service_category_id: data.service_category_id
+            ? data.service_category_id
+            : isCategoryExist.service_category_id,
           isDeleted: false,
         },
       });
 
-      if (duplicateItem) {
+      if (duplicateService) {
         return res
           .status(409)
-          .send({ success: false, message: "Item Name Already Exist!" });
+          .send({ success: false, message: "Service Name Already Exist!" });
       } else {
-        const updateItem = await isItemExist.update(data);
-
-        if (data.specifications && data.specifications.length > 0) {
-          await DB.tbl_item_specification.destroy({ where: { item_id: id } });
-
-          data.specifications.map(async (specs) => {
-            await DB.tbl_item_specification.create({
-              spec_type: specs.type,
-              spec_description: specs.description,
-              item_id: id,
-            });
-          });
-        }
+        const updateService = await isCategoryExist.update(data);
 
         return res.status(200).send({
           success: true,
-          status: "Item Updated Successfully!",
-          data: updateItem,
+          status: "Service Updated Successfully!",
+          data: updateService,
         });
       }
     }
@@ -115,25 +92,16 @@ module.exports.updateItem = async (req, res) => {
   }
 };
 
-// ========== GET ITEM DETAILS CONTROLLER ========== //
-module.exports.getItemDetails = async (req, res) => {
+// ========== GET SERVICE DETAILS CONTROLLER ========== //
+module.exports.getServiceDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
     const query = `
-    SELECT IM.*, IC.name AS item_category_name, IC.item_category_code,
-    JSON_ARRAYAGG(
-          JSON_OBJECT(
-              'item_specification_id', ISS.id,
-              'specification_type', ISS.spec_type,
-              'specification_description', ISS.spec_description
-            )
-      ) AS item_specifications
-    FROM ITEM_MASTER AS IM
-    LEFT JOIN ITEM_SPECIFICATION AS ISS ON ISS.item_id=IM.id
-    LEFT JOIN ITEM_CATEGORY_MASTER AS IC ON IC.id=IM.item_category_id
-    WHERE IM.id=${id} AND IM.isDeleted=false
-    GROUP BY IM.id`;
+    SELECT S.*, SC.name AS service_category_name, SC.service_category_description, SC.service_category_code
+    FROM SERVICE_MASTER AS S
+    LEFT JOIN SERVICE_CATEGORY_MASTER AS SC ON SC.id=S.service_category_id
+    WHERE S.id=${id} AND S.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -142,11 +110,11 @@ module.exports.getItemDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Item Not Found!" });
+        .send({ success: false, message: "Service Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Item Details Successfully!",
+        status: "Get Service Details Successfully!",
         data: getAllData,
       });
     }
@@ -155,23 +123,14 @@ module.exports.getItemDetails = async (req, res) => {
   }
 };
 
-// ========== GET ALL ITEM DETAILS CONTROLLER ========== //
-module.exports.getAllItemDetails = async (req, res) => {
+// ========== GET ALL SERVICE DETAILS CONTROLLER ========== //
+module.exports.getAllServiceDetails = async (req, res) => {
   try {
     const query = `
-    SELECT IM.*, IC.name AS item_category_name, IC.item_category_code,
-    JSON_ARRAYAGG(
-          JSON_OBJECT(
-              'item_specification_id', ISS.id,
-              'specification_type', ISS.spec_type,
-              'specification_description', ISS.spec_description
-            )
-      ) AS item_specifications
-    FROM ITEM_MASTER AS IM
-    LEFT JOIN ITEM_SPECIFICATION AS ISS ON ISS.item_id=IM.id
-    LEFT JOIN ITEM_CATEGORY_MASTER AS IC ON IC.id=IM.item_category_id
-    WHERE IM.isDeleted=false
-    GROUP BY IM.id`;
+    SELECT S.*, SC.name AS service_category_name, SC.service_category_description, SC.service_category_code
+    FROM SERVICE_MASTER AS S
+    LEFT JOIN SERVICE_CATEGORY_MASTER AS SC ON SC.id=S.service_category_id
+    WHERE S.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -180,11 +139,11 @@ module.exports.getAllItemDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Items Not Found!" });
+        .send({ success: false, message: "Services Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Items List!",
+        status: "Get All Services List!",
         data: getAllData,
       });
     }
@@ -193,26 +152,26 @@ module.exports.getAllItemDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE ITEM CONTROLLER ========== //
-module.exports.updateItemStatus = async (req, res) => {
+// ========== UPDATE SERVICE CONTROLLER ========== //
+module.exports.updateServiceStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Item already exist
-    const isItemExist = await DB.tbl_item_master.findOne({
+    // Check if Service already exist
+    const isServiceExist = await DB.tbl_service_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isItemExist) {
+    if (!isServiceExist) {
       return res
         .status(400)
         .send({ success: false, message: "Item Not Found!" });
     } else {
-      const updateStatus = await isItemExist.update({
-        status: !isItemExist.status,
+      const updateStatus = await isServiceExist.update({
+        status: !isServiceExist.status,
       });
 
       return res.status(200).send({
@@ -226,37 +185,31 @@ module.exports.updateItemStatus = async (req, res) => {
   }
 };
 
-// ========== DELETE ITEM CONTROLLER ========== //
-module.exports.deleteItem = async (req, res) => {
+// ========== DELETE SERVICE CONTROLLER ========== //
+module.exports.deleteService = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Item already exist
-    const isItemExist = await DB.tbl_item_master.findOne({
+    // Check if Service already exist
+    const isServiceExist = await DB.tbl_service_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isItemExist) {
+    if (!isServiceExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Item Not Found!" });
+        .send({ success: false, message: "Service Not Found!" });
     } else {
-      await isItemExist.update({
+      await isServiceExist.update({
         isDeleted: true,
       });
 
-      await DB.tbl_item_specification.update(
-        {
-          isDeleted: true,
-        },
-        { where: { item_id: id } }
-      );
       return res.status(200).send({
         success: true,
-        status: "Item Deleted Successfully!",
+        status: "Service Deleted Successfully!",
       });
     }
   } catch (error) {
