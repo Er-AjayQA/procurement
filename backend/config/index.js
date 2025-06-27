@@ -121,6 +121,20 @@ db.tbl_service_master =
     Sequelize
   );
 
+// Country Master Table
+db.tbl_country_master =
+  require("../API/configurationMasters/country/model/country.model")(
+    sequelize,
+    Sequelize
+  );
+
+// State Master Table
+db.tbl_state_master =
+  require("../API/configurationMasters/states/model/states.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
