@@ -107,6 +107,20 @@ db.tbl_item_specification =
     Sequelize
   );
 
+// Service Category Master Table
+db.tbl_service_category_master =
+  require("../API/configurationMasters/service_master/model/service_category.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Service Master Table
+db.tbl_service_master =
+  require("../API/configurationMasters/service_master/model/service_master.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -210,6 +224,14 @@ db.tbl_uom_master.hasMany(db.tbl_item_master, {
 });
 db.tbl_item_master.belongsTo(db.tbl_uom_master, {
   foreignKey: "uom_id",
+});
+
+// Relation B/W Service Master and Service Category Master Tables
+db.tbl_service_category_master.hasMany(db.tbl_service_master, {
+  foreignKey: "service_category_id",
+});
+db.tbl_service_master.belongsTo(db.tbl_service_category_master, {
+  foreignKey: "service_category_id",
 });
 
 // ========== EXPORTS ========== //
