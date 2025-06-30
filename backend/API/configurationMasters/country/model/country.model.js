@@ -4,7 +4,6 @@ module.exports = (sequelize, Sequelize) => {
     {
       id: {
         type: Sequelize.INTEGER,
-        autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
@@ -13,6 +12,22 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
       },
       country_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      nationality: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      phone_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      currency_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      currency_symbol: {
         type: Sequelize.STRING,
         allowNull: false,
       },

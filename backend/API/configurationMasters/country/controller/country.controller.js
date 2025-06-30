@@ -17,22 +17,50 @@ module.exports.uploadCountry = async (req, res) => {
     // Process and insert data
     for (const row of data) {
       // Assuming your Excel has columns: country, code
-      const { name, alpha_2 } = row;
+      const {
+        id,
+        name,
+        iso2,
+        phonecode,
+        currency_name,
+        currency_symbol,
+        nationality,
+      } = row;
 
       // Validate required fields
-      if (!name || !alpha_2) {
-        console.warn("Skipping row - missing name or alpha_2:", row);
+      if (
+        !id ||
+        !name ||
+        !iso2 ||
+        !phonecode ||
+        !currency_name ||
+        !currency_symbol ||
+        !nationality
+      ) {
+        console.warn(
+          "Skipping row - missing name, iso2, phonecode, currency_name,currency_symbol,nationality:",
+          row
+        );
         continue;
       }
 
       // Insert country if not exists and get ID
       const [country, created] = await DB.tbl_country_master.findOrCreate({
         where: {
-          [DB.Sequelize.Op.or]: [{ name: name }, { country_code: alpha_2 }],
+          [DB.Sequelize.Op.or]: [
+            { id: id },
+            { name: name },
+            { country_code: iso2 },
+          ],
         },
         defaults: {
+          id: id,
           name: name,
-          country_code: alpha_2,
+          country_code: iso2,
+          nationality: nationality,
+          phone_code: phonecode,
+          currency_code: currency_name,
+          currency_symbol: currency_symbol,
         },
       });
     }
@@ -95,6 +123,7 @@ module.exports.getAllCountryDetails = async (req, res) => {
       return res.status(200).send({
         success: true,
         status: "Get All Countries List!",
+        records: getAllData.length,
         data: getAllData,
       });
     }
