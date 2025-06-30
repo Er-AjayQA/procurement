@@ -142,6 +142,13 @@ db.tbl_bank_master =
     Sequelize
   );
 
+// City Master Table
+db.tbl_city_master =
+  require("../API/configurationMasters/city_master/model/city.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -253,6 +260,30 @@ db.tbl_service_category_master.hasMany(db.tbl_service_master, {
 });
 db.tbl_service_master.belongsTo(db.tbl_service_category_master, {
   foreignKey: "service_category_id",
+});
+
+// Relation B/W Country Master and State Master Tables
+db.tbl_country_master.hasMany(db.tbl_state_master, {
+  foreignKey: "country_id",
+});
+db.tbl_state_master.belongsTo(db.tbl_country_master, {
+  foreignKey: "country_id",
+});
+
+// Relation B/W Country Master and City Master Tables
+db.tbl_country_master.hasMany(db.tbl_city_master, {
+  foreignKey: "country_id",
+});
+db.tbl_city_master.belongsTo(db.tbl_country_master, {
+  foreignKey: "country_id",
+});
+
+// Relation B/W State Master and City Master Tables
+db.tbl_state_master.hasMany(db.tbl_city_master, {
+  foreignKey: "state_id",
+});
+db.tbl_city_master.belongsTo(db.tbl_state_master, {
+  foreignKey: "state_id",
 });
 
 // ========== EXPORTS ========== //

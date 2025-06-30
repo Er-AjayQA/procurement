@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_state_master = sequelize.define(
-    "STATE_MASTER",
+  const tbl_city_master = sequelize.define(
+    "CITY_MASTER",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -12,12 +12,8 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      state_code: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
     },
     { freezeTableName: true }
   );
-  return tbl_state_master;
+  return tbl_city_master;
 };

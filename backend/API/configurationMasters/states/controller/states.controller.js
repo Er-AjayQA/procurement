@@ -17,22 +17,28 @@ module.exports.uploadState = async (req, res) => {
     // Process and insert data
     for (const row of data) {
       // Assuming your Excel has columns: country, code
-      const { name, country_name } = row;
+      const { id, name, state_code, country_id } = row;
 
       // Validate required fields
-      if (!name || !country_name) {
-        console.warn("Skipping row - missing name or alpha_2:", row);
+      if (!id || !name || !state_code || !country_id) {
+        console.warn("Skipping row - missing name", row);
         continue;
       }
 
       // Insert country if not exists and get ID
       const [country, created] = await DB.tbl_state_master.findOrCreate({
         where: {
-          [DB.Sequelize.Op.and]: [{ name: name }, { country: country_name }],
+          [DB.Sequelize.Op.and]: [
+            { id: id },
+            { name: name },
+            { state_code: state_code },
+          ],
         },
         defaults: {
+          id: id,
           name: name,
-          country: country_name,
+          state_code: state_code,
+          country_id: country_id,
         },
       });
     }
@@ -52,8 +58,9 @@ module.exports.getStateDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT S.*
+    SELECT S.*, CM.name AS country_name
     FROM STATE_MASTER AS S
+    LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=S.country_id
     WHERE S.id=${id}`;
 
     const getAllData = await DB.sequelize.query(query, {
@@ -79,9 +86,21 @@ module.exports.getStateDetails = async (req, res) => {
 // ========== GET ALL STATE DETAILS CONTROLLER ========== //
 module.exports.getAllStateDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT S.*
-    FROM STATE_MASTER AS S`;
+    const data = req.body;
+    let query = "";
+
+    if (data.country_id === "") {
+      query = `
+      SELECT S.*, CM.name AS country_name
+      FROM STATE_MASTER AS S
+      LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=s.country_id`;
+    } else {
+      query = `
+      SELECT S.*, CM.name AS country_name
+      FROM STATE_MASTER AS S
+      LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=s.country_id
+      WHERE S.country_id=${data.country_id}`;
+    }
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -95,6 +114,7 @@ module.exports.getAllStateDetails = async (req, res) => {
       return res.status(200).send({
         success: true,
         status: "Get All States List!",
+        records: getAllData.length,
         data: getAllData,
       });
     }
