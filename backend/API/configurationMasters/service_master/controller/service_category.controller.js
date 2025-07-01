@@ -1,4 +1,4 @@
-// ========== IMPORT STATEMENTS ========== //
+// ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../../config/index");
 const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 

@@ -1,4 +1,4 @@
-// ========== IMPORT STATEMENTS ========== //
+// ========== REQUIRE STATEMENTS ========== //
 const express = require("express");
 const router = express.Router();
 const ContractTypeController = require("../controller/contractType.controller");

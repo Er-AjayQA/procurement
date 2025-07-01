@@ -1,17 +1,12 @@
-// ========== IMPORT STATEMENTS ========== //
+// ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../config/index");
 const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 const bcrypt = require("bcrypt");
-const salt = 12;
 
 // ========== CREATE USER CONTROLLER ========== //
 module.exports.createUser = async (req, res) => {
   try {
     const data = req.body;
-
-    if (req.file) {
-      data.userImage = req.file.path || null;
-    }
 
     // Check if user already exist
     const isAlreadyExist = await DB.tbl_user_master.findOne({
@@ -26,51 +21,313 @@ module.exports.createUser = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Email Already Exist!" });
     } else {
-      const isLoginExist = await DB.tbl_login_master.findOne({
-        where: {
-          official_email: data.official_email,
-          isDeleted: false,
-        },
-      });
-
-      if (isLoginExist) {
-        return res
-          .status(400)
-          .send({ success: false, message: "Login Details Already Exist!" });
-      } else {
-        let code = await generateUniqueCode(
-          "EMP",
-          3,
-          "emp_code",
-          "USER_MASTER"
-        );
-        data.emp_code = code;
-        let newPwd = "123456789";
-        let hashedPwd = await bcrypt.hash(newPwd, salt);
-
-        const newUser = await DB.tbl_user_master.create(data);
-
-        // Adding the Login Details
-        await DB.tbl_login_master.create({
-          user_id: newUser.id,
-          official_email: data.official_email,
-          password: hashedPwd,
+      // ADD BASIC DETAILS TAB DATA
+      if (data.tab_type === "basic_details") {
+        let {
+          name,
+          contact_no,
+          alt_contact_no,
+          dob,
+          gender,
+          personal_email,
+          official_email,
+          reporting_manager_id,
+        } = req.body;
+        const isLoginExist = await DB.tbl_login_master.findOne({
+          where: {
+            official_email,
+            isDeleted: false,
+          },
         });
 
-        // Adding the User Allowance
-        data.allowances.map(async (allowance) => {
-          await DB.tbl_userAllowance_master.create({
-            user_id: newUser.id,
-            allowance_id: allowance.allowance_id,
-            amount: allowance.amount,
+        if (isLoginExist) {
+          return res
+            .status(400)
+            .send({ success: false, message: "Login Details Already Exist!" });
+        } else {
+          if (req.file) {
+            data.userImage = req.file.path || null;
+          }
+
+          let code = await generateUniqueCode(
+            "EMP",
+            3,
+            "emp_code",
+            "USER_MASTER"
+          );
+          // data.emp_code = code;
+          let newPwd = "123456789";
+          const salt = await bcrypt.genSalt(12);
+          let hashedPwd = await bcrypt.hash(newPwd, salt);
+
+          const transaction = await DB.sequelize.transaction();
+
+          try {
+            const newUser = await DB.tbl_user_master.create(
+              {
+                emp_code: code,
+                name,
+                userImage: data.userImage,
+                contact_no,
+                alt_contact_no,
+                dob,
+                gender,
+                personal_email,
+                official_email,
+                reporting_manager_id,
+              },
+              { transaction }
+            );
+
+            await DB.tbl_login_master.create(
+              {
+                user_id: newUser.id,
+                official_email: data.official_email,
+                password: hashedPwd,
+              },
+              { transaction }
+            );
+
+            await transaction.commit();
+
+            return res.status(200).send({
+              success: true,
+              status: "User Created Successfully!",
+              data: newUser,
+            });
+          } catch (error) {
+            await transaction.rollback();
+            throw error;
+          }
+        }
+      }
+
+      // ADD PERSONAL DETAILS TAB DATA
+      if (data.tab_type === "personal_details") {
+        let {
+          present_country_address,
+          present_state_address,
+          present_city_address,
+          present_address,
+          permanent_country_address,
+          permanent_state_address,
+          permanent_city_address,
+          permanent_address,
+          nationality,
+          personal_state,
+          personal_city,
+          dire_number,
+          driving_license,
+          blood_group,
+          id_number,
+          id_issue_date,
+          id_exp_date,
+          passport_number,
+          passport_issue_date,
+          passport_exp_date,
+          tax_number,
+          marital_status,
+          family_details,
+          previous_employer_details,
+        } = req.body;
+        let findUser = await DB.tbl_user_master.findOne({
+          where: { official_email: data.official_email },
+        });
+
+        if (!findUser) {
+          return res.status(400).send({
+            success: false,
+            message: "User Not Found For Adding Personal Details!",
           });
+        }
+
+        const transaction = await DB.sequelize.transaction();
+        try {
+          // Adding the Personal Details
+          await DB.tbl_user_master.update(
+            {
+              present_country_address,
+              present_state_address,
+              present_city_address,
+              present_address,
+              permanent_country_address,
+              permanent_state_address,
+              permanent_city_address,
+              permanent_address,
+              nationality,
+              personal_state,
+              personal_city,
+              dire_number,
+              driving_license,
+              blood_group,
+              id_number,
+              id_issue_date,
+              id_exp_date,
+              passport_number,
+              passport_issue_date,
+              passport_exp_date,
+              tax_number,
+              marital_status,
+            },
+            { where: { id: newUser.id }, transaction }
+          );
+
+          // Deleting Existing Family Details Before Adding New One
+          await DB.tbl_user_family_detail.destroy({
+            where: { user_id: findUser.id },
+            transaction,
+          });
+
+          // Adding the User Family Details
+          if (family_details && family_details.length > 0) {
+            await DB.tbl_user_family_detail.bulkCreate(
+              family_details.map((family) => ({
+                user_id: findUser.id,
+                member_name: family.member_name,
+                dob: family.dob,
+                relation_type: family.relation_type,
+                contact_number: family.contact_number,
+                remark: family.remark,
+                selected_as_emergency: family.selected_as_emergency,
+              })),
+              { transaction }
+            );
+          }
+
+          // Deleting Existing Previous Employer Details Before Adding New One
+          await DB.tbl_user_previous_employer_detail.destroy({
+            where: { user_id: findUser.id },
+            transaction,
+          });
+
+          // Adding the User Previous Employer Details
+          if (
+            previous_employer_details &&
+            previous_employer_details.length > 0
+          ) {
+            await DB.tbl_user_previous_employer_detail.bulkCreate(
+              previous_employer_details.map((previous_employer) => ({
+                user_id: findUser.id,
+                company_name: previous_employer.company_name,
+                from_date: previous_employer.from_date,
+                to_date: previous_employer.to_date,
+                last_drawn_salary: previous_employer.last_drawn_salary,
+                reason_of_leaving: previous_employer.reason_of_leaving,
+                location: previous_employer.location,
+              })),
+              { transaction }
+            );
+          }
+
+          await transaction.commit();
+          return res.status(200).send({
+            success: true,
+            message: "Personal details updated successfully",
+          });
+        } catch (error) {
+          console.log("Error in Adding Personal Details", error);
+          await transaction.rollback();
+          throw error;
+        }
+      }
+
+      // ADD SALARY DETAILS TAB DATA
+      if (data.tab_type === "salary_details") {
+        let {
+          base_salary,
+          daily_working_hours,
+          monthly_working_hours,
+          salary_per_day,
+          salary_per_hour,
+          total_monthly_hours,
+          weekly_hours,
+          allowances,
+          salary_revision_details,
+        } = req.body;
+        let findUser = await DB.tbl_user_master.findOne({
+          where: { official_email: data.official_email },
         });
 
-        return res.status(200).send({
-          success: true,
-          status: "User Created Successfully!",
-          data: newUser,
-        });
+        if (!findUser) {
+          return res.status(400).send({
+            success: false,
+            message: "User Not Found For Adding Salary Details!",
+          });
+        } else {
+          const transaction = await DB.sequelize.transaction();
+
+          try {
+            // Adding Salary Basic Details
+            await DB.tbl_user_master.update(
+              {
+                base_salary,
+                daily_working_hours,
+                monthly_working_hours,
+                salary_per_day,
+                salary_per_hour,
+                total_monthly_hours,
+                weekly_hours,
+              },
+              { where: { id: findUser.id }, transaction }
+            );
+
+            // Deleting User Allowance if any exist
+            await DB.tbl_userAllowance_master.destroy({
+              where: { user_id: findUser.id },
+              transaction,
+            });
+
+            // Adding the User Allowance
+            if (allowances && allowances.length > 0) {
+              await DB.tbl_userAllowance_master.bulkCreate(
+                allowances.map((allowance) => ({
+                  user_id: findUser.id,
+                  allowance_id: allowance.allowance_id,
+                  amount: allowance.amount,
+                })),
+                { transaction }
+              );
+            }
+
+            // Adding the Salary Revision
+            if (salary_revision_details && salary_revision_details.length > 0) {
+              await DB.tbl_user_salary_revision.bulkCreate(
+                salary_revision_details.map((revision) => ({
+                  user_id: findUser.id,
+                  year: revision.year,
+                  month: revision.month,
+                  new_salary: revision.new_salary,
+                  old_salary: revision.old_salary,
+                  revision_percent: revision.revision_percent,
+                  remark: revision.remark,
+                })),
+                { transaction }
+              );
+            }
+
+            await transaction.commit();
+            return res.status(200).send({
+              success: true,
+              message: "Salary details Added successfully",
+            });
+          } catch (error) {
+            console.log("Error in Adding Allowance Details", error);
+            await transaction.rollback();
+            throw error;
+          }
+        }
+      }
+
+      // ADD PAYMENT DETAILS TAB DATA
+      if (data.tab_type === "payment_details") {
+      }
+
+      // ADD DOCUMENT DETAILS TAB DATA
+      if (data.tab_type === "document_details") {
+      }
+
+      // ADD CONTRACT DETAILS TAB DATA
+      if (data.tab_type === "contract_details") {
       }
     }
   } catch (error) {

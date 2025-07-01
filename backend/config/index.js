@@ -1,4 +1,4 @@
-// ========== IMPORT STATEMENTS ========== //
+// ========== REQUIRE STATEMENTS ========== //
 const dbConfig = require("./db.config");
 const Sequelize = require("sequelize");
 
@@ -149,6 +149,27 @@ db.tbl_city_master =
     Sequelize
   );
 
+// Employee Family Details Table
+db.tbl_user_family_detail = require("../API/user/model/familyDetails.model")(
+  sequelize,
+  Sequelize
+);
+
+// Employee Previous Employer Details Table
+db.tbl_user_previous_employer_detail =
+  require("../API/user/model/userPreviousDetail.model")(sequelize, Sequelize);
+
+// Shift Master Table
+db.tbl_shift_master =
+  require("../API/configurationMasters/shift_master/model/shift.model")(
+    sequelize,
+    Sequelize
+  );
+
+// User Salary Revision Table
+db.tbl_user_salary_revision =
+  require("../API/user/model/userSalaryRevision.model")(sequelize, Sequelize);
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -284,6 +305,46 @@ db.tbl_state_master.hasMany(db.tbl_city_master, {
 });
 db.tbl_city_master.belongsTo(db.tbl_state_master, {
   foreignKey: "state_id",
+});
+
+// Relation B/W User Master and User Family Details Tables
+db.tbl_user_master.hasMany(db.tbl_user_family_detail, {
+  foreignKey: "user_id",
+});
+db.tbl_user_family_detail.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
+});
+
+// Relation B/W User Master and User User Previous Employer Details Tables
+db.tbl_user_master.hasMany(db.tbl_user_previous_employer_detail, {
+  foreignKey: "user_id",
+});
+db.tbl_user_previous_employer_detail.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
+});
+
+// Relation B/W User Master and Shift Master Tables
+db.tbl_shift_master.hasMany(db.tbl_user_master, {
+  foreignKey: "shift_id",
+});
+db.tbl_user_master.belongsTo(db.tbl_shift_master, {
+  foreignKey: "shift_id",
+});
+
+// Relation B/W User Master and User Salary Revision Tables
+db.tbl_user_master.hasMany(db.tbl_user_salary_revision, {
+  foreignKey: "user_id",
+});
+db.tbl_user_salary_revision.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
+});
+
+// Relation B/W User Master and Bank Master Tables
+db.tbl_bank_master.hasMany(db.tbl_user_master, {
+  foreignKey: "bank_id",
+});
+db.tbl_user_master.belongsTo(db.tbl_bank_master, {
+  foreignKey: "bank_id",
 });
 
 // ========== EXPORTS ========== //
