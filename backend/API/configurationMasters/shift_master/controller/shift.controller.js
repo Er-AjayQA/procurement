@@ -1,14 +1,13 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../../config/index");
-const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 
-// ========== CREATE BANK CONTROLLER ========== //
-module.exports.createBank = async (req, res) => {
+// ========== CREATE SHIFT CONTROLLER ========== //
+module.exports.createShift = async (req, res) => {
   try {
     const data = req.body;
 
-    // Check if Bank already exist
-    const isAlreadyExist = await DB.tbl_bank_master.findOne({
+    // Check if Shift already exist
+    const isAlreadyExist = await DB.tbl_shift_master.findOne({
       where: {
         name: data.name,
         isDeleted: false,
@@ -18,21 +17,13 @@ module.exports.createBank = async (req, res) => {
     if (isAlreadyExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Bank Already Exist!" });
+        .send({ success: false, message: "Shift Already Exist!" });
     } else {
-      let code = await generateUniqueCode(
-        "BANK",
-        4,
-        "bank_code",
-        "BANK_MASTER"
-      );
-      data.bank_code = code;
-
-      const newBank = await DB.tbl_bank_master.create(data);
+      const newShift = await DB.tbl_shift_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Bank Created Successfully!",
-        data: newBank,
+        status: "Shift Created Successfully!",
+        data: newShift,
       });
     }
   } catch (error) {
@@ -40,43 +31,43 @@ module.exports.createBank = async (req, res) => {
   }
 };
 
-// ========== UPDATE BANK CONTROLLER ========== //
-module.exports.updateBank = async (req, res) => {
+// ========== UPDATE SHIFT CONTROLLER ========== //
+module.exports.updateShift = async (req, res) => {
   try {
     const data = req.body;
     const { id } = req.params;
 
-    // Check if Bank already exist
-    const isBankExist = await DB.tbl_bank_master.findOne({
+    // Check if Shift already exist
+    const isShiftExist = await DB.tbl_shift_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isBankExist) {
+    if (!isShiftExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Bank Not Found!" });
+        .send({ success: false, message: "Shift Not Found!" });
     } else {
-      const duplicateBank = await DB.tbl_bank_master.findOne({
+      const duplicateShift = await DB.tbl_shift_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
-          name: data.name ? data.name : isBankExist.name,
+          name: data.name ? data.name : isShiftExist.name,
           isDeleted: false,
         },
       });
 
-      if (duplicateBank) {
+      if (duplicateShift) {
         return res
           .status(409)
-          .send({ success: false, message: "Bank Name Already Exist!" });
+          .send({ success: false, message: "Shift Name Already Exist!" });
       } else {
-        const updateBank = await isBankExist.update(data);
+        const updateShift = await isShiftExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Bank Updated Successfully!",
-          data: updateBank,
+          status: "Shift Updated Successfully!",
+          data: updateShift,
         });
       }
     }
@@ -85,15 +76,15 @@ module.exports.updateBank = async (req, res) => {
   }
 };
 
-// ========== GET BANK DETAILS CONTROLLER ========== //
-module.exports.getBankDetails = async (req, res) => {
+// ========== GET SHIFT DETAILS CONTROLLER ========== //
+module.exports.getShiftDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
     const query = `
-    SELECT B.*
-    FROM BANK_MASTER AS B
-    WHERE B.id=${id} AND B.isDeleted=false`;
+    SELECT S.*
+    FROM SHIFT_MASTER AS S
+    WHERE S.id=${id} AND S.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -102,11 +93,11 @@ module.exports.getBankDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Bank Not Found!" });
+        .send({ success: false, message: "Shift Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Bank Details Successfully!",
+        status: "Get Shift Details Successfully!",
         data: getAllData,
       });
     }
@@ -115,13 +106,13 @@ module.exports.getBankDetails = async (req, res) => {
   }
 };
 
-// ========== GET ALL BANK DETAILS CONTROLLER ========== //
-module.exports.getAllBankDetails = async (req, res) => {
+// ========== GET ALL SHIFT DETAILS CONTROLLER ========== //
+module.exports.getAllShiftDetails = async (req, res) => {
   try {
     const query = `
-    SELECT B.*
-    FROM BANK_MASTER AS B
-    WHERE B.isDeleted=false`;
+    SELECT S.*
+    FROM SHIFT_MASTER AS S
+    WHERE S.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -130,11 +121,11 @@ module.exports.getAllBankDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Bank Not Found!" });
+        .send({ success: false, message: "Shift Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Bank List!",
+        status: "Get All Shifts List!",
         data: getAllData,
       });
     }
@@ -143,26 +134,26 @@ module.exports.getAllBankDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE BANK CONTROLLER ========== //
-module.exports.updateBankStatus = async (req, res) => {
+// ========== UPDATE SHIFT CONTROLLER ========== //
+module.exports.updateShiftStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Bank already exist
-    const isBankExist = await DB.tbl_bank_master.findOne({
+    // Check if Shift already exist
+    const isShiftExist = await DB.tbl_shift_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isBankExist) {
+    if (!isShiftExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Bank Not Found!" });
+        .send({ success: false, message: "Shift Not Found!" });
     } else {
-      const updateStatus = await isBankExist.update({
-        status: !isBankExist.status,
+      const updateStatus = await isShiftExist.update({
+        status: !isShiftExist.status,
       });
       return res.status(200).send({
         success: true,
@@ -175,30 +166,30 @@ module.exports.updateBankStatus = async (req, res) => {
   }
 };
 
-// ========== DELETE BANK CONTROLLER ========== //
-module.exports.deleteBank = async (req, res) => {
+// ========== DELETE SHIFT CONTROLLER ========== //
+module.exports.deleteShift = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Bank already exist
-    const isBankExist = await DB.tbl_bank_master.findOne({
+    // Check if Shift already exist
+    const isShiftExist = await DB.tbl_shift_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isBankExist) {
+    if (!isShiftExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Bank Not Found!" });
+        .send({ success: false, message: "Shift Not Found!" });
     } else {
-      await isBankExist.update({
+      await isShiftExist.update({
         isDeleted: true,
       });
       return res.status(200).send({
         success: true,
-        status: "Bank Deleted Successfully!",
+        status: "Shift Deleted Successfully!",
       });
     }
   } catch (error) {

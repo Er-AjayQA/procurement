@@ -1,4 +1,4 @@
-// ========== IMPORT STATEMENTS ========== //
+// ========== REQUIRE STATEMENTS ========== //
 const express = require("express");
 const router = express.Router();
 const ServiceCategoryController = require("../controller/service_category.controller");

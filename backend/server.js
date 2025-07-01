@@ -1,4 +1,4 @@
-// ========== IMPORT STATEMENTS ========== //
+// ========== REQUIRE STATEMENTS ========== //
 const express = require("express");
 const db = require("./config/index");
 const cors = require("cors");
@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_city_master
+// db.tbl_user_master
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -41,6 +41,7 @@ const countryUploadRoute = require("./API/configurationMasters/country/router/co
 const stateUploadRoute = require("./API/configurationMasters/states/router/states.router");
 const cityUploadRoute = require("./API/configurationMasters/city_master/router/city.router");
 const bankRoute = require("./API/configurationMasters/bank_master/router/bank_master.router");
+const shiftRoute = require("./API/configurationMasters/shift_master/router/shift.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -67,6 +68,7 @@ app.use("/api/v1/procurement", countryUploadRoute);
 app.use("/api/v1/procurement", stateUploadRoute);
 app.use("/api/v1/procurement", cityUploadRoute);
 app.use("/api/v1/procurement", bankRoute);
+app.use("/api/v1/procurement", shiftRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

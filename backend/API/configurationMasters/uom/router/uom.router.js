@@ -1,4 +1,4 @@
-// ========== IMPORT STATEMENTS ========== //
+// ========== REQUIRE STATEMENTS ========== //
 const express = require("express");
 const router = express.Router();
 const UomController = require("../controller/uom.controller");
