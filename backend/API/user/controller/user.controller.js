@@ -1,4 +1,5 @@
 // ========== REQUIRE STATEMENTS ========== //
+const { where } = require("sequelize");
 const DB = require("../../../config/index");
 const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 const bcrypt = require("bcrypt");
@@ -244,6 +245,8 @@ module.exports.createUser = async (req, res) => {
           allowances,
           salary_revision_details,
         } = req.body;
+
+        // Find user details need to update
         let findUser = await DB.tbl_user_master.findOne({
           where: { official_email: data.official_email },
         });
@@ -328,6 +331,44 @@ module.exports.createUser = async (req, res) => {
 
       // ADD CONTRACT DETAILS TAB DATA
       if (data.tab_type === "contract_details") {
+        const { contract_type_id, start_working_date, probation_end_date } =
+          req.body;
+
+        //  Check if user exist
+        const findUser = await DB.tbl_user_master.findOne({
+          where: { official_email: data.official_email },
+        });
+
+        if (!findUser) {
+          return res.status(400).send({
+            success: false,
+            message: "User Not Found For Adding Contract Details!",
+          });
+        } else {
+          const transaction = await DB.sequelize.transaction();
+
+          try {
+            // Update the user contract details
+            await DB.tbl_user_master.update(
+              {
+                start_working_date,
+                probation_end_date,
+                contract_type_id,
+              },
+              { where: { id: findUser.id }, transaction }
+            );
+
+            await transaction.commit();
+            return res.status(200).send({
+              success: true,
+              message: "Contract details Added successfully",
+            });
+          } catch (error) {
+            console.log("Error in Adding Contract Details", error);
+            await transaction.rollback();
+            throw error;
+          }
+        }
       }
     }
   } catch (error) {
