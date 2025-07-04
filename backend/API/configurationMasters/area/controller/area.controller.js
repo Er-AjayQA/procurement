@@ -112,11 +112,22 @@ module.exports.getAreaDetails = async (req, res) => {
 // ========== GET ALL AREA DETAILS CONTROLLER ========== //
 module.exports.getAllAreaDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT A.*, D.name AS department_name
-    FROM AREA_MASTER AS A
-    LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
-    WHERE A.isDeleted=false`;
+    const data = req.body;
+    let query = "";
+
+    if (data.dept_id) {
+      query = `
+      SELECT A.*, D.name AS department_name
+      FROM AREA_MASTER AS A
+      LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
+      WHERE A.dept_id=${data.dept_id} AND A.isDeleted=false`;
+    } else {
+      query = `
+      SELECT A.*, D.name AS department_name
+      FROM AREA_MASTER AS A
+      LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
+      WHERE A.isDeleted=false`;
+    }
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
