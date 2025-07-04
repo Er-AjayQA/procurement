@@ -131,3 +131,31 @@ module.exports.getAllCountryDetails = async (req, res) => {
     res.status(500).send({ success: false, message: error.message });
   }
 };
+
+// ========== GET ALL NATIONALITY DETAILS CONTROLLER ========== //
+module.exports.getAllNationalityDetails = async (req, res) => {
+  try {
+    const query = `
+    SELECT C.nationality
+    FROM COUNTRY_MASTER AS C`;
+
+    const getAllData = await DB.sequelize.query(query, {
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Nationalities Not Found!" });
+    } else {
+      return res.status(200).send({
+        success: true,
+        status: "Get All Nationalities List!",
+        records: getAllData.length,
+        data: getAllData,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};

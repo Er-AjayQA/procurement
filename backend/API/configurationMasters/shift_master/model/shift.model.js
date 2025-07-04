@@ -26,23 +26,39 @@ module.exports = (sequelize, Sequelize) => {
       },
       sites: {
         type: Sequelize.STRING,
-        allowNull: false,
+        set(value) {
+          this.setDataValue("sites", value === "" ? null : value);
+        },
       },
       off_days: {
         type: Sequelize.STRING,
-        allowNull: false,
+        set(value) {
+          this.setDataValue("off_days", value === "" ? null : value);
+        },
       },
       working_hours_per_month: {
         type: Sequelize.STRING,
-        allowNull: false,
+        set(value) {
+          this.setDataValue(
+            "working_hours_per_month",
+            value === "" ? null : value
+          );
+        },
       },
       working_days_per_month: {
         type: Sequelize.STRING,
-        allowNull: false,
+        set(value) {
+          this.setDataValue(
+            "working_days_per_month",
+            value === "" ? null : value
+          );
+        },
       },
       observations: {
         type: Sequelize.STRING,
-        allowNull: false,
+        set(value) {
+          this.setDataValue("observations", value === "" ? null : value);
+        },
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,

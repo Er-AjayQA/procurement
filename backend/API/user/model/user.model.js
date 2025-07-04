@@ -5,14 +5,14 @@ module.exports = (sequelize, Sequelize) => {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        // unique: true,
         allowNull: false,
         primaryKey: true,
       },
+
+      // BASIC DETAILS
       emp_code: {
         type: Sequelize.STRING,
         allowNull: false,
-        // unique: true,
       },
       name: {
         type: Sequelize.STRING,
@@ -29,7 +29,6 @@ module.exports = (sequelize, Sequelize) => {
       contact_no: {
         type: Sequelize.STRING,
         allowNull: false,
-        // unique: true,
       },
       alt_contact_no: {
         type: Sequelize.STRING,
@@ -75,20 +74,8 @@ module.exports = (sequelize, Sequelize) => {
           );
         },
       },
-      start_working_date: {
-        type: Sequelize.DATEONLY("YYYY-MM-DD"),
-        allowNull: true,
-        set(value) {
-          this.setDataValue("start_working_date", value === "" ? null : value);
-        },
-      },
-      probation_end_date: {
-        type: Sequelize.DATEONLY("YYYY-MM-DD"),
-        allowNull: true,
-        set(value) {
-          this.setDataValue("probation_end_date", value === "" ? null : value);
-        },
-      },
+
+      // PERSONAL DETAILS
       present_country_address: {
         type: Sequelize.INTEGER,
         allowNull: true,
@@ -293,6 +280,15 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("marital_status", value === "" ? null : value);
         },
       },
+      spouse_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("spouse_name", value === "" ? null : value);
+        },
+      },
+
+      // SALARY DETAILS
       base_salary: {
         type: Sequelize.BIGINT,
         allowNull: true,
@@ -305,16 +301,6 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
         set(value) {
           this.setDataValue("daily_working_hours", value === "" ? null : value);
-        },
-      },
-      monthly_working_hours: {
-        type: Sequelize.BIGINT,
-        allowNull: true,
-        set(value) {
-          this.setDataValue(
-            "monthly_working_hours",
-            value === "" ? null : value
-          );
         },
       },
       salary_per_day: {
@@ -343,6 +329,73 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
         set(value) {
           this.setDataValue("weekly_hours", value === "" ? null : value);
+        },
+      },
+
+      // PAYMENT DETAILS
+      account_holder_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("account_holder_name", value === "" ? null : value);
+        },
+      },
+      bank_address: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("bank_address", value === "" ? null : value);
+        },
+      },
+      account_number: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("account_number", value === "" ? null : value);
+        },
+      },
+      re_account_number: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("re_account_number", value === "" ? null : value);
+        },
+      },
+      nuit_number: {
+        type: Sequelize.BIGINT,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("nuit_number", value === "" ? null : value);
+        },
+      },
+      inss_number: {
+        type: Sequelize.BIGINT,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("inss_number", value === "" ? null : value);
+        },
+      },
+      nib_number: {
+        type: Sequelize.BIGINT,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("nib_number", value === "" ? null : value);
+        },
+      },
+
+      // CONTRACT DETAILS
+      start_working_date: {
+        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        allowNull: true,
+        set(value) {
+          this.setDataValue("start_working_date", value === "" ? null : value);
+        },
+      },
+      probation_end_date: {
+        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        allowNull: true,
+        set(value) {
+          this.setDataValue("probation_end_date", value === "" ? null : value);
         },
       },
       isDeleted: {

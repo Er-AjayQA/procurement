@@ -15,6 +15,10 @@ router.post(
 );
 router.post("/get-country-details/:id", CountryController.getCountryDetails);
 router.post("/get-all-country-details", CountryController.getAllCountryDetails);
+router.post(
+  "/get-all-nationality-details",
+  CountryController.getAllNationalityDetails
+);
 
 // ========== EXPORT ========== //
 module.exports = router;
