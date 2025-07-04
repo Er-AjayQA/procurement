@@ -503,62 +503,25 @@ module.exports.getUserDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-            SELECT U.*, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type, CT.name AS contract_type_name, B.name AS bank_name
-            JSON_ARRAYAGG(
-              JSON_OBJECT(
-                  'allowance_id', UA.allowance_id,
-                  'amount', UA.amount,
-                  'allowance_name', A.name,
-                  'isTaxable', A.is_taxable
-                )
-            ) AS allowances
-            JSON_ARRAYAGG(
-              JSON_OBJECT(
-                  'id', UF.id,
-                  'member_name', UF.member_name,
-                  'dob', UF.dob,
-                  'relation_type', UF.relation_type,
-                  'contact_number', UF.contact_number,
-                  'remark', UF.remark
-                )
-            ) AS family_details
-            JSON_ARRAYAGG(
-              JSON_OBJECT(
-                  'id', UPE.id,
-                  'company_name', UPE.company_name,
-                  'from_date', UPE.from_date,
-                  'to_date', UPE.to_date,
-                  'dob', UPE.dob,
-                  'last_drawn_salary', UPE.last_drawn_salary,
-                  'reason_of_leaving', UPE.reason_of_leaving,
-                  'location', UPE.location
-                )
-            ) AS previous_employee_details
-            JSON_ARRAYAGG(
-              JSON_OBJECT(
-                  'id', USR.id,
-                  'year', USR.year,
-                  'month', USR.month,
-                  'new_salary', USR.new_salary,
-                  'old_salary', USR.old_salary,
-                  'revision_percent', USR.revision_percent,
-                  'remark', USR.remark
-                )
-            ) AS salary_revision
-            FROM USER_MASTER AS U
-            LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
-            LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
-            LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
-            LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
-            LEFT JOIN BANK_MASTER AS B ON B.id=U.bank_id
-            LEFT JOIN CONTRACT_TYPE_MASTER AS CT ON CT.id=U.contract_type_id
-            LEFT JOIN USER_ALLOWANCE_MASTER AS UA ON UA.user_id=U.id
-            LEFT JOIN ALLOWANCE_MASTER AS A ON A.id=UA.allowance_id
-            LEFT JOIN USER_FAMILY_DETAIL AS UF ON UF.user_id=U.id
-            LEFT JOIN USER_PREVIOUS_EMPLOYER_DETAIL AS UPE ON UPE.user_id=U.id
-            LEFT JOIN USER_SALARY_REVISION AS USR ON USR.user_id=U.id
-            WHERE U.id=${id} AND U.isDeleted=false
-            GROUP BY U.id`;
+    SELECT U.*, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type, CT.name AS contract_type_name, B.name AS bank_name, PER.name AS permanent_country_name, PRE.name AS present_country_name,PER_S.name AS permanent_state_name, PRE_S.name AS present_state_name
+    FROM USER_MASTER AS U
+    INNER JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
+    INNER JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
+    INNER JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
+    INNER JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
+    INNER JOIN BANK_MASTER AS B ON B.id=U.bank_id
+    INNER JOIN COUNTRY_MASTER AS PER ON PER.id=U.permanent_country_address
+    INNER JOIN COUNTRY_MASTER AS PRE ON PRE.id=U.present_country_address
+    INNER JOIN STATE_MASTER AS PER_S ON PER_S.id=U.permanent_state_address
+    INNER JOIN STATE_MASTER AS PRE_S ON PRE_S.id=U.present_state_address
+    INNER JOIN CONTRACT_TYPE_MASTER AS CT ON CT.id=U.contract_type_id
+    INNER JOIN USER_ALLOWANCE_MASTER AS UA ON UA.user_id=U.id
+    INNER JOIN ALLOWANCE_MASTER AS A ON A.id=UA.allowance_id
+    INNER JOIN USER_FAMILY_DETAIL AS UF ON UF.user_id=U.id
+    INNER JOIN USER_PREVIOUS_EMPLOYER_DETAIL AS UPE ON UPE.user_id=U.id
+    LEFT JOIN USER_SALARY_REVISION AS USR ON USR.user_id=U.id
+    WHERE U.id=${id} AND U.isDeleted=false
+    GROUP BY U.id`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
