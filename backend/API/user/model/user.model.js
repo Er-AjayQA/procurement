@@ -76,7 +76,7 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       // PERSONAL DETAILS
-      present_country_address: {
+      present_country_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -84,13 +84,10 @@ module.exports = (sequelize, Sequelize) => {
           key: "id",
         },
         set(value) {
-          this.setDataValue(
-            "present_country_address",
-            value === "" ? null : value
-          );
+          this.setDataValue("present_country_id", value === "" ? null : value);
         },
       },
-      present_state_address: {
+      present_state_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -98,13 +95,10 @@ module.exports = (sequelize, Sequelize) => {
           key: "id",
         },
         set(value) {
-          this.setDataValue(
-            "present_state_address",
-            value === "" ? null : value
-          );
+          this.setDataValue("present_state_id", value === "" ? null : value);
         },
       },
-      present_city_address: {
+      present_city_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -112,10 +106,7 @@ module.exports = (sequelize, Sequelize) => {
           key: "id",
         },
         set(value) {
-          this.setDataValue(
-            "present_city_address",
-            value === "" ? null : value
-          );
+          this.setDataValue("present_city_id", value === "" ? null : value);
         },
       },
       present_address: {
@@ -125,7 +116,7 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("present_address", value === "" ? null : value);
         },
       },
-      permanent_country_address: {
+      permanent_country_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -134,12 +125,12 @@ module.exports = (sequelize, Sequelize) => {
         },
         set(value) {
           this.setDataValue(
-            "permanent_country_address",
+            "permanent_country_id",
             value === "" ? null : value
           );
         },
       },
-      permanent_state_address: {
+      permanent_state_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -147,13 +138,10 @@ module.exports = (sequelize, Sequelize) => {
           key: "id",
         },
         set(value) {
-          this.setDataValue(
-            "permanent_state_address",
-            value === "" ? null : value
-          );
+          this.setDataValue("permanent_state_id", value === "" ? null : value);
         },
       },
-      permanent_city_address: {
+      permanent_city_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -161,10 +149,7 @@ module.exports = (sequelize, Sequelize) => {
           key: "id",
         },
         set(value) {
-          this.setDataValue(
-            "permanent_city_address",
-            value === "" ? null : value
-          );
+          this.setDataValue("permanent_city_id", value === "" ? null : value);
         },
       },
       permanent_address: {
@@ -181,7 +166,7 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("nationality", value === "" ? null : value);
         },
       },
-      personal_state: {
+      personal_state_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -189,10 +174,10 @@ module.exports = (sequelize, Sequelize) => {
           key: "id",
         },
         set(value) {
-          this.setDataValue("personal_state", value === "" ? null : value);
+          this.setDataValue("personal_state_id", value === "" ? null : value);
         },
       },
-      personal_city: {
+      personal_city_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -200,7 +185,7 @@ module.exports = (sequelize, Sequelize) => {
           key: "id",
         },
         set(value) {
-          this.setDataValue("personal_city", value === "" ? null : value);
+          this.setDataValue("personal_city_id", value === "" ? null : value);
         },
       },
       dire_number: {
