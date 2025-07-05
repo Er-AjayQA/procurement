@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_user_master
+// db.tbl_workflow_type_master
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -42,6 +42,7 @@ const stateUploadRoute = require("./API/configurationMasters/states/router/state
 const cityUploadRoute = require("./API/configurationMasters/city_master/router/city.router");
 const bankRoute = require("./API/configurationMasters/bank_master/router/bank_master.router");
 const shiftRoute = require("./API/configurationMasters/shift_master/router/shift.router");
+const workflowTypeRoute = require("./API/configurationMasters/workflow/router/workflowType.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -69,6 +70,7 @@ app.use("/api/v1/procurement", stateUploadRoute);
 app.use("/api/v1/procurement", cityUploadRoute);
 app.use("/api/v1/procurement", bankRoute);
 app.use("/api/v1/procurement", shiftRoute);
+app.use("/api/v1/procurement", workflowTypeRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

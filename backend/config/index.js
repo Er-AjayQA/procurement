@@ -170,6 +170,13 @@ db.tbl_shift_master =
 db.tbl_user_salary_revision =
   require("../API/user/model/userSalaryRevision.model")(sequelize, Sequelize);
 
+// Workflow Type Master Table
+db.tbl_workflow_type_master =
+  require("../API/configurationMasters/workflow/model/workflowType.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
