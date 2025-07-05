@@ -503,25 +503,37 @@ module.exports.getUserDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT U.*, D.name AS department_name, D.dep_code AS department_code, DES.name AS designation_name, E.name AS employment_type, CT.name AS contract_type_name, B.name AS bank_name, PER.name AS permanent_country_name, PRE.name AS present_country_name,PER_S.name AS permanent_state_name, PRE_S.name AS present_state_name
-    FROM USER_MASTER AS U
-    INNER JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
-    INNER JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
-    INNER JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
-    INNER JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
-    INNER JOIN BANK_MASTER AS B ON B.id=U.bank_id
-    INNER JOIN COUNTRY_MASTER AS PER ON PER.id=U.permanent_country_address
-    INNER JOIN COUNTRY_MASTER AS PRE ON PRE.id=U.present_country_address
-    INNER JOIN STATE_MASTER AS PER_S ON PER_S.id=U.permanent_state_address
-    INNER JOIN STATE_MASTER AS PRE_S ON PRE_S.id=U.present_state_address
-    INNER JOIN CONTRACT_TYPE_MASTER AS CT ON CT.id=U.contract_type_id
-    INNER JOIN USER_ALLOWANCE_MASTER AS UA ON UA.user_id=U.id
-    INNER JOIN ALLOWANCE_MASTER AS A ON A.id=UA.allowance_id
-    INNER JOIN USER_FAMILY_DETAIL AS UF ON UF.user_id=U.id
-    INNER JOIN USER_PREVIOUS_EMPLOYER_DETAIL AS UPE ON UPE.user_id=U.id
-    LEFT JOIN USER_SALARY_REVISION AS USR ON USR.user_id=U.id
-    WHERE U.id=${id} AND U.isDeleted=false
-    GROUP BY U.id`;
+    SELECT U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, 
+       E.name AS employment_type, CT.name AS contract_type_name, B.name AS bank_name, 
+       M.name AS reporting_manager, 
+       SM.name AS shift_name,
+       perm_country.name AS permanent_country_name, perm_state.name AS permanent_state_name, 
+       perm_city.name AS permanent_city_name, 
+       pres_country.name AS present_country_name, pres_state.name AS present_state_name, 
+       pres_city.name AS pres_city_name, 
+       personal_state.name AS personal_state_name, personal_city.name AS personal_city_name
+       FROM USER_MASTER AS U
+       LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
+       LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
+       LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
+       LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
+       LEFT JOIN BANK_MASTER AS B ON B.id=U.bank_id
+       LEFT JOIN CONTRACT_TYPE_MASTER AS CT ON CT.id=U.contract_type_id
+       LEFT JOIN SHIFT_MASTER AS SM ON SM.id=U.shift_id
+       LEFT JOIN USER_ALLOWANCE_MASTER AS UA ON UA.user_id=U.id
+       LEFT JOIN USER_FAMILY_DETAIL AS UF ON UF.user_id=U.id
+       LEFT JOIN USER_PREVIOUS_EMPLOYER_DETAIL AS UPE ON UPE.user_id=U.id
+       LEFT JOIN USER_SALARY_REVISION AS USR ON USR.user_id=U.id
+       LEFT JOIN COUNTRY_MASTER AS perm_country ON perm_country.id=U.permanent_country_id
+       LEFT JOIN STATE_MASTER AS perm_state ON perm_state.id=U.permanent_state_id
+       LEFT JOIN CITY_MASTER AS perm_city ON perm_city.id=U.permanent_city_id
+       LEFT JOIN COUNTRY_MASTER AS pres_country ON pres_country.id=U.present_country_id
+       LEFT JOIN STATE_MASTER AS pres_state ON pres_state.id=U.present_state_id
+       LEFT JOIN CITY_MASTER AS pres_city ON pres_city.id=U.present_city_id
+       LEFT JOIN STATE_MASTER AS personal_state ON personal_state.id=U.personal_state_id
+       LEFT JOIN CITY_MASTER AS personal_city ON personal_city.id=U.personal_city_id
+       WHERE U.id=${id} AND U.isDeleted=false
+       GROUP BY U.id`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -532,6 +544,54 @@ module.exports.getUserDetails = async (req, res) => {
         .status(400)
         .send({ success: false, message: "User Not Found!" });
     } else {
+      // Getting Allowance Details
+      const allowances = await DB.tbl_userAllowance_master.findAll({
+        attributes: ["id", "amount", "allowance_id"],
+        where: { user_id: getAllData[0].id, isDeleted: false },
+        include: [
+          {
+            model: DB.tbl_allowance_master,
+            attributes: ["name", "is_taxable"],
+            where: { isDeleted: false },
+          },
+        ],
+      });
+
+      // Getting Allowance Details
+      const family_details = await DB.tbl_user_family_detail.findAll({
+        attributes: [
+          "id",
+          "member_name",
+          "dob",
+          "relation_type",
+          "contact_number",
+          "remark",
+          "selected_as_emergency",
+        ],
+        where: { user_id: getAllData[0].id, isDeleted: false },
+      });
+
+      // Getting Previous Employer Details
+      const prev_emp_details =
+        await DB.tbl_user_previous_employer_detail.findAll({
+          attributes: [
+            "id",
+            "company_name",
+            "from_date",
+            "to_date",
+            "last_drawn_salary",
+            "reason_of_leaving",
+            "location",
+          ],
+          where: { user_id: getAllData[0].id, isDeleted: false },
+        });
+
+      getAllData[0] = {
+        ...getAllData[0],
+        allowance_details: allowances,
+        family_details: family_details,
+        previous_employer_details: prev_emp_details,
+      };
       return res.status(200).send({
         success: true,
         status: "Get User Details Successfully!",
