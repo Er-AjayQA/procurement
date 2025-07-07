@@ -97,23 +97,36 @@ module.exports.updateWorkflow = async (req, res) => {
           message: "Workflow For Selected Department Already Exist!",
         });
       } else {
-        const transaction = await DB.sequelize.transaction();
-        try {
-          const updateWorkflow = await DB.tbl_workflow_master.update(data, {
-            where: { id },
-            transaction,
-          });
+        const updateWorkflow = await DB.tbl_workflow_master.update(data, {
+          where: { id },
+        });
 
-          return res.status(200).send({
-            success: true,
-            status: "Workflow Updated Successfully!",
-            data: updateWorkflow,
-          });
-        } catch (error) {}
+        // Destroy the previous employee mapping before creating new
+        await DB.tbl_workflowEmployeeMapping_master.destroy({
+          where: { workflow_id: id },
+        });
+
+        // Adding new Employee mapping
+        await DB.tbl_workflowEmployeeMapping_master.bulkCreate(
+          data.employees.map((employee) => ({
+            workflow_id: id,
+            level: employee.level,
+            role_id: employee.role_id,
+            user_id: employee.user_id,
+          }))
+        );
+
+        return res.status(200).send({
+          success: true,
+          status: "Workflow Updated Successfully!",
+          data: updateWorkflow,
+        });
       }
     }
   } catch (error) {
-    res.status(500).send({ success: false, message: error.message });
+    if (transaction) await transaction.rollback();
+    console.log("Error in Creating Workflow", error);
+    return res.status(500).send({ success: false, message: error.message });
   }
 };
 
@@ -123,24 +136,47 @@ module.exports.getWorkflowDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT D.*, U.name AS department_head_name, U.emp_code
-    FROM DEPARTMENT_MASTER AS D
-    LEFT JOIN USER_MASTER AS U ON U.id= D.department_head_id
-    WHERE D.id=${id} AND D.isDeleted=false`;
+    SELECT W.*, WT.name, D.name AS department
+    FROM WORKFLOW_MASTER AS W
+    LEFT JOIN WORKFLOW_TYPE_MASTER AS WT ON WT.id=W.workflow_type_id
+    LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=W.dept_id
+    WHERE W.id=${id} AND W.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
+    // Get Employee Mapping Details
+    const employeeMappingDetails =
+      await DB.tbl_workflowEmployeeMapping_master.findAll({
+        where: { workflow_id: id },
+      });
+
+    const workflowEmployeeDetails = await Promise.all(
+      employeeMappingDetails.map(async (employee) => {
+        const details = await DB.tbl_user_master.findOne({
+          attributes: ["id", "name"],
+          where: { id: employee.user_id },
+          include: {
+            model: DB.tbl_role_master,
+            attributes: ["id", "name"],
+            where: { isDeleted: false },
+          },
+        });
+
+        return details;
+      })
+    );
+
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Department Not Found!" });
+        .send({ success: false, message: "Workflow Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Department Details Successfully!",
-        data: getAllData,
+        status: "Get Workflow Details Successfully!",
+        data: { ...getAllData, workflowEmployeeDetails },
       });
     }
   } catch (error) {
@@ -152,10 +188,11 @@ module.exports.getWorkflowDetails = async (req, res) => {
 module.exports.getAllWorkflowDetails = async (req, res) => {
   try {
     const query = `
-            SELECT D.*, U.emp_code, U.name As department_head_name
-            FROM DEPARTMENT_MASTER AS D
-            LEFT JOIN USER_MASTER AS U on U.id=D.department_head_id
-            WHERE D.isDeleted=false`;
+            SELECT W.*, WT.name, D.name AS department
+            FROM WORKFLOW_MASTER AS W
+            LEFT JOIN WORKFLOW_TYPE_MASTER AS WT ON WT.id=W.workflow_type_id
+            LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=W.dept_id
+            WHERE W.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -164,11 +201,11 @@ module.exports.getAllWorkflowDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Departments Not Found!" });
+        .send({ success: false, message: "Workflows Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Departments List!",
+        status: "Get All Workflows List!",
         data: getAllData,
       });
     }
@@ -182,21 +219,21 @@ module.exports.updateWorkflowStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if user already exist
-    const isDepartmentExist = await DB.tbl_department_master.findOne({
+    // Check if Workflow already exist
+    const isWorkflowExist = await DB.tbl_workflow_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDepartmentExist) {
+    if (!isWorkflowExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Department Not Found!" });
+        .send({ success: false, message: "Workflow Not Found!" });
     } else {
-      const updateStatus = await isDepartmentExist.update({
-        status: !isDepartmentExist.status,
+      const updateStatus = await isWorkflowExist.update({
+        status: !isWorkflowExist.status,
       });
       return res.status(200).send({
         success: true,
@@ -214,25 +251,25 @@ module.exports.deleteWorkflow = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Department already exist
-    const isDepartmentExist = await DB.tbl_department_master.findOne({
+    // Check if Workflow already exist
+    const isWorkflowExist = await DB.tbl_workflow_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDepartmentExist) {
+    if (!isWorkflowExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Department Not Found!" });
+        .send({ success: false, message: "Workflow Not Found!" });
     } else {
-      await isDepartmentExist.update({
+      await isWorkflowExist.update({
         isDeleted: true,
       });
       return res.status(200).send({
         success: true,
-        status: "Department Deleted Successfully!",
+        status: "Workflow Deleted Successfully!",
       });
     }
   } catch (error) {
