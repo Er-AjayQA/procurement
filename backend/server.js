@@ -45,6 +45,7 @@ const bankRoute = require("./API/configurationMasters/bank_master/router/bank_ma
 const shiftRoute = require("./API/configurationMasters/shift_master/router/shift.router");
 const workflowTypeRoute = require("./API/configurationMasters/workflow/router/workflowType.router");
 const workflowRoute = require("./API/configurationMasters/workflow/router/workflow.router");
+const budgetRoute = require("./API/budgetManagement/router/budget.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -75,6 +76,7 @@ app.use("/api/v1/procurement", bankRoute);
 app.use("/api/v1/procurement", shiftRoute);
 app.use("/api/v1/procurement", workflowTypeRoute);
 app.use("/api/v1/procurement", workflowRoute);
+app.use("/api/v1/procurement", budgetRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {
