@@ -1,17 +1,17 @@
 // ========== REQUIRE STATEMENTS ========== //
-const DB = require("../../../../config/index");
-const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
+const DB = require("../../../config/index");
+const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 
 // ========== CREATE BUDGET CONTROLLER ========== //
 module.exports.createBudget = async (req, res) => {
   try {
     const data = req.body;
 
-    // Check if Workflow already exist
-    const isAlreadyExist = await DB.tbl_workflow_master.findOne({
+    // Check if Budget already exist
+    const isAlreadyExist = await DB.tbl_budget_management.findOne({
       where: {
         [DB.Sequelize.Op.and]: [
-          { workflow_type_id: data.workflow_type_id },
+          { name: data.name },
           { dept_id: data.dept_id },
           { isDeleted: false },
         ],
@@ -19,41 +19,40 @@ module.exports.createBudget = async (req, res) => {
     });
 
     if (isAlreadyExist) {
-      return res
-        .status(400)
-        .send({ success: false, message: "Workflow Already Exist!" });
+      return res.status(400).send({
+        success: false,
+        message: "Budget Name for Selected Department Already Exist!",
+      });
     } else {
-      if (!data.employees) {
+      const getDepartmentDetails = await DB.tbl_department_master.findOne({
+        where: { id: data.dept_id },
+      });
+
+      if (!getDepartmentDetails) {
+        return res.status(404).send({
+          success: false,
+          status: "Department Not Found!",
+        });
       } else {
-        const transaction = await DB.sequelize.transaction();
+        let code = await generateUniqueCode(
+          `${getDepartmentDetails.dep_code + "CC"}`,
+          `${(getDepartmentDetails.dep_code + "CC").length}`,
+          "code",
+          "BUDGET_MANAGEMENT"
+        );
+        const newBudget = await DB.tbl_budget_management.create({
+          name: data.name,
+          code: code,
+          budget_type: data.budget_type,
+          budget_amount: data.budget_amount,
+          dept_id: data.dept_id,
+        });
 
-        try {
-          const newWorkflow = await DB.tbl_workflow_master.create(
-            { workflow_type_id: data.workflow_type_id, dept_id: data.dept_id },
-            { transaction }
-          );
-
-          await DB.tbl_workflowEmployeeMapping_master.bulkCreate(
-            data.employees.map((employee) => ({
-              workflow_id: newWorkflow.id,
-              level: employee.level,
-              role_id: employee.role_id,
-              user_id: employee.user_id,
-            })),
-            { transaction }
-          );
-
-          await transaction.commit();
-          return res.status(200).send({
-            success: true,
-            status: "Workflow Created Successfully!",
-            data: newWorkflow,
-          });
-        } catch (error) {
-          console.log("Error in Creating Workflow", error);
-          await transaction.rollback();
-          throw error;
-        }
+        return res.status(200).send({
+          success: true,
+          status: "Budget Created Successfully!",
+          data: newBudget,
+        });
       }
     }
   } catch (error) {
@@ -67,65 +66,48 @@ module.exports.updateBudget = async (req, res) => {
     const data = req.body;
     const { id } = req.params;
 
-    // Check if Workflow exist
-    const isWorkflowExist = await DB.tbl_workflow_master.findOne({
+    // Check if Budget exist
+    const isBudgetExist = await DB.tbl_budget_management.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isWorkflowExist) {
+    if (!isBudgetExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Workflow Not Found!" });
+        .send({ success: false, message: "Budget Not Found!" });
     } else {
-      const duplicateWorkflow = await DB.tbl_workflow_master.findOne({
+      const duplicateBudget = await DB.tbl_budget_management.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           [DB.Sequelize.Op.and]: [
-            { workflow_type_id: data.workflow_type_id },
+            { name: data.name },
             { dept_id: data.dept_id },
             { isDeleted: false },
           ],
         },
       });
 
-      if (duplicateWorkflow) {
+      if (duplicateBudget) {
         return res.status(409).send({
           success: false,
-          message: "Workflow For Selected Department Already Exist!",
+          message: "Budget Name For Selected Department Already Exist!",
         });
       } else {
-        const updateWorkflow = await DB.tbl_workflow_master.update(data, {
+        const updateBudget = await DB.tbl_budget_management.update(data, {
           where: { id },
         });
 
-        // Destroy the previous employee mapping before creating new
-        await DB.tbl_workflowEmployeeMapping_master.destroy({
-          where: { workflow_id: id },
-        });
-
-        // Adding new Employee mapping
-        await DB.tbl_workflowEmployeeMapping_master.bulkCreate(
-          data.employees.map((employee) => ({
-            workflow_id: id,
-            level: employee.level,
-            role_id: employee.role_id,
-            user_id: employee.user_id,
-          }))
-        );
-
         return res.status(200).send({
           success: true,
-          status: "Workflow Updated Successfully!",
-          data: updateWorkflow,
+          status: "Budget Updated Successfully!",
+          data: updateBudget,
         });
       }
     }
   } catch (error) {
-    if (transaction) await transaction.rollback();
-    console.log("Error in Creating Workflow", error);
     return res.status(500).send({ success: false, message: error.message });
   }
 };
@@ -136,47 +118,24 @@ module.exports.getBudgetDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT W.*, WT.name, D.name AS department
-    FROM WORKFLOW_MASTER AS W
-    LEFT JOIN WORKFLOW_TYPE_MASTER AS WT ON WT.id=W.workflow_type_id
-    LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=W.dept_id
-    WHERE W.id=${id} AND W.isDeleted=false`;
+    SELECT B.*, D.name AS department
+    FROM BUDGET_MANAGEMENT AS B
+    LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=B.dept_id
+    WHERE B.id=${id} AND B.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
-    // Get Employee Mapping Details
-    const employeeMappingDetails =
-      await DB.tbl_workflowEmployeeMapping_master.findAll({
-        where: { workflow_id: id },
-      });
-
-    const workflowEmployeeDetails = await Promise.all(
-      employeeMappingDetails.map(async (employee) => {
-        const details = await DB.tbl_user_master.findOne({
-          attributes: ["id", "name"],
-          where: { id: employee.user_id },
-          include: {
-            model: DB.tbl_role_master,
-            attributes: ["id", "name"],
-            where: { isDeleted: false },
-          },
-        });
-
-        return details;
-      })
-    );
-
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Workflow Not Found!" });
+        .send({ success: false, message: "Budget Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Workflow Details Successfully!",
-        data: { ...getAllData, workflowEmployeeDetails },
+        status: "Get Budget Details Successfully!",
+        data: getAllData,
       });
     }
   } catch (error) {
@@ -220,20 +179,20 @@ module.exports.updateBudgetStatus = async (req, res) => {
     const { id } = req.params;
 
     // Check if Workflow already exist
-    const isWorkflowExist = await DB.tbl_workflow_master.findOne({
+    const isBudgetExist = await DB.tbl_workflow_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isWorkflowExist) {
+    if (!isBudgetExist) {
       return res
         .status(400)
         .send({ success: false, message: "Workflow Not Found!" });
     } else {
-      const updateStatus = await isWorkflowExist.update({
-        status: !isWorkflowExist.status,
+      const updateStatus = await isBudgetExist.update({
+        status: !isBudgetExist.status,
       });
       return res.status(200).send({
         success: true,
