@@ -1,24 +1,18 @@
 // ========== REQUIRE STATEMENTS ========== //
 const express = require("express");
 const router = express.Router();
-const DepartmentController = require("../controller/department.controller");
+const WorkflowController = require("../controller/workflow.controller");
 
 // ========== ROUTES ========== //
-router.post("/create-department", DepartmentController.createDepartment);
-router.post("/update-department/:id", DepartmentController.updateDepartment);
+router.post("/create-workflow", WorkflowController.createWorkflow);
+router.post("/update-workflow/:id", WorkflowController.updateWorkflow);
+router.post("/get-workflow-details/:id", WorkflowController.getWorkflowDetails);
 router.post(
-  "/get-department-details/:id",
-  DepartmentController.getDepartmentDetails
+  "/get-all-workflow-details",
+  WorkflowController.getAllWorkflowDetails
 );
-router.post(
-  "/get-all-departments",
-  DepartmentController.getAllDepartmentDetails
-);
-router.post(
-  "/update-department-status/:id",
-  DepartmentController.updateDepartmentStatus
-);
-router.post("/delete-department/:id", DepartmentController.deleteDepartment);
+router.post("/update-workflow-status/:id", WorkflowController.updateWorkflow);
+router.post("/delete-workflow/:id", WorkflowController.deleteWorkflow);
 
 // ========== EXPORT ========== //
 module.exports = router;

@@ -24,7 +24,7 @@ router.put(
   "/update-service-category-status/:id",
   ServiceCategoryController.updateServiceCategoryStatus
 );
-router.post(
+router.put(
   "/delete-service-category/:id",
   ServiceCategoryController.deleteServiceCategory
 );

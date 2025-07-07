@@ -1,12 +1,16 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_workflow_master = sequelize.define(
-    "WORKFLOW_MASTER",
+  const tbl_role_master = sequelize.define(
+    "ROLE_MASTER",
     {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
+      },
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
@@ -19,5 +23,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_workflow_master;
+  return tbl_role_master;
 };

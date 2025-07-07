@@ -21,7 +21,7 @@ router.put(
   "/update-item-category-status/:id",
   ItemCategoryController.updateItemCategoryStatus
 );
-router.post(
+router.put(
   "/delete-item-category/:id",
   ItemCategoryController.deleteItemCategory
 );
