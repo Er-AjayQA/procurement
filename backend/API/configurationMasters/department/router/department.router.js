@@ -5,20 +5,20 @@ const DepartmentController = require("../controller/department.controller");
 
 // ========== ROUTES ========== //
 router.post("/create-department", DepartmentController.createDepartment);
-router.post("/update-department/:id", DepartmentController.updateDepartment);
+router.put("/update-department/:id", DepartmentController.updateDepartment);
 router.post(
   "/get-department-details/:id",
   DepartmentController.getDepartmentDetails
 );
 router.post(
-  "/get-all-departments",
+  "/get-all-department-details",
   DepartmentController.getAllDepartmentDetails
 );
-router.post(
+router.put(
   "/update-department-status/:id",
   DepartmentController.updateDepartmentStatus
 );
-router.post("/delete-department/:id", DepartmentController.deleteDepartment);
+router.delete("/delete-department/:id", DepartmentController.deleteDepartment);
 
 // ========== EXPORT ========== //
 module.exports = router;

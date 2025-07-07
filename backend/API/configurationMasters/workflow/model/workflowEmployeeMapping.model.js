@@ -1,12 +1,16 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_workflow_master = sequelize.define(
-    "WORKFLOW_MASTER",
+  const tbl_workflowEmployeeMapping_master = sequelize.define(
+    "WORKFLOW_EMPLOYEE_MAPPING_MASTER",
     {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
+      },
+      level: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
@@ -19,5 +23,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_workflow_master;
+  return tbl_workflowEmployeeMapping_master;
 };

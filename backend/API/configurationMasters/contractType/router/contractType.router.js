@@ -5,7 +5,7 @@ const ContractTypeController = require("../controller/contractType.controller");
 
 // ========== ROUTES ========== //
 router.post("/create-contract-type", ContractTypeController.createContractType);
-router.post(
+router.put(
   "/update-contract-type/:id",
   ContractTypeController.updateContractType
 );
@@ -17,11 +17,11 @@ router.post(
   "/get-all-contract-type-details",
   ContractTypeController.getAllContractTypesDetails
 );
-router.post(
+router.put(
   "/update-contract-type-status/:id",
   ContractTypeController.updateContractTypeStatus
 );
-router.post(
+router.put(
   "/delete-contract-type/:id",
   ContractTypeController.deleteContractType
 );

@@ -8,7 +8,7 @@ router.post(
   "/create-employment-type",
   EmploymentTypeController.createEmploymentType
 );
-router.post(
+router.put(
   "/update-employment-type/:id",
   EmploymentTypeController.updateEmploymentType
 );
@@ -20,11 +20,11 @@ router.post(
   "/get-all-employment-type-details",
   EmploymentTypeController.getAllEmploymentTypesDetails
 );
-router.post(
+router.put(
   "/update-employment-type-status/:id",
   EmploymentTypeController.updateEmploymentTypeStatus
 );
-router.post(
+router.put(
   "/delete-employment-type/:id",
   EmploymentTypeController.deleteEmploymentType
 );

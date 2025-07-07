@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_workflow_type_master
+// db.tbl_workflow_master
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -28,6 +28,7 @@ app.use(cors());
 const userRoute = require("./API/user/router/user.router");
 const departmentRoute = require("./API/configurationMasters/department/router/department.router");
 const designationRoute = require("./API/configurationMasters/designation/router/designation.router");
+const roleRoute = require("./API/configurationMasters/role_master/router/role.router");
 const employmentTypeRoute = require("./API/configurationMasters/employmentType/router/employmentType.router");
 const areaRoute = require("./API/configurationMasters/area/router/area.router");
 const contractTypeRoute = require("./API/configurationMasters/contractType/router/contractType.router");
@@ -43,6 +44,7 @@ const cityUploadRoute = require("./API/configurationMasters/city_master/router/c
 const bankRoute = require("./API/configurationMasters/bank_master/router/bank_master.router");
 const shiftRoute = require("./API/configurationMasters/shift_master/router/shift.router");
 const workflowTypeRoute = require("./API/configurationMasters/workflow/router/workflowType.router");
+const workflowRoute = require("./API/configurationMasters/workflow/router/workflow.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -56,6 +58,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/procurement", userRoute);
 app.use("/api/v1/procurement", departmentRoute);
 app.use("/api/v1/procurement", designationRoute);
+app.use("/api/v1/procurement", roleRoute);
 app.use("/api/v1/procurement", employmentTypeRoute);
 app.use("/api/v1/procurement", areaRoute);
 app.use("/api/v1/procurement", contractTypeRoute);
@@ -71,6 +74,7 @@ app.use("/api/v1/procurement", cityUploadRoute);
 app.use("/api/v1/procurement", bankRoute);
 app.use("/api/v1/procurement", shiftRoute);
 app.use("/api/v1/procurement", workflowTypeRoute);
+app.use("/api/v1/procurement", workflowRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

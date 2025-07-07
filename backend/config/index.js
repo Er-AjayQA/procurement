@@ -46,6 +46,13 @@ db.tbl_designation_master =
     Sequelize
   );
 
+// Role Type Master Table
+db.tbl_role_master =
+  require("../API/configurationMasters/role_master/model/role.model")(
+    sequelize,
+    Sequelize
+  );
+
 // Employment Type Master Table
 db.tbl_employmentType_master =
   require("../API/configurationMasters/employmentType/model/employmentType.model")(
@@ -177,6 +184,20 @@ db.tbl_workflow_type_master =
     Sequelize
   );
 
+// Workflow Table
+db.tbl_workflow_master =
+  require("../API/configurationMasters/workflow/model/workflow.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Workflow Employee Mapping Table
+db.tbl_workflowEmployeeMapping_master =
+  require("../API/configurationMasters/workflow/model/workflowEmployeeMapping.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -200,6 +221,14 @@ db.tbl_designation_master.hasMany(db.tbl_user_master, {
 });
 db.tbl_user_master.belongsTo(db.tbl_designation_master, {
   foreignKey: "designation_id",
+});
+
+// Relation B/W User Master and Role Master Tables
+db.tbl_role_master.hasMany(db.tbl_user_master, {
+  foreignKey: "role_id",
+});
+db.tbl_user_master.belongsTo(db.tbl_role_master, {
+  foreignKey: "role_id",
 });
 
 // Relation B/W User and Employment-Type Master Tables
@@ -352,6 +381,46 @@ db.tbl_bank_master.hasMany(db.tbl_user_master, {
 });
 db.tbl_user_master.belongsTo(db.tbl_bank_master, {
   foreignKey: "bank_id",
+});
+
+// Relation B/W Workflow Type and Workflow Tables
+db.tbl_workflow_type_master.hasMany(db.tbl_workflow_master, {
+  foreignKey: "workflow_type_id",
+});
+db.tbl_workflow_master.belongsTo(db.tbl_workflow_type_master, {
+  foreignKey: "workflow_type_id",
+});
+
+// Relation B/W Workflow and Department Master Tables
+db.tbl_department_master.hasMany(db.tbl_workflow_master, {
+  foreignKey: "dept_id",
+});
+db.tbl_workflow_master.belongsTo(db.tbl_department_master, {
+  foreignKey: "dept_id",
+});
+
+// Relation B/W Workflow Employee Mapping and Workflow Master Tables
+db.tbl_workflow_master.hasMany(db.tbl_workflowEmployeeMapping_master, {
+  foreignKey: "workflow_id",
+});
+db.tbl_workflowEmployeeMapping_master.belongsTo(db.tbl_workflow_master, {
+  foreignKey: "workflow_id",
+});
+
+// Relation B/W Workflow Employee Mapping and Role Master Tables
+db.tbl_role_master.hasMany(db.tbl_workflowEmployeeMapping_master, {
+  foreignKey: "role_id",
+});
+db.tbl_workflowEmployeeMapping_master.belongsTo(db.tbl_role_master, {
+  foreignKey: "role_id",
+});
+
+// Relation B/W Workflow Employee Mapping and User Master Tables
+db.tbl_user_master.hasMany(db.tbl_workflowEmployeeMapping_master, {
+  foreignKey: "user_id",
+});
+db.tbl_workflowEmployeeMapping_master.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
 });
 
 // ========== EXPORTS ========== //
