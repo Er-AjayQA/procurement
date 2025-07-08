@@ -45,6 +45,7 @@ module.exports.createBudget = async (req, res) => {
           code: code,
           budget_type: data.budget_type,
           budget_amount: data.budget_amount,
+          remaining_amount: data.remaining_amount,
           dept_id: data.dept_id,
         });
 
@@ -146,12 +147,22 @@ module.exports.getBudgetDetails = async (req, res) => {
 // ========== GET ALL BUDGET DETAILS CONTROLLER ========== //
 module.exports.getAllBudgetDetails = async (req, res) => {
   try {
-    const query = `
-            SELECT W.*, WT.name, D.name AS department
-            FROM WORKFLOW_MASTER AS W
-            LEFT JOIN WORKFLOW_TYPE_MASTER AS WT ON WT.id=W.workflow_type_id
-            LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=W.dept_id
-            WHERE W.isDeleted=false`;
+    const data = req.body ? req.body : "";
+    let query;
+
+    if (data) {
+      query = `
+            SELECT B.*, D.name AS department
+            FROM BUDGET_MANAGEMENT AS B
+            LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=B.dept_id
+            WHERE B.isDeleted=false AND B.status=${data.status}`;
+    } else {
+      query = `
+            SELECT B.*, D.name AS department
+            FROM BUDGET_MANAGEMENT AS B
+            LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=B.dept_id
+            WHERE B.isDeleted=false`;
+    }
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -160,11 +171,12 @@ module.exports.getAllBudgetDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Workflows Not Found!" });
+        .send({ success: false, message: "Budgets Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Workflows List!",
+        records: getAllData.length,
+        status: "Get All Budgets List!",
         data: getAllData,
       });
     }
@@ -178,7 +190,7 @@ module.exports.updateBudgetStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Workflow already exist
+    // Check if Budget already exist
     const isBudgetExist = await DB.tbl_workflow_master.findOne({
       where: {
         id,
@@ -210,25 +222,72 @@ module.exports.deleteBudget = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Workflow already exist
-    const isWorkflowExist = await DB.tbl_workflow_master.findOne({
+    // Check if Budget already exist
+    const isBudgetExist = await DB.tbl_budget_management.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isWorkflowExist) {
+    if (!isBudgetExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Workflow Not Found!" });
+        .send({ success: false, message: "Budget Not Found!" });
     } else {
-      await isWorkflowExist.update({
+      await isBudgetExist.update({
         isDeleted: true,
       });
       return res.status(200).send({
         success: true,
-        status: "Workflow Deleted Successfully!",
+        status: "Budget Deleted Successfully!",
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== REVISE BUDGET CONTROLLER ========== //
+module.exports.reviseBudget = async (req, res) => {
+  try {
+    const data = req.body;
+    const { id } = req.params;
+
+    // Check if Budget already exist
+    const isBudgetExist = await DB.tbl_budget_management.findOne({
+      where: {
+        [DB.Sequelize.Op.and]: [{ id }, { isDeleted: false }],
+      },
+    });
+
+    if (!isBudgetExist) {
+      return res.status(404).send({
+        success: false,
+        message: "Budget Not Found!",
+      });
+    } else {
+      let remaining_amount =
+        data.type === "increase"
+          ? isBudgetExist.remaining_amount + data.revise_amount
+          : isBudgetExist.remaining_amount - data.revise_amount;
+
+      const reviseBudget = await DB.tbl_budget_revision_history.create({
+        budget_id: id,
+        type: data.type,
+        revise_amount: data.revise_amount,
+        total_amount: remaining_amount,
+      });
+
+      await DB.tbl_budget_management.update(
+        { remaining_amount: remaining_amount },
+        { where: { id } }
+      );
+
+      return res.status(200).send({
+        success: true,
+        status: "Budget Amount Revise Successfully!",
+        data: reviseBudget,
       });
     }
   } catch (error) {

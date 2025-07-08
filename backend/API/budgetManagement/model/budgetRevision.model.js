@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_budget_management = sequelize.define(
-    "BUDGET_MANAGEMENT",
+  const tbl_budget_revision_history = sequelize.define(
+    "BUDGET_REVISION_HISTORY",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -8,23 +8,20 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      name: {
-        type: Sequelize.STRING,
+      type: {
+        type: Sequelize.ENUM("increase", "decrease"),
         allowNull: false,
       },
-      code: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      budget_type: {
-        type: Sequelize.ENUM("capex", "opex"),
-        allowNull: false,
-      },
-      budget_amount: {
+      revise_amount: {
         type: Sequelize.BIGINT,
         allowNull: false,
       },
-      remaining_amount: {
+      allocation_date: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
+      total_amount: {
         type: Sequelize.BIGINT,
         allowNull: false,
       },
@@ -39,5 +36,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_budget_management;
+  return tbl_budget_revision_history;
 };

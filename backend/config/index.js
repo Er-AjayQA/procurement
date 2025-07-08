@@ -202,6 +202,13 @@ db.tbl_workflowEmployeeMapping_master =
 db.tbl_budget_management =
   require("../API/budgetManagement/model/budget.model")(sequelize, Sequelize);
 
+// Budget Revision Table
+db.tbl_budget_revision_history =
+  require("../API/budgetManagement/model/budgetRevision.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -433,6 +440,14 @@ db.tbl_department_master.hasMany(db.tbl_budget_management, {
 });
 db.tbl_budget_management.belongsTo(db.tbl_department_master, {
   foreignKey: "dept_id",
+});
+
+// Relation B/W Budget Management and Budget Revision History Tables
+db.tbl_budget_management.hasMany(db.tbl_budget_revision_history, {
+  foreignKey: "budget_id",
+});
+db.tbl_budget_revision_history.belongsTo(db.tbl_budget_management, {
+  foreignKey: "budget_id",
 });
 
 // ========== EXPORTS ========== //
