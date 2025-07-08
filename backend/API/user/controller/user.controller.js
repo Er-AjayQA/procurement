@@ -711,8 +711,7 @@ module.exports.getUserDetails = async (req, res) => {
     const query = `
     SELECT U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, 
        E.name AS employment_type, CT.name AS contract_type_name, B.name AS bank_name, 
-       M.name AS reporting_manager, 
-       SM.name AS shift_name,
+       M.name AS reporting_manager, SM.name AS shift_name, BR.name AS branch_name,
        perm_country.name AS permanent_country_name, perm_state.name AS permanent_state_name, 
        perm_city.name AS permanent_city_name, 
        pres_country.name AS present_country_name, pres_state.name AS present_state_name, 
@@ -724,6 +723,7 @@ module.exports.getUserDetails = async (req, res) => {
        LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
        LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
        LEFT JOIN BANK_MASTER AS B ON B.id=U.bank_id
+       LEFT JOIN BRANCH_MASTER AS BR ON BR.id=U.branch_id
        LEFT JOIN CONTRACT_TYPE_MASTER AS CT ON CT.id=U.contract_type_id
        LEFT JOIN SHIFT_MASTER AS SM ON SM.id=U.shift_id
        LEFT JOIN USER_ALLOWANCE_MASTER AS UA ON UA.user_id=U.id
@@ -831,13 +831,13 @@ module.exports.getAllUserDetails = async (req, res) => {
   try {
     const query = `
     SELECT U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, 
-       E.name AS employment_type,
-       M.name AS reporting_manager
+       E.name AS employment_type, M.name AS reporting_manager, BR.name AS branch_name
        FROM USER_MASTER AS U
        LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
        LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
        LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
        LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
+       LEFT JOIN BRANCH_MASTER AS BR ON BR.id=U.branch_id
        WHERE U.isDeleted=false
        GROUP BY U.id`;
 
