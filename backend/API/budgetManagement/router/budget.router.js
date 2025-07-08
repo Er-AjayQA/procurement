@@ -5,6 +5,7 @@ const BudgetController = require("../controller/budget.controller");
 
 // ========== ROUTES ========== //
 router.post("/create-budget", BudgetController.createBudget);
+router.post("/revise-budget/:id", BudgetController.reviseBudget);
 router.put("/update-budget/:id", BudgetController.updateBudget);
 router.post("/get-budget-details/:id", BudgetController.getBudgetDetails);
 router.post("/get-all-budget-details", BudgetController.getAllBudgetDetails);
