@@ -209,6 +209,13 @@ db.tbl_budget_revision_history =
     Sequelize
   );
 
+// Purchase Request Table
+db.tbl_purchase_request =
+  require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
@@ -447,6 +454,30 @@ db.tbl_budget_management.hasMany(db.tbl_budget_revision_history, {
   foreignKey: "budget_id",
 });
 db.tbl_budget_revision_history.belongsTo(db.tbl_budget_management, {
+  foreignKey: "budget_id",
+});
+
+// Relation B/W User Master and Purchase Request Tables
+db.tbl_user_master.hasMany(db.tbl_purchase_request, {
+  foreignKey: "user_id",
+});
+db.tbl_purchase_request.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
+});
+
+// Relation B/W Department Master and Purchase Request Tables
+db.tbl_department_master.hasMany(db.tbl_purchase_request, {
+  foreignKey: "dept_id",
+});
+db.tbl_purchase_request.belongsTo(db.tbl_department_master, {
+  foreignKey: "dept_id",
+});
+
+// Relation B/W Budget Management and Purchase Request Tables
+db.tbl_budget_management.hasMany(db.tbl_purchase_request, {
+  foreignKey: "budget_id",
+});
+db.tbl_purchase_request.belongsTo(db.tbl_budget_management, {
   foreignKey: "budget_id",
 });
 

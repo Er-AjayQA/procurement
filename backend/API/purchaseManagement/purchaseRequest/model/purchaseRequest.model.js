@@ -12,6 +12,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ENUM("item-pr", "service-pr"),
         allowNull: false,
       },
+      pr_emp_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      PR_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       emp_code: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -19,7 +27,7 @@ module.exports = (sequelize, Sequelize) => {
       createdOn: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Date.now(),
+        defaultValue: Sequelize.NOW,
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
