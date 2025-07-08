@@ -24,25 +24,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      pr_delivery_address: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      pr_total_amount: {
-        type: Sequelize.BIGINT,
-        allowNull: false,
-      },
-      final_status: {
-        type: Sequelize.ENUM("PENDING", "APPROVED", "REJECT"),
-        allowNull: false,
-      },
-      remark: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-        set(value) {
-          this.setDataValue("remark", value === "" ? null : value);
-        },
-      },
       createdOn: {
         type: Sequelize.DATE,
         allowNull: false,

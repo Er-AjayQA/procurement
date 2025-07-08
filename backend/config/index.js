@@ -128,6 +128,13 @@ db.tbl_service_master =
     Sequelize
   );
 
+// Branch Master Table
+db.tbl_branch_master =
+  require("../API/configurationMasters/branch_master/model/branch.model")(
+    sequelize,
+    Sequelize
+  );
+
 // Country Master Table
 db.tbl_country_master =
   require("../API/configurationMasters/country/model/country.model")(
@@ -385,6 +392,14 @@ db.tbl_user_master.belongsTo(db.tbl_shift_master, {
   foreignKey: "shift_id",
 });
 
+// Relation B/W Branch Master and User Master Tables
+db.tbl_branch_master.hasMany(db.tbl_user_master, {
+  foreignKey: "branch_id",
+});
+db.tbl_user_master.belongsTo(db.tbl_branch_master, {
+  foreignKey: "branch_id",
+});
+
 // Relation B/W User Master and User Salary Revision Tables
 db.tbl_user_master.hasMany(db.tbl_user_salary_revision, {
   foreignKey: "user_id",
@@ -457,29 +472,67 @@ db.tbl_budget_revision_history.belongsTo(db.tbl_budget_management, {
   foreignKey: "budget_id",
 });
 
-// Relation B/W User Master and Purchase Request Tables
-db.tbl_user_master.hasMany(db.tbl_purchase_request, {
-  foreignKey: "user_id",
+// Relation B/W Country Master and  Branch Master Tables
+db.tbl_country_master.hasMany(db.tbl_branch_master, {
+  foreignKey: "country_id",
+  as: "country_details",
 });
-db.tbl_purchase_request.belongsTo(db.tbl_user_master, {
-  foreignKey: "user_id",
-});
-
-// Relation B/W Department Master and Purchase Request Tables
-db.tbl_department_master.hasMany(db.tbl_purchase_request, {
-  foreignKey: "dept_id",
-});
-db.tbl_purchase_request.belongsTo(db.tbl_department_master, {
-  foreignKey: "dept_id",
+db.tbl_branch_master.belongsTo(db.tbl_country_master, {
+  foreignKey: "country_id",
+  as: "country_details",
 });
 
-// Relation B/W Budget Management and Purchase Request Tables
-db.tbl_budget_management.hasMany(db.tbl_purchase_request, {
-  foreignKey: "budget_id",
+// Relation B/W State Master and  Branch Master Tables
+db.tbl_state_master.hasMany(db.tbl_branch_master, {
+  foreignKey: "state_id",
+  as: "state_details",
 });
-db.tbl_purchase_request.belongsTo(db.tbl_budget_management, {
-  foreignKey: "budget_id",
+db.tbl_branch_master.belongsTo(db.tbl_state_master, {
+  foreignKey: "state_id",
+  as: "state_details",
 });
+
+// Relation B/W City Master and  Branch Master Tables
+db.tbl_city_master.hasMany(db.tbl_branch_master, {
+  foreignKey: "city_id",
+  as: "city_details",
+});
+db.tbl_branch_master.belongsTo(db.tbl_city_master, {
+  foreignKey: "city_id",
+  as: "city_details",
+});
+
+// // Relation B/W User Master and Purchase Request Tables
+// db.tbl_user_master.hasMany(db.tbl_purchase_request, {
+//   foreignKey: "user_id",
+// });
+// db.tbl_purchase_request.belongsTo(db.tbl_user_master, {
+//   foreignKey: "user_id",
+// });
+
+// // Relation B/W Department Master and Purchase Request Tables
+// db.tbl_department_master.hasMany(db.tbl_purchase_request, {
+//   foreignKey: "dept_id",
+// });
+// db.tbl_purchase_request.belongsTo(db.tbl_department_master, {
+//   foreignKey: "dept_id",
+// });
+
+// // Relation B/W Budget Management and Purchase Request Tables
+// db.tbl_budget_management.hasMany(db.tbl_purchase_request, {
+//   foreignKey: "budget_id",
+// });
+// db.tbl_purchase_request.belongsTo(db.tbl_budget_management, {
+//   foreignKey: "budget_id",
+// });
+
+// // Relation B/W City Master and Purchase Request Tables
+// db.tbl_state_master.hasMany(db.tbl_purchase_request, {
+//   foreignKey: "pr_delivery_state_id",
+// });
+// db.tbl_purchase_request.belongsTo(db.tbl_state_master, {
+//   foreignKey: "pr_delivery_state_id",
+// });
 
 // ========== EXPORTS ========== //
 module.exports = db;
