@@ -155,7 +155,7 @@ module.exports.getAllBudgetDetails = async (req, res) => {
             SELECT B.*, D.name AS department
             FROM BUDGET_MANAGEMENT AS B
             LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=B.dept_id
-            WHERE B.isDeleted=false AND B.status=${data.status}`;
+            WHERE B.isDeleted=false AND B.status=${data.status} AND B.budget_type="${data.type}"`;
     } else {
       query = `
             SELECT B.*, D.name AS department
