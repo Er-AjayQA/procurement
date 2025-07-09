@@ -2,12 +2,12 @@
 const express = require("express");
 const router = express.Router();
 const VendorController = require("../controller/vendor.controller");
-const multer = require("multer");
+// const multer = require("multer");
 
-const upload = multer({});
+// const upload = multer({});
 
 // ========== ROUTES ========== //
-router.post("/create-vendor", upload.none(), VendorController.createVendor);
+router.post("/create-vendor", VendorController.createVendor);
 router.put("/update-vendor/:id", VendorController.updateVendor);
 router.post("/get-vendor-details/:id", VendorController.getVendorDetails);
 router.post("/get-all-vendor-details", VendorController.getAllVendorDetails);

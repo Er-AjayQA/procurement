@@ -96,6 +96,7 @@ module.exports.createVendor = async (req, res) => {
           status: "Vendor Created Successfully!",
           data: newVendor,
         });
+      } else if (data.tab_type === "bank_details") {
       } else {
         res.status(500).send({ success: false, message: "Invalid Tab Type!" });
       }
