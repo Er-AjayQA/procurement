@@ -4,52 +4,104 @@ const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 
 // ========== CREATE VENDOR CONTROLLER ========== //
 module.exports.createVendor = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
   try {
     const data = req.body;
 
-    // Check if Branch already exist
-    const isAlreadyExist = await DB.tbl_branch_master.findOne({
+    // Check if Vendor already exist
+    const isAlreadyExist = await DB.tbl_vendor_master.findOne({
       where: {
         name: data.name,
         isDeleted: false,
       },
+      transaction,
     });
 
     if (isAlreadyExist) {
+      await transaction.rollback();
       return res
         .status(400)
-        .send({ success: false, message: "Branch Already Exist!" });
+        .send({ success: false, message: "Vendor Name Already Exist!" });
     } else {
-      let code = await generateUniqueCode(
-        "BR",
-        2,
-        "branch_code",
-        "BRANCH_MASTER"
-      );
+      // Add Vendor Basic Details
+      if (data.tab_type === "basic_details") {
+        const {
+          name,
+          vendor_address,
+          vendor_country_code,
+          vendor_contact_number,
+          vendor_alt_country_code,
+          vendor_alt_contact_number,
+          vendor_emailId,
+          vendor_web_url,
+          vendor_category,
+          vendor_currency_type,
+          vendor_country_id,
+          vendor_state_id,
+          vendor_city_id,
+          vendor_user_details = [],
+        } = req.body;
 
-      const newBranch = await DB.tbl_branch_master.create({
-        name: data.name,
-        branch_code: code,
-        branch_contact_person: data.branch_contact_person,
-        country_code: data.country_code,
-        branch_contact_number: data.branch_contact_number,
-        alt_country_code: data.alt_country_code,
-        branch_alt_contact_number: data.branch_alt_contact_number,
-        branch_emailId: data.branch_emailId,
-        branch_alt_emailId: data.branch_alt_emailId,
-        branch_address: data.branch_address,
-        billing_status: data.billing_status,
-        country_id: data.country_id,
-        state_id: data.state_id,
-        city_id: data.city_id,
-      });
-      return res.status(200).send({
-        success: true,
-        status: "Branch Created Successfully!",
-        data: newBranch,
-      });
+        let code = await generateUniqueCode(
+          "VN",
+          2,
+          "vendor_code",
+          "VENDOR_MASTER"
+        );
+
+        const newVendor = await DB.tbl_vendor_master.create(
+          {
+            name,
+            vendor_code: code,
+            vendor_address,
+            vendor_country_code,
+            vendor_contact_number,
+            vendor_alt_country_code,
+            vendor_alt_contact_number,
+            vendor_emailId,
+            vendor_web_url,
+            vendor_category,
+            vendor_currency_type,
+            vendor_country_id,
+            vendor_state_id,
+            vendor_city_id,
+          },
+          { transaction }
+        );
+
+        if (
+          vendor_user_details !== undefined &&
+          vendor_user_details.length > 0
+        ) {
+          await DB.tbl_vendor_user_mapped.bulkCreate(
+            vendor_user_details.map((user) => ({
+              vendor_id: newVendor.id,
+              name: user.name,
+              associated_person_country_code:
+                user.associated_person_country_code,
+              associated_person_contact_number:
+                user.associated_person_contact_number,
+              associated_person_emailId: user.associated_person_emailId,
+              associated_person_designation: user.associated_person_designation,
+              associated_person_department: user.associated_person_department,
+            })),
+            { transaction }
+          );
+        }
+
+        // Commit the transaction
+        await transaction.commit();
+        return res.status(200).send({
+          success: true,
+          status: "Vendor Created Successfully!",
+          data: newVendor,
+        });
+      } else {
+        res.status(500).send({ success: false, message: "Invalid Tab Type!" });
+      }
     }
   } catch (error) {
+    await transaction.rollback();
     res.status(500).send({ success: false, message: error.message });
   }
 };

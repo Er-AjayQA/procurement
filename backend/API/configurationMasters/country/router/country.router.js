@@ -19,6 +19,10 @@ router.post(
   "/get-all-nationality-details",
   CountryController.getAllNationalityDetails
 );
+router.post(
+  "/get-all-currency-details",
+  CountryController.getAllCountryCurrencyDetails
+);
 
 // ========== EXPORT ========== //
 module.exports = router;

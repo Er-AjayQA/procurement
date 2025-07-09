@@ -222,16 +222,23 @@ db.tbl_vendor_master = require("../API/vendorManagement/model/vendor.model")(
   Sequelize
 );
 
-// Vendor Mapped Employee Table
-db.tbl_vendor_mapped_user =
-  require("../API/vendorManagement/model/vendorMappedUser.model")(
+// Vendor Employee Mapped Table
+db.tbl_vendor_user_mapped =
+  require("../API/vendorManagement/model/vendorUserMapped.model")(
     sequelize,
     Sequelize
   );
 
-// Vendor Mapped Bank Table
-db.tbl_vendor_mapped_bank =
-  require("../API/vendorManagement/model/vendorMappedBank.model")(
+// Vendor Bank Mapped Table
+db.tbl_vendor_bank_mapped =
+  require("../API/vendorManagement/model/vendorBankMapped.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Vendor Document Mapped Table
+db.tbl_vendor_document_mapped =
+  require("../API/vendorManagement/model/vendorDocumentMapped.model")(
     sequelize,
     Sequelize
   );
@@ -524,72 +531,80 @@ db.tbl_branch_master.belongsTo(db.tbl_city_master, {
 
 // Relation B/W Country Master and  Vendor Master Tables
 db.tbl_country_master.hasMany(db.tbl_vendor_master, {
-  foreignKey: "country_id",
+  foreignKey: "vendor_country_id",
   as: "vendor_country_details",
 });
 db.tbl_vendor_master.belongsTo(db.tbl_country_master, {
-  foreignKey: "country_id",
+  foreignKey: "vendor_country_id",
   as: "vendor_country_details",
 });
 
 // Relation B/W State Master and  Vendor Master Tables
 db.tbl_state_master.hasMany(db.tbl_vendor_master, {
-  foreignKey: "state_id",
+  foreignKey: "vendor_state_id",
   as: "vendor_state_details",
 });
 db.tbl_vendor_master.belongsTo(db.tbl_state_master, {
-  foreignKey: "state_id",
+  foreignKey: "vendor_state_id",
   as: "vendor_state_details",
 });
 
 // Relation B/W City Master and  Vendor Master Tables
 db.tbl_city_master.hasMany(db.tbl_vendor_master, {
-  foreignKey: "city_id",
+  foreignKey: "vendor_city_id",
   as: "vendor_city_details",
 });
 db.tbl_vendor_master.belongsTo(db.tbl_city_master, {
-  foreignKey: "city_id",
+  foreignKey: "vendor_city_id",
   as: "vendor_city_details",
 });
 
 // Relation B/W Vendor Master and  Vendor Mapped Employee Tables
-db.tbl_vendor_master.hasMany(db.tbl_vendor_mapped_user, {
+db.tbl_vendor_master.hasMany(db.tbl_vendor_user_mapped, {
   foreignKey: "vendor_id",
 });
-db.tbl_vendor_mapped_user.belongsTo(db.tbl_vendor_master, {
+db.tbl_vendor_user_mapped.belongsTo(db.tbl_vendor_master, {
   foreignKey: "vendor_id",
 });
 
 // Relation B/W Vendor Master and  Vendor Mapped Bank Tables
-db.tbl_vendor_master.hasMany(db.tbl_vendor_mapped_bank, {
+db.tbl_vendor_master.hasMany(db.tbl_vendor_bank_mapped, {
   foreignKey: "vendor_id",
 });
-db.tbl_vendor_mapped_bank.belongsTo(db.tbl_vendor_master, {
+db.tbl_vendor_bank_mapped.belongsTo(db.tbl_vendor_master, {
   foreignKey: "vendor_id",
 });
 
 // Relation B/W Vendor Master and  Country Master Tables
-db.tbl_country_master.hasMany(db.tbl_vendor_mapped_bank, {
+db.tbl_country_master.hasMany(db.tbl_vendor_bank_mapped, {
   foreignKey: "country_id",
 });
-db.tbl_vendor_mapped_bank.belongsTo(db.tbl_country_master, {
+db.tbl_vendor_bank_mapped.belongsTo(db.tbl_country_master, {
   foreignKey: "country_id",
 });
 
 // Relation B/W Vendor Master and  State Master Tables
-db.tbl_state_master.hasMany(db.tbl_vendor_mapped_bank, {
+db.tbl_state_master.hasMany(db.tbl_vendor_bank_mapped, {
   foreignKey: "state_id",
 });
-db.tbl_vendor_mapped_bank.belongsTo(db.tbl_state_master, {
+db.tbl_vendor_bank_mapped.belongsTo(db.tbl_state_master, {
   foreignKey: "state_id",
 });
 
 // Relation B/W Vendor Master and  City Master Tables
-db.tbl_city_master.hasMany(db.tbl_vendor_mapped_bank, {
+db.tbl_city_master.hasMany(db.tbl_vendor_bank_mapped, {
   foreignKey: "city_id",
 });
-db.tbl_vendor_mapped_bank.belongsTo(db.tbl_city_master, {
+db.tbl_vendor_bank_mapped.belongsTo(db.tbl_city_master, {
   foreignKey: "city_id",
+});
+
+// Relation B/W Vendor Master and Vendor Document Mapped Tables
+db.tbl_vendor_master.hasMany(db.tbl_vendor_document_mapped, {
+  foreignKey: "vendor_id",
+});
+db.tbl_vendor_document_mapped.belongsTo(db.tbl_vendor_master, {
+  foreignKey: "vendor_id",
 });
 
 // // Relation B/W User Master and Purchase Request Tables
