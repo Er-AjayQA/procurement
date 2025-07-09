@@ -17,12 +17,11 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
       },
       document_expiry_date: {
-        type: Sequelize.DATEONLY,
+        type: Sequelize.DATEONLY("YYYY-MM-DD"),
         allowNull: false,
       },
       document_notification_required: {
         type: Sequelize.BOOLEAN,
-        allowNull: false,
         defaultValue: false,
       },
       isDeleted: {

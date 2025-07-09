@@ -1,4 +1,5 @@
 // ========== REQUIRE STATEMENTS ========== //
+const { where } = require("sequelize");
 const DB = require("../../../config/index");
 const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 
@@ -8,23 +9,22 @@ module.exports.createVendor = async (req, res) => {
   try {
     const data = req.body;
 
-    // Check if Vendor already exist
-    const isAlreadyExist = await DB.tbl_vendor_master.findOne({
-      where: {
-        name: data.name,
-        isDeleted: false,
-      },
-      transaction,
-    });
-
-    if (isAlreadyExist) {
-      await transaction.rollback();
-      return res
-        .status(400)
-        .send({ success: false, message: "Vendor Name Already Exist!" });
-    } else {
-      // Add Vendor Basic Details
-      if (data.tab_type === "basic_details") {
+    // Add Vendor Basic Details
+    if (data.tab_type === "basic_details") {
+      // Check if Vendor already exist
+      const isAlreadyExist = await DB.tbl_vendor_master.findOne({
+        where: {
+          name: data.name,
+          isDeleted: false,
+        },
+        transaction,
+      });
+      if (isAlreadyExist) {
+        await transaction.rollback();
+        return res
+          .status(400)
+          .send({ success: false, message: "Vendor Name Already Exist!" });
+      } else {
         const {
           name,
           vendor_address,
@@ -68,6 +68,7 @@ module.exports.createVendor = async (req, res) => {
           },
           { transaction }
         );
+        id = newVendor.id;
 
         if (
           vendor_user_details !== undefined &&
@@ -96,11 +97,83 @@ module.exports.createVendor = async (req, res) => {
           status: "Vendor Created Successfully!",
           data: newVendor,
         });
-      } else if (data.tab_type === "bank_details") {
-      } else {
-        res.status(500).send({ success: false, message: "Invalid Tab Type!" });
       }
     }
+
+    // Adding the Vendor Bank Details
+    if (data.tab_type === "bank_details") {
+      const { vendor_id, bank_details = [] } = req.body;
+
+      if (bank_details.length > 0) {
+        // Destroy previous record before adding new records.
+        await DB.tbl_vendor_bank_mapped.destroy({
+          where: { vendor_id },
+          transaction,
+        });
+
+        await DB.tbl_vendor_bank_mapped.bulkCreate(
+          bank_details.map((bank) => ({
+            vendor_id,
+            bank_id: bank.bank_id,
+            bank_branch: bank.bank_branch,
+            account_holder_name: bank.account_holder_name,
+            bank_address: bank.bank_address,
+            bank_account_number: bank.bank_account_number,
+            bank_unique_number: bank.bank_unique_number,
+            bank_swift_code: bank.bank_swift_code,
+            bank_iban_code: bank.bank_iban_code,
+            bank_nuit_code: bank.bank_nuit_code,
+            vendor_bank_country_id: bank.vendor_bank_country_id,
+            vendor_bank_state_id: bank.vendor_bank_state_id,
+            vendor_bank_city_id: bank.vendor_bank_city_id,
+          })),
+          { transaction }
+        );
+      }
+
+      // Commit the transaction
+      await transaction.commit();
+      return res.status(200).send({
+        success: true,
+        status: "Vendor Bank Details Added Successfully!",
+      });
+    }
+
+    // Adding the Vendor Documents Details
+    if (data.tab_type === "document_details") {
+      const { vendor_id, document_details = [] } = req.body;
+
+      if (document_details.length > 0) {
+        // Destroy previous record before adding new records.
+        await DB.tbl_vendor_document_mapped.destroy({
+          where: { vendor_id },
+          transaction,
+        });
+
+        await DB.tbl_vendor_document_mapped.bulkCreate(
+          document_details.map((document) => ({
+            vendor_id,
+            document_type: document.document_type,
+            document_name: document.document_name,
+            document_expiry_date: document.document_expiry_date,
+            document_notification_required:
+              document.document_notification_required,
+          })),
+          { transaction }
+        );
+      }
+
+      // Commit the transaction
+      await transaction.commit();
+      return res.status(200).send({
+        success: true,
+        status: "Vendor Document Details Added Successfully!",
+      });
+    }
+
+    // If tab_type doesn't match any condition
+    await transaction.rollback();
+    res.status(400).send({ success: false, message: "Invalid Tab Type!" });
   } catch (error) {
     await transaction.rollback();
     res.status(500).send({ success: false, message: error.message });
