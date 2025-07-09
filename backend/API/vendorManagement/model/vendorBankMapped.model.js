@@ -30,15 +30,24 @@ module.exports = (sequelize, Sequelize) => {
       },
       bank_swift_code: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("bank_swift_code", value == "" ? null : value);
+        },
       },
       bank_iban_code: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("bank_iban_code", value == "" ? null : value);
+        },
       },
       bank_nuit_code: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("bank_nuit_code", value == "" ? null : value);
+        },
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
