@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_vendor_mapped_bank = sequelize.define(
-    "VENDOR_MAPPED_BANK",
+  const tbl_vendor_bank_mapped = sequelize.define(
+    "VENDOR_BANK_MAPPED",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -51,5 +51,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_vendor_mapped_bank;
+  return tbl_vendor_bank_mapped;
 };

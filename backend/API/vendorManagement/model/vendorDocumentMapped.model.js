@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_vendor_mapped_user = sequelize.define(
-    "VENDOR_MAPPED_USER",
+  const tbl_vendor_document_mapped = sequelize.define(
+    "VENDOR_DOCUMENT_MAPPED",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -8,29 +8,22 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      name: {
+      document_type: {
+        type: Sequelize.ENUM("PDF", "DOC", "JPG", "JPEG", "DOCX"),
+        allowNull: false,
+      },
+      document_name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      associated_person_country_code: {
-        type: Sequelize.STRING,
+      document_expiry_date: {
+        type: Sequelize.DATEONLY,
         allowNull: false,
       },
-      associated_person_contact_number: {
-        type: Sequelize.STRING,
+      document_notification_required: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-      },
-      associated_person_emailId: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      associated_person_designation: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      associated_person_department: {
-        type: Sequelize.STRING,
-        allowNull: false,
+        defaultValue: false,
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
@@ -43,5 +36,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_vendor_mapped_user;
+  return tbl_vendor_document_mapped;
 };

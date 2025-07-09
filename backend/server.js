@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_vendor_mapped_bank
+// db.tbl_vendor_document_mapped
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
