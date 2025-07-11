@@ -578,25 +578,31 @@ db.tbl_vendor_bank_mapped.belongsTo(db.tbl_vendor_master, {
 // Relation B/W Vendor Bank Mapped and  Country Master Tables
 db.tbl_country_master.hasMany(db.tbl_vendor_bank_mapped, {
   foreignKey: "vendor_bank_country_id",
+  as: "vendor_bank_country_details",
 });
 db.tbl_vendor_bank_mapped.belongsTo(db.tbl_country_master, {
   foreignKey: "vendor_bank_country_id",
+  as: "vendor_bank_country_details",
 });
 
 // Relation B/W Vendor Bank Mapped and  State Master Tables
 db.tbl_state_master.hasMany(db.tbl_vendor_bank_mapped, {
   foreignKey: "vendor_bank_state_id",
+  as: "vendor_bank_state_details",
 });
 db.tbl_vendor_bank_mapped.belongsTo(db.tbl_state_master, {
   foreignKey: "vendor_bank_state_id",
+  as: "vendor_bank_state_details",
 });
 
 // Relation B/W Vendor Bank Mapped and  City Master Tables
 db.tbl_city_master.hasMany(db.tbl_vendor_bank_mapped, {
   foreignKey: "vendor_bank_city_id",
+  as: "vendor_bank_city_details",
 });
 db.tbl_vendor_bank_mapped.belongsTo(db.tbl_city_master, {
   foreignKey: "vendor_bank_city_id",
+  as: "vendor_bank_city_details",
 });
 
 // Relation B/W Vendor Master and Vendor Document Mapped Tables

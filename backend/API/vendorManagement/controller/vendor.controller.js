@@ -320,13 +320,13 @@ module.exports.getVendorDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT B.*, C.name AS country_name, S.name AS state_name, CN.name AS city_name
-    FROM BRANCH_MASTER AS B
-    LEFT JOIN COUNTRY_MASTER AS C ON C.id=B.country_id
-    LEFT JOIN STATE_MASTER AS S ON S.id=B.state_id
-    LEFT JOIN CITY_MASTER AS CN ON CN.id=B.city_id
-    WHERE B.id=${id}
-    AND B.isDeleted=false`;
+    SELECT V.*, CM.name AS country_name, SM.name AS state_name, CIM.name AS city_name
+    FROM VENDOR_MASTER AS V
+    LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=V.vendor_country_id
+    LEFT JOIN STATE_MASTER AS SM ON SM.id=V.vendor_state_id
+    LEFT JOIN CITY_MASTER AS CIM ON CIM.id=V.vendor_city_id
+    WHERE V.id=${id}
+    AND V.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -335,12 +335,48 @@ module.exports.getVendorDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Branch Not Found!" });
+        .send({ success: false, message: "Vendor Not Found!" });
     } else {
+      // Get Vendor Users Details
+      const getAssociatedUsers = await DB.tbl_vendor_user_mapped.findAll({
+        where: { vendor_id: id, isDeleted: false },
+      });
+      // Get Vendor Banks Details
+      const getAssociatedBanks = await DB.tbl_vendor_bank_mapped.findAll({
+        include: [
+          {
+            model: DB.tbl_country_master,
+            as: "vendor_bank_country_details",
+            attributes: ["id", "name"],
+          },
+          {
+            model: DB.tbl_state_master,
+            as: "vendor_bank_state_details",
+            attributes: ["id", "name"],
+          },
+          {
+            model: DB.tbl_city_master,
+            as: "vendor_bank_city_details",
+            attributes: ["id", "name"],
+          },
+        ],
+        where: { vendor_id: id, isDeleted: false },
+      });
+      // Get Vendor Documents Details
+      const getAssociatedDocuments =
+        await DB.tbl_vendor_document_mapped.findAll({
+          where: { vendor_id: id, isDeleted: false },
+        });
+
       return res.status(200).send({
         success: true,
-        status: "Get Branch Details Successfully!",
-        data: getAllData,
+        status: "Get Vendor Details Successfully!",
+        data: {
+          ...getAllData,
+          getAssociatedUsers,
+          getAssociatedBanks,
+          getAssociatedDocuments,
+        },
       });
     }
   } catch (error) {
@@ -351,33 +387,29 @@ module.exports.getVendorDetails = async (req, res) => {
 // ========== GET ALL VENDOR DETAILS CONTROLLER ========== //
 module.exports.getAllVendorDetails = async (req, res) => {
   try {
-    const { billing_status, status } = req.body;
+    const data = req.body;
     let filter = { isDeleted: false };
 
-    if (billing_status !== undefined) {
-      filter.billing_status = billing_status;
+    if (data?.status !== undefined) {
+      filter.status = data.status;
     }
 
-    if (status !== undefined) {
-      filter.status = status;
-    }
-
-    const getAllData = await DB.tbl_branch_master.findAll({
+    const getAllData = await DB.tbl_vendor_master.findAll({
       include: [
         {
           model: DB.tbl_country_master,
           attributes: ["id", "name"],
-          as: "country_details",
+          as: "vendor_country_details",
         },
         {
           model: DB.tbl_state_master,
           attributes: ["id", "name"],
-          as: "state_details",
+          as: "vendor_state_details",
         },
         {
           model: DB.tbl_city_master,
           attributes: ["id", "name"],
-          as: "city_details",
+          as: "vendor_city_details",
         },
       ],
       where: filter,
@@ -386,12 +418,12 @@ module.exports.getAllVendorDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Branch Not Found!" });
+        .send({ success: false, message: "Vendors Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
         records: getAllData.length,
-        status: "Get All Branch List!",
+        status: "Get All Vendors List!",
         data: getAllData,
       });
     }
@@ -405,21 +437,21 @@ module.exports.updateVendorStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Branch exist
-    const isBranchExist = await DB.tbl_branch_master.findOne({
+    // Check if Vendor exist
+    const isVendorExist = await DB.tbl_vendor_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isBranchExist) {
+    if (!isVendorExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Branch Not Found!" });
+        .send({ success: false, message: "Vendor Not Found!" });
     } else {
-      const updateStatus = await isBranchExist.update({
-        status: !isBranchExist.status,
+      const updateStatus = await isVendorExist.update({
+        status: !isVendorExist.status,
       });
       return res.status(200).send({
         success: true,
@@ -437,25 +469,25 @@ module.exports.deleteVendor = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Branch already exist
-    const isBranchExist = await DB.tbl_branch_master.findOne({
+    // Check if Vendor already exist
+    const isVendorExist = await DB.tbl_vendor_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isBranchExist) {
+    if (!isVendorExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Branch Not Found!" });
+        .send({ success: false, message: "Vendor Not Found!" });
     } else {
-      await isBranchExist.update({
+      await isVendorExist.update({
         isDeleted: true,
       });
       return res.status(200).send({
         success: true,
-        status: "Branch Deleted Successfully!",
+        status: "Vendor Deleted Successfully!",
       });
     }
   } catch (error) {
