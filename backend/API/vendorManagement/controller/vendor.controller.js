@@ -182,46 +182,134 @@ module.exports.createVendor = async (req, res) => {
 
 // ========== UPDATE VENDOR CONTROLLER ========== //
 module.exports.updateVendor = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
   try {
     const data = req.body;
     const { id } = req.params;
 
-    // Check if Branch exist
-    const isBranchExist = await DB.tbl_branch_master.findOne({
-      where: {
-        id,
-        isDeleted: false,
-      },
-    });
-
-    if (!isBranchExist) {
-      return res
-        .status(400)
-        .send({ success: false, message: "Branch Not Found!" });
-    } else {
-      const duplicateBranch = await DB.tbl_branch_master.findOne({
+    // Check if Vendor exist
+    const isVendorExist = await DB.tbl_vendor_master.findOne(
+      {
         where: {
-          id: { [DB.Sequelize.Op.ne]: id },
-          name: data.name,
+          id,
           isDeleted: false,
         },
-      });
+      },
+      { transaction }
+    );
 
-      if (duplicateBranch) {
-        return res.status(409).send({
-          success: false,
-          message: "Branch Name Already Exist!",
-        });
-      } else {
-        const updateBranch = await isBranchExist.update(data);
+    if (!isVendorExist) {
+      await transaction.rollback();
+      return res
+        .status(400)
+        .send({ success: false, message: "Vendor Not Found!" });
+    } else {
+      // Updating the Vendor Basic Details
+      if (data.tab_type === "basic_details") {
+        await DB.tbl_vendor_master.update(data, { where: { id }, transaction });
+
+        if (data.vendor_user_details) {
+          await DB.tbl_vendor_user_mapped.destroy({
+            where: { vendor_id: id },
+            transaction,
+          });
+
+          await DB.tbl_vendor_user_mapped.bulkCreate(
+            data.vendor_user_details.map((user) => ({
+              vendor_id: id,
+              name: user.name,
+              associated_person_country_code:
+                user.associated_person_country_code,
+              associated_person_contact_number:
+                user.associated_person_contact_number,
+              associated_person_emailId: user.associated_person_emailId,
+              associated_person_designation: user.associated_person_designation,
+              associated_person_department: user.associated_person_department,
+            })),
+            { transaction }
+          );
+        }
+
+        await transaction.commit();
+
         return res.status(200).send({
           success: true,
-          status: "Branch Updated Successfully!",
-          data: updateBranch,
+          status: "Vendor Basic Details Updated Successfully!",
+          // data: updateBranch,
         });
+      }
+
+      // Updating the Vendor Bank Details
+      if (data.tab_type === "bank_details") {
+        if (data.bank_details) {
+          await DB.tbl_vendor_bank_mapped.destroy({
+            where: { vendor_id: id },
+            transaction,
+          });
+
+          await DB.tbl_vendor_bank_mapped.bulkCreate(
+            data.bank_details.map((bank) => ({
+              vendor_id: id,
+              name: bank.name,
+              bank_branch: bank.bank_branch,
+              account_holder_name: bank.account_holder_name,
+              bank_address: bank.bank_address,
+              bank_account_number: bank.bank_account_number,
+              bank_unique_number: bank.bank_unique_number,
+              bank_swift_code: bank.bank_swift_code,
+              bank_iban_code: bank.bank_iban_code,
+              bank_nuit_code: bank.bank_nuit_code,
+              vendor_bank_country_id: bank.vendor_bank_country_id,
+              vendor_bank_state_id: bank.vendor_bank_state_id,
+              vendor_bank_city_id: bank.vendor_bank_city_id,
+            })),
+            { transaction }
+          );
+        }
+
+        await transaction.commit();
+
+        return res.status(200).send({
+          success: true,
+          status: "Vendor Bank Details Updated Successfully!",
+        });
+      }
+
+      // Updating the Vendor Document Details
+      if (data.tab_type === "document_details") {
+        if (data.document_details) {
+          await DB.tbl_vendor_document_mapped.destroy({
+            where: { vendor_id: id },
+            transaction,
+          });
+
+          await DB.tbl_vendor_document_mapped.bulkCreate(
+            data.document_details.map((document) => ({
+              vendor_id: id,
+              document_type: document.document_type,
+              document_name: document.document_name,
+              document_expiry_date: document.document_expiry_date,
+              document_notification_required:
+                document.document_notification_required,
+            })),
+            { transaction }
+          );
+        }
+
+        await transaction.commit();
+
+        return res.status(200).send({
+          success: true,
+          status: "Vendor Document Details Updated Successfully!",
+        });
+      } else {
+        return res
+          .status(500)
+          .send({ success: false, message: "Invalid Tab Type!" });
       }
     }
   } catch (error) {
+    await transaction.rollback();
     res.status(500).send({ success: false, message: error.message });
   }
 };
