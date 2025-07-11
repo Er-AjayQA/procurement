@@ -437,21 +437,21 @@ module.exports.updateVendorStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Branch exist
-    const isBranchExist = await DB.tbl_branch_master.findOne({
+    // Check if Vendor exist
+    const isVendorExist = await DB.tbl_vendor_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isBranchExist) {
+    if (!isVendorExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Branch Not Found!" });
+        .send({ success: false, message: "Vendor Not Found!" });
     } else {
-      const updateStatus = await isBranchExist.update({
-        status: !isBranchExist.status,
+      const updateStatus = await isVendorExist.update({
+        status: !isVendorExist.status,
       });
       return res.status(200).send({
         success: true,
@@ -469,25 +469,25 @@ module.exports.deleteVendor = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Branch already exist
-    const isBranchExist = await DB.tbl_branch_master.findOne({
+    // Check if Vendor already exist
+    const isVendorExist = await DB.tbl_vendor_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isBranchExist) {
+    if (!isVendorExist) {
       return res
         .status(400)
-        .send({ success: false, message: "Branch Not Found!" });
+        .send({ success: false, message: "Vendor Not Found!" });
     } else {
-      await isBranchExist.update({
+      await isVendorExist.update({
         isDeleted: true,
       });
       return res.status(200).send({
         success: true,
-        status: "Branch Deleted Successfully!",
+        status: "Vendor Deleted Successfully!",
       });
     }
   } catch (error) {
