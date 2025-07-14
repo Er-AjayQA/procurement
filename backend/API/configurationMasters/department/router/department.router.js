@@ -18,7 +18,7 @@ router.put(
   "/update-department-status/:id",
   DepartmentController.updateDepartmentStatus
 );
-router.delete("/delete-department/:id", DepartmentController.deleteDepartment);
+router.put("/delete-department/:id", DepartmentController.deleteDepartment);
 
 // ========== EXPORT ========== //
 module.exports = router;
