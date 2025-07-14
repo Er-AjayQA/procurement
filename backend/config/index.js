@@ -243,6 +243,34 @@ db.tbl_vendor_document_mapped =
     Sequelize
   );
 
+// Course Category Table
+db.tbl_course_category =
+  require("../API/configurationMasters/courseCategory_master/model/courseCategory.model")(
+    sequelize,
+    Sequelize
+  );
+
+// LMS Course Table
+db.tbl_lms_course = require("../API/lms/model/lms_course.model")(
+  sequelize,
+  Sequelize
+);
+
+// LMS Course Content Table
+db.tbl_lms_course_content =
+  require("../API/lms/model/lms_course_content.model")(sequelize, Sequelize);
+
+// LMS Course Assessments Table
+db.tbl_lms_course_assessment =
+  require("../API/lms/model/lms_course_assessment.model")(sequelize, Sequelize);
+
+// LMS Course Assessments Questions Table
+db.tbl_lms_course_assessment_questions =
+  require("../API/lms/model/lms_course_assessment_questions.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
@@ -611,6 +639,46 @@ db.tbl_vendor_master.hasMany(db.tbl_vendor_document_mapped, {
 });
 db.tbl_vendor_document_mapped.belongsTo(db.tbl_vendor_master, {
   foreignKey: "vendor_id",
+});
+
+// Relation B/W LMS Course and Course Category Tables
+db.tbl_course_category.hasMany(db.tbl_lms_course, {
+  foreignKey: "course_category_id",
+});
+db.tbl_lms_course.belongsTo(db.tbl_course_category, {
+  foreignKey: "course_category_id",
+});
+
+// Relation B/W LMS Course and LMS Course Content Tables
+db.tbl_lms_course.hasMany(db.tbl_lms_course_content, {
+  foreignKey: "course_id",
+});
+db.tbl_lms_course_content.belongsTo(db.tbl_lms_course, {
+  foreignKey: "course_id",
+});
+
+// Relation B/W LMS Course and LMS Course Assessment Tables
+db.tbl_lms_course.hasMany(db.tbl_lms_course_assessment, {
+  foreignKey: "course_id",
+});
+db.tbl_lms_course_assessment.belongsTo(db.tbl_lms_course, {
+  foreignKey: "course_id",
+});
+
+// Relation B/W LMS Course Assessment and LMS Course Assessment Questions Tables
+db.tbl_lms_course_assessment.hasMany(db.tbl_lms_course_assessment_questions, {
+  foreignKey: "assessment_id",
+});
+db.tbl_lms_course_assessment_questions.belongsTo(db.tbl_lms_course_assessment, {
+  foreignKey: "assessment_id",
+});
+
+// Relation B/W LMS Course and LMS Course Assessment Questions Tables
+db.tbl_lms_course.hasMany(db.tbl_lms_course_assessment_questions, {
+  foreignKey: "course_id",
+});
+db.tbl_lms_course_assessment_questions.belongsTo(db.tbl_lms_course, {
+  foreignKey: "course_id",
 });
 
 // // Relation B/W User Master and Purchase Request Tables
