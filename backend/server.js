@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_lms_course
+// db.tbl_rbac_submenu_master
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -50,6 +50,7 @@ const budgetRoute = require("./API/budgetManagement/router/budget.router");
 const vendorRoute = require("./API/vendorManagement/router/vendor.router");
 const courseCategoryRoute = require("./API/configurationMasters/courseCategory_master/router/courseCategory.router");
 const lmsRoute = require("./API/lms/router/lms_course.router");
+const rbacRoute = require("./API/rbac_management/router/rbac.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -85,6 +86,7 @@ app.use("/api/v1/procurement", budgetRoute);
 app.use("/api/v1/procurement", vendorRoute);
 app.use("/api/v1/procurement", courseCategoryRoute);
 app.use("/api/v1/procurement", lmsRoute);
+app.use("/api/v1/procurement", rbacRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

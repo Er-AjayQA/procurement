@@ -271,6 +271,20 @@ db.tbl_lms_course_assessment_questions =
     Sequelize
   );
 
+// RBAC Menu Master Table
+db.tbl_rbac_menu_master =
+  require("../API/rbac_management/model/menu_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+// RBAC SubMenu Master Table
+db.tbl_rbac_submenu_master =
+  require("../API/rbac_management/model/subMenu_master.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
@@ -639,6 +653,14 @@ db.tbl_vendor_master.hasMany(db.tbl_vendor_document_mapped, {
 });
 db.tbl_vendor_document_mapped.belongsTo(db.tbl_vendor_master, {
   foreignKey: "vendor_id",
+});
+
+// Relation B/W RBAC Menu Master and RBAC SubMenu Master Tables
+db.tbl_rbac_menu_master.hasMany(db.tbl_rbac_submenu_master, {
+  foreignKey: "rbac_menu_id",
+});
+db.tbl_rbac_submenu_master.belongsTo(db.tbl_rbac_menu_master, {
+  foreignKey: "rbac_menu_id",
 });
 
 // Relation B/W LMS Course and Course Category Tables
