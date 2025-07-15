@@ -15,6 +15,8 @@ router.put("/delete-menu/:id", MenuController.deleteMenu);
 
 // SubMenu Routes
 router.post("/create-submenu", SubMenuController.createSubMenu);
+router.put("/update-submenu/:id", SubMenuController.updateSubMenu);
+router.post("/get-all-submenu-details", SubMenuController.getAllSubMenuDetails);
 router.put("/update-submenu-status/:id", SubMenuController.updateSubMenuStatus);
 router.put("/delete-submenu/:id", SubMenuController.deleteSubMenu);
 
