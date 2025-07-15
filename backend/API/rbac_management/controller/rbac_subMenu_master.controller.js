@@ -61,35 +61,46 @@ module.exports.createSubMenu = async (req, res) => {
 };
 
 // ========== UPDATE SUBMENU MASTER CONTROLLER ========== //
-module.exports.updateMenu = async (req, res) => {
+module.exports.updateSubMenu = async (req, res) => {
   try {
     const data = req.body;
 
-    const isMenuExist = await DB.tbl_rbac_menu_master.findOne({
+    const isSubMenuExist = await DB.tbl_rbac_submenu_master.findOne({
       where: { id: req.params.id, isDeleted: false },
     });
 
-    if (!isMenuExist) {
+    if (!isSubMenuExist) {
       return res
         .status(404)
-        .send({ success: false, message: "Menu Not Exist!" });
+        .send({ success: false, message: "SubMenu Not Exist!" });
     } else {
       // Check for duplicate record while updating
-      const checkDuplicate = await DB.tbl_rbac_menu_master.findOne({
+      const checkDuplicate = await DB.tbl_rbac_submenu_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: req.params.id },
           isDeleted: false,
           [DB.Sequelize.Op.or]: [
             {
-              menu_name: DB.Sequelize.where(
-                DB.Sequelize.fn("LOWER", DB.Sequelize.col("menu_name")),
-                DB.Sequelize.fn("LOWER", data.menu_name)
-              ),
+              [DB.Sequelize.Op.and]: [
+                {
+                  rbac_menu_id: DB.Sequelize.where(
+                    DB.Sequelize.fn("LOWER", DB.Sequelize.col("rbac_menu_id")),
+                    DB.Sequelize.fn("LOWER", data.rbac_menu_id)
+                  ),
+                },
+                {
+                  submenu_name: DB.Sequelize.where(
+                    DB.Sequelize.fn("LOWER", DB.Sequelize.col("submenu_name")),
+                    DB.Sequelize.fn("LOWER", data.submenu_name)
+                  ),
+                },
+              ],
             },
+
             {
-              menu_endpoint: DB.Sequelize.where(
-                DB.Sequelize.fn("LOWER", DB.Sequelize.col("menu_endpoint")),
-                DB.Sequelize.fn("LOWER", data.menu_endpoint)
+              submenu_endpoint: DB.Sequelize.where(
+                DB.Sequelize.fn("LOWER", DB.Sequelize.col("submenu_endpoint")),
+                DB.Sequelize.fn("LOWER", data.submenu_endpoint)
               ),
             },
           ],
@@ -99,16 +110,16 @@ module.exports.updateMenu = async (req, res) => {
       if (checkDuplicate) {
         return res.status(409).send({
           success: true,
-          message: "Menu Name or Menu Endpoint Already Exist!",
+          message: "SubMenu Name or SubMenu Endpoint Already Exist!",
         });
       }
 
-      const updateMenu = await DB.tbl_rbac_menu_master.update(data, {
+      const updateMenu = await DB.tbl_rbac_submenu_master.update(data, {
         where: { id: req.params.id },
       });
       return res.status(201).send({
         success: true,
-        message: "Menu Updated Successfully!",
+        message: "SubMenu Updated Successfully!",
         updatedMenu: updateMenu,
       });
     }
@@ -118,12 +129,13 @@ module.exports.updateMenu = async (req, res) => {
 };
 
 // ========== GET ALL SUBMENU MASTER DETAILS CONTROLLER ========== //
-module.exports.getAllMenuDetails = async (req, res) => {
+module.exports.getAllSubMenuDetails = async (req, res) => {
   try {
     const query = `
-    SELECT RM.*
-       FROM RBAC_MENU_MASTER AS RM
-       WHERE RM.isDeleted=false`;
+    SELECT RSM.id, RSM.submenu_name, RSM.submenu_icon, RSM.submenu_endpoint, RSM.rbac_menu_id, RM.menu_name, RSM.isDeleted, RSM.status 
+       FROM RBAC_SUBMENU_MASTER AS RSM
+       LEFT JOIN RBAC_MENU_MASTER AS RM ON RM.id=RSM.rbac_menu_id
+       WHERE RSM.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -132,11 +144,11 @@ module.exports.getAllMenuDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Menus Not Found!" });
+        .send({ success: false, message: "SubMenus Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Menus Details Successfully!",
+        status: "Get SubMenus Details Successfully!",
         records: getAllData.length,
         data: getAllData,
       });
