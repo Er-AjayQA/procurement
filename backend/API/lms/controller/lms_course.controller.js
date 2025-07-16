@@ -307,3 +307,129 @@ module.exports.createCourse = async (req, res) => {
 //     res.status(500).send({ success: false, message: error.message });
 //   }
 // };
+
+// ========== CREATE ASSIGN COURSE CONTROLLER ========== //
+module.exports.assignCourse = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
+  try {
+    const data = req.body;
+
+    let employees = [];
+
+    const checkIfAssign = await DB.tbl_lms_assign_course.findOne({
+      where: {
+        course_id: data.course_id,
+        assign_type: data.assign_type,
+        isDeleted: false,
+      },
+      transaction,
+    });
+
+    if (checkIfAssign) {
+      await transaction.rollback();
+      return res.status(409).send({
+        success: false,
+        status: "Course Already Assigned!",
+      });
+    }
+
+    // Find all Users of Selected Departments
+    if (data.assign_type === "department") {
+      for (const id of data.allocate_id) {
+        const empData = await DB.tbl_user_master.findAll({
+          where: { dep_id: id, isDeleted: false },
+          transaction,
+        });
+
+        if (empData.length > 0) {
+          for (const employee of empData) {
+            employees.push(employee.id);
+          }
+        }
+      }
+    }
+
+    // Find all Users of Selected Designations
+    if (data.assign_type === "designation") {
+      for (const id of data.allocate_id) {
+        const empData = await DB.tbl_user_master.findAll({
+          where: { designation_id: id, isDeleted: false },
+          transaction,
+        });
+
+        if (empData.length > 0) {
+          for (const employee of empData) {
+            employees.push(employee.id);
+          }
+        }
+      }
+    }
+
+    // Find all Users
+    if (data.assign_type === "allEmployees") {
+      const allEmployees = await DB.tbl_user_master.findAll({
+        where: { isDeleted: false },
+        transaction,
+      });
+      for (const employee of allEmployees) {
+        employees.push(employee.id);
+      }
+    }
+
+    // Find Selected Users
+    if (data.assign_type === "employees") {
+      for (const employeeId of data.allocate_id) {
+        const empData = await DB.tbl_user_master.findOne({
+          where: { id: employeeId, isDeleted: false },
+          transaction,
+        });
+
+        employees.push(empData.id);
+      }
+    }
+
+    // Find Course Contents
+    let contents = [];
+    const courseContents = await DB.tbl_lms_course_content.findAll({
+      where: { course_id: data.course_id },
+    });
+
+    if (courseContents.length > 0) {
+      for (const content of courseContents) {
+        contents.push({ content_id: content.id, complete_status: false });
+      }
+    }
+
+    const assignCourse = await DB.tbl_lms_assign_course.create(
+      {
+        course_id: data.course_id,
+        assign_type: data.assign_type,
+        start_date: data.start_date,
+        end_date: data.end_date,
+      },
+      { transaction }
+    );
+
+    if (employees.length > 0) {
+      await DB.tbl_lms_assign_employee_course.bulkCreate(
+        employees.map((employee) => ({
+          user_id: employee,
+          course_assign_id: assignCourse.id,
+          allContentStatus: contents,
+        })),
+        {
+          transaction,
+        }
+      );
+    }
+
+    await transaction.commit();
+    return res.status(200).send({
+      success: true,
+      status: "Course Assigned Successfully!",
+    });
+  } catch (error) {
+    await transaction.rollback();
+    res.status(500).send({ success: false, message: error.message });
+  }
+};

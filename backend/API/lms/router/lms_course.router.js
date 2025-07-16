@@ -11,5 +11,8 @@ router.post("/create-course", lmsController.createCourse);
 // router.put("/update-course-status/:id", lmsController.updateWorkflowStatus);
 // router.put("/delete-course/:id", lmsController.deleteWorkflow);
 
+// Course Allocations
+router.post("/assign-course", lmsController.assignCourse);
+
 // ========== EXPORT ========== //
 module.exports = router;

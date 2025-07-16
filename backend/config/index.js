@@ -243,6 +243,20 @@ db.tbl_vendor_document_mapped =
     Sequelize
   );
 
+// RBAC Menu Master Table
+db.tbl_rbac_menu_master =
+  require("../API/rbac_management/model/menu_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+// RBAC SubMenu Master Table
+db.tbl_rbac_submenu_master =
+  require("../API/rbac_management/model/subMenu_master.model")(
+    sequelize,
+    Sequelize
+  );
+
 // Course Category Table
 db.tbl_course_category =
   require("../API/configurationMasters/courseCategory_master/model/courseCategory.model")(
@@ -271,16 +285,15 @@ db.tbl_lms_course_assessment_questions =
     Sequelize
   );
 
-// RBAC Menu Master Table
-db.tbl_rbac_menu_master =
-  require("../API/rbac_management/model/menu_master.model")(
-    sequelize,
-    Sequelize
-  );
+// LMS Assign Course Table
+db.tbl_lms_assign_course = require("../API/lms/model/lms_assign_course.model")(
+  sequelize,
+  Sequelize
+);
 
-// RBAC SubMenu Master Table
-db.tbl_rbac_submenu_master =
-  require("../API/rbac_management/model/subMenu_master.model")(
+// LMS Assign Employee Course Table
+db.tbl_lms_assign_employee_course =
+  require("../API/lms/model/lms_assign_employee_course.model")(
     sequelize,
     Sequelize
   );
@@ -701,6 +714,30 @@ db.tbl_lms_course.hasMany(db.tbl_lms_course_assessment_questions, {
 });
 db.tbl_lms_course_assessment_questions.belongsTo(db.tbl_lms_course, {
   foreignKey: "course_id",
+});
+
+// Relation B/W LMS Course and LMS Assign Course Tables
+db.tbl_lms_course.hasMany(db.tbl_lms_assign_course, {
+  foreignKey: "course_id",
+});
+db.tbl_lms_assign_course.belongsTo(db.tbl_lms_course, {
+  foreignKey: "course_id",
+});
+
+// Relation B/W LMS Assign Course and LMS Assign Employee Course Tables
+db.tbl_lms_assign_course.hasMany(db.tbl_lms_assign_employee_course, {
+  foreignKey: "course_assign_id",
+});
+db.tbl_lms_assign_employee_course.belongsTo(db.tbl_lms_assign_course, {
+  foreignKey: "course_assign_id",
+});
+
+// Relation B/W LMS Assign Employee Course and User Master Tables
+db.tbl_user_master.hasMany(db.tbl_lms_assign_employee_course, {
+  foreignKey: "user_id",
+});
+db.tbl_lms_assign_employee_course.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
 });
 
 // // Relation B/W User Master and Purchase Request Tables
