@@ -56,7 +56,7 @@ module.exports.createCourse = async (req, res) => {
           {
             course_id: newCourse.id,
             assessment_name: data.assessment_name,
-            assessment_marks: data.assessment_marks,
+            marks_per_question: data.marks_per_question,
             assessment_passing_percent: data.assessment_passing_percent,
             assessment_time: data.assessment_time,
             assessment_max_attempts: data.assessment_max_attempts,
@@ -492,12 +492,26 @@ module.exports.assessmentSubmit = async (req, res) => {
       );
     }
 
+    // Updating the Attempts Left
     await DB.tbl_lms_assign_employee_course.update(
       { attempt_left: details.attempt_left - 1 },
       {
         where: { user_id, course_assign_id: assign_id, isDeleted: false },
-      }
+      },
+      { transaction }
     );
+
+    // Get Assessment Details
+    const assessmentDetails = await DB.tbl_lms_course_assessment.findOne({
+      where: { id: data.course_id, isDeleted: false },
+      transaction,
+    });
+
+    // Get Total Marks
+    const totalMarks =
+      assessmentDetails.marks_per_question * allQuestions.length;
+
+    console.log(totalMarks);
 
     await transaction.commit();
     return res.status(200).send({
