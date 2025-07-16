@@ -161,59 +161,55 @@ module.exports.createCourse = async (req, res) => {
 //   }
 // };
 
-// // ========== GET COURSE DETAILS CONTROLLER ========== //
-// module.exports.getWorkflowDetails = async (req, res) => {
-//   try {
-//     const { id } = req.params;
+// ========== GET COURSE DETAILS CONTROLLER ========== //
+module.exports.getCourseDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-//     const query = `
-//     SELECT W.*, WT.name, D.name AS department
-//     FROM WORKFLOW_MASTER AS W
-//     LEFT JOIN WORKFLOW_TYPE_MASTER AS WT ON WT.id=W.workflow_type_id
-//     LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=W.dept_id
-//     WHERE W.id=${id} AND W.isDeleted=false`;
+    const query = `
+    SELECT C.*, CC.name AS course_category_name
+    FROM LMS_COURSE AS C
+    LEFT JOIN COURSE_CATEGORY AS CC ON CC.id=C.course_category_id
+    WHERE C.id=${id} AND C.isDeleted=false`;
 
-//     const getAllData = await DB.sequelize.query(query, {
-//       type: DB.sequelize.QueryTypes.SELECT,
-//     });
+    const getAllData = await DB.sequelize.query(query, {
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
 
-//     // Get Employee Mapping Details
-//     const employeeMappingDetails =
-//       await DB.tbl_workflowEmployeeMapping_master.findAll({
-//         where: { workflow_id: id },
-//       });
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Workflow Not Found!" });
+    } else {
+      // Get Assessment Details
+      let getAllAssessment;
+      if (getAllData[0].course_type === "contentWithAssessment") {
+        getAllAssessment = await DB.tbl_lms_course_assessment.findAll({
+          where: { course_id: id, isDeleted: false },
+          include: [
+            {
+              model: DB.tbl_lms_course_assessment_questions,
+              where: { isDeleted: false },
+            },
+          ],
+        });
+      }
 
-//     const workflowEmployeeDetails = await Promise.all(
-//       employeeMappingDetails.map(async (employee) => {
-//         const details = await DB.tbl_user_master.findOne({
-//           attributes: ["id", "name"],
-//           where: { id: employee.user_id },
-//           include: {
-//             model: DB.tbl_role_master,
-//             attributes: ["id", "name"],
-//             where: { isDeleted: false },
-//           },
-//         });
+      // Get Content Details
+      const getAllContent = await DB.tbl_lms_course_content.findAll({
+        where: { course_id: id, isDeleted: false },
+      });
 
-//         return details;
-//       })
-//     );
-
-//     if (getAllData.length < 1) {
-//       return res
-//         .status(400)
-//         .send({ success: false, message: "Workflow Not Found!" });
-//     } else {
-//       return res.status(200).send({
-//         success: true,
-//         status: "Get Workflow Details Successfully!",
-//         data: { ...getAllData, workflowEmployeeDetails },
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).send({ success: false, message: error.message });
-//   }
-// };
+      return res.status(200).send({
+        success: true,
+        status: "Get Course Details Successfully!",
+        data: { ...getAllData, getAllAssessment, getAllContent },
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
 
 // // ========== GET ALL COURSE DETAILS CONTROLLER ========== //
 // module.exports.getAllWorkflowDetails = async (req, res) => {
@@ -308,7 +304,7 @@ module.exports.createCourse = async (req, res) => {
 //   }
 // };
 
-// ========== CREATE ASSIGN COURSE CONTROLLER ========== //
+// ========== ASSIGN COURSE CONTROLLER ========== //
 module.exports.assignCourse = async (req, res) => {
   const transaction = await DB.sequelize.transaction();
   try {
@@ -400,6 +396,17 @@ module.exports.assignCourse = async (req, res) => {
       }
     }
 
+    let attempts;
+
+    const getAssessmentAttempts = await DB.tbl_lms_course_assessment.findOne({
+      where: { course_id: data.course_id, isDeleted: false },
+    });
+
+    attempts = getAssessmentAttempts.assessment_max_attempts;
+
+    // console.log(typeof attempts);
+    // return;
+
     const assignCourse = await DB.tbl_lms_assign_course.create(
       {
         course_id: data.course_id,
@@ -416,6 +423,7 @@ module.exports.assignCourse = async (req, res) => {
           user_id: employee,
           course_assign_id: assignCourse.id,
           allContentStatus: contents,
+          attempt_left: attempts ? attempts : 0,
         })),
         {
           transaction,
@@ -427,6 +435,74 @@ module.exports.assignCourse = async (req, res) => {
     return res.status(200).send({
       success: true,
       status: "Course Assigned Successfully!",
+    });
+  } catch (error) {
+    await transaction.rollback();
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== SUBMIT ASSESSMENT CONTROLLER ========== //
+module.exports.assessmentSubmit = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
+  try {
+    const data = req.body;
+    const { user_id, assign_id } = req.params;
+
+    // Get Assessment Details
+    const details = await DB.tbl_lms_assign_employee_course.findOne({
+      where: { user_id, course_assign_id: assign_id, isDeleted: false },
+      transaction,
+    });
+
+    if (!details.attempt_left > 0) {
+      await transaction.rollback();
+      return res.status(400).send({
+        success: false,
+        status: "No Attempts Left!",
+      });
+    }
+
+    // Get All questions
+    const allQuestions = await DB.tbl_lms_course_assessment_questions.findAll({
+      where: { assessment_id: data.assessment_id, isDeleted: false },
+      attributes: ["id", "assessment_correct_answer"],
+    });
+
+    // Create mapping for question and it's answers
+    const correctAnswerMap = {};
+    allQuestions.forEach((question) => {
+      correctAnswerMap[question.id] = question.assessment_correct_answer;
+    });
+
+    if (data.employee_answer && data.employee_answer.length > 0) {
+      await DB.tbl_lms_employee_assessment_question_submission.bulkCreate(
+        data.employee_answer.map((answer) => {
+          // Check if answer is Correct
+          const status =
+            correctAnswerMap[answer.question_id] === answer.employee_answer;
+          return {
+            assessment_id: data.assessment_id,
+            question_id: answer.question_id,
+            employee_answer: answer.employee_answer,
+            answer_status: status,
+          };
+        }),
+        { transaction }
+      );
+    }
+
+    await DB.tbl_lms_assign_employee_course.update(
+      { attempt_left: details.attempt_left - 1 },
+      {
+        where: { user_id, course_assign_id: assign_id, isDeleted: false },
+      }
+    );
+
+    await transaction.commit();
+    return res.status(200).send({
+      success: true,
+      status: "Assessment Submitted Successfully!",
     });
   } catch (error) {
     await transaction.rollback();
