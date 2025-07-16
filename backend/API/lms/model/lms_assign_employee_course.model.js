@@ -12,6 +12,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.JSON,
         allowNull: false,
       },
+      attempt_left: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       isContentComplete: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

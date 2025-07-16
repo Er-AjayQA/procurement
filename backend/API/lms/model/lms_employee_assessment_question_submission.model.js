@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_lms_employee_assessment_submission = sequelize.define(
+  const tbl_lms_employee_assessment_question_submission = sequelize.define(
     "LMS_EMPLOYEE_ASSESSMENT_SUBMISSION",
     {
       id: {
@@ -8,21 +8,14 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      allContentStatus: {
-        type: Sequelize.JSON,
-        allowNull: false,
+      employee_answer: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("employee_answer", value === "" ? null : value);
+        },
       },
-      isContentComplete: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      },
-      isAssessmentComplete: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      },
-      isCourseComplete: {
+      answer_status: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
@@ -38,5 +31,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_lms_employee_assessment_submission;
+  return tbl_lms_employee_assessment_question_submission;
 };

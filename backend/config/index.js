@@ -298,6 +298,13 @@ db.tbl_lms_assign_employee_course =
     Sequelize
   );
 
+// LMS Employee Assessment Question Submission Table
+db.tbl_lms_employee_assessment_question_submission =
+  require("../API/lms/model/lms_employee_assessment_question_submission.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
@@ -739,6 +746,34 @@ db.tbl_user_master.hasMany(db.tbl_lms_assign_employee_course, {
 db.tbl_lms_assign_employee_course.belongsTo(db.tbl_user_master, {
   foreignKey: "user_id",
 });
+
+// Relation B/W LMS Employee Assessment Submission and LMS Course Assessment Tables
+db.tbl_lms_course_assessment.hasMany(
+  db.tbl_lms_employee_assessment_question_submission,
+  {
+    foreignKey: "assessment_id",
+  }
+);
+db.tbl_lms_employee_assessment_question_submission.belongsTo(
+  db.tbl_lms_course_assessment,
+  {
+    foreignKey: "assessment_id",
+  }
+);
+
+// Relation B/W LMS Employee Assessment Submission and LMS Course Assessment Question Tables
+db.tbl_lms_course_assessment_questions.hasMany(
+  db.tbl_lms_employee_assessment_question_submission,
+  {
+    foreignKey: "question_id",
+  }
+);
+db.tbl_lms_employee_assessment_question_submission.belongsTo(
+  db.tbl_lms_course_assessment_questions,
+  {
+    foreignKey: "question_id",
+  }
+);
 
 // // Relation B/W User Master and Purchase Request Tables
 // db.tbl_user_master.hasMany(db.tbl_purchase_request, {
