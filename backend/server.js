@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_lms_assign_employee_course
+// db.tbl_lms_course_assessment
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -24,7 +24,7 @@ app.use(cors());
 //     console.error(err);
 //   });
 
-// ========== IMPORTING ROUTES ========== //
+// // ========== IMPORTING ROUTES ========== //
 const userRoute = require("./API/user/router/user.router");
 const departmentRoute = require("./API/configurationMasters/department/router/department.router");
 const designationRoute = require("./API/configurationMasters/designation/router/designation.router");

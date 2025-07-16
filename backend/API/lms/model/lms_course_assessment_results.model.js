@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_lms_course_assessment = sequelize.define(
-    "LMS_COURSE_ASSESSMENT",
+  const tbl_lms_course_assessment_results = sequelize.define(
+    "LMS_COURSE_ASSESSMENT_RESULTS",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -8,24 +8,20 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      assessment_name: {
+      total_marks: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      marks_per_question: {
+      obtained_marks: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      assessment_passing_percent: {
+      pass_percent: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false,
       },
-      assessment_time: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
-      assessment_max_attempts: {
-        type: Sequelize.INTEGER,
+      isPass: {
+        type: Sequelize.BOOLEAN,
         allowNull: true,
       },
       isDeleted: {
@@ -39,5 +35,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_lms_course_assessment;
+  return tbl_lms_course_assessment_results;
 };
