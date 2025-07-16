@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_lms_assign_course = sequelize.define(
-    "LMS_ASSIGN_COURSE",
+  const tbl_lms_assign_employee_course = sequelize.define(
+    "LMS_ASSIGN_EMPLOYEE_COURSE",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -8,22 +8,24 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      assign_type: {
-        type: Sequelize.ENUM(
-          "allEmployees",
-          "department",
-          "designation",
-          "employees"
-        ),
+      allContentStatus: {
+        type: Sequelize.JSON,
         allowNull: false,
       },
-      start_date: {
-        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+      isContentComplete: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
+        defaultValue: false,
       },
-      end_date: {
-        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+      isAssessmentComplete: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
+        defaultValue: false,
+      },
+      isCourseComplete: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
@@ -36,5 +38,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_lms_assign_course;
+  return tbl_lms_assign_employee_course;
 };
