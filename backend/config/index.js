@@ -782,6 +782,14 @@ db.tbl_lms_employee_assessment_question_submission.belongsTo(
   }
 );
 
+// Relation B/W LMS Employee Assign Course and LMS Course Tables
+db.tbl_lms_course.hasMany(db.tbl_lms_assign_employee_course, {
+  foreignKey: "course_id",
+});
+db.tbl_lms_assign_employee_course.belongsTo(db.tbl_lms_course, {
+  foreignKey: "course_id",
+});
+
 // Relation B/W LMS Employee Assessment Result and User Master Tables
 db.tbl_user_master.hasMany(db.tbl_lms_course_assessment_results, {
   foreignKey: "user_id",
