@@ -1,6 +1,7 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../config/index");
 
+// ******************** COURSE BASIC LOGIC CONTROLLERS ******************** //
 // ========== CREATE COURSE CONTROLLER ========== //
 module.exports.createCourse = async (req, res) => {
   const transaction = await DB.sequelize.transaction();
@@ -93,7 +94,7 @@ module.exports.createCourse = async (req, res) => {
 };
 
 // // ========== UPDATE COURSE CONTROLLER ========== //
-// module.exports.updateWorkflow = async (req, res) => {
+// module.exports.updateCourse = async (req, res) => {
 //   try {
 //     const data = req.body;
 //     const { id } = req.params;
@@ -211,117 +212,83 @@ module.exports.getCourseDetails = async (req, res) => {
   }
 };
 
-// // ========== GET ALL COURSE DETAILS CONTROLLER ========== //
-// module.exports.getAllWorkflowDetails = async (req, res) => {
-//   try {
-//     const query = `
-//             SELECT W.*, WT.name, D.name AS department
-//             FROM WORKFLOW_MASTER AS W
-//             LEFT JOIN WORKFLOW_TYPE_MASTER AS WT ON WT.id=W.workflow_type_id
-//             LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=W.dept_id
-//             WHERE W.isDeleted=false`;
+// ========== GET ALL COURSE DETAILS CONTROLLER ========== //
+module.exports.getAllCourseDetails = async (req, res) => {
+  try {
+    const query = `
+            SELECT C.*
+            FROM LMS_COURSE AS C
+            WHERE C.isDeleted=false`;
 
-//     const getAllData = await DB.sequelize.query(query, {
-//       type: DB.sequelize.QueryTypes.SELECT,
-//     });
+    const getAllData = await DB.sequelize.query(query, {
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
 
-//     if (getAllData.length < 1) {
-//       return res
-//         .status(400)
-//         .send({ success: false, message: "Workflows Not Found!" });
-//     } else {
-//       return res.status(200).send({
-//         success: true,
-//         status: "Get All Workflows List!",
-//         data: getAllData,
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).send({ success: false, message: error.message });
-//   }
-// };
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Courses Not Found!" });
+    } else {
+      return res.status(200).send({
+        success: true,
+        status: "Get All Courses List!",
+        data: getAllData,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
 
-// // ========== UPDATE COURSE CONTROLLER ========== //
-// module.exports.updateWorkflowStatus = async (req, res) => {
-//   try {
-//     const { id } = req.params;
+// ========== UPDATE COURSE STATUS CONTROLLER ========== //
+module.exports.updateCourseStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-//     // Check if Workflow already exist
-//     const isWorkflowExist = await DB.tbl_workflow_master.findOne({
-//       where: {
-//         id,
-//         isDeleted: false,
-//       },
-//     });
+    // Check if Course exist
+    const isCourseExist = await DB.tbl_lms_course.findOne({
+      where: {
+        id,
+        isDeleted: false,
+      },
+    });
 
-//     if (!isWorkflowExist) {
-//       return res
-//         .status(400)
-//         .send({ success: false, message: "Workflow Not Found!" });
-//     } else {
-//       const updateStatus = await isWorkflowExist.update({
-//         status: !isWorkflowExist.status,
-//       });
-//       return res.status(200).send({
-//         success: true,
-//         status: "Status Changed Successfully!",
-//         data: updateStatus,
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).send({ success: false, message: error.message });
-//   }
-// };
+    if (!isCourseExist) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Course Not Found!" });
+    } else {
+      const updateStatus = await isCourseExist.update({
+        status: !isCourseExist.status,
+      });
+      return res.status(200).send({
+        success: true,
+        status: "Status Changed Successfully!",
+        data: updateStatus,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
 
-// // ========== DELETE COURSE CONTROLLER ========== //
-// module.exports.deleteWorkflow = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-
-//     // Check if Workflow already exist
-//     const isWorkflowExist = await DB.tbl_workflow_master.findOne({
-//       where: {
-//         id,
-//         isDeleted: false,
-//       },
-//     });
-
-//     if (!isWorkflowExist) {
-//       return res
-//         .status(400)
-//         .send({ success: false, message: "Workflow Not Found!" });
-//     } else {
-//       await isWorkflowExist.update({
-//         isDeleted: true,
-//       });
-//       return res.status(200).send({
-//         success: true,
-//         status: "Workflow Deleted Successfully!",
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).send({ success: false, message: error.message });
-//   }
-// };
-
+// ******************** COURSE ALLOCATION LOGIC CONTROLLERS ******************** //
 // ========== ASSIGN COURSE CONTROLLER ========== //
 module.exports.assignCourse = async (req, res) => {
   const transaction = await DB.sequelize.transaction();
   try {
     const data = req.body;
 
-    let employees = [];
-
+    // Check if there's any existing assignment with different assign_type
     const checkIfAssign = await DB.tbl_lms_assign_course.findOne({
       where: {
         course_id: data.course_id,
-        assign_type: data.assign_type,
         isDeleted: false,
       },
       transaction,
     });
 
-    if (checkIfAssign) {
+    if (checkIfAssign && checkIfAssign.assign_type !== data.assign_type) {
       await transaction.rollback();
       return res.status(409).send({
         success: false,
@@ -329,8 +296,9 @@ module.exports.assignCourse = async (req, res) => {
       });
     }
 
-    // Find all Users of Selected Departments
+    let employees = [];
     if (data.assign_type === "department") {
+      // Find all Users of Selected Departments
       for (const id of data.allocate_id) {
         const empData = await DB.tbl_user_master.findAll({
           where: { dep_id: id, isDeleted: false },
@@ -384,57 +352,62 @@ module.exports.assignCourse = async (req, res) => {
       }
     }
 
-    // Find Course Contents
-    let contents = [];
-    const courseContents = await DB.tbl_lms_course_content.findAll({
-      where: { course_id: data.course_id },
-    });
-
-    if (courseContents.length > 0) {
-      for (const content of courseContents) {
-        contents.push({ content_id: content.id, complete_status: false });
-      }
-    }
-
-    let attempts;
-
-    const getAssessmentAttempts = await DB.tbl_lms_course_assessment.findOne({
-      where: { course_id: data.course_id, isDeleted: false },
-    });
-
-    attempts = getAssessmentAttempts.assessment_max_attempts;
-
-    // console.log(typeof attempts);
-    // return;
-
-    const assignCourse = await DB.tbl_lms_assign_course.create(
-      {
-        course_id: data.course_id,
-        assign_type: data.assign_type,
-        start_date: data.start_date,
-        end_date: data.end_date,
-      },
-      { transaction }
-    );
-
     if (employees.length > 0) {
+      // Find Course Contents
+      let contents = [];
+      const courseContents = await DB.tbl_lms_course_content.findAll({
+        where: { course_id: data.course_id },
+      });
+
+      if (courseContents.length > 0) {
+        for (const content of courseContents) {
+          contents.push({ content_id: content.id, complete_status: false });
+        }
+      }
+
+      // Get the Course Assessment Max Attempts
+      let attempts;
+      const getAssessmentAttempts = await DB.tbl_lms_course_assessment.findOne({
+        where: { course_id: data.course_id, isDeleted: false },
+      });
+
+      attempts = getAssessmentAttempts?.assessment_max_attempts || 0;
+
+      // Assign the Courses to all employees as per employees array value
+      const assignCourse = await DB.tbl_lms_assign_course.create(
+        {
+          course_id: data.course_id,
+          assign_type: data.assign_type,
+          start_date: data.start_date,
+          end_date: data.end_date,
+        },
+        { transaction }
+      );
+
       await DB.tbl_lms_assign_employee_course.bulkCreate(
         employees.map((employee) => ({
           user_id: employee,
           course_assign_id: assignCourse.id,
+          course_id: assignCourse.course_id,
           allContentStatus: contents,
-          attempt_left: attempts ? attempts : 0,
+          attempt_left: attempts,
         })),
         {
           transaction,
         }
       );
+
+      await transaction.commit();
+      return res.status(200).send({
+        success: true,
+        status: "Course Assigned Successfully!",
+      });
     }
 
-    await transaction.commit();
-    return res.status(200).send({
-      success: true,
-      status: "Course Assigned Successfully!",
+    await transaction.rollback();
+    return res.status(404).send({
+      success: false,
+      status: "No Employees Found For Selected Assigned Type!",
     });
   } catch (error) {
     await transaction.rollback();
@@ -442,6 +415,259 @@ module.exports.assignCourse = async (req, res) => {
   }
 };
 
+// ========== UPDATE ASSIGN COURSE CONTROLLER ========== //
+module.exports.updateAssignCourse = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
+  try {
+    const data = req.body;
+    const { assign_id } = req.params;
+
+    const checkIfDataFound = await DB.tbl_lms_assign_course.findOne({
+      where: { id: assign_id, isDeleted: false },
+      transaction,
+    });
+
+    if (!checkIfDataFound) {
+      await transaction.rollback();
+      return res.status(404).send({
+        success: false,
+        status: "No Such Assigned Course Found!",
+      });
+    }
+
+    if (checkIfDataFound && checkIfDataFound.assign_type !== data.assign_type) {
+      await transaction.rollback();
+      return res.status(409).send({
+        success: false,
+        status: "Can't Change the Assigned Type!",
+      });
+    }
+
+    let employees = [];
+    if (data.assign_type === "department") {
+      // Find all Users of Selected Departments
+      for (const id of data.allocate_id) {
+        const empData = await DB.tbl_user_master.findAll({
+          where: { dep_id: id, isDeleted: false },
+          transaction,
+        });
+
+        if (empData.length > 0) {
+          for (const employee of empData) {
+            employees.push(employee.id);
+          }
+        }
+      }
+    }
+
+    // Find all Users of Selected Designations
+    if (data.assign_type === "designation") {
+      for (const id of data.allocate_id) {
+        const empData = await DB.tbl_user_master.findAll({
+          where: { designation_id: id, isDeleted: false },
+          transaction,
+        });
+
+        if (empData.length > 0) {
+          for (const employee of empData) {
+            employees.push(employee.id);
+          }
+        }
+      }
+    }
+
+    // Find all Users
+    if (data.assign_type === "allEmployees") {
+      const allEmployees = await DB.tbl_user_master.findAll({
+        where: { isDeleted: false },
+        transaction,
+      });
+      for (const employee of allEmployees) {
+        employees.push(employee.id);
+      }
+    }
+
+    // Find Selected Users
+    if (data.assign_type === "employees") {
+      for (const employeeId of data.allocate_id) {
+        const empData = await DB.tbl_user_master.findOne({
+          where: { id: employeeId, isDeleted: false },
+          transaction,
+        });
+
+        employees.push(empData.id);
+      }
+    }
+
+    if (employees.length > 0) {
+      // Find Course Contents
+      let contents = [];
+      const courseContents = await DB.tbl_lms_course_content.findAll({
+        where: { course_id: data.course_id },
+      });
+
+      if (courseContents.length > 0) {
+        for (const content of courseContents) {
+          contents.push({ content_id: content.id, complete_status: false });
+        }
+      }
+
+      // Get the Course Assessment Max Attempts
+      let attempts;
+      const getAssessmentAttempts = await DB.tbl_lms_course_assessment.findOne({
+        where: { course_id: data.course_id, isDeleted: false },
+      });
+
+      attempts = getAssessmentAttempts?.assessment_max_attempts || 0;
+
+      // Filtered out Employees who Already Have Course
+      let employeesToAssign = await Promise.all(
+        employees.map(async (employee) => {
+          const getEmployeeAssignDetail =
+            await DB.tbl_lms_assign_employee_course.findOne({
+              where: {
+                user_id: employee,
+                course_assign_id: checkIfDataFound.id,
+                isDeleted: false,
+              },
+            });
+
+          return getEmployeeAssignDetail ? null : employee;
+        })
+      );
+      const filteredEmployees = employeesToAssign.filter(
+        (employee) => employee !== null
+      );
+
+      // Assign the Courses to all employees as per employees array value
+      await DB.tbl_lms_assign_employee_course.bulkCreate(
+        filteredEmployees.map((employee) => ({
+          user_id: employee,
+          course_assign_id: assign_id,
+          course_id: checkIfDataFound.course_id,
+          allContentStatus: contents,
+          attempt_left: attempts,
+        })),
+        {
+          transaction,
+        }
+      );
+
+      await transaction.commit();
+      return res.status(200).send({
+        success: true,
+        status: "Course Assigned Successfully!",
+      });
+    }
+
+    await transaction.rollback();
+    return res.status(404).send({
+      success: false,
+      status: "Nothing Is Selected For Course Assigned!",
+    });
+  } catch (error) {
+    await transaction.rollback();
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== RENEW COURSE ALLOCATION VALIDITY CONTROLLER ========== //
+module.exports.renewAssignedCourseValidity = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
+  try {
+    const data = req.body;
+    const { assign_id } = req.params;
+    // Get current date for comparison
+    const currentDate = new Date();
+
+    const existedAssignCourse = await DB.tbl_lms_assign_course.findOne({
+      where: { id: assign_id, isDeleted: false },
+      transaction,
+    });
+
+    if (!existedAssignCourse) {
+      await transaction.rollback();
+      return res.status(404).send({
+        success: false,
+        status: "No Such Assigned Course Found!",
+      });
+    }
+
+    // Check if course is already expired
+    if (new Date(existedAssignCourse.end_date) > currentDate) {
+      await transaction.rollback();
+      return res.status(500).send({
+        success: false,
+        status: "Cannot Renew Course Validity Before It Expires!",
+      });
+    }
+
+    // Validate New Dates
+    const newStartDate = new Date(data.start_date);
+    const newEndDate = new Date(data.end_date);
+
+    if (newEndDate <= newStartDate) {
+      await transaction.rollback();
+      return res.status(500).send({
+        success: false,
+        status: "End Date Can't Be Smaller Than Or Same As Start Date!",
+      });
+    }
+
+    await DB.tbl_lms_assign_course.update(
+      {
+        start_date: data.start_date,
+        end_date: data.end_date,
+      },
+      { where: { id: existedAssignCourse.id, isDeleted: false }, transaction }
+    );
+
+    await transaction.commit();
+    return res.status(200).send({
+      success: true,
+      status: "Course Renewed Successfully!",
+    });
+  } catch (error) {
+    await transaction.rollback();
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== GET ASSIGNED COURSE DETAILS CONTROLLER ========== //
+module.exports.getAllAssignedCourseDetails = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    const query = `
+            SELECT AEC.*
+            FROM LMS_ASSIGN_EMPLOYEE_COURSE AS AEC
+            WHERE AEC.user_id=${user_id} AND AEC.isDeleted=false`;
+
+    const getAllData = await DB.sequelize.query(query, {
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "No Course Assigned Yet!" });
+    } else {
+      // const getAllCourses = await DB.tbl_lms_course.findOne({
+      //   where: { id: course_id, isDeleted: false },
+      // });
+
+      return res.status(200).send({
+        success: true,
+        status: "Get All Assigned Courses List!",
+        data: getAllData,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ******************** COURSE ASSESSMENT SUBMISSION LOGIC CONTROLLERS ******************** //
 // ========== SUBMIT ASSESSMENT CONTROLLER ========== //
 module.exports.assessmentSubmit = async (req, res) => {
   const transaction = await DB.sequelize.transaction();
