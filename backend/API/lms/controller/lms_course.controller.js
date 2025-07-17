@@ -636,7 +636,17 @@ module.exports.renewAssignedCourseValidity = async (req, res) => {
 // ========== GET ASSIGNED COURSE DETAILS CONTROLLER ========== //
 module.exports.getAllAssignedCourseDetails = async (req, res) => {
   try {
+    const data = req.body;
     const { user_id } = req.params;
+    const filter = { isDeleted: false };
+
+    if (data.course_type === "commonContent") {
+      filter.course_type = "commonContent";
+    }
+
+    if (data.course_type === "contentWithAssessment") {
+      filter.course_type = "contentWithAssessment";
+    }
 
     const query = `
             SELECT AEC.*
@@ -652,14 +662,18 @@ module.exports.getAllAssignedCourseDetails = async (req, res) => {
         .status(400)
         .send({ success: false, message: "No Course Assigned Yet!" });
     } else {
-      // const getAllCourses = await DB.tbl_lms_course.findOne({
-      //   where: { id: course_id, isDeleted: false },
-      // });
+      const allCourses = await Promise.all(
+        getAllData.map((data) => {
+          return DB.tbl_lms_course.findOne({
+            where: { id: data.course_id, ...filter },
+          });
+        })
+      );
 
       return res.status(200).send({
         success: true,
         status: "Get All Assigned Courses List!",
-        data: getAllData,
+        data: allCourses,
       });
     }
   } catch (error) {
