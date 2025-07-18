@@ -648,32 +648,106 @@ module.exports.getAllAssignedCourseDetails = async (req, res) => {
       filter.course_type = "contentWithAssessment";
     }
 
+    // Basic query to get actual courses assigned to user
     const query = `
-            SELECT AEC.*
+            SELECT AEC.course_id AS id
             FROM LMS_ASSIGN_EMPLOYEE_COURSE AS AEC
-            WHERE AEC.user_id=${user_id} AND AEC.isDeleted=false`;
+            WHERE AEC.user_id=:user_id AND AEC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
+      replacements: { user_id },
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "No Course Assigned Yet!" });
+        .send({ success: false, message: "No Courses Assigned Yet!" });
     } else {
-      const allCourses = await Promise.all(
-        getAllData.map((data) => {
-          return DB.tbl_lms_course.findOne({
-            where: { id: data.course_id, ...filter },
+      // Getting all assigned courses id's
+      const allCoursesId = (
+        await Promise.all(
+          getAllData.map(async (data) => {
+            const getCourse = await DB.tbl_lms_course.findOne({
+              attributes: ["id"],
+              where: { id: data.id, ...filter },
+            });
+
+            return getCourse;
+          })
+        )
+      ).filter((data) => data !== null);
+
+      // Getting Course Details
+      const courseDetails = await Promise.all(
+        allCoursesId.map(async (data) => {
+          const courseData = await DB.tbl_lms_course.findOne({
+            where: { id: data.id, isDeleted: false },
           });
+
+          // Get Content Details
+          const contentDetails =
+            await DB.tbl_lms_assign_employee_course.findOne({
+              attributes: [
+                "allContentStatus",
+                "isContentComplete",
+                "isAssessmentComplete",
+                "isCourseComplete",
+                "attempt_left",
+              ],
+              where: { user_id, course_id: data.id, isDeleted: false },
+            });
+
+          // Get Assessment Details
+          let assessment = null;
+          if (courseData.course_type === "contentWithAssessment") {
+            const assessmentDetails =
+              await DB.tbl_lms_course_assessment.findOne({
+                attributes: [
+                  "id",
+                  "assessment_name",
+                  "assessment_passing_percent",
+                  "assessment_time",
+                  "assessment_max_attempts",
+                  "marks_per_question",
+                ],
+                where: { course_id: data.id, isDeleted: false },
+              });
+
+            const assessmentQuestions =
+              await DB.tbl_lms_course_assessment_questions.findAll({
+                attributes: [
+                  "assessment_question_type",
+                  "assessment_question_title",
+                  "assessment_correct_answer",
+                  "assessment_question_options",
+                ],
+                where: {
+                  assessment_id: assessmentDetails.id,
+                  course_id: data.id,
+                  isDeleted: false,
+                },
+              });
+            assessment = {
+              assessmentDetails,
+              assessmentQuestions,
+            };
+          }
+
+          return {
+            courseData,
+            contentDetails,
+            ...(assessment && { assessment }),
+          };
         })
       );
 
       return res.status(200).send({
         success: true,
         status: "Get All Assigned Courses List!",
-        data: allCourses,
+        totalRecords: allCoursesId.length,
+        assign_id: getAllData[0].course_assign_id,
+        data: courseDetails,
       });
     }
   } catch (error) {
