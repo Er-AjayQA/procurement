@@ -41,26 +41,26 @@ module.exports.getAllAssignedModuleDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const getData = await DB.tbl_rbac_assign_menu_master.findAll({
-      attributes: ["menu_id", "submenu_id", "read", "write", "delete"],
+    const getData = await DB.tbl_rbac_assign_module_master.findAll({
+      attributes: ["module_id", "submodule_id", "read", "write", "delete"],
       where: { user_id: id, isDeleted: false },
     });
 
     if (getData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "No Menus Assigned Found!" });
+        .send({ success: false, message: "No Modules Assigned Found!" });
     } else {
-      const getSubMenuDetails = await Promise.all(
+      const getSubModulesDetails = await Promise.all(
         getData.map(async (data) => {
-          let submenuDetail;
-          const submenu = await DB.tbl_rbac_submenu_master.findOne({
-            attributes: ["id", "submenu_name"],
-            where: { id: data.submenu_id, isDeleted: false },
+          let submoduleDetail;
+          const submodule = await DB.tbl_rbac_assign_module_master.findOne({
+            attributes: ["id", "submodule_name"],
+            where: { id: data.submodule_id, isDeleted: false },
           });
 
-          return (submenuDetail = {
-            submenu,
+          return (submoduleDetail = {
+            submodule,
             read: data.read,
             write: data.write,
             delete: data.delete,
@@ -70,9 +70,9 @@ module.exports.getAllAssignedModuleDetails = async (req, res) => {
 
       return res.status(200).send({
         success: true,
-        status: "All Assigned Menus Fetched Successfully!",
+        status: "All Assigned Modules Fetched Successfully!",
         records: getData.length,
-        data: getSubMenuDetails,
+        data: getSubModulesDetails,
       });
     }
   } catch (error) {
