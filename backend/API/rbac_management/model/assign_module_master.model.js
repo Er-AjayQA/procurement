@@ -1,0 +1,54 @@
+module.exports = (sequelize, Sequelize) => {
+  const tbl_rbac_assign_module_master = sequelize.define(
+    "RBAC_ASSIGN_MODULE_MASTER",
+    {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      role_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      module_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      submodule_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      read: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      write: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+      delete: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      isDeleted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      status: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      },
+    },
+    { freezeTableName: true }
+  );
+  return tbl_rbac_assign_module_master;
+};

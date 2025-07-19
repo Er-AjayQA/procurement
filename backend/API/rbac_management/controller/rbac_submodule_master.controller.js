@@ -1,8 +1,8 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../config/index");
 
-// ========== CREATE SUBMENU MASTER CONTROLLER ========== //
-module.exports.createSubMenu = async (req, res) => {
+// ========== CREATE SUBMODULE MASTER CONTROLLER ========== //
+module.exports.createSubModule = async (req, res) => {
   try {
     const data = req.body;
 
@@ -60,8 +60,8 @@ module.exports.createSubMenu = async (req, res) => {
   }
 };
 
-// ========== UPDATE SUBMENU MASTER CONTROLLER ========== //
-module.exports.updateSubMenu = async (req, res) => {
+// ========== UPDATE SUBMODULE MASTER CONTROLLER ========== //
+module.exports.updateSubModule = async (req, res) => {
   try {
     const data = req.body;
 
@@ -128,8 +128,8 @@ module.exports.updateSubMenu = async (req, res) => {
   }
 };
 
-// ========== GET ALL SUBMENU MASTER DETAILS CONTROLLER ========== //
-module.exports.getAllSubMenuDetails = async (req, res) => {
+// ========== GET ALL SUBMODULE MASTER DETAILS CONTROLLER ========== //
+module.exports.getAllSubModuleDetails = async (req, res) => {
   try {
     const query = `
     SELECT RSM.id, RSM.submenu_name, RSM.submenu_icon, RSM.submenu_endpoint, RSM.rbac_menu_id, RM.menu_name, RSM.isDeleted, RSM.status 
@@ -158,8 +158,8 @@ module.exports.getAllSubMenuDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE SUBMENU MASTER CONTROLLER ========== //
-module.exports.updateSubMenuStatus = async (req, res) => {
+// ========== UPDATE SUBMODULE MASTER CONTROLLER ========== //
+module.exports.updateSubModuleStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -190,8 +190,8 @@ module.exports.updateSubMenuStatus = async (req, res) => {
   }
 };
 
-// ========== DELETE SUBMENU MASTER CONTROLLER ========== //
-module.exports.deleteSubMenu = async (req, res) => {
+// ========== DELETE SUBMODULE MASTER CONTROLLER ========== //
+module.exports.deleteSubModule = async (req, res) => {
   try {
     const { id } = req.params;
 
