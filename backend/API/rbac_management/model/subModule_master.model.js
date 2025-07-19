@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_rbac_menu_master = sequelize.define(
-    "RBAC_MENU_MASTER",
+  const tbl_rbac_submodule_master = sequelize.define(
+    "RBAC_SUBMODULE_MASTER",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -8,18 +8,18 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      menu_name: {
+      submodule_name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      menu_icon: {
+      submodule_icon: {
         type: Sequelize.STRING,
         allowNull: true,
         set(value) {
-          this.setDataValue("menu_icon", value === "" ? null : value);
+          this.setDataValue("submenu_icon", value === "" ? null : value);
         },
       },
-      menu_endpoint: {
+      submodule_endpoint: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -34,5 +34,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_rbac_menu_master;
+  return tbl_rbac_submodule_master;
 };

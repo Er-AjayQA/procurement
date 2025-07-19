@@ -1,8 +1,8 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../config/index");
 
-// ========== CREATE MENU MASTER CONTROLLER ========== //
-module.exports.createMenu = async (req, res) => {
+// ========== CREATE MODULE MASTER CONTROLLER ========== //
+module.exports.createModule = async (req, res) => {
   try {
     const data = req.body;
 
@@ -48,8 +48,8 @@ module.exports.createMenu = async (req, res) => {
   }
 };
 
-// ========== UPDATE MENU MASTER CONTROLLER ========== //
-module.exports.updateMenu = async (req, res) => {
+// ========== UPDATE MODULE MASTER CONTROLLER ========== //
+module.exports.updateModule = async (req, res) => {
   try {
     const data = req.body;
 
@@ -105,8 +105,8 @@ module.exports.updateMenu = async (req, res) => {
   }
 };
 
-// ========== GET ALL MENU MASTER DETAILS CONTROLLER ========== //
-module.exports.getAllMenuDetails = async (req, res) => {
+// ========== GET ALL MODULE MASTER DETAILS CONTROLLER ========== //
+module.exports.getAllModuleDetails = async (req, res) => {
   try {
     const query = `
     SELECT RM.*
@@ -134,8 +134,8 @@ module.exports.getAllMenuDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE MENU MASTER CONTROLLER ========== //
-module.exports.updateMenuStatus = async (req, res) => {
+// ========== UPDATE MODULE MASTER CONTROLLER ========== //
+module.exports.updateModuleStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -166,8 +166,8 @@ module.exports.updateMenuStatus = async (req, res) => {
   }
 };
 
-// ========== DELETE MENU MASTER CONTROLLER ========== //
-module.exports.deleteMenu = async (req, res) => {
+// ========== DELETE MODULE MASTER CONTROLLER ========== //
+module.exports.deleteModule = async (req, res) => {
   try {
     const { id } = req.params;
 

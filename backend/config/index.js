@@ -243,20 +243,6 @@ db.tbl_vendor_document_mapped =
     Sequelize
   );
 
-// RBAC Menu Master Table
-db.tbl_rbac_menu_master =
-  require("../API/rbac_management/model/menu_master.model")(
-    sequelize,
-    Sequelize
-  );
-
-// RBAC SubMenu Master Table
-db.tbl_rbac_submenu_master =
-  require("../API/rbac_management/model/subMenu_master.model")(
-    sequelize,
-    Sequelize
-  );
-
 // Course Category Table
 db.tbl_course_category =
   require("../API/configurationMasters/courseCategory_master/model/courseCategory.model")(
@@ -682,14 +668,6 @@ db.tbl_vendor_document_mapped.belongsTo(db.tbl_vendor_master, {
   foreignKey: "vendor_id",
 });
 
-// Relation B/W RBAC Menu Master and RBAC SubMenu Master Tables
-db.tbl_rbac_menu_master.hasMany(db.tbl_rbac_submenu_master, {
-  foreignKey: "rbac_menu_id",
-});
-db.tbl_rbac_submenu_master.belongsTo(db.tbl_rbac_menu_master, {
-  foreignKey: "rbac_menu_id",
-});
-
 // Relation B/W LMS Course and Course Category Tables
 db.tbl_course_category.hasMany(db.tbl_lms_course, {
   foreignKey: "course_category_id",
@@ -844,5 +822,49 @@ db.tbl_lms_course_assessment_results.belongsTo(
 //   foreignKey: "pr_delivery_state_id",
 // });
 
+// **************************** RBAC **************************** //
+// RBAC Menu Master Table
+db.tbl_rbac_module_master =
+  require("../API/rbac_management/model/module_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+// RBAC SubMenu Master Table
+db.tbl_rbac_submodule_master =
+  require("../API/rbac_management/model/subModule_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+db.tbl_rbac_assign_module_master =
+  require("../API/rbac_management/model/assign_module_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Relation B/W RBAC Menu Master and RBAC SubMenu Master Tables
+db.tbl_rbac_module_master.hasMany(db.tbl_rbac_submodule_master, {
+  foreignKey: "rbac_module_id",
+});
+db.tbl_rbac_submodule_master.belongsTo(db.tbl_rbac_module_master, {
+  foreignKey: "rbac_module_id",
+});
+
+// // Relation B/W Menu Master and Assigned Menu Tables
+// db.tbl_rbac_module_master.hasMany(db.tbl_rbac_assign_module_master, {
+//   foreignKey: "module_id",
+// });
+// db.tbl_rbac_assign_module_master.belongsTo(db.tbl_rbac_module_master, {
+//   foreignKey: "module_id",
+// });
+
+// // Relation B/W SubMenu Master and Assigned Menu Tables
+// db.tbl_rbac_submodule_master.hasMany(db.tbl_rbac_assign_module_master, {
+//   foreignKey: "submodule_id",
+// });
+// db.tbl_rbac_assign_module_master.belongsTo(db.tbl_rbac_submodule_master, {
+//   foreignKey: "submodule_id",
+// });
 // ========== EXPORTS ========== //
 module.exports = db;

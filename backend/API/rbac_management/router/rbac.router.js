@@ -1,24 +1,38 @@
 // ========== REQUIRE STATEMENTS ========== //
 const express = require("express");
 const router = express.Router();
-const MenuController = require("../controller/rbac_menu_master.controller");
-const SubMenuController = require("../controller/rbac_subMenu_master.controller");
+const ModuleController = require("../controller/rbac_module_master.controller");
+const SubModuleController = require("../controller/rbac_submodule_master.controller");
+const AssignModuleController = require("../controller/rbac_assign_module.controller");
 
 // ========== ROUTES ========== //
 
 // Menu Routes
-router.post("/create-menu", MenuController.createMenu);
-router.put("/update-menu/:id", MenuController.updateMenu);
-router.post("/get-all-menu-details", MenuController.getAllMenuDetails);
-router.put("/update-menu-status/:id", MenuController.updateMenuStatus);
-router.put("/delete-menu/:id", MenuController.deleteMenu);
+router.post("/create-module", ModuleController.createModule);
+router.put("/update-module/:id", ModuleController.updateModule);
+router.post("/get-all-module-details", ModuleController.getAllModuleDetails);
+router.put("/update-module-status/:id", ModuleController.updateModuleStatus);
+router.put("/delete-module/:id", ModuleController.deleteModule);
 
 // SubMenu Routes
-router.post("/create-submenu", SubMenuController.createSubMenu);
-router.put("/update-submenu/:id", SubMenuController.updateSubMenu);
-router.post("/get-all-submenu-details", SubMenuController.getAllSubMenuDetails);
-router.put("/update-submenu-status/:id", SubMenuController.updateSubMenuStatus);
-router.put("/delete-submenu/:id", SubMenuController.deleteSubMenu);
+router.post("/create-submodule", SubModuleController.createSubModule);
+router.put("/update-submodule/:id", SubModuleController.updateSubModule);
+router.post(
+  "/get-all-submodule-details",
+  SubModuleController.getAllSubModuleDetails
+);
+router.put(
+  "/update-submodule-status/:id",
+  SubModuleController.updateSubModuleStatus
+);
+router.put("/delete-submodule/:id", SubModuleController.deleteSubModule);
+
+// Assign Menu Routes
+router.post("/assign-module", AssignModuleController.assignModule);
+router.post(
+  "/get-all-assigned-module/:id",
+  AssignModuleController.getAllAssignedModuleDetails
+);
 
 // ========== EXPORT ========== //
 module.exports = router;
