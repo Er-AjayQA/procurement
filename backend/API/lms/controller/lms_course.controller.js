@@ -1,4 +1,5 @@
 // ========== REQUIRE STATEMENTS ========== //
+const { where } = require("sequelize");
 const DB = require("../../../config/index");
 
 // ******************** COURSE BASIC LOGIC CONTROLLERS ******************** //
@@ -186,10 +187,25 @@ module.exports.getCourseDetails = async (req, res) => {
       let getAllAssessment;
       if (getAllData[0].course_type === "contentWithAssessment") {
         getAllAssessment = await DB.tbl_lms_course_assessment.findAll({
+          attributes: [
+            "id",
+            "assessment_name",
+            "assessment_passing_percent",
+            "assessment_time",
+            "assessment_max_attempts",
+            "marks_per_question",
+          ],
           where: { course_id: id, isDeleted: false },
           include: [
             {
               model: DB.tbl_lms_course_assessment_questions,
+              attributes: [
+                "id",
+                "assessment_question_type",
+                "assessment_question_title",
+                "assessment_correct_answer",
+                "assessment_question_options",
+              ],
               where: { isDeleted: false },
             },
           ],
@@ -201,10 +217,16 @@ module.exports.getCourseDetails = async (req, res) => {
         where: { course_id: id, isDeleted: false },
       });
 
+      const responseData = {
+        basicDetails: getAllData,
+        contentDetails: getAllContent,
+        assessmentDetails: getAllAssessment,
+      };
+
       return res.status(200).send({
         success: true,
         status: "Get Course Details Successfully!",
-        data: { ...getAllData, getAllAssessment, getAllContent },
+        data: responseData,
       });
     }
   } catch (error) {
@@ -633,6 +655,120 @@ module.exports.renewAssignedCourseValidity = async (req, res) => {
   }
 };
 
+// ========== GET ASSIGNED COURSE BY ID CONTROLLER ========== //
+module.exports.getAssignedCourseById = async (req, res) => {
+  try {
+    const { user_id, course_id } = req.params;
+
+    const courseDetails = await DB.tbl_lms_course.findOne({
+      where: { id: course_id, isDeleted: false, status: true },
+    });
+
+    if (!courseDetails) {
+      return res
+        .status(400)
+        .send({ success: false, message: "No Courses Details Found!" });
+    } else {
+      // Get All Content Details with Progress Status
+      const contentDetails = await DB.tbl_lms_assign_employee_course.findOne({
+        attributes: [
+          "allContentStatus",
+          "isContentComplete",
+          "isAssessmentComplete",
+          "isCourseComplete",
+          "attempt_left",
+        ],
+        where: { user_id, course_id, isDeleted: false },
+        raw: true,
+      });
+
+      // Check if Content Exist
+      const validContent = await Promise.all(
+        contentDetails.allContentStatus.map(async (contentStatus) => {
+          const contentExist = await DB.tbl_lms_course_content.findOne({
+            where: { id: contentStatus.content_id, isDeleted: false },
+          });
+          return contentExist ? contentStatus : null;
+        })
+      );
+
+      // Remove Deleted Content
+      const filteredContentStatus = validContent.filter(
+        (status) => status !== null
+      );
+
+      const getContent = await Promise.all(
+        filteredContentStatus.map(async (data) => {
+          const fetchContent = await DB.tbl_lms_course_content.findOne({
+            attributes: ["id", "content_type", "content_name", "content_link"],
+            where: { id: data.content_id, isDeleted: false },
+            raw: true,
+          });
+          fetchContent.status = data.complete_status;
+
+          return fetchContent;
+        })
+      );
+
+      // Get All Assessment Details
+      let assessmentDetails = null;
+      if (courseDetails.course_type === "contentWithAssessment") {
+        const assessmentBasicDetails =
+          await DB.tbl_lms_course_assessment.findOne({
+            attributes: [
+              "id",
+              "assessment_name",
+              "assessment_passing_percent",
+              "assessment_time",
+              "assessment_max_attempts",
+              "marks_per_question",
+            ],
+            where: { course_id, isDeleted: false },
+            raw: true,
+          });
+
+        const assessmentQuestions =
+          await DB.tbl_lms_course_assessment_questions.findAll({
+            attributes: [
+              "assessment_question_type",
+              "assessment_question_title",
+              "assessment_correct_answer",
+              "assessment_question_options",
+            ],
+            where: {
+              course_id,
+              assessment_id: assessmentBasicDetails.id,
+              isDeleted: false,
+            },
+            raw: true,
+          });
+        assessmentDetails = {
+          ...assessmentBasicDetails,
+          questions: assessmentQuestions,
+        };
+      }
+
+      const responseData = {
+        basicDetails: courseDetails,
+        isContentComplete: contentDetails.isContentComplete,
+        isAssessmentComplete: contentDetails.isAssessmentComplete,
+        isCourseComplete: contentDetails.isCourseComplete,
+        attempt_left: contentDetails.attempt_left,
+        contentDetails: getContent,
+        ...(assessmentDetails && { assessmentDetails }),
+      };
+
+      return res.status(200).send({
+        success: true,
+        status: "Get Assigned Course Details!",
+        data: responseData,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
 // ========== GET ASSIGNED COURSE DETAILS CONTROLLER ========== //
 module.exports.getAllAssignedCourseDetails = async (req, res) => {
   try {
@@ -678,10 +814,10 @@ module.exports.getAllAssignedCourseDetails = async (req, res) => {
       }
 
       // Getting Course Details
-      const courseDetails = await Promise.all(
+      let courseDetails = await Promise.all(
         allCoursesId.map(async (data) => {
           const courseData = await DB.tbl_lms_course.findOne({
-            where: { id: data.id, isDeleted: false },
+            where: { id: data.id, isDeleted: false, status: true },
             include: [
               {
                 model: DB.tbl_course_category,
@@ -693,91 +829,19 @@ module.exports.getAllAssignedCourseDetails = async (req, res) => {
             raw: true,
             nest: true,
           });
+          if (!courseData) return null;
 
           // Get All Content Details with Progress Status
           const contentDetails =
             await DB.tbl_lms_assign_employee_course.findOne({
               attributes: [
-                "allContentStatus",
                 "isContentComplete",
                 "isAssessmentComplete",
                 "isCourseComplete",
-                "attempt_left",
               ],
               where: { user_id, course_id: data.id, isDeleted: false },
               raw: true,
             });
-
-          // Check if Content Exist
-          const validContent = await Promise.all(
-            contentDetails.allContentStatus.map(async (contentStatus) => {
-              const contentExist = await DB.tbl_lms_course_content.findOne({
-                where: { id: contentStatus.content_id, isDeleted: false },
-              });
-              return contentExist ? contentStatus : null;
-            })
-          );
-
-          // Remove Deleted Content
-          const filteredContentStatus = validContent.filter(
-            (status) => status !== null
-          );
-
-          const getContent = await Promise.all(
-            filteredContentStatus.map(async (data) => {
-              const fetchContent = await DB.tbl_lms_course_content.findOne({
-                attributes: [
-                  "id",
-                  "content_type",
-                  "content_name",
-                  "content_link",
-                ],
-                where: { id: data.content_id, isDeleted: false },
-                raw: true,
-              });
-              fetchContent.status = data.complete_status;
-
-              return fetchContent;
-            })
-          );
-
-          // Get All Assessment Details
-          let assessmentDetails = null;
-          if (courseData.course_type === "contentWithAssessment") {
-            const assessmentBasicDetails =
-              await DB.tbl_lms_course_assessment.findOne({
-                attributes: [
-                  "id",
-                  "assessment_name",
-                  "assessment_passing_percent",
-                  "assessment_time",
-                  "assessment_max_attempts",
-                  "marks_per_question",
-                ],
-                where: { course_id: data.id, isDeleted: false },
-                raw: true,
-              });
-
-            const assessmentQuestions =
-              await DB.tbl_lms_course_assessment_questions.findAll({
-                attributes: [
-                  "assessment_question_type",
-                  "assessment_question_title",
-                  "assessment_correct_answer",
-                  "assessment_question_options",
-                ],
-                where: {
-                  assessment_id: assessmentBasicDetails.id,
-                  course_id: data.id,
-                  isDeleted: false,
-                },
-                raw: true,
-              });
-            assessmentDetails = {
-              ...assessmentBasicDetails,
-              questions: assessmentQuestions,
-            };
-          }
 
           return {
             basicDetails: {
@@ -785,18 +849,17 @@ module.exports.getAllAssignedCourseDetails = async (req, res) => {
               isContentComplete: contentDetails.isContentComplete,
               isAssessmentComplete: contentDetails.isAssessmentComplete,
               isCourseComplete: contentDetails.isCourseComplete,
-              attempt_left: contentDetails.attempt_left,
             },
-            contentProgress: getContent,
-            ...(assessmentDetails && { assessmentDetails }),
           };
         })
       );
 
+      courseDetails = courseDetails.filter((data) => data !== null);
+
       return res.status(200).send({
         success: true,
         status: "Get All Assigned Courses List!",
-        totalRecords: allCoursesId.length,
+        totalRecords: courseDetails.length,
         assign_id: getAllData[0].course_assign_id,
         data: courseDetails,
       });
@@ -814,19 +877,49 @@ module.exports.contentSubmit = async (req, res) => {
     const data = req.body;
     const { user_id } = req.params;
 
-    const getCourseStatusData = await DB.tbl_lms_assign_employee_course.findOne(
+    let getCourseStatusData = await DB.tbl_lms_assign_employee_course.findOne({
+      attributes: ["allContentStatus"],
+      where: { course_id: data.course_id, user_id },
+      transaction,
+    });
+
+    const updatedData = getCourseStatusData.allContentStatus.map((content) => {
+      if (content.content_id === data.content_id) {
+        content.complete_status = data.status;
+        return content;
+      } else {
+        return content;
+      }
+    });
+
+    await DB.tbl_lms_assign_employee_course.update(
+      { allContentStatus: updatedData },
       {
-        attributes: ["allContentStatus"],
-        where: { course_id: data.course_id, user_id },
+        where: { user_id, course_id: data.course_id },
         transaction,
       }
     );
+
+    const getAllStatus = await DB.tbl_lms_assign_employee_course.findOne({
+      where: { course_id: data.course_id, user_id },
+      transaction,
+    });
+
+    const checkAllStatus = getAllStatus.allContentStatus.every(
+      (data) => data.complete_status === true
+    );
+
+    if (checkAllStatus) {
+      await DB.tbl_lms_assign_employee_course.update(
+        { isContentComplete: true },
+        { where: { course_id: data.course_id, user_id }, transaction }
+      );
+    }
 
     await transaction.commit();
     return res.status(200).send({
       success: true,
       status: "Content Submitted Successfully!",
-      data: getCourseStatusData,
     });
   } catch (error) {
     await transaction.rollback();
