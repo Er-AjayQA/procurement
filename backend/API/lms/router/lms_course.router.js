@@ -23,6 +23,10 @@ router.put(
   lmsController.renewAssignedCourseValidity
 );
 router.post(
+  "/get-assigned-course-by-id/:user_id/:course_id",
+  lmsController.getAssignedCourseById
+);
+router.post(
   "/get-all-assigned-course-details/:user_id",
   lmsController.getAllAssignedCourseDetails
 );
