@@ -28,6 +28,8 @@ router.post(
 );
 
 // ******************** COURSE ASSESSMENT SUBMISSION LOGIC ROUTERS ******************** //
+router.post("/content-submit/:user_id", lmsController.contentSubmit);
+
 router.post(
   "/assessment-submit/:user_id/:assign_id",
   lmsController.assessmentSubmit
