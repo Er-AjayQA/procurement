@@ -62,6 +62,7 @@ module.exports.createCourse = async (req, res) => {
             assessment_passing_percent: data.assessment_passing_percent,
             assessment_time: data.assessment_time,
             assessment_max_attempts: data.assessment_max_attempts,
+            total_marks: marks_per_question * data.assessmentQuestions.length,
           },
           { transaction }
         );
@@ -655,8 +656,8 @@ module.exports.renewAssignedCourseValidity = async (req, res) => {
   }
 };
 
-// ========== GET ASSIGNED COURSE BY ID CONTROLLER ========== //
-module.exports.getAssignedCourseById = async (req, res) => {
+// ========== GET USER'S ASSIGNED COURSE DETAILS BY ID CONTROLLER ========== //
+module.exports.getUserAssignedCourseDetailsById = async (req, res) => {
   try {
     const { user_id, course_id } = req.params;
 
@@ -669,6 +670,13 @@ module.exports.getAssignedCourseById = async (req, res) => {
         .status(400)
         .send({ success: false, message: "No Courses Details Found!" });
     } else {
+      // Get Course Assign ID
+      const assignCourseDetails =
+        await DB.tbl_lms_assign_employee_course.findOne({
+          attributes: ["course_assign_id"],
+          where: { course_id, user_id, isDeleted: false },
+        });
+
       // Get All Content Details with Progress Status
       const contentDetails = await DB.tbl_lms_assign_employee_course.findOne({
         attributes: [
@@ -722,6 +730,7 @@ module.exports.getAssignedCourseById = async (req, res) => {
               "assessment_time",
               "assessment_max_attempts",
               "marks_per_question",
+              "total_marks",
             ],
             where: { course_id, isDeleted: false },
             raw: true,
@@ -750,6 +759,7 @@ module.exports.getAssignedCourseById = async (req, res) => {
 
       const responseData = {
         basicDetails: courseDetails,
+        course_assign_id: assignCourseDetails.course_assign_id,
         isContentComplete: contentDetails.isContentComplete,
         isAssessmentComplete: contentDetails.isAssessmentComplete,
         isCourseComplete: contentDetails.isCourseComplete,
@@ -769,11 +779,11 @@ module.exports.getAssignedCourseById = async (req, res) => {
   }
 };
 
-// ========== GET ASSIGNED COURSE DETAILS CONTROLLER ========== //
-module.exports.getAllAssignedCourseDetails = async (req, res) => {
+// ========== GET USER'S ALL ASSIGNED COURSES LIST CONTROLLER ========== //
+module.exports.getUserAllAssignedCourseList = async (req, res) => {
   try {
     const data = req.body;
-    const { user_id } = req.params;
+    const { user_id } = req?.params;
     const filter = { isDeleted: false };
 
     if (data?.course_type === "commonContent") {
@@ -869,6 +879,68 @@ module.exports.getAllAssignedCourseDetails = async (req, res) => {
   }
 };
 
+// ========== GET ALL ASSIGNED COURSES LIST CONTROLLER ========== //
+module.exports.getAllAssignedCourseList = async (req, res) => {
+  try {
+    // Basic query to get actual courses assigned to user
+    const query = `
+            SELECT AC.id AS assign_id, AC.start_date, AC.end_date, AC.assign_type, C.*
+            FROM LMS_ASSIGN_COURSE AS AC
+            LEFT JOIN LMS_COURSE AS C ON C.id=AC.course_id
+            WHERE AC.isDeleted=false`;
+
+    const getAllData = await DB.sequelize.query(query, {
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "No Allocation List Found!" });
+    } else {
+      return res.status(200).send({
+        success: true,
+        status: "Get All Assigned Courses List!",
+        totalRecords: getAllData.length,
+        data: getAllData,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== GET ASSIGNED COURSES DETAILS BY ID CONTROLLER ========== //
+module.exports.getAssignedCourseDetailById = async (req, res) => {
+  try {
+    // Basic query to get actual courses assigned to user
+    const query = `
+            SELECT AC.id AS assign_id, AC.start_date, AC.end_date, AC.assign_type, C.*
+            FROM LMS_ASSIGN_COURSE AS AC
+            LEFT JOIN LMS_COURSE AS C ON C.id=AC.course_id
+            WHERE AC.isDeleted=false`;
+
+    const getAllData = await DB.sequelize.query(query, {
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "No Allocation List Found!" });
+    } else {
+      return res.status(200).send({
+        success: true,
+        status: "Get All Assigned Courses List!",
+        totalRecords: getAllData.length,
+        data: getAllData,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
 // ******************** COURSE ASSESSMENT AND CONTENT SUBMISSION LOGIC CONTROLLERS ******************** //
 // ========== SUBMIT CONTENT CONTROLLER ========== //
 module.exports.contentSubmit = async (req, res) => {
@@ -934,7 +1006,7 @@ module.exports.assessmentSubmit = async (req, res) => {
     const data = req.body;
     const { user_id, assign_id } = req.params;
 
-    // Get Assessment Details
+    // Get Assessment Attempts Details
     const details = await DB.tbl_lms_assign_employee_course.findOne({
       where: { user_id, course_assign_id: assign_id, isDeleted: false },
       transaction,
@@ -948,10 +1020,23 @@ module.exports.assessmentSubmit = async (req, res) => {
       });
     }
 
-    // Get All questions
+    // Get Assessment Details
+    const assessmentDetails = await DB.tbl_lms_course_assessment.findOne({
+      where: {
+        id: data.assessment_id,
+        course_id: data.course_id,
+        isDeleted: false,
+      },
+      transaction,
+    });
+
+    // Get Course Assessment Questions
     const allQuestions = await DB.tbl_lms_course_assessment_questions.findAll({
       where: { assessment_id: data.assessment_id, isDeleted: false },
       attributes: ["id", "assessment_correct_answer"],
+      raw: true,
+      nest: true,
+      transaction,
     });
 
     // Create mapping for question and it's answers
@@ -961,6 +1046,34 @@ module.exports.assessmentSubmit = async (req, res) => {
     });
 
     if (data.employee_answer && data.employee_answer.length > 0) {
+      // Save Final Result Data
+      const getObtainedMarks = data.employee_answer.reduce(
+        (totalMarks, answer) => {
+          if (correctAnswerMap[answer.question_id] === answer.employee_answer) {
+            totalMarks += assessmentDetails.marks_per_question;
+          }
+
+          return totalMarks;
+        },
+        0
+      );
+
+      const saveResult = await DB.tbl_lms_course_assessment_results.create(
+        {
+          total_marks: assessmentDetails.total_marks,
+          obtained_marks: getObtainedMarks,
+          isPass:
+            (getObtainedMarks * 100) / assessmentDetails.total_marks >=
+            assessmentDetails.assessment_passing_percent
+              ? true
+              : false,
+          user_id,
+          course_assign_id: details.course_assign_id,
+        },
+        { transaction }
+      );
+
+      // Save Employees Answers
       await DB.tbl_lms_employee_assessment_question_submission.bulkCreate(
         data.employee_answer.map((answer) => {
           // Check if answer is Correct
@@ -971,6 +1084,7 @@ module.exports.assessmentSubmit = async (req, res) => {
             question_id: answer.question_id,
             employee_answer: answer.employee_answer,
             answer_status: status,
+            result_id: saveResult.id,
           };
         }),
         { transaction }
@@ -986,17 +1100,117 @@ module.exports.assessmentSubmit = async (req, res) => {
       { transaction }
     );
 
-    // Get Assessment Details
-    const assessmentDetails = await DB.tbl_lms_course_assessment.findOne({
-      where: { id: data.course_id, isDeleted: false },
+    await transaction.commit();
+    return res.status(200).send({
+      success: true,
+      status: "Assessment Submitted Successfully!",
+    });
+  } catch (error) {
+    await transaction.rollback();
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== GET ALL ASSESSMENT ATTEMPTS DETAILS CONTROLLER ========== //
+module.exports.getAllAssessmentAttempts = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
+  try {
+    const data = req.body;
+    const { user_id, assessment_id } = req.params;
+
+    // Get Assessment Attempts Details
+    const details = await DB.tbl_lms_assign_employee_course.findOne({
+      where: { user_id, course_assign_id: assign_id, isDeleted: false },
       transaction,
     });
 
-    // Get Total Marks
-    const totalMarks =
-      assessmentDetails.marks_per_question * allQuestions.length;
+    if (!details.attempt_left > 0) {
+      await transaction.rollback();
+      return res.status(400).send({
+        success: false,
+        status: "No Attempts Left!",
+      });
+    }
 
-    console.log(totalMarks);
+    // Get Assessment Details
+    const assessmentDetails = await DB.tbl_lms_course_assessment.findOne({
+      where: {
+        id: data.assessment_id,
+        course_id: data.course_id,
+        isDeleted: false,
+      },
+      transaction,
+    });
+
+    // Get Course Assessment Questions
+    const allQuestions = await DB.tbl_lms_course_assessment_questions.findAll({
+      where: { assessment_id: data.assessment_id, isDeleted: false },
+      attributes: ["id", "assessment_correct_answer"],
+      raw: true,
+      nest: true,
+      transaction,
+    });
+
+    // Create mapping for question and it's answers
+    const correctAnswerMap = {};
+    allQuestions.forEach((question) => {
+      correctAnswerMap[question.id] = question.assessment_correct_answer;
+    });
+
+    if (data.employee_answer && data.employee_answer.length > 0) {
+      // Save Final Result Data
+      const getObtainedMarks = data.employee_answer.reduce(
+        (totalMarks, answer) => {
+          if (correctAnswerMap[answer.question_id] === answer.employee_answer) {
+            totalMarks += assessmentDetails.marks_per_question;
+          }
+
+          return totalMarks;
+        },
+        0
+      );
+
+      const saveResult = await DB.tbl_lms_course_assessment_results.create(
+        {
+          total_marks: assessmentDetails.total_marks,
+          obtained_marks: getObtainedMarks,
+          isPass:
+            (getObtainedMarks * 100) / assessmentDetails.total_marks >=
+            assessmentDetails.assessment_passing_percent
+              ? true
+              : false,
+          user_id,
+          course_assign_id: details.course_assign_id,
+        },
+        { transaction }
+      );
+
+      // Save Employees Answers
+      await DB.tbl_lms_employee_assessment_question_submission.bulkCreate(
+        data.employee_answer.map((answer) => {
+          // Check if answer is Correct
+          const status =
+            correctAnswerMap[answer.question_id] === answer.employee_answer;
+          return {
+            assessment_id: data.assessment_id,
+            question_id: answer.question_id,
+            employee_answer: answer.employee_answer,
+            answer_status: status,
+            result_id: saveResult.id,
+          };
+        }),
+        { transaction }
+      );
+    }
+
+    // Updating the Attempts Left
+    await DB.tbl_lms_assign_employee_course.update(
+      { attempt_left: details.attempt_left - 1 },
+      {
+        where: { user_id, course_assign_id: assign_id, isDeleted: false },
+      },
+      { transaction }
+    );
 
     await transaction.commit();
     return res.status(200).send({

@@ -23,12 +23,20 @@ router.put(
   lmsController.renewAssignedCourseValidity
 );
 router.post(
-  "/get-assigned-course-by-id/:user_id/:course_id",
-  lmsController.getAssignedCourseById
+  "/get-user-assigned-course-details-by-id/:user_id/:course_id",
+  lmsController.getUserAssignedCourseDetailsById
 );
 router.post(
-  "/get-all-assigned-course-details/:user_id",
-  lmsController.getAllAssignedCourseDetails
+  "/get-user-all-assigned-course-list/:user_id",
+  lmsController.getUserAllAssignedCourseList
+);
+router.post(
+  "/get-all-assigned-course-list",
+  lmsController.getAllAssignedCourseList
+);
+router.post(
+  "/get-assigned-course-byId/:assign_id",
+  lmsController.getAssignedCourseDetailById
 );
 
 // ******************** COURSE ASSESSMENT SUBMISSION LOGIC ROUTERS ******************** //

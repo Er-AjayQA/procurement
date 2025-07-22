@@ -28,6 +28,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      total_marks: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
