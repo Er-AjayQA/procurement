@@ -16,10 +16,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      pass_percent: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
       isPass: {
         type: Sequelize.BOOLEAN,
         allowNull: true,

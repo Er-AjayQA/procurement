@@ -760,6 +760,20 @@ db.tbl_lms_employee_assessment_question_submission.belongsTo(
   }
 );
 
+// Relation B/W LMS Employee Assessment Submission and LMS Assessment Result Tables
+db.tbl_lms_course_assessment_results.hasMany(
+  db.tbl_lms_employee_assessment_question_submission,
+  {
+    foreignKey: "result_id",
+  }
+);
+db.tbl_lms_employee_assessment_question_submission.belongsTo(
+  db.tbl_lms_course_assessment_results,
+  {
+    foreignKey: "result_id",
+  }
+);
+
 // Relation B/W LMS Employee Assign Course and LMS Course Tables
 db.tbl_lms_course.hasMany(db.tbl_lms_assign_employee_course, {
   foreignKey: "course_id",
@@ -777,18 +791,12 @@ db.tbl_lms_course_assessment_results.belongsTo(db.tbl_user_master, {
 });
 
 // Relation B/W LMS Employee Assign Course and LMS Employee Assessment Result Tables
-db.tbl_lms_assign_employee_course.hasMany(
-  db.tbl_lms_course_assessment_results,
-  {
-    foreignKey: "course_assign_id",
-  }
-);
-db.tbl_lms_course_assessment_results.belongsTo(
-  db.tbl_lms_assign_employee_course,
-  {
-    foreignKey: "course_assign_id",
-  }
-);
+db.tbl_lms_assign_course.hasMany(db.tbl_lms_course_assessment_results, {
+  foreignKey: "course_assign_id",
+});
+db.tbl_lms_course_assessment_results.belongsTo(db.tbl_lms_assign_course, {
+  foreignKey: "course_assign_id",
+});
 
 // // Relation B/W User Master and Purchase Request Tables
 // db.tbl_user_master.hasMany(db.tbl_purchase_request, {
