@@ -47,5 +47,10 @@ router.post(
   lmsController.assessmentSubmit
 );
 
+router.post(
+  "/get-user-attempts/:user_id/:assign_id",
+  lmsController.getUserAttemptsDetail
+);
+
 // ========== EXPORT ========== //
 module.exports = router;
