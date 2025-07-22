@@ -990,30 +990,117 @@ module.exports.getUserAttemptsDetail = async (req, res) => {
   try {
     const { user_id, assign_id } = req.params;
 
-    // Get Course Basic Details Logic
-    const basicDetail = await DB.sequelize.query(
-      `SELECT CAR.*, AC.*, C.course_name, CA.*, CC.name as category_name, U.name as user_name 
-       FROM LMS_COURSE_ASSESSMENT_RESULTS AS CAR
-       LEFT JOIN LMS_ASSIGN_COURSE AS AC ON AC.id=CAR.course_assign_id
+    // Get Course Basic Details
+    const courseDetails = await DB.sequelize.query(
+      `SELECT AC.start_date, AC.end_date, C.course_name, CA.assessment_passing_percent, 
+       CA.assessment_time, CA.assessment_max_attempts, CA.total_marks
+       FROM LMS_ASSIGN_COURSE AS AC
        LEFT JOIN LMS_COURSE AS C ON C.id=AC.course_id
-       LEFT JOIN COURSE_CATEGORY AS CC ON CC.id=C.course_category_id 
-       LEFT JOIN LMS_COURSE_ASSESSMENT AS CA ON CA.course_id=C.id       
-       LEFT JOIN USER_MASTER AS U ON U.id=:user_id 
-       WHERE CAR.user_id=:user_id AND CAR.course_assign_id=:assign_id`,
+       LEFT JOIN LMS_COURSE_ASSESSMENT AS CA ON CA.course_id=C.id
+       WHERE AC.id=:assign_id`,
+      {
+        replacements: { assign_id },
+        type: DB.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (!courseDetails.length) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Course not found" });
+    }
+
+    // Get User Basic Details
+    const userDetails = await DB.sequelize.query(
+      `SELECT U.name
+       FROM USER_MASTER AS U
+       WHERE U.id=:user_id`,
+      {
+        replacements: { user_id },
+        type: DB.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (!userDetails.length) {
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
+    }
+
+    // Get Assessment Results with Questions
+    const assessmentResults = await DB.sequelize.query(
+      `SELECT CAR.id as attempt_id, CAR.isPass, CAR.createdAt as attempt_date
+       FROM LMS_COURSE_ASSESSMENT_RESULTS AS CAR
+       WHERE CAR.user_id=:user_id AND CAR.course_assign_id=:assign_id
+       ORDER BY CAR.createdAt DESC`,
       {
         replacements: { user_id, assign_id },
         type: DB.sequelize.QueryTypes.SELECT,
       }
     );
 
+    const attemptsWithQuestions = await Promise.all(
+      assessmentResults.map(async (attempt) => {
+        const questions =
+          await DB.tbl_lms_employee_assessment_question_submission.findAll({
+            attributes: ["id", "employee_answer", "answer_status"],
+            where: { result_id: attempt.attempt_id },
+            include: [
+              {
+                model: DB.tbl_lms_course_assessment_questions,
+                attributes: [
+                  "id",
+                  "assessment_question_title",
+                  "assessment_correct_answer",
+                ],
+                where: { isDeleted: false },
+              },
+            ],
+            raw: true,
+            nest: true,
+          });
+
+        return {
+          ...attempt,
+          questions: questions.map((q) => ({
+            question_id: q.LMS_COURSE_ASSESSMENT_QUESTION.id,
+            question_text:
+              q.LMS_COURSE_ASSESSMENT_QUESTION.assessment_question_title,
+            correct_answer:
+              q.LMS_COURSE_ASSESSMENT_QUESTION.assessment_correct_answer,
+            user_answer: q.employee_answer,
+            is_correct: q.answer_status,
+          })),
+        };
+      })
+    );
+
     const responseData = {
-      basicDetail,
+      course: {
+        id: assign_id,
+        name: courseDetails[0].course_name,
+        start_date: courseDetails[0].start_date,
+        end_date: courseDetails[0].end_date,
+        passing_percent: courseDetails[0].assessment_passing_percent,
+        time_limit: courseDetails[0].assessment_time,
+        max_attempts: courseDetails[0].assessment_max_attempts,
+        total_marks: courseDetails[0].total_marks,
+      },
+      user: {
+        id: user_id,
+        name: userDetails[0].name,
+      },
+      attempts: attemptsWithQuestions.map((attempt) => ({
+        attempt_id: attempt.attempt_id,
+        is_passed: Boolean(attempt.isPass),
+        attempt_date: attempt.attempt_date,
+        questions: attempt.questions,
+      })),
     };
 
     return res.status(200).send({
       success: true,
-      status: "Get Assigned Course Detail!",
-      totalRecords: responseData.length,
+      message: "User assessment attempts retrieved successfully",
       data: responseData,
     });
   } catch (error) {
