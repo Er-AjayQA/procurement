@@ -913,29 +913,109 @@ module.exports.getAllAssignedCourseList = async (req, res) => {
 // ========== GET ASSIGNED COURSES DETAILS BY ID CONTROLLER ========== //
 module.exports.getAssignedCourseDetailById = async (req, res) => {
   try {
-    // Basic query to get actual courses assigned to user
-    const query = `
-            SELECT AC.id AS assign_id, AC.start_date, AC.end_date, AC.assign_type, C.*
-            FROM LMS_ASSIGN_COURSE AS AC
-            LEFT JOIN LMS_COURSE AS C ON C.id=AC.course_id
-            WHERE AC.isDeleted=false`;
+    const { assign_id } = req.params;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    // Get Course Basic Details Logic
+    const basicDetail = await DB.sequelize.query(
+      `SELECT AC.*, C.*, CC.name as category_name
+       FROM LMS_ASSIGN_COURSE AS AC
+       LEFT JOIN LMS_COURSE AS C ON C.id=AC.course_id
+       LEFT JOIN COURSE_CATEGORY AS CC ON CC.id=C.course_category_id       
+       WHERE AC.id=:assign_id`,
+      {
+        replacements: { assign_id },
+        type: DB.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    // Get All Associated Users Details Logic
+    const getAssociatedUsers = await DB.tbl_lms_assign_employee_course.findAll({
+      attributes: ["user_id"],
+      where: { course_assign_id: assign_id },
     });
+    const userIds = getAssociatedUsers.map((user) => user.user_id);
+    let users = await DB.sequelize.query(
+      `SELECT U.id, U.name, U.emp_code, DS.name as designation_name, DE.name as department_name
+       FROM USER_MASTER AS U
+       LEFT JOIN DESIGNATION_MASTER AS DS ON DS.id=U.designation_id
+       LEFT JOIN DEPARTMENT_MASTER AS DE ON DE.id=U.dep_id
+       WHERE U.id IN (:userIds)`,
+      {
+        replacements: { userIds },
+        type: DB.sequelize.QueryTypes.SELECT,
+      }
+    );
 
-    if (getAllData.length < 1) {
-      return res
-        .status(400)
-        .send({ success: false, message: "No Allocation List Found!" });
-    } else {
-      return res.status(200).send({
-        success: true,
-        status: "Get All Assigned Courses List!",
-        totalRecords: getAllData.length,
-        data: getAllData,
-      });
-    }
+    // Get Each User Assessment Submission Details Logic
+    const assessmentResult = (
+      await Promise.all(
+        userIds.map(async (userId) => {
+          const data = await DB.tbl_lms_course_assessment_results.findOne({
+            attributes: [
+              "id",
+              "total_marks",
+              "obtained_marks",
+              "isPass",
+              "user_id",
+            ],
+            where: { course_assign_id: assign_id, user_id: userId },
+            order: [["createdAt", "DESC"]],
+            limit: 1,
+          });
+
+          return data;
+        })
+      )
+    ).filter((data) => data !== null);
+
+    const responseData = {
+      basicDetail,
+      allAssociatedUsers: users,
+      userAssessmentSubmit: assessmentResult,
+    };
+
+    return res.status(200).send({
+      success: true,
+      status: "Get Assigned Course Detail!",
+      totalRecords: responseData.length,
+      data: responseData,
+    });
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== GET USER ATTEMPTS DETAILS CONTROLLER ========== //
+module.exports.getUserAttemptsDetail = async (req, res) => {
+  try {
+    const { user_id, assign_id } = req.params;
+
+    // Get Course Basic Details Logic
+    const basicDetail = await DB.sequelize.query(
+      `SELECT CAR.*, AC.*, C.course_name, CA.*, CC.name as category_name, U.name as user_name 
+       FROM LMS_COURSE_ASSESSMENT_RESULTS AS CAR
+       LEFT JOIN LMS_ASSIGN_COURSE AS AC ON AC.id=CAR.course_assign_id
+       LEFT JOIN LMS_COURSE AS C ON C.id=AC.course_id
+       LEFT JOIN COURSE_CATEGORY AS CC ON CC.id=C.course_category_id 
+       LEFT JOIN LMS_COURSE_ASSESSMENT AS CA ON CA.course_id=C.id       
+       LEFT JOIN USER_MASTER AS U ON U.id=:user_id 
+       WHERE CAR.user_id=:user_id AND CAR.course_assign_id=:assign_id`,
+      {
+        replacements: { user_id, assign_id },
+        type: DB.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const responseData = {
+      basicDetail,
+    };
+
+    return res.status(200).send({
+      success: true,
+      status: "Get Assigned Course Detail!",
+      totalRecords: responseData.length,
+      data: responseData,
+    });
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
   }
