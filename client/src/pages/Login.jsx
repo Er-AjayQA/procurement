@@ -1,9 +1,18 @@
 import { LoginForm } from "../components/LoginForm";
 
-export const Login = () => {
+export const LoginPage = () => {
   return (
-    <div>
-      <LoginForm />
+    <div className="flex min-h-screen">
+      <div className="p-10 basis-[50%] flex justify-center items-center">
+        <img
+          src="/Images/login_logo.png"
+          alt="login-form-image"
+          className="w-[80%]"
+        />
+      </div>
+      <div className="p-10 basis-[50%] flex justify-center ">
+        <LoginForm />
+      </div>
     </div>
   );
 };
