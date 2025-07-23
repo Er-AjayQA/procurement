@@ -7,7 +7,7 @@ export const LoginPage = () => {
         <img
           src="/Images/login_logo.png"
           alt="login-form-image"
-          className="w-[80%]"
+          className="max-w-[80%]"
         />
       </div>
       <div className="p-10 basis-[50%] flex justify-center ">

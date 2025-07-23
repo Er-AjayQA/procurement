@@ -3,6 +3,16 @@
 @tailwind components;
 @tailwind utilities;
 
+.bg-primary {
+  background-color: #6358dc;
+}
+
 * {
   font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
