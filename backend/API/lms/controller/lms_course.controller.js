@@ -95,7 +95,7 @@ module.exports.createCourse = async (req, res) => {
   }
 };
 
-// // ========== UPDATE COURSE CONTROLLER ========== //
+// ========== UPDATE COURSE CONTROLLER ========== //
 // module.exports.updateCourse = async (req, res) => {
 //   try {
 //     const data = req.body;
