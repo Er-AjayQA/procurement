@@ -1,9 +1,9 @@
 // ========== REQUIRE STATEMENTS ========== //
-const { where } = require("sequelize");
 const DB = require("../../../config/index");
 const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 const bcrypt = require("bcrypt");
 const sodium = require("libsodium-wrappers");
+const jwt = require("jsonwebtoken");
 
 // ========== CREATE USER CONTROLLER ========== //
 module.exports.createUser = async (req, res) => {
@@ -990,28 +990,8 @@ module.exports.userLogin = async (req, res) => {
 
     // Get User Details
     const userDetails = await DB.sequelize.query(
-      `SELECT U.*, RM.name as reporting_manager, DE.name as department_name, DS.name as designation_name,
-        ETM.name as employee_type_name, CTM.name as contract_type_name, AM.name as area_name, SM.name as shift_name,
-        SM.start_time as shift_start_time, SM.end_time as shift_end_time, SM.shift_duration, SM.sites, SM.off_days, SM.working_hours_per_month, SM.working_days_per_month, SM.observations, BM.name as bank_name, BM.bank_code, CM.name as present_country_name, CM.name as present_country_name, STM.name as present_state_name, CIM.name as present_city_name,PM.name as permanent_country_name, PTM.name as permanent_state_name, PIM.name as permanent_city_name, PSM.name as personal_state_name, PCM.name as personal_city_name, ROM.name as role_name, BRM.name as branch_name
+      `SELECT U.id, U.emp_code, U.userImage, U.gender, U.official_email
         FROM USER_MASTER AS U
-        LEFT JOIN USER_MASTER AS RM ON RM.id=U.reporting_manager_id
-        LEFT JOIN DEPARTMENT_MASTER AS DE ON DE.id=U.dep_id
-        LEFT JOIN DESIGNATION_MASTER AS DS ON DS.id=U.designation_id
-        LEFT JOIN EMPLOYMENT_TYPE_MASTER AS ETM ON ETM.id=U.emp_type_id
-        LEFT JOIN CONTRACT_TYPE_MASTER AS CTM ON CTM.id=U.contract_type_id
-        LEFT JOIN AREA_MASTER AS AM ON AM.id=U.area_id
-        LEFT JOIN SHIFT_MASTER AS SM ON SM.id=U.shift_id
-        LEFT JOIN BANK_MASTER AS BM ON BM.id=U.bank_id
-        LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=U.present_country_id
-        LEFT JOIN STATE_MASTER AS STM ON STM.id=U.present_state_id
-        LEFT JOIN CITY_MASTER AS CIM ON CIM.id=U.present_city_id
-        LEFT JOIN COUNTRY_MASTER AS PM ON PM.id=U.permanent_country_id
-        LEFT JOIN STATE_MASTER AS PTM ON PTM.id=U.permanent_state_id
-        LEFT JOIN CITY_MASTER AS PIM ON PIM.id=U.permanent_city_id
-        LEFT JOIN STATE_MASTER AS PSM ON PSM.id=U.personal_state_id
-        LEFT JOIN CITY_MASTER AS PCM ON PCM.id=U.personal_city_id
-        LEFT JOIN ROLE_MASTER AS ROM ON ROM.id=U.role_id
-        LEFT JOIN BRANCH_MASTER AS BRM ON BRM.id=U.branch_id
         WHERE U.official_email=:official_email`,
       {
         replacements: { official_email },
