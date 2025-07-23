@@ -20,6 +20,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
+      status: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      },
     },
     { freezeTableName: true }
   );
