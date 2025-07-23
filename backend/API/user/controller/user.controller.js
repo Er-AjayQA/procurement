@@ -928,3 +928,70 @@ module.exports.deleteUser = async (req, res) => {
     res.status(500).send({ success: false, message: error.message });
   }
 };
+
+// ========== USER LOGIN CONTROLLER ========== //
+module.exports.userLogin = async (req, res) => {
+  try {
+    const { official_email, password } = req.body;
+
+    // Validate Content
+    const validateContent = (official_email, password) => {
+      // Validate Official EmailId
+      if (!official_email || official_email.trim() === "") {
+        return "Official EmailId is Required!";
+      }
+      // Validate Password
+      if (!password || password.trim() === "") {
+        return "Password is Required!";
+      } else {
+        return true;
+      }
+    };
+
+    const validation = validateContent(official_email, password);
+
+    if (validation !== true) {
+      return res.status(500).send({
+        success: false,
+        message: validation,
+      });
+    }
+
+    // Get User Details
+    const getUserDetails = await DB.tbl_login_master.findOne({
+      where: { official_email, isDeleted: false, status: true },
+      include: [
+        {
+          model: DB.tbl_user_master,
+          where: { isDeleted: false, status: true },
+        },
+      ],
+    });
+
+    if (!getUserDetails) {
+      return res.status(404).send({
+        success: false,
+        message: "User Not Found!",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      getUserDetails.password
+    );
+
+    if (!isPasswordValid) {
+      return res.status(401).send({
+        success: false,
+        message: "Invalid Credentials!",
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "Login successfully!",
+    });
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
