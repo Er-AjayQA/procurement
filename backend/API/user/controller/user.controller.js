@@ -1022,6 +1022,17 @@ module.exports.sendOTP = async (req, res) => {
   try {
     const { official_email } = req.body;
 
+    const userDetails = await DB.tbl_login_master.findOne({
+      where: { official_email, isDeleted: false, status: true },
+    });
+
+    if (!userDetails) {
+      return res.status(404).send({
+        success: false,
+        message: "Invalid Email Id",
+      });
+    }
+
     let otp = generateOTP();
 
     const result = await sendOtpMail(official_email, otp);
@@ -1061,7 +1072,7 @@ module.exports.verifyOTP = async (req, res) => {
 
     if (data.otp === otp) {
       return res.status(200).send({
-        success: false,
+        success: true,
         message: "OTP Verified Successfully!",
       });
     }
@@ -1072,6 +1083,28 @@ module.exports.verifyOTP = async (req, res) => {
         message: "Invalid OTP!",
       });
     }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== RESET PASSWORD CONTROLLER ========== //
+module.exports.resetPassword = async (req, res) => {
+  try {
+    const { official_email, new_password } = req.body;
+
+    const salt = await bcrypt.genSalt(12);
+    let hashedPwd = await bcrypt.hash(new_password, salt);
+
+    await DB.tbl_login_master.update(
+      { password: hashedPwd },
+      { where: { official_email, isDeleted: false, status: true } }
+    );
+
+    return res.status(201).send({
+      success: true,
+      message: "Password Reset Successfully!",
+    });
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
   }
