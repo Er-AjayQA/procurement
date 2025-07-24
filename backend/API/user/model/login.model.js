@@ -16,6 +16,13 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      otp: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("otp", value === "" ? null : value);
+        },
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

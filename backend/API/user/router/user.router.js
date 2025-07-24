@@ -62,6 +62,8 @@ router.delete("/delete-user/:id", UserController.deleteUser);
 
 // ********************* USER LOGIN LOGICS ROUTES ********************* //
 router.post("/user-login", upload.none(), UserController.userLogin);
+router.post("/send-otp", upload.none(), UserController.sendOTP);
+router.post("/verify-otp", upload.none(), UserController.verifyOTP);
 
 // ========== EXPORT ========== //
 module.exports = router;

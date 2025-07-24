@@ -4,6 +4,9 @@ const { generateUniqueCode } = require("../../../helper/generateUniqueCode");
 const bcrypt = require("bcrypt");
 const sodium = require("libsodium-wrappers");
 const jwt = require("jsonwebtoken");
+const { generateOTP } = require("../../../helper/generateOTP");
+const { sendOtpMail } = require("../../../helper/mails.config");
+const { where } = require("sequelize");
 
 // ========== CREATE USER CONTROLLER ========== //
 module.exports.createUser = async (req, res) => {
@@ -933,7 +936,7 @@ module.exports.deleteUser = async (req, res) => {
 // ========== USER LOGIN CONTROLLER ========== //
 module.exports.userLogin = async (req, res) => {
   try {
-    const { official_email, password } = req.body;
+    const { official_email, password, remember } = req.body;
 
     // Validate Content
     const validateContent = (official_email, password) => {
@@ -1009,6 +1012,66 @@ module.exports.userLogin = async (req, res) => {
       message: "Login successfully!",
       token,
     });
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== SEND OTP CONTROLLER ========== //
+module.exports.sendOTP = async (req, res) => {
+  try {
+    const { official_email } = req.body;
+
+    let otp = generateOTP();
+
+    const result = await sendOtpMail(official_email, otp);
+
+    if (result.status) {
+      await DB.tbl_login_master.update(
+        { otp },
+        { where: { official_email, isDeleted: false, status: true } }
+      );
+
+      return res.status(200).send({
+        success: result.status,
+        message: result.message,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== VERIFY OTP CONTROLLER ========== //
+module.exports.verifyOTP = async (req, res) => {
+  try {
+    const { official_email, otp } = req.body;
+
+    // Get data
+    const data = await DB.tbl_login_master.findOne({
+      where: { official_email, isDeleted: false, status: true },
+    });
+
+    if (!data) {
+      return res.status(404).send({
+        success: false,
+        message: "No Such User Found",
+      });
+    }
+
+    if (data.otp === otp) {
+      return res.status(200).send({
+        success: false,
+        message: "OTP Verified Successfully!",
+      });
+    }
+
+    if (data.otp !== otp) {
+      return res.status(500).send({
+        success: false,
+        message: "Invalid OTP!",
+      });
+    }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
   }
