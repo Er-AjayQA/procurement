@@ -32,3 +32,14 @@ export const verifyOTPService = async (formData) => {
 
   return data;
 };
+
+// PASSWORD RESET SERVICE
+export const resetPasswordService = async (formData) => {
+  const data = await axiosInstance.post("/reset-password", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return data;
+};

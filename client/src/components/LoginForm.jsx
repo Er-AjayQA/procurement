@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import {
   loginService,
+  resetPasswordService,
   sendOTPService,
   verifyOTPService,
 } from "../services/login_services/service";
@@ -113,6 +114,40 @@ export const LoginForm = () => {
       if (error.response) {
         setIsLoading(false);
         toast.error(error.response.data.message || "Unable To Verify OTP");
+      } else if (error.request) {
+        // The request was made but no response was received
+        setIsLoading(false);
+        toast.error("No response from server");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setIsLoading(false);
+        toast.error("Error: " + error.message);
+      }
+    }
+  };
+
+    // Handle Verify OTP Form
+  const onSubmitResetPasswordForm = async (data) => {
+    setIsLoading(true);
+    try {
+      const formData = { official_email: resetEmail, new_password: data.new_password };
+      const response = await resetPasswordService(formData);
+
+      if (response.data.success) {
+        setIsLoading(false);
+        toast.success(response.data.message);
+        setIsVerifyOtp(false);
+        setForgotPassword(false);
+        setIsOtpSent(false);
+        setIsResetForm(false);
+        setResetEmail(null)
+        reset();
+      }
+    } catch (error) {
+      // The request was made and the server responded with a status code
+      if (error.response) {
+        setIsLoading(false);
+        toast.error(error.response.data.message || "Unable To Reset Password");
       } else if (error.request) {
         // The request was made but no response was received
         setIsLoading(false);
@@ -346,7 +381,7 @@ export const LoginForm = () => {
           <div>
             <p>Reset Password</p>
           </div>
-          <form className="mt-3" onSubmit={handleSubmit(onSubmitVerifyOTPForm)}>
+          <form className="mt-3" onSubmit={handleSubmit(onSubmitResetPasswordForm)}>
             <div
               className={`flex items-center gap-2 rounded-md border bg-gray-300 py-1 px-3 ${
                 errors.new_password ? "border-red-500" : "border-transparent"
