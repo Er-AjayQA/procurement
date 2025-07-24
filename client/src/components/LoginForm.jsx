@@ -1,16 +1,24 @@
 import { useState } from "react";
-import { MdEmail, MdKey } from "react-icons/md";
+import { MdEmail, MdKey, MdPassword } from "react-icons/md";
 import { IoMdEye, IoMdEyeOff, IoIosLogIn } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { loginService } from "../services/login_services/service";
+import {
+  loginService,
+  sendOTPService,
+  verifyOTPService,
+} from "../services/login_services/service";
 import { toast } from "react-toastify";
 import { ButtonLoader } from "./UI/buttonLoader";
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isVerifyOtp, setIsVerifyOtp] = useState(false);
+  const [isResetForm, setIsResetForm] = useState(false);
   const navigate = useNavigate();
   const {
     register,
@@ -57,9 +65,64 @@ export const LoginForm = () => {
     }
   };
 
-  // Handle Submitting Forgot Password Form
-  const onSubmitForgotForm = async (data) => {
-    const formData = { official_email: data.email };
+  // Handle Submitting Get OTP Form
+  const onSubmitGetOTPForm = async (data) => {
+    setIsLoading(true);
+    try {
+      const formData = { official_email: data.email };
+      const response = await sendOTPService(formData);
+
+      if (response.data.success) {
+        setIsLoading(false);
+        toast.success(response.data.message);
+        setResetEmail(formData.official_email);
+        setIsOtpSent(true);
+      }
+    } catch (error) {
+      // The request was made and the server responded with a status code
+      if (error.response) {
+        setIsLoading(false);
+        toast.error(error.response.data.message || "Unable To Send OTP");
+      } else if (error.request) {
+        // The request was made but no response was received
+        setIsLoading(false);
+        toast.error("No response from server");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setIsLoading(false);
+        toast.error("Error: " + error.message);
+      }
+    }
+  };
+
+  // Handle Verify OTP Form
+  const onSubmitVerifyOTPForm = async (data) => {
+    setIsLoading(true);
+    try {
+      const formData = { official_email: resetEmail, otp: data.otp };
+      const response = await verifyOTPService(formData);
+
+      if (response.data.success) {
+        setIsLoading(false);
+        toast.success(response.data.message);
+        setIsVerifyOtp(true);
+        reset();
+      }
+    } catch (error) {
+      // The request was made and the server responded with a status code
+      if (error.response) {
+        setIsLoading(false);
+        toast.error(error.response.data.message || "Unable To Verify OTP");
+      } else if (error.request) {
+        // The request was made but no response was received
+        setIsLoading(false);
+        toast.error("No response from server");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setIsLoading(false);
+        toast.error("Error: " + error.message);
+      }
+    }
   };
 
   return (
@@ -72,8 +135,8 @@ export const LoginForm = () => {
         </p>
       </div>
 
-      {!forgotPassword ? (
-        // Login Form
+      {/* Not Forget Password */}
+      {!forgotPassword && (
         <form className="mt-10" onSubmit={handleSubmit(onSubmitLoginForm)}>
           <div
             className={`flex items-center gap-2 rounded-md border bg-gray-300 py-1 px-3 ${
@@ -177,13 +240,15 @@ export const LoginForm = () => {
             )}
           </div>
         </form>
-      ) : (
-        // Reset Password Form
+      )}
+
+      {/* Send OTP Form */}
+      {forgotPassword && !isOtpSent && (
         <div className="mt-10">
           <div>
             <p>Reset Password</p>
           </div>
-          <form className="mt-3" onSubmit={handleSubmit(onSubmitForgotForm)}>
+          <form className="mt-3" onSubmit={handleSubmit(onSubmitGetOTPForm)}>
             <div
               className={`flex items-center gap-2 rounded-md border bg-gray-300 py-1 px-3 ${
                 errors.email ? "border-red-500" : "border-transparent"
@@ -219,6 +284,135 @@ export const LoginForm = () => {
               ) : (
                 <button className="w-full bg-primary px-2 py-3 flex justify-center items-center gap-3 text-white rounded-md">
                   <span>Get OTP</span>
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Verify OTP Form */}
+      {isOtpSent && !isVerifyOtp && (
+        <div className="mt-10">
+          <div>
+            <p>Verify OTP</p>
+          </div>
+          <form className="mt-3" onSubmit={handleSubmit(onSubmitVerifyOTPForm)}>
+            <div
+              className={`flex items-center gap-2 rounded-md border bg-gray-300 py-1 px-3 ${
+                errors.otp ? "border-red-500" : "border-transparent"
+              }`}
+            >
+              <div
+                className={`basis-[10%] border-e border-e-white ${
+                  errors.otp && "border-e-red-500"
+                }`}
+              >
+                <MdPassword
+                  className={`w-6 h-6 ${errors.otp && "text-red-500"}`}
+                />
+              </div>
+              <div className="basis-[90%]">
+                <input
+                  type="text"
+                  id="otp"
+                  placeholder="Enter OTP"
+                  autoFocus
+                  className={`bg-gray-300 py-2 px-1 w-full focus-within:outline-none ${
+                    errors.otp && "placeholder:text-red-500"
+                  }`}
+                  {...register("otp", {
+                    required: "OTP is required",
+                  })}
+                />
+              </div>
+            </div>
+            <div className="mt-5">
+              {isLoading ? (
+                <ButtonLoader text="Loading" />
+              ) : (
+                <button className="w-full bg-primary px-2 py-3 flex justify-center items-center gap-3 text-white rounded-md">
+                  <span>Verify OTP</span>
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Password Reset Form */}
+      {isVerifyOtp && !isResetForm && (
+        <div className="mt-10">
+          <div>
+            <p>Reset Password</p>
+          </div>
+          <form className="mt-3" onSubmit={handleSubmit(onSubmitVerifyOTPForm)}>
+            <div
+              className={`flex items-center gap-2 rounded-md border bg-gray-300 py-1 px-3 ${
+                errors.new_password ? "border-red-500" : "border-transparent"
+              }`}
+            >
+              <div
+                className={`basis-[10%] border-e border-e-white ${
+                  errors.new_password && "border-e-red-500"
+                }`}
+              >
+                <MdPassword
+                  className={`w-6 h-6 ${errors.new_password && "text-red-500"}`}
+                />
+              </div>
+              <div className="basis-[90%]">
+                <input
+                  type="text"
+                  id="new_password"
+                  placeholder="Enter new password"
+                  autoFocus
+                  className={`bg-gray-300 py-2 px-1 w-full focus-within:outline-none ${
+                    errors.new_password && "placeholder:text-red-500"
+                  }`}
+                  {...register("new_password", {
+                    required: "New password is required",
+                  })}
+                />
+              </div>
+            </div>
+            <div
+              className={`flex items-center gap-2 mt-5 rounded-md border bg-gray-300 py-1 px-3 ${
+                errors.confirm_password
+                  ? "border-red-500"
+                  : "border-transparent"
+              }`}
+            >
+              <div
+                className={`basis-[10%] border-e border-e-white ${
+                  errors.confirm_password && "border-e-red-500"
+                }`}
+              >
+                <MdPassword
+                  className={`w-6 h-6 ${errors.otp && "text-red-500"}`}
+                />
+              </div>
+              <div className="basis-[90%]">
+                <input
+                  type="text"
+                  id="confirm_password"
+                  placeholder="Confirm password"
+                  autoFocus
+                  className={`bg-gray-300 py-2 px-1 w-full focus-within:outline-none ${
+                    errors.confirm_password && "placeholder:text-red-500"
+                  }`}
+                  {...register("confirm_password", {
+                    required: "Confirm password required",
+                  })}
+                />
+              </div>
+            </div>
+            <div className="mt-5">
+              {isLoading ? (
+                <ButtonLoader text="Loading" />
+              ) : (
+                <button className="w-full bg-primary px-2 py-3 flex justify-center items-center gap-3 text-white rounded-md">
+                  <span>Reset Password</span>
                 </button>
               )}
             </div>

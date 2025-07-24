@@ -64,6 +64,7 @@ router.delete("/delete-user/:id", UserController.deleteUser);
 router.post("/user-login", upload.none(), UserController.userLogin);
 router.post("/send-otp", upload.none(), UserController.sendOTP);
 router.post("/verify-otp", upload.none(), UserController.verifyOTP);
+router.post("/reset-password", upload.none(), UserController.resetPassword);
 
 // ========== EXPORT ========== //
 module.exports = router;
