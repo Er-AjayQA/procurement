@@ -16,3 +16,23 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/* Loading Button Style */
+.loader_button_dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  animation: loader_button_animation 1.2s infinite ease-in-out;
+}
+
+@keyframes loader_button_animation {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.1);
+  }
+}
