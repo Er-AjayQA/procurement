@@ -5,7 +5,10 @@ const bcrypt = require("bcrypt");
 const sodium = require("libsodium-wrappers");
 const jwt = require("jsonwebtoken");
 const { generateOTP } = require("../../../helper/generateOTP");
-const { sendOtpMail } = require("../../../helper/mails.config");
+const {
+  sendOtpMail,
+  sendResetPasswordConfirmationMail,
+} = require("../../../helper/mails.config");
 const { where } = require("sequelize");
 
 // ========== CREATE USER CONTROLLER ========== //
@@ -1101,6 +1104,7 @@ module.exports.resetPassword = async (req, res) => {
       { where: { official_email, isDeleted: false, status: true } }
     );
 
+    await sendResetPasswordConfirmationMail(official_email, new_password);
     return res.status(201).send({
       success: true,
       message: "Password Reset Successfully!",

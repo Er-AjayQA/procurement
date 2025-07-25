@@ -2,7 +2,10 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   isLoading: false,
-  showPassword: false,
+  passwordVisibility: false,
+  showLoginPassword: false,
+  showNewPassword: false,
+  showConfirmPassword: false,
   forgotPassword: false,
   resetEmail: null,
   isOtpSent: false,
@@ -16,8 +19,16 @@ export const loginSlice = createSlice({
   name: "login",
   initialState,
   reducers: {
-    setShowPassword: (state, action) => {
-      state.showPassword = action.payload;
+    setPasswordVisibility: (state, action) => {
+      if (action.payload.type === "login") {
+        state.showLoginPassword = !state.showLoginPassword;
+      }
+      if (action.payload.type === "newPassword") {
+        state.showNewPassword = !state.showNewPassword;
+      }
+      if (action.payload.type === "confirmPassword") {
+        state.showConfirmPassword = !state.showConfirmPassword;
+      }
     },
     setForgotPassword: (state, action) => {
       state.forgotPassword = action.payload;
@@ -53,7 +64,7 @@ export const loginSlice = createSlice({
 });
 
 export const {
-  setShowPassword,
+  setPasswordVisibility,
   setForgotPassword,
   setResetEmail,
   setIsOtpSent,
