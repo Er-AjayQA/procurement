@@ -1,25 +1,33 @@
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { MdEmail, MdKey, MdPassword } from "react-icons/md";
 import { IoMdEye, IoMdEyeOff, IoIosLogIn } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import {
-  loginService,
-  resetPasswordService,
-  sendOTPService,
-  verifyOTPService,
-} from "../services/login_services/service";
-import { toast } from "react-toastify";
 import { ButtonLoader } from "./UI/buttonLoader";
+import {
+  loginUser,
+  resetPassword,
+  sendOTP,
+  verifyOTP,
+} from "../Thunks/loginThunks";
+import {
+  resetState,
+  setForgotPassword,
+  setShowPassword,
+} from "../ReduxToolkit/loginSlice";
 
 export const LoginForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [forgotPassword, setForgotPassword] = useState(false);
-  const [resetEmail, setResetEmail] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isVerifyOtp, setIsVerifyOtp] = useState(false);
-  const [isResetForm, setIsResetForm] = useState(false);
+  const dispatch = useDispatch();
+  const {
+    isLoading,
+    showPassword,
+    forgotPassword,
+    resetEmail,
+    isOtpSent,
+    isVerifyOtp,
+    isResetForm,
+  } = useSelector((state) => state.login);
+
   const navigate = useNavigate();
   const {
     register,
@@ -28,141 +36,77 @@ export const LoginForm = () => {
     formState: { errors },
   } = useForm();
 
-  // Handle Forgot Password
-
   // Handle Submitting Login Form
   const onSubmitLoginForm = async (data) => {
-    setIsLoading(true);
+    const formData = {
+      official_email: data.email,
+      password: data.password,
+      remember: data.remember_me,
+    };
     try {
-      const formData = {
-        official_email: data.email,
-        password: data.password,
-        remember: data.remember_me,
-      };
-      const response = await loginService(formData);
-
-      if (response.data.success) {
-        toast.success(response.data.message);
-        navigate("/procurement/home");
-        setIsLoading(false);
-        reset();
-      } else {
-        toast.error(response.data.message);
-      }
+      await dispatch(loginUser(formData)).unwrap();
+      navigate("/procurement/home");
+      reset();
     } catch (error) {
-      // The request was made and the server responded with a status code
-      if (error.response) {
-        setIsLoading(false);
-        toast.error(error.response.data.message || "Login failed");
-      } else if (error.request) {
-        // The request was made but no response was received
-        setIsLoading(false);
-        toast.error("No response from server");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        setIsLoading(false);
-        toast.error("Error: " + error.message);
-      }
+      // Error handing in thunk
     }
   };
 
   // Handle Submitting Get OTP Form
   const onSubmitGetOTPForm = async (data) => {
-    setIsLoading(true);
+    const formData = { official_email: data.email };
     try {
-      const formData = { official_email: data.email };
-      const response = await sendOTPService(formData);
-
-      if (response.data.success) {
-        setIsLoading(false);
-        toast.success(response.data.message);
-        setResetEmail(formData.official_email);
-        setIsOtpSent(true);
-      }
+      await dispatch(sendOTP(formData)).unwrap();
+      reset();
     } catch (error) {
-      // The request was made and the server responded with a status code
-      if (error.response) {
-        setIsLoading(false);
-        toast.error(error.response.data.message || "Unable To Send OTP");
-      } else if (error.request) {
-        // The request was made but no response was received
-        setIsLoading(false);
-        toast.error("No response from server");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        setIsLoading(false);
-        toast.error("Error: " + error.message);
-      }
+      // Error handing in thunk
     }
   };
 
   // Handle Verify OTP Form
   const onSubmitVerifyOTPForm = async (data) => {
-    setIsLoading(true);
+    const formData = { official_email: resetEmail, otp: data.otp };
     try {
-      const formData = { official_email: resetEmail, otp: data.otp };
-      const response = await verifyOTPService(formData);
-
-      if (response.data.success) {
-        setIsLoading(false);
-        toast.success(response.data.message);
-        setIsVerifyOtp(true);
-        reset();
-      }
+      await dispatch(verifyOTP(formData)).unwrap();
+      reset();
     } catch (error) {
-      // The request was made and the server responded with a status code
-      if (error.response) {
-        setIsLoading(false);
-        toast.error(error.response.data.message || "Unable To Verify OTP");
-      } else if (error.request) {
-        // The request was made but no response was received
-        setIsLoading(false);
-        toast.error("No response from server");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        setIsLoading(false);
-        toast.error("Error: " + error.message);
-      }
+      // Error handing in thunk
     }
   };
 
-    // Handle Verify OTP Form
+  // Handle Reset Password Form
   const onSubmitResetPasswordForm = async (data) => {
-    setIsLoading(true);
+    const formData = {
+      official_email: resetEmail,
+      new_password: data.new_password,
+    };
     try {
-      const formData = { official_email: resetEmail, new_password: data.new_password };
-      const response = await resetPasswordService(formData);
-
-      if (response.data.success) {
-        setIsLoading(false);
-        toast.success(response.data.message);
-        setIsVerifyOtp(false);
-        setForgotPassword(false);
-        setIsOtpSent(false);
-        setIsResetForm(false);
-        setResetEmail(null)
-        reset();
-      }
+      await dispatch(resetPassword(formData)).unwrap();
+      reset();
     } catch (error) {
-      // The request was made and the server responded with a status code
-      if (error.response) {
-        setIsLoading(false);
-        toast.error(error.response.data.message || "Unable To Reset Password");
-      } else if (error.request) {
-        // The request was made but no response was received
-        setIsLoading(false);
-        toast.error("No response from server");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        setIsLoading(false);
-        toast.error("Error: " + error.message);
-      }
+      // Error handing in thunk
     }
+  };
+
+  // Toggle Password Visibility
+  const togglePasswordVisibility = () => {
+    dispatch(setShowPassword(!showPassword));
+  };
+
+  // Handle Forgot Password Click
+  const handleForgotPassword = () => {
+    dispatch(setForgotPassword(true));
+  };
+
+  // Handle Back To Login
+  const handleBackToLogin = () => {
+    dispatch(resetState());
   };
 
   return (
     <div className="py-5 px-10 bg-white w-3/5 rounded-lg flex flex-col justify-center">
-      <div>
+      <div className="text-center">Login</div>
+      <div className="mt-16">
         <p>Welcome to</p>
         <p className="text-3xl text-blue-900 font-bold">Procurement Hub</p>
         <p className="text-[.8rem] font-thin font-normal">
@@ -232,14 +176,14 @@ export const LoginForm = () => {
                   className={`absolute end-0 top-[50%] translate-y-[-50%] cursor-pointer w-5 h-5 ${
                     errors.password && "text-red-500"
                   }`}
-                  onClick={() => setShowPassword(false)}
+                  onClick={togglePasswordVisibility}
                 />
               ) : (
                 <IoMdEyeOff
                   className={`absolute end-0 top-[50%] translate-y-[-50%] cursor-pointer w-5 h-5 ${
                     errors.password && "text-red-500"
                   }`}
-                  onClick={() => setShowPassword(true)}
+                  onClick={togglePasswordVisibility}
                 />
               )}
             </div>
@@ -258,9 +202,7 @@ export const LoginForm = () => {
 
             <Link
               className="text-sm text-blue-800"
-              onClick={() => {
-                setForgotPassword(true);
-              }}
+              onClick={handleForgotPassword}
             >
               Forget Password?
             </Link>
@@ -330,7 +272,7 @@ export const LoginForm = () => {
       {isOtpSent && !isVerifyOtp && (
         <div className="mt-10">
           <div>
-            <p>Verify OTP</p>
+            <p>Reset Password</p>
           </div>
           <form className="mt-3" onSubmit={handleSubmit(onSubmitVerifyOTPForm)}>
             <div
@@ -381,7 +323,10 @@ export const LoginForm = () => {
           <div>
             <p>Reset Password</p>
           </div>
-          <form className="mt-3" onSubmit={handleSubmit(onSubmitResetPasswordForm)}>
+          <form
+            className="mt-3"
+            onSubmit={handleSubmit(onSubmitResetPasswordForm)}
+          >
             <div
               className={`flex items-center gap-2 rounded-md border bg-gray-300 py-1 px-3 ${
                 errors.new_password ? "border-red-500" : "border-transparent"
