@@ -9,7 +9,7 @@ import { store } from "./ReduxToolkit/reduxStore.jsx";
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <BrowserRouter>
-      <ToastContainer autoClose={2000} theme="colored" />
+      <ToastContainer autoClose={2000} theme="dark" />
       <App />
     </BrowserRouter>
   </Provider>
