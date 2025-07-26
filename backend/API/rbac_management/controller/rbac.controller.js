@@ -448,29 +448,28 @@ module.exports.deleteSubModule = async (req, res) => {
 module.exports.assignModule = async (req, res) => {
   const transaction = await DB.sequelize.transaction();
   try {
-    const data = req.body;
+    const { user_id, role_id, module_list } = req.body;
 
-    if (data.menu_list && data.menu_list.length > 0) {
-      const recordsToBeCreated = data.menu_list.flatMap((menu) => {
-        return menu.submenu_list.map((submenu) => ({
-          user_id: data.user_id,
-          role_id: data.role_id,
-          menu_id: menu.menu_id,
-          submenu_id: submenu.submenu_id,
-          read: submenu.read,
-          write: submenu.write,
-          delete: submenu.delete,
-        }));
-      });
-      await DB.tbl_rbac_assign_menu_master.bulkCreate(recordsToBeCreated, {
-        transaction,
-      });
-
-      await transaction.commit();
+    if (module_list && module_list.length > 0) {
+      module_list.map(async (data) => {
+        await DB.tbl_rbac_assign_module_master.create(
+          {
+            user_id: user_id,
+            role_id: role_id,
+            module_id: data.module_id,
+            submodule_id: data.submodule_id,
+            read: data.read,
+            write: data.write,
+            delete: data.delete,
+          },
+          transaction
+        );
+      }),
+        await transaction.commit();
 
       return res.status(201).send({
         success: true,
-        message: "Menu Assigned Successfully!",
+        message: "Module Assigned Successfully!",
       });
     }
   } catch (error) {
