@@ -1,7 +1,7 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../config/index");
 
-// ***************************** MODULES ***************************** //
+// ***************************** MODULES CONTROLLERS ***************************** //
 
 // ========== CREATE MODULE MASTER CONTROLLER ========== //
 module.exports.createModule = async (req, res) => {
@@ -148,7 +148,7 @@ module.exports.updateModuleStatus = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Menu exist
+    // Check if Module exist
     const isModuleExist = await DB.tbl_rbac_module_master.findOne({
       where: {
         id,
@@ -161,6 +161,21 @@ module.exports.updateModuleStatus = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Module Not Found!" });
     } else {
+      const getAllSubmodules = await DB.tbl_rbac_submodule_master.findAll({
+        where: { rbac_module_id: id, isDeleted: false },
+      });
+
+      // Changing status of all Submodules of Master Module
+      if (getAllSubmodules) {
+        getAllSubmodules.map(async (data) => {
+          await DB.tbl_rbac_submodule_master.update(
+            { status: !data.status },
+            {
+              where: { id: data.id },
+            }
+          );
+        });
+      }
       const updateStatus = await isModuleExist.update({
         status: !isModuleExist.status,
       });
@@ -180,11 +195,14 @@ module.exports.deleteModule = async (req, res) => {
   try {
     const { id } = req.params;
 
+    console.log(id);
+
     // Check if Module exist
     const isModuleExist = await DB.tbl_rbac_module_master.findOne({
       where: {
         id,
         isDeleted: false,
+        status: true,
       },
     });
 
@@ -193,9 +211,28 @@ module.exports.deleteModule = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Module Not Found!" });
     } else {
-      await isModuleExist.update({
-        isDeleted: true,
+      const getAllSubmodules = await DB.tbl_rbac_submodule_master.findAll({
+        where: { rbac_module_id: id, isDeleted: false },
       });
+
+      // Deleting all Submodules of Master Module
+      if (getAllSubmodules) {
+        getAllSubmodules.map(async (data) => {
+          await DB.tbl_rbac_submodule_master.update(
+            { isDeleted: true },
+            {
+              where: { id: data.id },
+            }
+          );
+        });
+      }
+
+      await isModuleExist.update(
+        {
+          isDeleted: true,
+        },
+        { where: { id } }
+      );
       return res.status(200).send({
         success: true,
         status: "Module Deleted Successfully!",
@@ -206,7 +243,7 @@ module.exports.deleteModule = async (req, res) => {
   }
 };
 
-// ***************************** SUBMODULES ***************************** //
+// ***************************** SUBMODULES CONTROLLERS ***************************** //
 
 // ========== CREATE SUBMODULE MASTER CONTROLLER ========== //
 module.exports.createSubModule = async (req, res) => {
@@ -405,7 +442,7 @@ module.exports.deleteSubModule = async (req, res) => {
   }
 };
 
-// ***************************** MODULES ACCESS ***************************** //
+// ***************************** MODULES ACCESS CONTROLLERS ***************************** //
 
 // ========== ASSIGN MODULE MASTER CONTROLLER ========== //
 module.exports.assignModule = async (req, res) => {
@@ -479,37 +516,6 @@ module.exports.getAllAssignedModuleDetails = async (req, res) => {
         status: "All Assigned Modules Fetched Successfully!",
         records: getData.length,
         data: getSubModulesDetails,
-      });
-    }
-  } catch (error) {
-    res.status(500).send({ success: false, message: error.message });
-  }
-};
-
-// ========== DELETE MODULE MASTER CONTROLLER ========== //
-module.exports.deleteModule = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Check if Menu exist
-    const isMenuExist = await DB.tbl_rbac_menu_master.findOne({
-      where: {
-        id,
-        isDeleted: false,
-      },
-    });
-
-    if (!isMenuExist) {
-      return res
-        .status(400)
-        .send({ success: false, message: "Menu Not Found!" });
-    } else {
-      await isMenuExist.update({
-        isDeleted: true,
-      });
-      return res.status(200).send({
-        success: true,
-        status: "Menu Deleted Successfully!",
       });
     }
   } catch (error) {
