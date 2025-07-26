@@ -15,10 +15,6 @@ router.put("/delete-module/:id", RbacController.deleteModule);
 // ********* SUBMODULES ROUTES ********* //
 router.post("/create-submodule", RbacController.createSubModule);
 router.put("/update-submodule/:id", RbacController.updateSubModule);
-router.post(
-  "/get-all-submodule-details",
-  RbacController.getAllSubModuleDetails
-);
 router.put(
   "/update-submodule-status/:id",
   RbacController.updateSubModuleStatus

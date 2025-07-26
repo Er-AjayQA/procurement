@@ -1,7 +1,6 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../config/index");
 
-
 // ***************************** MODULES ***************************** //
 
 // ========== CREATE MODULE MASTER CONTROLLER ========== //
@@ -109,16 +108,25 @@ module.exports.updateModule = async (req, res) => {
 // ========== GET ALL MODULE MASTER DETAILS CONTROLLER ========== //
 module.exports.getAllModuleDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT RM.*
-       FROM RBAC_MODULE_MASTER AS RM
-       WHERE RM.isDeleted=false`;
-
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const getAllData = await DB.tbl_rbac_module_master.findAll({
+      attributes: ["id", "module_name", "module_icon", "module_endpoint"],
+      where: { isDeleted: false, status: true },
+      include: [
+        {
+          model: DB.tbl_rbac_submodule_master,
+          attributes: [
+            "id",
+            "submodule_name",
+            "submodule_icon",
+            "submodule_endpoint",
+            "rbac_module_id",
+          ],
+          where: { isDeleted: false, status: true },
+        },
+      ],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData) {
       return res
         .status(400)
         .send({ success: false, message: "Modules Not Found!" });
@@ -135,7 +143,7 @@ module.exports.getAllModuleDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE MODULE MASTER CONTROLLER ========== //
+// ========== UPDATE MODULE STATUS MASTER CONTROLLER ========== //
 module.exports.updateModuleStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -334,37 +342,7 @@ module.exports.updateSubModule = async (req, res) => {
   }
 };
 
-// ========== GET ALL SUBMODULE MASTER DETAILS CONTROLLER ========== //
-module.exports.getAllSubModuleDetails = async (req, res) => {
-  try {
-    const query = `
-    SELECT RSM.id, RSM.submodule_name, RSM.submodule_icon, RSM.submodule_endpoint, RSM.rbac_module_id, RM.module_name, RSM.isDeleted, RSM.status 
-       FROM RBAC_SUBMODULE_MASTER AS RSM
-       LEFT JOIN RBAC_MODULE_MASTER AS RM ON RM.id=RSM.rbac_module_id
-       WHERE RSM.isDeleted=false`;
-
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
-    });
-
-    if (getAllData.length < 1) {
-      return res
-        .status(400)
-        .send({ success: false, message: "SubModules Not Found!" });
-    } else {
-      return res.status(200).send({
-        success: true,
-        status: "Get SubModules Details Successfully!",
-        records: getAllData.length,
-        data: getAllData,
-      });
-    }
-  } catch (error) {
-    res.status(500).send({ success: false, message: error.message });
-  }
-};
-
-// ========== UPDATE SUBMODULE MASTER CONTROLLER ========== //
+// ========== UPDATE SUBMODULE STATUS MASTER CONTROLLER ========== //
 module.exports.updateSubModuleStatus = async (req, res) => {
   try {
     const { id } = req.params;
