@@ -16,14 +16,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      module_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      submodule_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
       read: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

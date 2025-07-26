@@ -859,20 +859,36 @@ db.tbl_rbac_submodule_master.belongsTo(db.tbl_rbac_module_master, {
   foreignKey: "rbac_module_id",
 });
 
-// // Relation B/W Menu Master and Assigned Menu Tables
-// db.tbl_rbac_module_master.hasMany(db.tbl_rbac_assign_module_master, {
-//   foreignKey: "module_id",
-// });
-// db.tbl_rbac_assign_module_master.belongsTo(db.tbl_rbac_module_master, {
-//   foreignKey: "module_id",
-// });
+// Relation B/W Module Master and Assigned Module Tables
+db.tbl_rbac_module_master.hasMany(db.tbl_rbac_assign_module_master, {
+  foreignKey: "module_id",
+});
+db.tbl_rbac_assign_module_master.belongsTo(db.tbl_rbac_module_master, {
+  foreignKey: "module_id",
+});
 
-// // Relation B/W SubMenu Master and Assigned Menu Tables
-// db.tbl_rbac_submodule_master.hasMany(db.tbl_rbac_assign_module_master, {
-//   foreignKey: "submodule_id",
-// });
-// db.tbl_rbac_assign_module_master.belongsTo(db.tbl_rbac_submodule_master, {
-//   foreignKey: "submodule_id",
-// });
+// Relation B/W SubModule Master and Assigned Module Tables
+db.tbl_rbac_submodule_master.hasMany(db.tbl_rbac_assign_module_master, {
+  foreignKey: "submodule_id",
+});
+db.tbl_rbac_assign_module_master.belongsTo(db.tbl_rbac_submodule_master, {
+  foreignKey: "submodule_id",
+});
+
+// Relation B/W User Master and Assigned Module Tables
+db.tbl_user_master.hasMany(db.tbl_rbac_assign_module_master, {
+  foreignKey: "user_id",
+});
+db.tbl_rbac_assign_module_master.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
+});
+
+// Relation B/W Role Master and Assigned Module Tables
+db.tbl_role_master.hasMany(db.tbl_rbac_assign_module_master, {
+  foreignKey: "role_id",
+});
+db.tbl_rbac_assign_module_master.belongsTo(db.tbl_role_master, {
+  foreignKey: "role_id",
+});
 // ========== EXPORTS ========== //
 module.exports = db;
