@@ -831,14 +831,14 @@ db.tbl_lms_course_assessment_results.belongsTo(db.tbl_lms_assign_course, {
 // });
 
 // **************************** RBAC **************************** //
-// RBAC Menu Master Table
+// RBAC Module Master Table
 db.tbl_rbac_module_master =
   require("../API/rbac_management/model/module_master.model")(
     sequelize,
     Sequelize
   );
 
-// RBAC SubMenu Master Table
+// RBAC SubModule Master Table
 db.tbl_rbac_submodule_master =
   require("../API/rbac_management/model/subModule_master.model")(
     sequelize,
@@ -851,7 +851,7 @@ db.tbl_rbac_assign_module_master =
     Sequelize
   );
 
-// Relation B/W RBAC Menu Master and RBAC SubMenu Master Tables
+// Relation B/W RBAC Module Master and RBAC SubModule Master Tables
 db.tbl_rbac_module_master.hasMany(db.tbl_rbac_submodule_master, {
   foreignKey: "rbac_module_id",
 });

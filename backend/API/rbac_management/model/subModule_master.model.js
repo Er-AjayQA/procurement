@@ -16,7 +16,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: true,
         set(value) {
-          this.setDataValue("submenu_icon", value === "" ? null : value);
+          this.setDataValue("submodule_icon", value === "" ? null : value);
         },
       },
       submodule_endpoint: {
