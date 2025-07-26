@@ -9,6 +9,7 @@ import {
   setForgotPassword,
   setPasswordVisibility,
 } from "../../ReduxToolkit/loginSlice";
+import { ButtonLoader } from "../../components/UI/buttonLoader";
 
 export const BasicForm = () => {
   const dispatch = useDispatch();
