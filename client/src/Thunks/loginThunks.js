@@ -16,6 +16,8 @@ import {
   setIsVerifyOtp,
   setResetEmail,
 } from "../ReduxToolkit/LoginSlice";
+import { moduleAccessService } from "../services/rbac_services/service";
+import { getUserDetailsFromToken } from "../Utils/jwtDecode";
 
 // Login User Thunk
 export const loginUser = createAsyncThunk(
@@ -27,8 +29,16 @@ export const loginUser = createAsyncThunk(
 
       if (response.data.success) {
         toast.success(response.data.message);
-        dispatch(loginSuccess());
-        return response.data;
+        const userDetails = getUserDetailsFromToken(response.data.token);
+        const modulesResponse = await moduleAccessService(userDetails.id);
+        dispatch(
+          loginSuccess({
+            token: response.data.token,
+            userDetails,
+            assignedModules: modulesResponse.data,
+          })
+        );
+        return { ...response.data, assignedModules: modulesResponse.data };
       } else {
         throw new Error(response.data.message);
       }

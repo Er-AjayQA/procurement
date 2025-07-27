@@ -13,6 +13,9 @@ const initialState = {
   isResetForm: false,
   error: null,
   success: false,
+  token: null,
+  userDetails: null,
+  assignedModules: [],
 };
 
 export const loginSlice = createSlice({
@@ -49,9 +52,12 @@ export const loginSlice = createSlice({
       state.isLoading = true;
       state.error = null;
     },
-    loginSuccess: (state) => {
+    loginSuccess: (state, action) => {
       state.isLoading = false;
       state.success = true;
+      state.token = action.payload.token;
+      state.userDetails = action.payload.userDetails;
+      state.assignedModules = action.payload.assignedModules;
     },
     loginFailure: (state, action) => {
       state.isLoading = false;
