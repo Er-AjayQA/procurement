@@ -10,3 +10,14 @@ export const moduleService = async () => {
 
   return response.data.data;
 };
+
+// Get RBAC Access Module Service
+export const moduleAccessService = async (id) => {
+  const response = await axiosInstance.post(`/get-all-assigned-module/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response.data;
+};

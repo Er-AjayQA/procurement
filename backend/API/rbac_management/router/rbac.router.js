@@ -23,10 +23,7 @@ router.put("/delete-submodule/:id", RbacController.deleteSubModule);
 
 // ********* ASSIGN MODULE ROUTES ********* //
 router.post("/assign-module", RbacController.assignModule);
-router.post(
-  "/get-all-assigned-module/:id",
-  RbacController.getAllAssignedModuleDetails
-);
+router.post("/get-all-assigned-module/:id", RbacController.getAssignModule);
 
 // ========== EXPORT ROUTES ========== //
 module.exports = router;
