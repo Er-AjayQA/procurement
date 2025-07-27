@@ -15,7 +15,7 @@ import {
   setIsResetForm,
   setIsVerifyOtp,
   setResetEmail,
-} from "../ReduxToolkit/loginSlice";
+} from "../ReduxToolkit/LoginSlice";
 
 // Login User Thunk
 export const loginUser = createAsyncThunk(

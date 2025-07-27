@@ -8,7 +8,7 @@ import {
   resetState,
   setForgotPassword,
   setPasswordVisibility,
-} from "../../ReduxToolkit/loginSlice";
+} from "../../ReduxToolkit/LoginSlice";
 import { ButtonLoader } from "../../components/UI/buttonLoader";
 
 export const BasicForm = () => {

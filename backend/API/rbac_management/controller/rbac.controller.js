@@ -451,6 +451,20 @@ module.exports.assignModule = async (req, res) => {
     const { user_id, role_id, module_list } = req.body;
 
     if (module_list && module_list.length > 0) {
+      // Destroy Data
+      await DB.tbl_rbac_assign_module_master.destroy({ where: { user_id } });
+
+      // Assigning the Dashboard by default
+      await DB.tbl_rbac_assign_module_master.create({
+        user_id: user_id,
+        role_id: role_id,
+        module_id: 4,
+        submodule_id: null,
+        read: true,
+        write: true,
+        delete: true,
+      });
+
       module_list.map(async (data) => {
         await DB.tbl_rbac_assign_module_master.create(
           {
@@ -478,46 +492,92 @@ module.exports.assignModule = async (req, res) => {
   }
 };
 
-// ========== GET ALL ASSIGNED MODULE DETAILS CONTROLLER ========== //
-module.exports.getAllAssignedModuleDetails = async (req, res) => {
+// ========== GET USER ASSIGN MODULE CONTROLLER ========== //
+module.exports.getAssignModule = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
   try {
     const { id } = req.params;
 
-    const getData = await DB.tbl_rbac_assign_module_master.findAll({
-      attributes: ["module_id", "submodule_id", "read", "write", "delete"],
-      where: { user_id: id, isDeleted: false },
+    const userExist = await DB.tbl_user_master.findOne({
+      where: { id, isDeleted: false, status: true },
     });
 
-    if (getData.length < 1) {
-      return res
-        .status(400)
-        .send({ success: false, message: "No Modules Assigned Found!" });
-    } else {
-      const getSubModulesDetails = await Promise.all(
-        getData.map(async (data) => {
-          let submoduleDetail;
-          const submodule = await DB.tbl_rbac_assign_module_master.findOne({
-            attributes: ["id", "submodule_name"],
-            where: { id: data.submodule_id, isDeleted: false },
-          });
-
-          return (submoduleDetail = {
-            submodule,
-            read: data.read,
-            write: data.write,
-            delete: data.delete,
-          });
-        })
-      );
-
-      return res.status(200).send({
-        success: true,
-        status: "All Assigned Modules Fetched Successfully!",
-        records: getData.length,
-        data: getSubModulesDetails,
+    if (!userExist) {
+      return res.status(404).send({
+        success: false,
+        message: "No User Found!",
       });
     }
+
+    const getAllAssignedModules =
+      await DB.tbl_rbac_assign_module_master.findAll({
+        where: { user_id: id },
+        include: [
+          {
+            model: DB.tbl_rbac_module_master,
+            attributes: ["id", "module_name", "module_icon", "module_endpoint"],
+          },
+          {
+            model: DB.tbl_rbac_submodule_master,
+            attributes: [
+              "id",
+              "submodule_name",
+              "submodule_icon",
+              "submodule_endpoint",
+            ],
+          },
+        ],
+        order: [["module_id", "ASC"]],
+      });
+
+    if (!getAllAssignedModules) {
+      return res.status(404).send({
+        success: false,
+        message: "No Module Assigned!",
+      });
+    }
+
+    // Group by module
+    const groupedByModule = getAllAssignedModules.reduce((acc, assignment) => {
+      const moduleId = assignment.module_id;
+
+      if (!acc[moduleId]) {
+        acc[moduleId] = {
+          module: {
+            id: assignment.RBAC_MODULE_MASTER.id,
+            name: assignment.RBAC_MODULE_MASTER.module_name,
+            icon: assignment.RBAC_MODULE_MASTER.module_icon,
+            endpoint: assignment.RBAC_MODULE_MASTER.module_endpoint,
+            submodules: [],
+          },
+        };
+      }
+
+      acc[moduleId].module.submodules.push({
+        id: assignment?.RBAC_SUBMODULE_MASTER?.id,
+        name: assignment?.RBAC_SUBMODULE_MASTER?.submodule_name,
+        icon: assignment?.RBAC_SUBMODULE_MASTER?.submodule_icon,
+        endpoint: assignment?.RBAC_SUBMODULE_MASTER?.submodule_endpoint,
+        permissions: {
+          read: assignment.read,
+          write: assignment.write,
+          delete: assignment.delete,
+        },
+      });
+
+      return acc;
+    }, {});
+
+    // Convert to array format
+    const groupedModulesArray = Object.values(groupedByModule);
+
+    return res.status(200).send({
+      success: true,
+      message: "Get Assigned Modules!",
+      data: groupedModulesArray,
+    });
   } catch (error) {
-    res.status(500).send({ success: false, message: error.message });
+    await transaction.rollback();
+    return res.status(500).send({ success: false, message: error.message });
   }
 };
