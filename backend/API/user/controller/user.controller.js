@@ -1008,7 +1008,16 @@ module.exports.userLogin = async (req, res) => {
     // Create Token
     await sodium.ready; // Initializing
     const jwtSecrete = sodium.to_hex(sodium.randombytes_buf(64));
-    const token = jwt.sign({ userDetails }, jwtSecrete);
+    const token = jwt.sign(
+      {
+        id: userDetails[0].id,
+        emp_code: userDetails[0].emp_code,
+        userName: userDetails[0].name,
+        userImage: userDetails[0].userImage,
+        official_email: userDetails[0].official_email,
+      },
+      jwtSecrete
+    );
 
     return res.status(200).send({
       success: true,
