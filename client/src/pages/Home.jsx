@@ -1,9 +1,9 @@
-import { Navbar } from "../components/Navbar";
+import { HeaderNav } from "../components/HeaderNav";
 
 export const HomePage = () => {
   return (
     <div>
-      <Navbar />
+      <HeaderNav />
     </div>
   );
 };

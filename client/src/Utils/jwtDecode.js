@@ -1,5 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
+// Decode the Token
 export const decodeToken = (token) => {
   try {
     if (!token) {
@@ -12,15 +13,18 @@ export const decodeToken = (token) => {
   }
 };
 
+// Getting User Details From Token
 export const getUserDetailsFromToken = (token) => {
-  const decode = decodeToken(token);
-  return (
-    {
+  try {
+    const decode = decodeToken(token);
+    return {
       id: decode.id,
       emp_code: decode.emp_code,
       userName: decode.name,
       userImage: decode.userImage,
       official_email: decode.official_email,
-    } || null
-  );
+    };
+  } catch (error) {
+    return null;
+  }
 };

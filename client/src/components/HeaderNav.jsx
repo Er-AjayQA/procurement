@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 
-export const Navbar = () => {
+export const HeaderNav = () => {
   const { assignedModules } = useSelector((state) => state.login);
 
   console.log(assignedModules);
