@@ -30,17 +30,15 @@ export const loginUser = createAsyncThunk(
 
       if (response.data.success) {
         const userDetails = getUserDetailsFromToken(response.data.token);
-        const modulesResponse = await moduleAccessService(userDetails.id);
-        dispatch(
-          loginSuccess({
-            token: response.data.token,
-            userDetails,
-            assignedModules: modulesResponse?.data,
-          })
-        );
-        dispatch(loginComplete());
         toast.success(response.data.message);
-        return { ...response.data, assignedModules: modulesResponse?.data };
+        dispatch(loginSuccess({ token: response.data.token, userDetails }));
+        dispatch(loginComplete());
+
+        localStorage.setItem("userDetails", JSON.stringify(userDetails));
+        localStorage.setItem("token", JSON.stringify(response.data.token));
+        return {
+          ...response.data,
+        };
       } else {
         throw new Error(response.data.message);
       }

@@ -16,9 +16,9 @@ const initialState = {
   isResetForm: false,
   error: null,
   success: false,
-  token: JSON.parse(localStorage.getItem("token")) || null,
-  userDetails: JSON.parse(localStorage.getItem("userDetails")) || null,
-  assignedModules: JSON.parse(localStorage.getItem("assignedModules")) || [],
+  token: null,
+  userDetails: null,
+  assignedModules: [],
 };
 
 export const loginSlice = createSlice({
@@ -56,9 +56,9 @@ export const loginSlice = createSlice({
       state.error = null;
     },
     loginSuccess: (state, action) => {
-      state.token = action.payload.token;
-      state.userDetails = action.payload.userDetails;
-      state.assignedModules = action.payload.assignedModules;
+      state.token = action.payload?.token;
+      state.userDetails = action.payload?.userDetails;
+      state.assignedModules = action.payload?.assignedModules;
     },
     loginComplete: (state) => {
       state.isLoading = false;
