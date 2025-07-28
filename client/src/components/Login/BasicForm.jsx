@@ -31,7 +31,8 @@ export const BasicForm = () => {
       remember: data.remember_me,
     };
     try {
-      await dispatch(loginUser(formData)).unwrap();
+      const response = await dispatch(loginUser(formData)).unwrap();
+
       navigate("/procurement/home");
       reset();
     } catch (error) {
