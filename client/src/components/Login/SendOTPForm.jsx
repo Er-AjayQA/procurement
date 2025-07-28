@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { MdEmail } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { sendOTP } from "../../Thunks/loginThunks";
-import { resetState } from "../../ReduxToolkit/loginSlice";
+import { resetState } from "../../ReduxToolkit/userLoginSlice";
 import { ButtonLoader } from "../../components/UI/buttonLoader";
 
 export const SendOTPForm = () => {
@@ -53,7 +53,7 @@ export const SendOTPForm = () => {
               id="email"
               placeholder="Enter email"
               autoFocus
-              className={`bg-gray-300 py-2 px-1 w-full focus-within:outline-none ${
+              className={`bg-gray-300 py-2 px-1 w-full border-none focus-within:outline-none ${
                 errors.email && "placeholder:text-red-500"
               }`}
               {...register("email", {

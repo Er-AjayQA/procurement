@@ -8,7 +8,7 @@ import {
   resetState,
   setForgotPassword,
   setPasswordVisibility,
-} from "../../ReduxToolkit/LoginSlice";
+} from "../../ReduxToolkit/userLoginSlice";
 import { ButtonLoader } from "../../components/UI/buttonLoader";
 
 export const BasicForm = () => {
@@ -74,7 +74,7 @@ export const BasicForm = () => {
             id="email"
             placeholder="Email"
             autoFocus
-            className={`bg-gray-300 py-2 px-1 w-full focus-within:outline-none ${
+            className={`bg-gray-300 py-2 px-1 w-full border-none focus-within:outline-none ${
               errors.email && "placeholder:text-red-500"
             }`}
             {...register("email", {
@@ -100,7 +100,7 @@ export const BasicForm = () => {
             type={showLoginPassword ? "text" : "password"}
             id="password"
             placeholder="Password"
-            className={`bg-gray-300 py-2 px-1 w-full focus-within:outline-none ${
+            className={`bg-gray-300 py-2 px-1 w-full border-none focus-within:outline-none ${
               errors.password && "placeholder:text-red-500"
             }`}
             {...register("password", { required: "Password is required" })}

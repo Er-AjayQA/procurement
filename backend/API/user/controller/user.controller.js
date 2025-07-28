@@ -996,7 +996,7 @@ module.exports.userLogin = async (req, res) => {
 
     // Get User Details
     const userDetails = await DB.sequelize.query(
-      `SELECT U.id, U.emp_code, U.userImage, U.gender, U.official_email
+      `SELECT U.id, U.emp_code, U.name, U.userImage, U.gender, U.official_email
         FROM USER_MASTER AS U
         WHERE U.official_email=:official_email`,
       {
@@ -1004,6 +1004,8 @@ module.exports.userLogin = async (req, res) => {
         type: DB.sequelize.QueryTypes.SELECT,
       }
     );
+
+    console.log("User Details======", userDetails);
 
     // Create Token
     await sodium.ready; // Initializing

@@ -1,9 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
-import { resetState } from "../../ReduxToolkit/loginSlice";
 import { SendOTPForm } from "./SendOTPForm";
 import { VerifyOTPForm } from "./VerifyOTPForm";
 import { ResetPasswordForm } from "./ResetPasswordForm";
 import { BasicForm } from "./BasicForm";
+import { resetState } from "../../ReduxToolkit/userLoginSlice";
 
 export const LoginForm = () => {
   const dispatch = useDispatch();

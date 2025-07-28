@@ -6,7 +6,7 @@ import { resetPassword } from "../../Thunks/loginThunks";
 import {
   resetState,
   setPasswordVisibility,
-} from "../../ReduxToolkit/loginSlice";
+} from "../../ReduxToolkit/userLoginSlice";
 import { ButtonLoader } from "../../components/UI/buttonLoader";
 
 export const ResetPasswordForm = () => {
@@ -68,7 +68,7 @@ export const ResetPasswordForm = () => {
               id="new_password"
               placeholder="Enter new password"
               autoFocus
-              className={`bg-gray-300 py-2 px-1 w-full focus-within:outline-none ${
+              className={`bg-gray-300 py-2 px-1 w-full border-none focus-within:outline-none ${
                 errors.new_password && "placeholder:text-red-500"
               }`}
               {...register("new_password", {
@@ -111,7 +111,7 @@ export const ResetPasswordForm = () => {
               type={showConfirmPassword ? "text" : "password"}
               id="confirm_password"
               placeholder="Confirm password"
-              className={`bg-gray-300 py-2 px-1 w-full focus-within:outline-none ${
+              className={`bg-gray-300 py-2 px-1 w-full border-none focus-within:outline-none ${
                 errors.confirm_password && "placeholder:text-red-500"
               }`}
               {...register("confirm_password", {
