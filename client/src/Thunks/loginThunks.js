@@ -7,6 +7,7 @@ import {
 } from "../services/login_services/service";
 import { toast } from "react-toastify";
 import {
+  loginComplete,
   loginFailure,
   loginStart,
   loginSuccess,
@@ -15,7 +16,7 @@ import {
   setIsResetForm,
   setIsVerifyOtp,
   setResetEmail,
-} from "../ReduxToolkit/LoginSlice";
+} from "../ReduxToolkit/userLoginSlice";
 import { moduleAccessService } from "../services/rbac_services/service";
 import { getUserDetailsFromToken } from "../Utils/jwtDecode";
 
@@ -28,17 +29,18 @@ export const loginUser = createAsyncThunk(
       const response = await loginService(formData);
 
       if (response.data.success) {
-        toast.success(response.data.message);
         const userDetails = getUserDetailsFromToken(response.data.token);
         const modulesResponse = await moduleAccessService(userDetails.id);
         dispatch(
           loginSuccess({
             token: response.data.token,
             userDetails,
-            assignedModules: modulesResponse.data,
+            assignedModules: modulesResponse?.data,
           })
         );
-        return { ...response.data, assignedModules: modulesResponse.data };
+        dispatch(loginComplete());
+        toast.success(response.data.message);
+        return { ...response.data, assignedModules: modulesResponse?.data };
       } else {
         throw new Error(response.data.message);
       }
@@ -63,7 +65,7 @@ export const sendOTP = createAsyncThunk(
       if (response.data.success) {
         toast.success(response.data.message);
         dispatch(setResetEmail(formData.official_email));
-        dispatch(loginSuccess());
+        dispatch(loginComplete());
         dispatch(setIsOtpSent(true));
         dispatch(setIsVerifyOtp(false));
         dispatch(setIsResetForm(false));
@@ -91,7 +93,7 @@ export const verifyOTP = createAsyncThunk(
 
       if (response.data.success) {
         toast.success(response.data.message);
-        dispatch(loginSuccess());
+        dispatch(loginComplete());
         dispatch(setIsVerifyOtp(true));
         return response.data;
       } else {
@@ -119,7 +121,7 @@ export const resetPassword = createAsyncThunk(
 
       if (response.data.success) {
         toast.success(response.data.message);
-        dispatch(loginSuccess());
+        dispatch(loginComplete());
         dispatch(setIsVerifyOtp(false));
         dispatch(setForgotPassword(false));
         dispatch(setIsOtpSent(false));

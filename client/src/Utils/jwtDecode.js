@@ -20,7 +20,7 @@ export const getUserDetailsFromToken = (token) => {
     return {
       id: decode.id,
       emp_code: decode.emp_code,
-      userName: decode.name,
+      userName: decode.userName,
       userImage: decode.userImage,
       official_email: decode.official_email,
     };

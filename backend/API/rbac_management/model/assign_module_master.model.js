@@ -8,14 +8,6 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      user_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      role_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
       read: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
