@@ -1,7 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { loadStorageData, saveStorageData } from "../Utils/localStorageUtils";
-
-const getUserDetails = loadStorageData();
 
 const initialState = {
   isLoading: false,
@@ -16,9 +13,6 @@ const initialState = {
   isResetForm: false,
   error: null,
   success: false,
-  token: null,
-  userDetails: null,
-  assignedModules: [],
 };
 
 export const loginSlice = createSlice({
@@ -57,8 +51,6 @@ export const loginSlice = createSlice({
     },
     loginSuccess: (state, action) => {
       state.token = action.payload?.token;
-      state.userDetails = action.payload?.userDetails;
-      state.assignedModules = action.payload?.assignedModules;
     },
     loginComplete: (state) => {
       state.isLoading = false;

@@ -32,7 +32,6 @@ export const BasicForm = () => {
     };
     try {
       const response = await dispatch(loginUser(formData)).unwrap();
-
       navigate("/procurement/home");
       reset();
     } catch (error) {

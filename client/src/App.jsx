@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { LoginPage } from "./pages/Login";
 import { HomePage } from "./pages/Home";
+import { ProtectedRoute } from "./components/routeProtection";
 
 function App() {
   return (
@@ -8,7 +9,9 @@ function App() {
       <div className="bg-[#E5E5E5]">
         <Routes>
           <Route path="/procurement/sign-in" element={<LoginPage />} />
-          <Route path="/procurement/home" element={<HomePage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/procurement/home" element={<HomePage />} />
+          </Route>
         </Routes>
       </div>
     </>

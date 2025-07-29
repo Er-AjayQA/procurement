@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Avatar,
   Dropdown,
@@ -9,10 +9,16 @@ import {
   NavbarToggle,
 } from "flowbite-react";
 import { Link } from "react-router-dom";
+import { logout } from "../ReduxToolkit/authSlice";
 
 export const HeaderNav = () => {
-  const { userDetails } = useSelector((state) => state.login);
-  console.log(userDetails);
+  const { userDetails, assignedModules } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  // Handling Logout
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <Navbar fluid rounded className="bg-[#E6E6E6]">
@@ -42,7 +48,7 @@ export const HeaderNav = () => {
           <DropdownItem>Dashboard</DropdownItem>
           <DropdownItem>Settings</DropdownItem>
           <DropdownDivider />
-          <DropdownItem>Sign out</DropdownItem>
+          <DropdownItem onClick={handleLogout}>Sign out</DropdownItem>
         </Dropdown>
         <NavbarToggle />
       </div>

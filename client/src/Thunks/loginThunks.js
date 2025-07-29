@@ -10,7 +10,6 @@ import {
   loginComplete,
   loginFailure,
   loginStart,
-  loginSuccess,
   setForgotPassword,
   setIsOtpSent,
   setIsResetForm,
@@ -19,6 +18,11 @@ import {
 } from "../ReduxToolkit/userLoginSlice";
 import { moduleAccessService } from "../services/rbac_services/service";
 import { getUserDetailsFromToken } from "../Utils/jwtDecode";
+import {
+  setAssignedModules,
+  setToken,
+  setUserDetails,
+} from "../ReduxToolkit/authSlice";
 
 // Login User Thunk
 export const loginUser = createAsyncThunk(
@@ -30,12 +34,25 @@ export const loginUser = createAsyncThunk(
 
       if (response.data.success) {
         const userDetails = getUserDetailsFromToken(response.data.token);
-        toast.success(response.data.message);
-        dispatch(loginSuccess({ token: response.data.token, userDetails }));
-        dispatch(loginComplete());
 
-        localStorage.setItem("userDetails", JSON.stringify(userDetails));
-        localStorage.setItem("token", JSON.stringify(response.data.token));
+        const modulesData = await moduleAccessService(userDetails.id);
+
+        if (modulesData.success) {
+          dispatch(setAssignedModules({ assignedModules: modulesData.data }));
+          localStorage.setItem(
+            "assignedModules",
+            JSON.stringify(modulesData.data)
+          );
+          dispatch(setUserDetails({ userDetails }));
+          dispatch(setToken({ token: response.data.token }));
+          dispatch(loginComplete());
+          localStorage.setItem("userDetails", JSON.stringify(userDetails));
+          localStorage.setItem("token", JSON.stringify(response.data.token));
+          toast.success(response.data.message);
+        } else {
+          throw new Error(modulesData.message);
+        }
+
         return {
           ...response.data,
         };
@@ -44,7 +61,7 @@ export const loginUser = createAsyncThunk(
       }
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message || error.message || "Login Failed";
+        error.response?.data?.message || error.message || "Login Failed!";
       toast.error(errorMessage);
       dispatch(loginFailure());
       throw error;
