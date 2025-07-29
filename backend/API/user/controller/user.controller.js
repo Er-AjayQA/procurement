@@ -1005,8 +1005,6 @@ module.exports.userLogin = async (req, res) => {
       }
     );
 
-    console.log("User Details======", userDetails);
-
     // Create Token
     await sodium.ready; // Initializing
     const jwtSecrete = sodium.to_hex(sodium.randombytes_buf(64));
