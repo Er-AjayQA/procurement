@@ -454,17 +454,6 @@ module.exports.assignModule = async (req, res) => {
       // Destroy Data
       await DB.tbl_rbac_assign_module_master.destroy({ where: { user_id } });
 
-      // Assigning the Dashboard by default
-      await DB.tbl_rbac_assign_module_master.create({
-        user_id: user_id,
-        role_id: role_id,
-        module_id: 4,
-        submodule_id: null,
-        read: true,
-        write: true,
-        delete: true,
-      });
-
       module_list.map(async (data) => {
         await DB.tbl_rbac_assign_module_master.create(
           {
