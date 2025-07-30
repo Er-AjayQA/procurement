@@ -13,12 +13,14 @@ export const HomeLayout = () => {
 
         <div className="flex flex-1 overflow-hidden">
           {/* Sidebar container */}
-          <aside className="bg-[#F9FAFB] w-[15%] h-full sticky top-[header-height] overflow-y-auto">
+          <aside className="bg-[#F9FAFB] w-[16rem] h-full sticky top-[header-height] overflow-y-auto py-5 px-2">
             <SidebarMenu />
           </aside>
           {/* Body Container */}
-          <div className="w-[85%] overflow-y-auto">
-            <Outlet />
+          <div className="w-[84rem] overflow-y-auto p-5">
+            <div className="bg-white h-full overflow-y-scroll scrollbar-hide">
+              <Outlet />
+            </div>
           </div>
         </div>
       </div>

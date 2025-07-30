@@ -532,17 +532,15 @@ module.exports.getAssignModule = async (req, res) => {
 
       if (!acc[moduleId]) {
         acc[moduleId] = {
-          module: {
-            id: assignment.RBAC_MODULE_MASTER.id,
-            name: assignment.RBAC_MODULE_MASTER.module_name,
-            icon: assignment.RBAC_MODULE_MASTER.module_icon,
-            endpoint: assignment.RBAC_MODULE_MASTER.module_endpoint,
-            submodules: [],
-          },
+          id: assignment.RBAC_MODULE_MASTER.id,
+          name: assignment.RBAC_MODULE_MASTER.module_name,
+          icon: assignment.RBAC_MODULE_MASTER.module_icon,
+          endpoint: assignment.RBAC_MODULE_MASTER.module_endpoint,
+          submodules: [],
         };
       }
 
-      acc[moduleId].module.submodules.push({
+      acc[moduleId].submodules.push({
         id: assignment?.RBAC_SUBMODULE_MASTER?.id,
         name: assignment?.RBAC_SUBMODULE_MASTER?.submodule_name,
         icon: assignment?.RBAC_SUBMODULE_MASTER?.submodule_icon,
