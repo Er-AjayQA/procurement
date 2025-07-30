@@ -1,9 +1,7 @@
-import { HeaderNav } from "../components/HeaderNav";
-
 export const HomePage = () => {
   return (
     <div>
-      <HeaderNav />
+      <p>Body</p>
     </div>
   );
 };

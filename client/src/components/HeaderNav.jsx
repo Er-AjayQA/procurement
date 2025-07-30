@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { logout } from "../ReduxToolkit/authSlice";
 
 export const HeaderNav = () => {
-  const { userDetails, assignedModules } = useSelector((state) => state.auth);
+  const { userDetails } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   // Handling Logout
@@ -21,36 +21,44 @@ export const HeaderNav = () => {
   };
 
   return (
-    <Navbar fluid rounded className="bg-[#E6E6E6]">
-      <Link to="/procurement/home" className="flex flex-col items-center">
-        <p className="text-3xl font-bold">ERP</p>
-        <span className="text-xs">Enterprise Resource Planning</span>
-      </Link>
+    <Navbar fluid rounded className="bg-[#F9FAFB]">
+      {/* Logo Container */}
+      <div className="basis-[10%]">
+        <Link to="/procurement/home" className="flex flex-col items-center">
+          <p className="text-3xl font-bold">ERP</p>
+          <span className="text-[10px]">Enterprise Resource Planning</span>
+        </Link>
+      </div>
 
-      <div className="flex md:order-2">
-        <Dropdown
-          arrowIcon={false}
-          inline
-          label={
-            <Avatar
-              alt="User settings"
-              img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
-              rounded
-            />
-          }
-        >
-          <DropdownHeader>
-            <span className="block text-sm">{userDetails?.userName}</span>
-            <span className="block truncate text-sm font-medium">
-              {userDetails?.official_email}
-            </span>
-          </DropdownHeader>
-          <DropdownItem>Dashboard</DropdownItem>
-          <DropdownItem>Settings</DropdownItem>
-          <DropdownDivider />
-          <DropdownItem onClick={handleLogout}>Sign out</DropdownItem>
-        </Dropdown>
-        <NavbarToggle />
+      {/* Menu Container */}
+      <div className="flex md:order-2 basis-[85%]">
+        <div className="flex justify-between items-center w-full">
+          <p>{"Module Name"}</p>
+
+          <Dropdown
+            arrowIcon={false}
+            inline
+            label={
+              <Avatar
+                alt="User settings"
+                img="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                rounded
+              />
+            }
+          >
+            <DropdownHeader>
+              <span className="block text-sm">{userDetails?.userName}</span>
+              <span className="block truncate text-sm font-medium">
+                {userDetails?.official_email}
+              </span>
+            </DropdownHeader>
+            <DropdownItem>Dashboard</DropdownItem>
+            <DropdownItem>Settings</DropdownItem>
+            <DropdownDivider />
+            <DropdownItem onClick={handleLogout}>Sign out</DropdownItem>
+          </Dropdown>
+          <NavbarToggle />
+        </div>
       </div>
     </Navbar>
   );
