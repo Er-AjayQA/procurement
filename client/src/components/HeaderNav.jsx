@@ -21,9 +21,9 @@ export const HeaderNav = () => {
   };
 
   return (
-    <Navbar fluid rounded className="bg-[#F9FAFB] !px-2 !py-0">
+    <Navbar fluid rounded className="bg-white !px-0 !py-0">
       {/* Logo Container */}
-      <div className="basis-[16rem] flex-shrink-0 border-e border-e-[2px] border-e-[#adadad] py-2">
+      <div className="basis-[16rem] flex-shrink-0 border-e border-e-[2px] border-e-gray-200 px-2 py-2">
         <Link to="/procurement/home" className="flex flex-col items-center">
           <p className="text-3xl font-bold">ERP</p>
           <span className="text-[10px]">Enterprise Resource Planning</span>
@@ -31,7 +31,7 @@ export const HeaderNav = () => {
       </div>
 
       {/* Menu Container */}
-      <div className="flex flex-grow md:order-2 py-2 px-2">
+      <div className="flex flex-grow md:order-2 py-2 px-5">
         <div className="flex justify-between items-center w-full">
           <p>{"Active Module"}</p>
 

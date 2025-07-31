@@ -7,8 +7,6 @@ export const ProtectedRoute = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  console.log(location.pathname.split("/"));
-
   useEffect(() => {
     if (!token && location.pathname.split("/").includes("home")) {
       return navigate("/procurement/sign-in");
@@ -17,7 +15,7 @@ export const ProtectedRoute = () => {
     if (token && location.pathname.split("/").includes("sign-in")) {
       return navigate("/procurement/home");
     }
-  }, [location]);
+  }, [location, token]);
 
   return (
     <>
