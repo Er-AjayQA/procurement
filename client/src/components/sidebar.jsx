@@ -20,7 +20,7 @@ export const SidebarMenu = () => {
 
   return (
     <>
-      <div>
+      <div className=" py-5 px-2">
         <ul className="flex flex-col gap-3">
           {assignedModules.map((module) => {
             return (
