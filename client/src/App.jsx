@@ -4,7 +4,7 @@ import { HomePage } from "./pages/Home";
 import { ProtectedRoute } from "./components/routeProtection";
 import { HomeLayout } from "./components/layouts/homeLayout";
 import { PageNotFound } from "./pages/pageNotFound";
-import { CoursePage } from "./pages/CoursePage";
+import { ModulePage } from "./pages/modulePage";
 
 function App() {
   return (
@@ -15,10 +15,12 @@ function App() {
             <Route path="sign-in" element={<LoginPage />} />
             <Route element={<HomeLayout />}>
               <Route path="home" element={<HomePage />} />
-              <Route
-                path="learning-management-system/courses"
-                element={<CoursePage />}
-              />
+
+              {/* Dynamic Routes Start */}
+              <Route path=":module">
+                <Route path=":submodule" element={<ModulePage />} />
+              </Route>
+              {/* Dynamic Routes End */}
             </Route>
             <Route path="*" element={<PageNotFound />} />
           </Route>

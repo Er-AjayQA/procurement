@@ -21,9 +21,7 @@ export const SidebarMenu = () => {
 
   // Handle SubmenuClick
   const handleSubmenuClick = (module, submodule) => {
-    const path = `/procurement/${module}/${submodule}`;
-    navigate(path, { replace: true });
-    console.log(path);
+    navigate(`/procurement/${module}/${submodule}`);
   };
 
   return (
