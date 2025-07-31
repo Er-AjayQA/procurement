@@ -11,9 +11,9 @@ export const HomeLayout = () => {
           <HeaderNav />
         </div>
 
-        <div className="flex flex-1 overflow-hidden ps-2 bg-[#F9FAFB]">
+        <div className="flex flex-1 overflow-hidden bg-body">
           {/* Sidebar container */}
-          <aside className="bg-[#F9FAFB] basis-[16rem] flex-shrink-0 h-full sticky top-[header-height] overflow-y-auto">
+          <aside className="bg-white  basis-[16rem] px-2 flex-shrink-0 h-full sticky top-[header-height] overflow-y-auto">
             <SidebarMenu />
           </aside>
           {/* Body Container */}
