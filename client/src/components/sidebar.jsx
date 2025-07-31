@@ -48,7 +48,7 @@ export const SidebarMenu = () => {
                     {module.submodules.map((submodule) => {
                       return (
                         <li key={submodule.id}>
-                          <Link className="block px-2 py-2 text-sm hover:bg-[#F5E9FB]">
+                          <Link className="block px-2 py-2 text-sm hover:bg-[#F5E9FB] rounded-md">
                             {submodule.name}
                           </Link>
                         </li>
