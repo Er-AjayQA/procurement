@@ -48,6 +48,7 @@ export const loginUser = createAsyncThunk(
           dispatch(loginComplete());
           localStorage.setItem("userDetails", JSON.stringify(userDetails));
           localStorage.setItem("token", JSON.stringify(response.data.token));
+          localStorage.setItem("activeMenu", JSON.stringify("Dashboard"));
           toast.success(response.data.message);
         } else {
           throw new Error(modulesData.message);
