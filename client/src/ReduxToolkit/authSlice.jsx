@@ -5,7 +5,7 @@ const initialState = {
   token: JSON.parse(localStorage.getItem("token")) || null,
   assignedModules: JSON.parse(localStorage.getItem("assignedModules")) || [],
   userDetails: JSON.parse(localStorage.getItem("userDetails")) || null,
-  activeMenu: null,
+  activeMenu: JSON.parse(localStorage.getItem("activeMenu")) || null,
 };
 
 export const authSlice = createSlice({

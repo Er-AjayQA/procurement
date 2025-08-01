@@ -24,6 +24,7 @@ export const SidebarMenu = () => {
   // Handle Submenu Click
   const handleSubmenuClick = (submoduleId, menuName) => {
     setOpenSubMenuId(submoduleId);
+    localStorage.setItem("activeMenu", JSON.stringify(menuName));
     dispatch(setActiveMenu({ activeMenu: menuName }));
   };
 
@@ -31,6 +32,19 @@ export const SidebarMenu = () => {
     <>
       <div className=" py-5">
         <ul className="flex flex-col gap-3">
+          <li>
+            <Link
+              to={`/procurement/dashboard`}
+              className={`flex justify-between items-center  px-2 py-1 text-sm border-s border-s-[2px] border-s-transparent hover:border-s-gray-400 hover:text-gray-500 ${
+                openSubMenuId === 0 && "border-s-gray-500 text-gray-500"
+              }`}
+              onClick={() => {
+                handleMenuClick(0), handleSubmenuClick(0, "Dashboard");
+              }}
+            >
+              Dashboard
+            </Link>
+          </li>
           {assignedModules.map((module) => {
             return (
               <li key={module.id}>

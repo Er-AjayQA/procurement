@@ -32,7 +32,7 @@ export const BasicForm = () => {
     };
     try {
       const response = await dispatch(loginUser(formData)).unwrap();
-      navigate("/procurement/home");
+      navigate("/procurement/dashboard");
       reset();
     } catch (error) {
       // Error handing in thunk
