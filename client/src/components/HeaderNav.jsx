@@ -10,12 +10,17 @@ import {
 } from "flowbite-react";
 import { Link } from "react-router-dom";
 import { logout } from "../ReduxToolkit/authSlice";
+import { useEffect, useState } from "react";
 
 export const HeaderNav = () => {
-  const { userDetails, activeModule, activeSubmodule } = useSelector(
-    (state) => state.auth
-  );
+  const { userDetails, activeModule } = useSelector((state) => state.auth);
+  const [displayModule, setDisplayModule] = useState(activeModule);
+
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setDisplayModule(activeModule);
+  }, [activeModule]);
 
   // Handling Logout
   const handleLogout = () => {
@@ -38,7 +43,7 @@ export const HeaderNav = () => {
       {/* Menu Container */}
       <div className="flex flex-grow md:order-2 py-2 px-5">
         <div className="flex justify-between items-center w-full">
-          <p>{activeModule}</p>
+          <p>{displayModule}</p>
 
           <Dropdown
             arrowIcon={false}

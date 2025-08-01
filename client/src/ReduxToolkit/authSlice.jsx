@@ -5,7 +5,7 @@ const initialState = {
   token: JSON.parse(localStorage.getItem("token")) || null,
   assignedModules: JSON.parse(localStorage.getItem("assignedModules")) || [],
   userDetails: JSON.parse(localStorage.getItem("userDetails")) || null,
-  activeModule: JSON.parse(localStorage.getItem("activeModule")) || null,
+  activeModule: JSON.parse(localStorage.getItem("activeModule")) || "Dashboard",
   activeSubmodule: JSON.parse(localStorage.getItem("activeSubmodule")) || null,
 };
 
@@ -42,11 +42,12 @@ export const authSlice = createSlice({
 
     logout: (state) => {
       state.isAuthentic = false;
-      state.token = localStorage.removeItem("token");
-      state.assignedModules = localStorage.removeItem("assignedModules");
-      state.userDetails = localStorage.removeItem("userDetails");
-      state.activeModule = localStorage.removeItem("activeModule");
-      state.activeSubmodule = localStorage.removeItem("activeSubmodule");
+      state.token = null;
+      state.assignedModules = [];
+      state.userDetails = null;
+      state.activeModule = "Dashboard"; // Reset to Dashboard
+      state.activeSubmodule = null;
+      localStorage.clear();
     },
   },
 });
