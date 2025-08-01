@@ -1,12 +1,14 @@
-import { useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { useState } from "react";
+import { setActiveMenu } from "../ReduxToolkit/authSlice";
 
 export const SidebarMenu = () => {
   const { assignedModules } = useSelector((state) => state.auth);
   const [openMenuId, setOpenMenuId] = useState(null);
-  const navigate = useNavigate();
+  const [openSubMenuId, setOpenSubMenuId] = useState(null);
+  const dispatch = useDispatch();
 
   // Handle Menu Click
   const handleMenuClick = (moduleId) => {
@@ -19,9 +21,10 @@ export const SidebarMenu = () => {
     });
   };
 
-  // Handle SubmenuClick
-  const handleSubmenuClick = (module, submodule) => {
-    navigate(`/procurement/${module}/${submodule}`);
+  // Handle Submenu Click
+  const handleSubmenuClick = (submoduleId, menuName) => {
+    setOpenSubMenuId(submoduleId);
+    dispatch(setActiveMenu({ activeMenu: menuName }));
   };
 
   return (
@@ -56,13 +59,14 @@ export const SidebarMenu = () => {
                       return (
                         <li key={submodule.id}>
                           <Link
-                            className="block px-2 py-2 text-sm transition-all duration-[.2s] hover:translate-x-1 hover:text-gray-400 rounded-md"
-                            onClick={() => {
-                              handleSubmenuClick(
-                                module.endpoint,
-                                submodule.endpoint
-                              );
-                            }}
+                            to={`/procurement/${module.endpoint}/${submodule.endpoint}`}
+                            className={`block px-2 py-2 text-sm transition-all duration-[.2s] hover:translate-x-1 hover:text-gray-400 rounded-md ${
+                              openSubMenuId === submodule.id &&
+                              "text-gray-400 translate-x-1"
+                            }`}
+                            onClick={() =>
+                              handleSubmenuClick(submodule.id, submodule.name)
+                            }
                           >
                             {submodule.name}
                           </Link>

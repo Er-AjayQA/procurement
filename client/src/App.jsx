@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { LoginPage } from "./pages/Login";
-import { HomePage } from "./pages/Home";
+import { DashboardPage } from "./pages/Dashboard";
 import { ProtectedRoute } from "./components/routeProtection";
 import { HomeLayout } from "./components/layouts/homeLayout";
 import { PageNotFound } from "./pages/pageNotFound";
@@ -14,7 +14,7 @@ function App() {
           <Route path="/procurement" element={<ProtectedRoute />}>
             <Route path="sign-in" element={<LoginPage />} />
             <Route element={<HomeLayout />}>
-              <Route path="home" element={<HomePage />} />
+              <Route path="dashboard" element={<DashboardPage />} />
 
               {/* Dynamic Routes Start */}
               <Route path=":module">
