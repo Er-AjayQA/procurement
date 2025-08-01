@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { logout } from "../ReduxToolkit/authSlice";
 
 export const HeaderNav = () => {
-  const { userDetails, activeMenu } = useSelector((state) => state.auth);
+  const { userDetails, activeModule } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   // Handling Logout
@@ -36,7 +36,7 @@ export const HeaderNav = () => {
       {/* Menu Container */}
       <div className="flex flex-grow md:order-2 py-2 px-5">
         <div className="flex justify-between items-center w-full">
-          <p>{activeMenu}</p>
+          <p>{activeModule}</p>
 
           <Dropdown
             arrowIcon={false}
