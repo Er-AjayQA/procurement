@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { HeaderNav } from "../HeaderNav";
 import { SidebarMenu } from "../sidebar";
+import { Breadcrumb } from "../UI/breadcrumb";
 
 export const HomeLayout = () => {
   return (
@@ -17,9 +18,14 @@ export const HomeLayout = () => {
             <SidebarMenu />
           </aside>
           {/* Body Container */}
-          <div className="flex-grow md:order-2 overflow-y-auto p-5 bg-[#eeecec]">
-            <div className="bg-white h-full overflow-y-scroll scrollbar-hide">
-              <Outlet />
+          <div className="flex-grow md:order-2 overflow-y-auto p-5 pt-10 bg-[#eeecec]">
+            <div className="bg-white h-full overflow-y-scroll scrollbar-hide rounded-lg">
+              <div className="py-3 px-5 bg-white border-b-2 border-b-gray-500">
+                <Breadcrumb />
+              </div>
+              <div className="py-3 px-5">
+                <Outlet />
+              </div>
             </div>
           </div>
         </div>

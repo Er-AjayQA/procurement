@@ -5,7 +5,8 @@ const initialState = {
   token: JSON.parse(localStorage.getItem("token")) || null,
   assignedModules: JSON.parse(localStorage.getItem("assignedModules")) || [],
   userDetails: JSON.parse(localStorage.getItem("userDetails")) || null,
-  activeMenu: JSON.parse(localStorage.getItem("activeMenu")) || null,
+  activeModule: JSON.parse(localStorage.getItem("activeModule")) || null,
+  activeSubmodule: JSON.parse(localStorage.getItem("activeSubmodule")) || null,
 };
 
 export const authSlice = createSlice({
@@ -22,8 +23,11 @@ export const authSlice = createSlice({
       state.assignedModules = action.payload.assignedModules;
     },
     setAuth: () => {},
-    setActiveMenu: (state, action) => {
-      state.activeMenu = action.payload.activeMenu;
+    setActiveModule: (state, action) => {
+      state.activeModule = action.payload.activeModule;
+    },
+    setActiveSubmodule: (state, action) => {
+      state.activeSubmodule = action.payload.activeSubmodule;
     },
     logout: (state) => {
       state.isAuthentic = false;
@@ -37,7 +41,8 @@ export const authSlice = createSlice({
 export const {
   setUserDetails,
   setAuth,
-  setActiveMenu,
+  setActiveModule,
+  setActiveSubmodule,
   setToken,
   setAssignedModules,
   logout,

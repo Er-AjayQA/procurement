@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { useState } from "react";
-import { setActiveMenu } from "../ReduxToolkit/authSlice";
+import { setActiveModule, setActiveSubmodule } from "../ReduxToolkit/authSlice";
 
 export const SidebarMenu = () => {
   const { assignedModules } = useSelector((state) => state.auth);
@@ -11,7 +11,7 @@ export const SidebarMenu = () => {
   const dispatch = useDispatch();
 
   // Handle Menu Click
-  const handleMenuClick = (moduleId) => {
+  const handleMenuClick = (moduleId, menuName) => {
     setOpenMenuId((prev) => {
       if (prev === moduleId) {
         return null;
@@ -19,13 +19,15 @@ export const SidebarMenu = () => {
         return moduleId;
       }
     });
+    localStorage.setItem("activeModule", JSON.stringify(menuName));
+    dispatch(setActiveModule({ activeModule: menuName }));
   };
 
   // Handle Submenu Click
   const handleSubmenuClick = (submoduleId, menuName) => {
     setOpenSubMenuId(submoduleId);
-    localStorage.setItem("activeMenu", JSON.stringify(menuName));
-    dispatch(setActiveMenu({ activeMenu: menuName }));
+    localStorage.setItem("activeSubmodule", JSON.stringify(menuName));
+    dispatch(setActiveSubmodule({ activeSubmodule: menuName }));
   };
 
   return (
@@ -39,7 +41,7 @@ export const SidebarMenu = () => {
                 openSubMenuId === 0 && "border-s-gray-500 text-gray-500"
               }`}
               onClick={() => {
-                handleMenuClick(0), handleSubmenuClick(0, "Dashboard");
+                handleMenuClick(0, "Dashboard"), handleSubmenuClick(0, "");
               }}
             >
               Dashboard
@@ -53,7 +55,7 @@ export const SidebarMenu = () => {
                     openMenuId === module.id &&
                     "border-s-gray-500 text-gray-500"
                   }`}
-                  onClick={() => handleMenuClick(module.id)}
+                  onClick={() => handleMenuClick(module.id, module.name)}
                 >
                   {module.name}
                   {module.submodules && openMenuId === module.id ? (
