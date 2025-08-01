@@ -1,34 +1,37 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { setActiveModule, setActiveSubmodule } from "../ReduxToolkit/authSlice";
 
 export const SidebarMenu = () => {
-  const { assignedModules } = useSelector((state) => state.auth);
+  const { assignedModules, activeModule, activeSubmodule } = useSelector(
+    (state) => state.auth
+  );
   const [openMenuId, setOpenMenuId] = useState(null);
-  const [openSubMenuId, setOpenSubMenuId] = useState(null);
   const dispatch = useDispatch();
 
   // Handle Menu Click
-  const handleMenuClick = (moduleId, menuName) => {
-    setOpenMenuId((prev) => {
-      if (prev === moduleId) {
-        return null;
-      } else {
-        return moduleId;
-      }
-    });
-    localStorage.setItem("activeModule", JSON.stringify(menuName));
-    dispatch(setActiveModule({ activeModule: menuName }));
+  const handleMenuClick = (moduleId, moduleName) => {
+    setOpenMenuId((prev) => (prev === moduleId ? null : moduleId));
+    dispatch(setActiveModule({ activeModule: moduleName }));
   };
 
   // Handle Submenu Click
-  const handleSubmenuClick = (submoduleId, menuName) => {
-    setOpenSubMenuId(submoduleId);
-    localStorage.setItem("activeSubmodule", JSON.stringify(menuName));
-    dispatch(setActiveSubmodule({ activeSubmodule: menuName }));
+  const handleSubmenuClick = (subModuleName) => {
+    dispatch(setActiveSubmodule({ activeSubmodule: subModuleName }));
   };
+
+  useEffect(() => {
+    if (activeSubmodule) {
+      const parentModule = assignedModules.find((module) =>
+        module.submodules?.some((sub) => sub.name === activeSubmodule)
+      );
+      if (parentModule) {
+        setOpenMenuId(parentModule.id);
+      }
+    }
+  }, [activeSubmodule, assignedModules]);
 
   return (
     <>
@@ -38,10 +41,11 @@ export const SidebarMenu = () => {
             <Link
               to={`/procurement/dashboard`}
               className={`flex justify-between items-center  px-2 py-1 text-sm border-s border-s-[2px] border-s-transparent hover:border-s-gray-400 hover:text-gray-500 ${
-                openSubMenuId === 0 && "border-s-gray-500 text-gray-500"
+                activeModule === "Dashboard" &&
+                "border-s-gray-500 text-gray-500"
               }`}
               onClick={() => {
-                handleMenuClick(0, "Dashboard"), handleSubmenuClick(0, "");
+                handleMenuClick(0, "Dashboard");
               }}
             >
               Dashboard
@@ -52,7 +56,7 @@ export const SidebarMenu = () => {
               <li key={module.id}>
                 <Link
                   className={`flex justify-between items-center  px-2 py-1 text-sm border-s border-s-[2px] border-s-transparent hover:border-s-gray-400 hover:text-gray-500 ${
-                    openMenuId === module.id &&
+                    activeModule === module.name &&
                     "border-s-gray-500 text-gray-500"
                   }`}
                   onClick={() => handleMenuClick(module.id, module.name)}
@@ -77,12 +81,10 @@ export const SidebarMenu = () => {
                           <Link
                             to={`/procurement/${module.endpoint}/${submodule.endpoint}`}
                             className={`block px-2 py-2 text-sm transition-all duration-[.2s] hover:translate-x-1 hover:text-gray-400 rounded-md ${
-                              openSubMenuId === submodule.id &&
+                              activeSubmodule === submodule.name &&
                               "text-gray-400 translate-x-1"
                             }`}
-                            onClick={() =>
-                              handleSubmenuClick(submodule.id, submodule.name)
-                            }
+                            onClick={() => handleSubmenuClick(submodule.name)}
                           >
                             {submodule.name}
                           </Link>

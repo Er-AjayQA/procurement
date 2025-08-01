@@ -12,7 +12,9 @@ import { Link } from "react-router-dom";
 import { logout } from "../ReduxToolkit/authSlice";
 
 export const HeaderNav = () => {
-  const { userDetails, activeModule } = useSelector((state) => state.auth);
+  const { userDetails, activeModule, activeSubmodule } = useSelector(
+    (state) => state.auth
+  );
   const dispatch = useDispatch();
 
   // Handling Logout

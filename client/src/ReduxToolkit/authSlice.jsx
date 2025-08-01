@@ -25,15 +25,28 @@ export const authSlice = createSlice({
     setAuth: () => {},
     setActiveModule: (state, action) => {
       state.activeModule = action.payload.activeModule;
+      state.activeSubmodule = null;
+      localStorage.setItem(
+        "activeModule",
+        JSON.stringify(action.payload.activeModule)
+      );
+      localStorage.removeItem("activeSubmodule");
     },
     setActiveSubmodule: (state, action) => {
       state.activeSubmodule = action.payload.activeSubmodule;
+      localStorage.setItem(
+        "activeSubmodule",
+        JSON.stringify(action.payload.activeSubmodule)
+      );
     },
+
     logout: (state) => {
       state.isAuthentic = false;
       state.token = localStorage.removeItem("token");
       state.assignedModules = localStorage.removeItem("assignedModules");
       state.userDetails = localStorage.removeItem("userDetails");
+      state.activeModule = localStorage.removeItem("activeModule");
+      state.activeSubmodule = localStorage.removeItem("activeSubmodule");
     },
   },
 });

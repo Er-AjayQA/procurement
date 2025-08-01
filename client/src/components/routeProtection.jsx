@@ -14,10 +14,6 @@ export const ProtectedRoute = () => {
       return navigate("/procurement/sign-in");
     }
 
-    // if (!token && location.pathname.split("/").includes("dashboard")) {
-    //   return navigate("/procurement/sign-in");
-    // }
-
     if (token && location.pathname.split("/").includes("sign-in")) {
       return navigate("/procurement/dashboard");
     }
