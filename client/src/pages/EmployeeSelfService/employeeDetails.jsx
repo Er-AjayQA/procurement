@@ -1,7 +1,9 @@
 export const EmployeeDetailPage = () => {
   return (
     <>
-      <p>Employee Details Page</p>
+      <div className="flex flex-col">
+        <div className="flex justify-between"></div>
+      </div>
     </>
   );
 };
