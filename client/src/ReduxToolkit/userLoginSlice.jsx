@@ -55,8 +55,6 @@ export const loginSlice = createSlice({
     loginComplete: (state) => {
       state.isLoading = false;
       state.success = true;
-      localStorage.setItem("activeModule", JSON.stringify("Dashboard"));
-      localStorage.setItem("activeSubmodule", JSON.stringify("Dashboard"));
     },
     loginFailure: (state, action) => {
       state.isLoading = false;

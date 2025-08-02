@@ -11,14 +11,16 @@ export const SidebarMenu = () => {
   const [openMenuId, setOpenMenuId] = useState(null);
   const dispatch = useDispatch();
 
-  // // Handle Menu Click
-  // const handleMenuClick = (moduleId, moduleName) => {
-  //   setOpenMenuId((prev) => (prev === moduleId ? null : moduleId));
-  //   dispatch(setActiveModule({ activeModule: moduleName }));
-  // };
+  // Handle Menu Click
+  const handleMenuClick = (moduleId, moduleName) => {
+    setOpenMenuId((prev) => (prev === moduleId ? null : moduleId));
+    dispatch(setActiveModule({ activeModule: moduleName }));
+    dispatch(setActiveSubmodule({ activeSubmodule: null }));
+  };
 
   // Handle Submenu Click
-  const handleSubmenuClick = (subModuleName) => {
+  const handleSubmenuClick = (moduleName, subModuleName) => {
+    dispatch(setActiveModule({ activeModule: moduleName }));
     dispatch(setActiveSubmodule({ activeSubmodule: subModuleName }));
   };
 
@@ -67,12 +69,7 @@ export const SidebarMenu = () => {
                       ? "border-s-gray-500 text-gray-500"
                       : "border-s-transparent"
                   }`}
-                  onClick={() => {
-                    setOpenMenuId((prev) =>
-                      prev === module.id ? null : module.id
-                    );
-                    dispatch(setActiveModule({ activeModule: module.name }));
-                  }}
+                  onClick={() => handleMenuClick(module.id, module.name)}
                 >
                   {module.name}
                   {module.submodules && openMenuId === module.id ? (
@@ -97,18 +94,9 @@ export const SidebarMenu = () => {
                               activeSubmodule === submodule.name &&
                               "text-gray-400 translate-x-1"
                             }`}
-                            onClick={() => {
-                              dispatch(
-                                setActiveModule({
-                                  activeModule: module.name,
-                                })
-                              );
-                              dispatch(
-                                setActiveSubmodule({
-                                  activeSubmodule: submodule.name,
-                                })
-                              );
-                            }}
+                            onClick={() =>
+                              handleSubmenuClick(module.name, submodule.name)
+                            }
                           >
                             {submodule.name}
                           </Link>
