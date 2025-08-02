@@ -18,9 +18,9 @@ export const HomeLayout = () => {
             <SidebarMenu />
           </aside>
           {/* Body Container */}
-          <div className="flex-grow md:order-2 overflow-y-auto p-5 pt-10 bg-[#eeecec]">
+          <div className="flex-grow md:order-2 overflow-y-auto p-5 pt-10 bg-[#eeecec] shadow-sm">
             <div className="bg-white h-full overflow-y-scroll scrollbar-hide rounded-lg">
-              <div className="py-3 px-5 bg-white border-b-2 border-b-gray-500">
+              <div className="py-3 px-5 bg-white border-b-2 border-b-gray-200">
                 <Breadcrumb />
               </div>
               <div className="py-3 px-5">

@@ -42,7 +42,7 @@ export const SidebarMenu = () => {
           <li>
             <Link
               to={`/procurement/dashboard`}
-              className={`flex justify-between items-center  px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-gray-400 hover:text-gray-500 ${
+              className={`flex justify-between items-center !text-[.8rem] px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-gray-400 hover:text-gray-500 ${
                 activeModule === "Dashboard"
                   ? "border-s-gray-500 text-gray-500"
                   : "border-s-transparent"
@@ -64,7 +64,7 @@ export const SidebarMenu = () => {
             return (
               <li key={module.id}>
                 <Link
-                  className={`flex justify-between items-center  px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-gray-400 hover:text-gray-500 ${
+                  className={`flex justify-between items-center !text-[.8rem] px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-gray-400 hover:text-gray-500 ${
                     activeModule === module.name
                       ? "border-s-gray-500 text-gray-500"
                       : "border-s-transparent"
@@ -90,7 +90,7 @@ export const SidebarMenu = () => {
                         <li key={submodule.id}>
                           <Link
                             to={`/procurement/${module.endpoint}/${submodule.endpoint}`}
-                            className={`block px-2 py-2 text-sm translate-x-0 transition-all duration-[.2s] hover:translate-x-1 hover:text-gray-400 rounded-md ${
+                            className={`block px-2 py-2 text-[.7rem] translate-x-0 transition-all duration-[.2s] hover:translate-x-1 hover:text-gray-400 rounded-md ${
                               activeSubmodule === submodule.name &&
                               "text-gray-400 translate-x-1"
                             }`}

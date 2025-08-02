@@ -42,8 +42,8 @@ export const HeaderNav = () => {
 
       {/* Menu Container */}
       <div className="flex flex-grow md:order-2 py-2 px-5">
-        <div className="flex justify-between items-center w-full">
-          <p>{displayModule}</p>
+        <div className="flex justify-between items-center w-full ps-5">
+          <p className="text-sm">{displayModule}</p>
 
           <Dropdown
             arrowIcon={false}
