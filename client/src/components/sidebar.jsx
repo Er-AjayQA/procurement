@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IoMdArrowDropright, IoMdArrowDropdown } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { setActiveModule, setActiveSubmodule } from "../ReduxToolkit/authSlice";
@@ -10,12 +10,18 @@ export const SidebarMenu = () => {
   );
   const [openMenuId, setOpenMenuId] = useState(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Handle Menu Click
-  const handleMenuClick = (moduleId, moduleName) => {
-    setOpenMenuId((prev) => (prev === moduleId ? null : moduleId));
-    dispatch(setActiveModule({ activeModule: moduleName }));
-    dispatch(setActiveSubmodule({ activeSubmodule: null }));
+  const handleMenuClick = (module, firstSubmodule) => {
+    setOpenMenuId((prev) => (prev === module.id ? null : module.id));
+    dispatch(setActiveModule({ activeModule: module.name }));
+
+    if (firstSubmodule) {
+      dispatch(setActiveSubmodule({ activeSubmodule: firstSubmodule.name }));
+    } else {
+      dispatch(setActiveSubmodule({ activeSubmodule: null }));
+    }
   };
 
   // Handle Submenu Click
@@ -51,7 +57,7 @@ export const SidebarMenu = () => {
                 dispatch(setActiveModule({ activeModule: "Dashboard" }));
                 dispatch(
                   setActiveSubmodule({
-                    activeSubmodule: "Dashboard",
+                    activeSubmodule: null,
                   })
                 );
                 setOpenMenuId(null);
@@ -61,15 +67,21 @@ export const SidebarMenu = () => {
             </Link>
           </li>
           {assignedModules.map((module) => {
+            const firstSubmodule =
+              module.submodules && module.submodules.length > 0
+                ? module.submodules[0]
+                : "#";
+
             return (
               <li key={module.id}>
                 <Link
+                  to={`/procurement/${module.endpoint}/${firstSubmodule.endpoint}`}
                   className={`flex justify-between items-center !text-[.8rem] px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-gray-400 hover:text-gray-500 ${
                     activeModule === module.name
                       ? "border-s-gray-500 text-gray-500"
                       : "border-s-transparent"
                   }`}
-                  onClick={() => handleMenuClick(module.id, module.name)}
+                  onClick={() => handleMenuClick(module, firstSubmodule)}
                 >
                   {module.name}
                   {module.submodules && openMenuId === module.id ? (
