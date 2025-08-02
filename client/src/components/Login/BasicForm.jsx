@@ -144,7 +144,8 @@ export const BasicForm = () => {
           <ButtonLoader text="Loading" />
         ) : (
           <button className="w-full bg-primary px-2 py-3 flex justify-center items-center gap-3 text-white rounded-md">
-            <span>Login</span> <IoIosLogIn className="w-5 h-5" />
+            <span className="text-white">Login</span>
+            <IoIosLogIn className="w-5 h-5 text-white" />
           </button>
         )}
       </div>
