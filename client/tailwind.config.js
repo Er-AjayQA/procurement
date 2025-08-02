@@ -10,7 +10,12 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {},
+      colors: {
+        borders: {
+          dark: "#00000037",
+          light: "#0000004a",
+        },
+      },
       textColor: ["group-hover"],
       backgroundColor: ["group-hover"],
       opacity: ["group-hover"],
