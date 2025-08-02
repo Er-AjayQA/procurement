@@ -41,6 +41,7 @@ export const loginUser = createAsyncThunk(
           dispatch(setAssignedModules({ assignedModules: modulesData.data }));
           dispatch(setUserDetails({ userDetails }));
           dispatch(setToken({ token: response.data.token }));
+
           dispatch(loginComplete());
           toast.success(response.data.message);
         } else {
