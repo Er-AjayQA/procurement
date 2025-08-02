@@ -39,17 +39,9 @@ export const loginUser = createAsyncThunk(
 
         if (modulesData.success) {
           dispatch(setAssignedModules({ assignedModules: modulesData.data }));
-          localStorage.setItem(
-            "assignedModules",
-            JSON.stringify(modulesData.data)
-          );
           dispatch(setUserDetails({ userDetails }));
           dispatch(setToken({ token: response.data.token }));
           dispatch(loginComplete());
-          localStorage.setItem("userDetails", JSON.stringify(userDetails));
-          localStorage.setItem("token", JSON.stringify(response.data.token));
-          localStorage.setItem("activeModule", JSON.stringify("Dashboard"));
-          localStorage.removeItem("activeSubmodule");
           toast.success(response.data.message);
         } else {
           throw new Error(modulesData.message);

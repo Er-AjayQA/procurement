@@ -6,7 +6,8 @@ const initialState = {
   assignedModules: JSON.parse(localStorage.getItem("assignedModules")) || [],
   userDetails: JSON.parse(localStorage.getItem("userDetails")) || null,
   activeModule: JSON.parse(localStorage.getItem("activeModule")) || "Dashboard",
-  activeSubmodule: JSON.parse(localStorage.getItem("activeSubmodule")) || null,
+  activeSubmodule:
+    JSON.parse(localStorage.getItem("activeSubmodule")) || "Dashboard",
 };
 
 export const authSlice = createSlice({
@@ -15,12 +16,21 @@ export const authSlice = createSlice({
   reducers: {
     setToken: (state, action) => {
       state.token = action.payload.token;
+      localStorage.setItem("token", JSON.stringify(action.payload.token));
     },
     setUserDetails: (state, action) => {
       state.userDetails = action.payload.userDetails;
+      localStorage.setItem(
+        "userDetails",
+        JSON.stringify(action.payload.userDetails)
+      );
     },
     setAssignedModules: (state, action) => {
       state.assignedModules = action.payload.assignedModules;
+      localStorage.setItem(
+        "assignedModules",
+        JSON.stringify(action.payload.assignedModules)
+      );
     },
     setAuth: () => {},
     setActiveModule: (state, action) => {
@@ -30,7 +40,7 @@ export const authSlice = createSlice({
         "activeModule",
         JSON.stringify(action.payload.activeModule)
       );
-      localStorage.removeItem("activeSubmodule");
+      // localStorage.removeItem("activeSubmodule");
     },
     setActiveSubmodule: (state, action) => {
       state.activeSubmodule = action.payload.activeSubmodule;
@@ -45,8 +55,8 @@ export const authSlice = createSlice({
       state.token = null;
       state.assignedModules = [];
       state.userDetails = null;
-      state.activeModule = "Dashboard"; // Reset to Dashboard
-      state.activeSubmodule = null;
+      state.activeModule = "Dashboard";
+      state.activeSubmodule = "Dashboard";
       localStorage.clear();
     },
   },
