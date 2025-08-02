@@ -35,12 +35,11 @@ export const authSlice = createSlice({
     setAuth: () => {},
     setActiveModule: (state, action) => {
       state.activeModule = action.payload.activeModule;
-      state.activeSubmodule = null;
+      // state.activeSubmodule = null;
       localStorage.setItem(
         "activeModule",
         JSON.stringify(action.payload.activeModule)
       );
-      // localStorage.removeItem("activeSubmodule");
     },
     setActiveSubmodule: (state, action) => {
       state.activeSubmodule = action.payload.activeSubmodule;
