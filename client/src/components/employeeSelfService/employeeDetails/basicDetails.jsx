@@ -77,6 +77,12 @@ export const EmployeeBasicDetails = () => {
             </p>
           </div>
           <div>
+            <label className="text-[.8rem]">Area</label>
+            <p className="text-[.7rem]">
+              {employeeDetails?.area_name || "N/A"}
+            </p>
+          </div>
+          <div>
             <label className="text-[.8rem]">Designation</label>
             <p className="text-[.7rem]">
               {employeeDetails?.designation_name || "N/A"}
