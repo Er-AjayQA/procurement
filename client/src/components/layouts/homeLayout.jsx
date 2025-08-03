@@ -17,11 +17,11 @@ export const HomeLayout = () => {
         {/* Body */}
 
         <div className="bg-white h-full flex-grow overflow-y-scroll scrollbar-hide rounded-lg">
-          <div className="flex justify-between items-center py-3 px-5 bg-white border-b-2 border-b-gray-200 sticky top-0">
+          <div className="flex justify-between items-center py-3 px-5 bg-white border-b-2 border-b-gray-200 sticky top-0 z-10">
             <Breadcrumb />
             <HeaderNav />
           </div>
-          <div className="p-4">
+          <div className="p-4 relative">
             <Outlet />
           </div>
         </div>
