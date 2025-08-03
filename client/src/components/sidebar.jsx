@@ -48,9 +48,9 @@ export const SidebarMenu = () => {
           <li>
             <Link
               to={`/procurement/dashboard`}
-              className={`flex justify-between items-center !text-[.8rem] px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-gray-400 hover:text-gray-500 ${
+              className={`flex justify-between items-center text-gray-300 hover:text-white !text-[.8rem] px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-white  ${
                 activeModule === "Dashboard"
-                  ? "border-s-gray-500 text-gray-500"
+                  ? "border-s-white"
                   : "border-s-transparent"
               }`}
               onClick={() => {
@@ -76,9 +76,9 @@ export const SidebarMenu = () => {
               <li key={module.id}>
                 <Link
                   to={`/procurement/${module.endpoint}/${firstSubmodule.endpoint}`}
-                  className={`flex justify-between items-center !text-[.8rem] px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-gray-400 hover:text-gray-500 ${
+                  className={`flex justify-between items-center text-gray-300 hover:text-white !text-[.8rem] px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-white ${
                     activeModule === module.name
-                      ? "border-s-gray-500 text-gray-500"
+                      ? "border-s-gray-300"
                       : "border-s-transparent"
                   }`}
                   onClick={() => handleMenuClick(module, firstSubmodule)}
@@ -102,9 +102,9 @@ export const SidebarMenu = () => {
                         <li key={submodule.id}>
                           <Link
                             to={`/procurement/${module.endpoint}/${submodule.endpoint}`}
-                            className={`block px-2 py-2 text-[.7rem] translate-x-0 transition-all duration-[.2s] hover:translate-x-1 hover:text-gray-400 rounded-md ${
+                            className={`block px-2 py-2 text-white text-[.7rem] bg-button-color hover:bg-button-hover transition-all duration-[.2s] rounded-md ${
                               activeSubmodule === submodule.name &&
-                              "text-gray-400 translate-x-1"
+                              "bg-button-hover"
                             }`}
                             onClick={() =>
                               handleSubmenuClick(module.name, submodule.name)

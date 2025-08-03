@@ -2,31 +2,27 @@ import { Outlet } from "react-router-dom";
 import { HeaderNav } from "../HeaderNav";
 import { SidebarMenu } from "../sidebar";
 import { Breadcrumb } from "../UI/breadcrumb";
+import { HeaderBrand } from "../UI/headerBrandUi";
 
 export const HomeLayout = () => {
   return (
     <>
-      <div className="flex flex-col h-screen">
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-10 shadow-md">
-          <HeaderNav />
-        </div>
+      <div className="flex h-screen p-3 bg-body-bg_color">
+        {/* Sidebar */}
+        <aside className="bg-body-bg_color basis-[16rem] ps-2 flex-shrink-0 h-full sticky top-[header-height] overflow-y-auto scrollbar-hide rounded-s-md">
+          <HeaderBrand />
+          <SidebarMenu />
+        </aside>
 
-        <div className="flex flex-1 overflow-hidden bg-body">
-          {/* Sidebar container */}
-          <aside className="bg-white  basis-[16rem] px-2 flex-shrink-0 h-full sticky top-[header-height] overflow-y-auto">
-            <SidebarMenu />
-          </aside>
-          {/* Body Container */}
-          <div className="flex-grow md:order-2 overflow-y-auto p-5 pt-10 bg-[#eeecec] shadow-sm">
-            <div className="bg-white h-full overflow-y-scroll scrollbar-hide rounded-lg">
-              <div className="py-3 px-5 bg-white border-b-2 border-b-gray-200">
-                <Breadcrumb />
-              </div>
-              <div className="py-3 px-5">
-                <Outlet />
-              </div>
-            </div>
+        {/* Body */}
+
+        <div className="bg-white h-full flex-grow overflow-y-scroll scrollbar-hide rounded-lg">
+          <div className="flex justify-between items-center py-3 px-5 bg-white border-b-2 border-b-gray-200 sticky top-0">
+            <Breadcrumb />
+            <HeaderNav />
+          </div>
+          <div className="p-4">
+            <Outlet />
           </div>
         </div>
       </div>
