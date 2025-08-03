@@ -19,6 +19,15 @@ export const EmployeeDetailPage = () => {
     setTabType(tabType);
   };
 
+  const tabDisplay = {
+    basicDetails: <EmployeeBasicDetails />,
+    personalDetails: <EmployeePersonalDetails />,
+    salaryDetails: <EmployeeSalaryDetails />,
+    paymentDetails: <EmployeePaymentDetails />,
+    documentDetails: <EmployeeDocumentDetails />,
+    contractDetails: <EmployeeContractDetails />,
+  };
+
   useEffect(() => {
     dispatch(getEmployeeData(userDetails.id));
   }, [userDetails.id, dispatch]);
@@ -45,39 +54,39 @@ export const EmployeeDetailPage = () => {
           </div>
           {/* Employee Tabs */}
           <div>
-            <ul className="flex gap-4">
+            <ul className="flex gap-10">
               <li
-                className="text-[.8rem] cursor-pointer"
+                className="text-[.8rem] cursor-pointer font-bold"
                 onClick={() => handleTabClick("basicDetails")}
               >
                 Basic Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer"
+                className="text-[.8rem] cursor-pointer font-bold"
                 onClick={() => handleTabClick("personalDetails")}
               >
                 Personal Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer"
+                className="text-[.8rem] cursor-pointer font-bold"
                 onClick={() => handleTabClick("salaryDetails")}
               >
                 Salary Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer"
+                className="text-[.8rem] cursor-pointer font-bold"
                 onClick={() => handleTabClick("paymentDetails")}
               >
                 Payment Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer"
+                className="text-[.8rem] cursor-pointer font-bold"
                 onClick={() => handleTabClick("documentDetails")}
               >
                 Document Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer"
+                className="text-[.8rem] cursor-pointer font-bold"
                 onClick={() => handleTabClick("contractDetails")}
               >
                 Contract Details
@@ -87,14 +96,7 @@ export const EmployeeDetailPage = () => {
         </div>
 
         {/* Emplyee Details Form */}
-        <div className="py-2">
-          {(tabType === "basicDetails" && <EmployeeBasicDetails />) ||
-            (tabType === "personalDetails" && <EmployeePersonalDetails />) ||
-            (tabType === "salaryDetails" && <EmployeeSalaryDetails />) ||
-            (tabType === "paymentDetails" && <EmployeePaymentDetails />) ||
-            (tabType === "documentDetails" && <EmployeeDocumentDetails />) ||
-            (tabType === "contractDetails" && <EmployeeContractDetails />)}
-        </div>
+        <div className="py-2">{tabDisplay[tabType]}</div>
       </div>
     </>
   );
