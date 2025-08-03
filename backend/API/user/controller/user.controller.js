@@ -717,7 +717,7 @@ module.exports.getUserDetails = async (req, res) => {
 
     const query = `
     SELECT U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, role.name AS role_name,
-       E.name AS employment_type, CT.name AS contract_type_name, B.name AS bank_name, 
+       area.name AS area_name, E.name AS employment_type, CT.name AS contract_type_name, B.name AS bank_name, 
        M.name AS reporting_manager, SM.name AS shift_name, BR.name AS branch_name,
        perm_country.name AS permanent_country_name, perm_state.name AS permanent_state_name, 
        perm_city.name AS permanent_city_name, 
@@ -727,6 +727,7 @@ module.exports.getUserDetails = async (req, res) => {
        FROM USER_MASTER AS U
        LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
        LEFT JOIN ROLE_MASTER AS role ON role.id=U.role_id
+       LEFT JOIN AREA_MASTER AS area ON area.id=U.area_id
        LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
        LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
        LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id

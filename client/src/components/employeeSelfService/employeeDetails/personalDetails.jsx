@@ -229,7 +229,7 @@ export const EmployeePersonalDetails = () => {
                   })
                 ) : (
                   <div>
-                    <p className="text-center">No Records Found</p>
+                    <p className="text-center text-sm p-3">No Records Found</p>
                   </div>
                 )}
               </div>
@@ -290,7 +290,7 @@ export const EmployeePersonalDetails = () => {
                   )
                 ) : (
                   <div>
-                    <p className="text-center">No Records Found</p>
+                    <p className="text-center text-sm p-3">No Records Found</p>
                   </div>
                 )}
               </div>
