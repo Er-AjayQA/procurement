@@ -716,16 +716,17 @@ module.exports.getUserDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, 
+    SELECT U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, role.name AS role_name,
        E.name AS employment_type, CT.name AS contract_type_name, B.name AS bank_name, 
        M.name AS reporting_manager, SM.name AS shift_name, BR.name AS branch_name,
        perm_country.name AS permanent_country_name, perm_state.name AS permanent_state_name, 
        perm_city.name AS permanent_city_name, 
        pres_country.name AS present_country_name, pres_state.name AS present_state_name, 
-       pres_city.name AS pres_city_name, 
+       pres_city.name AS present_city_name, 
        personal_state.name AS personal_state_name, personal_city.name AS personal_city_name
        FROM USER_MASTER AS U
        LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
+       LEFT JOIN ROLE_MASTER AS role ON role.id=U.role_id
        LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
        LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
        LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
@@ -815,20 +816,8 @@ module.exports.getUserDetails = async (req, res) => {
         }
       );
 
-      const basicDetails = [
-        {
-          id: getAllData[0].id,
-          name: getAllData[0].name,
-          gender: getAllData[0].gender,
-          dob: getAllData[0].dob,
-          contact_number: getAllData[0].contact_no,
-          alt_contact_number: getAllData[0].alt_contact_no,
-        },
-      ];
-
       getAllData[0] = {
         ...getAllData[0],
-        basicDetails,
         allowance_details: allowances,
         family_details: family_details,
         previous_employer_details: prev_emp_details,

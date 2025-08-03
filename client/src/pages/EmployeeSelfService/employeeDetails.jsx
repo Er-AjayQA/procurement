@@ -35,7 +35,7 @@ export const EmployeeDetailPage = () => {
     <>
       <div className="flex flex-col">
         {/* Employee Profile */}
-        <div className="flex flex-col py-2 border-b border-b-gray-200">
+        <div className="flex flex-col pt-2 border-b border-b-gray-200">
           <div className="flex gap-3 items-center mb-2">
             <div className="flex justify-between w-[5rem] h-[5rem] rounded-[50%] overflow-hidden">
               <img
@@ -54,39 +54,63 @@ export const EmployeeDetailPage = () => {
           </div>
           {/* Employee Tabs */}
           <div>
-            <ul className="flex gap-10">
+            <ul className="flex gap-5">
               <li
-                className="text-[.8rem] cursor-pointer font-bold"
+                className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
+                  tabType === "basicDetails"
+                    ? "border-gray-300 bg-body-bg_color text-white"
+                    : ""
+                }`}
                 onClick={() => handleTabClick("basicDetails")}
               >
                 Basic Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer font-bold"
+                className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
+                  tabType === "personalDetails"
+                    ? "border-gray-300 bg-body-bg_color text-white"
+                    : ""
+                }`}
                 onClick={() => handleTabClick("personalDetails")}
               >
                 Personal Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer font-bold"
+                className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
+                  tabType === "salaryDetails"
+                    ? "border-gray-300 bg-body-bg_color text-white"
+                    : ""
+                }`}
                 onClick={() => handleTabClick("salaryDetails")}
               >
                 Salary Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer font-bold"
+                className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
+                  tabType === "paymentDetails"
+                    ? "border-gray-300 bg-body-bg_color text-white"
+                    : ""
+                }`}
                 onClick={() => handleTabClick("paymentDetails")}
               >
                 Payment Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer font-bold"
+                className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
+                  tabType === "documentDetails"
+                    ? "border-gray-300 bg-body-bg_color text-white"
+                    : ""
+                }`}
                 onClick={() => handleTabClick("documentDetails")}
               >
                 Document Details
               </li>
               <li
-                className="text-[.8rem] cursor-pointer font-bold"
+                className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
+                  tabType === "contractDetails"
+                    ? "border-gray-300 bg-body-bg_color text-white"
+                    : ""
+                }`}
                 onClick={() => handleTabClick("contractDetails")}
               >
                 Contract Details
@@ -96,7 +120,7 @@ export const EmployeeDetailPage = () => {
         </div>
 
         {/* Emplyee Details Form */}
-        <div className="py-2">{tabDisplay[tabType]}</div>
+        <div className="py-5">{tabDisplay[tabType]}</div>
       </div>
     </>
   );
