@@ -55,7 +55,7 @@ router.put(
   upload.single("userImage"),
   UserController.updateUser
 );
-router.post("/get-user-details/:id", UserController.getUserDetails);
+router.get("/get-user-details/:id", UserController.getUserDetails);
 router.post("/get-all-users", UserController.getAllUserDetails);
 router.put("/update-user-status/:id", UserController.updateUserStatus);
 router.delete("/delete-user/:id", UserController.deleteUser);

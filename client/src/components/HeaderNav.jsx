@@ -8,13 +8,14 @@ import {
   Navbar,
   NavbarToggle,
 } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../ReduxToolkit/authSlice";
 import { useEffect, useState } from "react";
 
 export const HeaderNav = () => {
   const { userDetails, activeModule } = useSelector((state) => state.auth);
   const [displayModule, setDisplayModule] = useState(activeModule);
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
@@ -25,6 +26,7 @@ export const HeaderNav = () => {
   // Handling Logout
   const handleLogout = () => {
     dispatch(logout());
+    navigate(`/procurement/sign-in`);
   };
 
   return (
