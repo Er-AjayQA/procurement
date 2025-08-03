@@ -11,9 +11,16 @@ export default {
   theme: {
     extend: {
       colors: {
+        body: {
+          bg_color: "#140843",
+        },
         borders: {
           dark: "#00000037",
           light: "#0000004a",
+        },
+        button: {
+          color: "",
+          hover: "#362A65",
         },
       },
       textColor: ["group-hover"],
