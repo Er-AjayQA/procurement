@@ -41,8 +41,8 @@ export const getRoleById = async (id) => {
 };
 
 // Get All Master Roles List
-export const getAllRoles = async () => {
-  const response = await axiosInstance.post("get-all-role-details", {
+export const getAllRoles = async (formData) => {
+  const response = await axiosInstance.post("get-all-role-details", formData, {
     headers: {
       "Content-Type": "application/json",
     },
