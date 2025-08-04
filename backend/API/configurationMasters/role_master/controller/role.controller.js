@@ -136,7 +136,7 @@ module.exports.getAllRoleDetails = async (req, res) => {
   }
 };
 
-// ========== UPDATE ROLE CONTROLLER ========== //
+// ========== UPDATE ROLE STATUS CONTROLLER ========== //
 module.exports.updateRoleStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -159,7 +159,7 @@ module.exports.updateRoleStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
