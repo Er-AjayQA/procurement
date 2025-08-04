@@ -1,9 +1,13 @@
 import { MdEdit, MdDelete } from "react-icons/md";
+import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 export const RoleMasterListing = ({
   rolesList,
   handleFormVisibility,
   handleRoleActiveInactive,
+  setUpdateId,
+  setDeleteId,
 }) => {
   return (
     <>
@@ -14,7 +18,7 @@ export const RoleMasterListing = ({
 
         {/* List Form */}
         <div className="p-3 h-full">
-          <div className="grid grid-cols-4 border-b border-gray-300">
+          <div className="grid grid-cols-4 border-b border-gray-300 gap-2">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
             <div className="text-[.8rem] font-bold p-2">Name</div>
             <div className="text-[.8rem] font-bold p-2">Status</div>
@@ -26,11 +30,15 @@ export const RoleMasterListing = ({
                 return (
                   <div
                     key={role.id}
-                    className="grid grid-cols-4 border-b border-gray-200 last:border-none"
+                    className="grid grid-cols-4 border-b border-gray-200 last:border-none gap-2"
                   >
-                    <div className="p-2 text-[.8rem]">{i + 1}</div>
-                    <div className="p-2 text-[.8rem]">{role.name}</div>
-                    <div className="p-2 text-[.8rem]">
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {i + 1}.
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {role.name}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
                       {role.status ? (
                         <span className="text-green-400 font-bold text-[.8rem] flex gap-2 items-center">
                           <span
@@ -56,12 +64,18 @@ export const RoleMasterListing = ({
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
                       <div
                         className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
-                        onClick={() => handleFormVisibility("open", "update")}
+                        onClick={() => {
+                          handleFormVisibility("open", "update");
+                          setUpdateId(role.id);
+                        }}
                       >
                         <MdEdit className="hover:fill-white" />
                       </div>
                       <div className="p-1 hover:bg-red-600 rounded-lg cursor-pointer">
-                        <MdDelete className="hover:fill-white" />
+                        <MdDelete
+                          className="hover:fill-white"
+                          onClick={() => setDeleteId(role.id)}
+                        />
                       </div>
                     </div>
                   </div>
@@ -77,8 +91,21 @@ export const RoleMasterListing = ({
           </div>
         </div>
 
-        <div className="bg-button-hover py-2 px-1 rounded-b-md">
-          <h3 className="text-white text-xs">Pagination</h3>
+        <div className="bg-gray-400 py-2 px-1 rounded-b-md">
+          <div className="flex justify-end pe-5">
+            <div className="cursor-pointer">
+              <FaAngleDoubleLeft className="fill-white" />
+            </div>
+            <div className="cursor-pointer">
+              <MdKeyboardArrowLeft className="fill-white" />
+            </div>
+            <div className="cursor-pointer">
+              <MdKeyboardArrowRight className="fill-white" />
+            </div>
+            <div className="cursor-pointer">
+              <FaAngleDoubleRight className="fill-white" />
+            </div>
+          </div>
         </div>
       </div>
     </>

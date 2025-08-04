@@ -1,21 +1,37 @@
 import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
-import { createRole } from "../../../services/master_services/service";
+import {
+  createRole,
+  updateRole,
+} from "../../../services/master_services/service";
 import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 export const RoleMasterForm = ({
   formVisibility,
   formType,
   onClose,
   getAllRoleMasters,
+  updateId,
+  roleData,
 }) => {
   const {
     register,
     handleSubmit,
-    watch,
     reset,
     formState: { errors },
   } = useForm();
+
+  // Set form values when in update mode
+  useEffect(() => {
+    if (formType === "Update" && roleData) {
+      reset({
+        name: roleData.name || roleData[0]?.name || "",
+      });
+    } else {
+      reset({ name: "" });
+    }
+  }, [formType, roleData, reset]);
 
   // Handle Form Close
   const handleFormClose = () => {
@@ -25,15 +41,16 @@ export const RoleMasterForm = ({
 
   // Handle Form Submit
   const onSubmit = async (data) => {
-    const formData = {
-      name: data.name,
-    };
-
     try {
-      const response = await createRole(formData);
+      let response = "";
+      if (formType === "Update") {
+        response = await updateRole(updateId, { name: data.name });
+      } else {
+        response = await createRole({ name: data.name });
+      }
 
       if (response.success) {
-        toast.success(response.status);
+        toast.success(response.message);
         handleFormClose();
         getAllRoleMasters();
         reset();
@@ -97,7 +114,7 @@ export const RoleMasterForm = ({
             </div>
             <div>
               <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">
-                Submit
+                {formType === "Add" ? "Create" : "Update"}
               </button>
             </div>
           </form>
