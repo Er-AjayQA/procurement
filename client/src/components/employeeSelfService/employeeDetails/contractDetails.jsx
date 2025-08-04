@@ -11,19 +11,19 @@ export const EmployeeContractDetails = () => {
             <h3 className="text-white text-xs">Contract Type</h3>
           </div>
           <div className="grid grid-cols-3 p-3 gap-3">
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Contract Type</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.contract_type_name || "N/A"}
               </p>
             </div>
-            <div>
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Start Working Date</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.start_working_date || "N/A"}
               </p>
             </div>
-            <div>
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Probation End Date</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.start_working_date || "N/A"}

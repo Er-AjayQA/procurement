@@ -11,25 +11,25 @@ export const EmployeePersonalDetails = () => {
             <h3 className="text-white text-xs">Present Address</h3>
           </div>
           <div className="grid grid-cols-4 p-3 gap-3">
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Country</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.present_country_name || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">State</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.present_state_name || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">City</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.present_city_name || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Address</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.present_address || "N/A"}
@@ -44,25 +44,25 @@ export const EmployeePersonalDetails = () => {
             <h3 className="text-white text-xs">Permanent Address</h3>
           </div>
           <div className="grid grid-cols-4 p-3 gap-3">
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Country</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.permanent_country_name || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">State</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.permanent_state_name || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">City</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.permanent_city_name || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Address</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.permanent_address || "N/A"}
@@ -77,92 +77,92 @@ export const EmployeePersonalDetails = () => {
             <h3 className="text-white text-xs">Personal Details</h3>
           </div>
           <div className="grid grid-cols-4 p-3 gap-3">
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Nationality</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.nationality || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">State</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.personal_state_name || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">City</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.personal_city_name || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">ID Number</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.id_number || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">ID Issue Date</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.id_issue_date || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">ID Expiry Date</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.id_exp_date || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">DIRE Number</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.dire_number || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Driving License No.</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.driving_license || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Passport No.</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.passport_number || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Passport Issue Date</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.passport_issue_date || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Passport Expiry Date</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.passport_exp_date || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Blood Group</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.blood_group || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Tax number</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.tax_number || "N/A"}
               </p>
             </div>
-            <div className="flex flex-col justify-center">
+            <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Marital Status</label>
               <p className="text-[.7rem]">
                 {employeeDetails?.marital_status || "N/A"}
               </p>
             </div>
             {employeeDetails?.marital_status && (
-              <div className="flex flex-col justify-center">
+              <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Spouse Name</label>
                 <p className="text-[.7rem]">
                   {employeeDetails?.spouse_name || "N/A"}

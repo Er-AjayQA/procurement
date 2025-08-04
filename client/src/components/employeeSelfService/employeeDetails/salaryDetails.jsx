@@ -12,43 +12,43 @@ export const EmployeeSalaryDetails = () => {
               <h3 className="text-white text-xs">Salary Details</h3>
             </div>
             <div className="grid grid-cols-3 p-3 gap-3">
-              <div className="flex flex-col justify-center">
+              <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Working Shift</label>
                 <p className="text-[.7rem]">
                   {employeeDetails?.shift_name || "N/A"}
                 </p>
               </div>
-              <div className="flex flex-col justify-center">
+              <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Base Salary</label>
                 <p className="text-[.7rem]">
                   {employeeDetails?.base_salary || "N/A"}
                 </p>
               </div>
-              <div>
+              <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Daily Working Hrs</label>
                 <p className="text-[.7rem]">
                   {employeeDetails?.daily_working_hours || "N/A"}
                 </p>
               </div>
-              <div>
+              <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Salary/Day</label>
                 <p className="text-[.7rem]">
                   {employeeDetails?.salary_per_day || "N/A"}
                 </p>
               </div>
-              <div>
+              <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Salary/Hour</label>
                 <p className="text-[.7rem]">
                   {employeeDetails?.salary_per_hour || "N/A"}
                 </p>
               </div>
-              <div>
+              <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Total Monthly Hours</label>
                 <p className="text-[.7rem]">
                   {employeeDetails?.total_monthly_hours || "N/A"}
                 </p>
               </div>
-              <div>
+              <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Weekly Hours</label>
                 <p className="text-[.7rem]">
                   {employeeDetails?.weekly_hours || "N/A"}

@@ -39,16 +39,15 @@ export const EmployeeDetailPage = () => {
           <div className="flex gap-3 items-center mb-2">
             <div className="flex justify-between w-[5rem] h-[5rem] rounded-[50%] overflow-hidden">
               <img
-                src={`${
-                  employeeDetails?.userImage !== null
-                    ? employeeDetails?.userImage
-                    : "/Images/dummy_userProfile.png"
-                }`}
+                src="/Images/dummy_userProfile.png"
                 alt="user-profile-image"
               />
             </div>
             <div>
-              <p className="font-bold">{employeeDetails?.name}</p>
+              <p className="font-bold">
+                {employeeDetails?.name} (
+                <span>{employeeDetails?.designation_name}</span>)
+              </p>
               <p className="text-[.6rem]">{employeeDetails?.emp_code}</p>
             </div>
           </div>
