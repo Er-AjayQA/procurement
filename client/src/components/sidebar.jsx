@@ -85,9 +85,9 @@ export const SidebarMenu = () => {
                 >
                   {module.name}
                   {module.submodules && openMenuId === module.id ? (
-                    <IoMdArrowDropdown className="text-[1.2rem]" />
+                    <IoMdArrowDropdown className="text-[1.2rem] fill-white" />
                   ) : (
-                    <IoMdArrowDropright className="text-[1.2rem]" />
+                    <IoMdArrowDropright className="text-[1.2rem] fill-white" />
                   )}
                 </Link>
 
