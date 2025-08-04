@@ -110,12 +110,30 @@ module.exports.getRoleDetails = async (req, res) => {
 // ========== GET ALL ROLE DETAILS CONTROLLER ========== //
 module.exports.getAllRoleDetails = async (req, res) => {
   try {
+    const limit = req.body.limit || 10;
+    const page = req.body.page || 1;
+    const offset = (page - 1) * limit;
+
+    // Get total count of records (for pagination metadata)
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM ROLE_MASTER AS R 
+      WHERE R.isDeleted = false`;
+
+    const totalResult = await DB.sequelize.query(countQuery, {
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
     const query = `
             SELECT R.*
             FROM ROLE_MASTER AS R
-            WHERE R.isDeleted=false`;
+            WHERE R.isDeleted=false
+            LIMIT :limit OFFSET :offset`;
 
     const getAllData = await DB.sequelize.query(query, {
+      replacements: { limit, offset },
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
@@ -126,9 +144,14 @@ module.exports.getAllRoleDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        records: getAllData.length,
         status: "Get All Roles List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {

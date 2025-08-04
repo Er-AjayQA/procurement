@@ -19,10 +19,12 @@ export const RoleMasterPage = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState(null);
   const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(15);
+  const [page, setPage] = useState(1);
 
   // Get Master Roles List From API
   const getAllRoleMasters = async () => {
-    const data = await getAllRoles();
+    const data = await getAllRoles({ limit, page });
 
     if (data.success) {
       setRolesList(data.data);
@@ -101,9 +103,11 @@ export const RoleMasterPage = () => {
     if (deleteId) {
       deleteRoleMaster();
     }
-  }, [updateId, deleteId]);
+  }, [limit, page, filter, updateId, deleteId]);
 
-  console.log(limit);
+  console.log("Limit.....", limit);
+  console.log("TotalPages.....", totalPages);
+  console.log("Page.....", page);
 
   return (
     <>
@@ -154,6 +158,9 @@ export const RoleMasterPage = () => {
           handleRoleActiveInactive={handleRoleActiveInactive}
           setUpdateId={setUpdateId}
           setDeleteId={setDeleteId}
+          page={page}
+          totalPages={totalPages}
+          setPage={setPage}
         />
       </div>
     </>

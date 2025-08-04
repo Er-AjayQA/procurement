@@ -8,6 +8,9 @@ export const RoleMasterListing = ({
   handleRoleActiveInactive,
   setUpdateId,
   setDeleteId,
+  page,
+  totalPages,
+  setPage,
 }) => {
   return (
     <>
@@ -91,20 +94,37 @@ export const RoleMasterListing = ({
           </div>
         </div>
 
-        <div className="bg-gray-400 py-2 px-1 rounded-b-md">
-          <div className="flex justify-end pe-5">
-            <div className="cursor-pointer">
-              <FaAngleDoubleLeft className="fill-white" />
-            </div>
-            <div className="cursor-pointer">
-              <MdKeyboardArrowLeft className="fill-white" />
-            </div>
-            <div className="cursor-pointer">
-              <MdKeyboardArrowRight className="fill-white" />
-            </div>
-            <div className="cursor-pointer">
-              <FaAngleDoubleRight className="fill-white" />
-            </div>
+        <div className="bg-button-hover py-2 px-1 rounded-b-md">
+          <div className="flex justify-end pe-5 gap-2">
+            <button
+              className={`${
+                page === 1 ? "cursor-not-allowed" : "cursor-pointer"
+              }`}
+              disabled={page === 1 ? true : false}
+            >
+              <FaAngleDoubleLeft
+                className={`${page === 1 ? "fill-gray-400" : "fill-white"}`}
+                onClick={() => setPage(1)}
+              />
+            </button>
+            <button className="cursor-pointer">
+              <MdKeyboardArrowLeft
+                className="fill-white"
+                onClick={() => setPage(page - 1)}
+              />
+            </button>
+            <button className="cursor-pointer">
+              <MdKeyboardArrowRight
+                className="fill-white"
+                onClick={() => setPage(page + 1)}
+              />
+            </button>
+            <button className="cursor-pointer">
+              <FaAngleDoubleRight
+                className="fill-white"
+                onClick={() => setPage(totalPages)}
+              />
+            </button>
           </div>
         </div>
       </div>
