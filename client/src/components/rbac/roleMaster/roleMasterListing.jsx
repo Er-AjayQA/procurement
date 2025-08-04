@@ -1,6 +1,10 @@
 import { MdEdit, MdDelete } from "react-icons/md";
 
-export const RoleMasterListing = ({ rolesList }) => {
+export const RoleMasterListing = ({
+  rolesList,
+  handleFormVisibility,
+  handleRoleActiveInactive,
+}) => {
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
@@ -29,19 +33,31 @@ export const RoleMasterListing = ({ rolesList }) => {
                     <div className="p-2 text-[.8rem]">
                       {role.status ? (
                         <span className="text-green-400 font-bold text-[.8rem] flex gap-2 items-center">
-                          <span className="block w-[10px] h-[10px] bg-green-400 rounded-[50%] shadow-lg shadow-green-400"></span>
+                          <span
+                            className="block w-[15px] h-[15px] bg-green-400 rounded-[50%] shadow-lg shadow-green-400 cursor-pointer"
+                            onClick={() => handleRoleActiveInactive(role.id)}
+                          ></span>
                           <span className="text-green-400 font-bold text-[.8rem]">
                             Active
                           </span>
                         </span>
                       ) : (
-                        <span className="text-red-400 font-bold text-[.8rem]">
-                          InActive
+                        <span className="text-red-400 font-bold text-[.8rem] flex gap-2 items-center">
+                          <span className="text-red-400 font-bold text-[.8rem]">
+                            InActive
+                          </span>
+                          <span
+                            className="block w-[15px] h-[15px] bg-red-400 rounded-[50%] shadow-lg shadow-red-400 cursor-pointer"
+                            onClick={() => handleRoleActiveInactive(role.id)}
+                          ></span>
                         </span>
                       )}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
-                      <div className="p-1 hover:bg-green-600 rounded-lg cursor-pointer">
+                      <div
+                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                        onClick={() => handleFormVisibility("open", "update")}
+                      >
                         <MdEdit className="hover:fill-white" />
                       </div>
                       <div className="p-1 hover:bg-red-600 rounded-lg cursor-pointer">

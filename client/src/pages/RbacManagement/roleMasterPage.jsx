@@ -2,13 +2,19 @@ import { useEffect, useState } from "react";
 import { RoleMasterForm } from "../../components/rbac/roleMaster/roleMasterForm";
 import { RoleMasterListing } from "../../components/rbac/roleMaster/roleMasterListing";
 import { AddButton } from "../../components/UI/addButtonUi";
-import { getAllRoles } from "../../services/master_services/service";
+import {
+  createRole,
+  getAllRoles,
+  updateRoleStatus,
+} from "../../services/master_services/service";
+import { toast } from "react-toastify";
 
 export const RoleMasterPage = () => {
   const [rolesList, setRolesList] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
+  const [formType, setFormType] = useState("Add");
 
-  // Get Master Roles List
+  // Get Master Roles List From API
   const getAllRoleMasters = async () => {
     const data = await getAllRoles();
 
@@ -20,11 +26,32 @@ export const RoleMasterPage = () => {
   };
 
   // Handle Form Visibility
-  const handleFormVisibility = (type) => {
-    if (type === "open") {
+  const handleFormVisibility = (visibility, formType) => {
+    if (visibility === "open") {
+      if (formType === "add") {
+        setFormType("Add");
+      } else if (formType === "update") {
+        setFormType("Update");
+      }
       setFormVisibility(true);
-    } else if (type === "close") {
+    } else if (visibility === "close") {
       setFormVisibility(false);
+    }
+  };
+
+  // Handle Role Active/Inactive
+  const handleRoleActiveInactive = async (id) => {
+    try {
+      const response = await updateRoleStatus(id);
+
+      if (response.success) {
+        getAllRoleMasters();
+        toast.success(response.message);
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      throw new Error(error.message);
     }
   };
 
@@ -32,7 +59,8 @@ export const RoleMasterPage = () => {
     getAllRoleMasters();
   }, []);
 
-  console.log(formVisibility);
+  console.log(formType);
+
   return (
     <>
       <div className="px-5 h-full">
@@ -61,7 +89,7 @@ export const RoleMasterPage = () => {
             </select>
           </div>
           {/* Sorting Element End */}
-          <div onClick={() => handleFormVisibility("open")}>
+          <div onClick={() => handleFormVisibility("open", "create")}>
             <AddButton text="Create New Role" />
           </div>
         </div>
@@ -70,8 +98,14 @@ export const RoleMasterPage = () => {
         <RoleMasterForm
           formVisibility={formVisibility}
           onClose={() => handleFormVisibility("close")}
+          getAllRoleMasters={getAllRoleMasters}
+          formTyp={formType}
         />
-        <RoleMasterListing rolesList={rolesList} />
+        <RoleMasterListing
+          rolesList={rolesList}
+          handleFormVisibility={handleFormVisibility}
+          handleRoleActiveInactive={handleRoleActiveInactive}
+        />
       </div>
     </>
   );
