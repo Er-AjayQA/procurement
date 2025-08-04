@@ -19,7 +19,7 @@ export default {
           light: "#0000004a",
         },
         button: {
-          color: "",
+          color: "#140843",
           hover: "#362A65",
         },
       },

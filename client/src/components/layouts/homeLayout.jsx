@@ -21,7 +21,7 @@ export const HomeLayout = () => {
             <Breadcrumb />
             <HeaderNav />
           </div>
-          <div className="p-4 relative">
+          <div className="p-4 h-[75%]">
             <Outlet />
           </div>
         </div>
