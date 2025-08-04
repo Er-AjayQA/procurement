@@ -23,7 +23,7 @@ module.exports.createRole = async (req, res) => {
       const newRole = await DB.tbl_role_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Role Created Successfully!",
+        message: "Role Created Successfully!",
         data: newRole,
       });
     }
@@ -67,7 +67,7 @@ module.exports.updateRole = async (req, res) => {
         const updateRole = await isRoleExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Role Updated Successfully!",
+          message: "Role Updated Successfully!",
           data: updateRole,
         });
       }
@@ -191,7 +191,7 @@ module.exports.deleteRole = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Role Deleted Successfully!",
+        message: "Role Deleted Successfully!",
       });
     }
   } catch (error) {
