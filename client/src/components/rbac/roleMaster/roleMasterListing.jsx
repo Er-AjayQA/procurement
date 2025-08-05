@@ -1,8 +1,10 @@
 import { MdEdit, MdDelete } from "react-icons/md";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { SkeltonUi } from "../../UI/Skelton";
 
 export const RoleMasterListing = ({
+  isLoading,
   rolesList,
   handleFormVisibility,
   handleRoleActiveInactive,
@@ -28,7 +30,9 @@ export const RoleMasterListing = ({
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
           <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide">
-            {rolesList?.length > 0 ? (
+            {isLoading ? (
+              <SkeltonUi />
+            ) : rolesList?.length > 0 ? (
               rolesList?.map((role, i) => {
                 return (
                   <div

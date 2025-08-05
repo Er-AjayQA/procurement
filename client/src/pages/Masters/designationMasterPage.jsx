@@ -21,15 +21,19 @@ export const DesignationMasterPage = () => {
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Get All Master Data
   const getAllData = async () => {
+    setIsLoading(true);
     const data = await getAllDesignations({ limit, page, filter });
 
     if (data.success) {
+      setIsLoading(false);
       setListing(data.data);
       setTotalPages(data.pagination.totalPages);
     } else {
+      setIsLoading(false);
       setListing([]);
     }
   };
@@ -175,6 +179,7 @@ export const DesignationMasterPage = () => {
           data={data}
         />
         <DesignationMasterListing
+          isLoading={isLoading}
           listing={listing}
           handleFormVisibility={handleFormVisibility}
           handleActiveInactive={handleActiveInactive}

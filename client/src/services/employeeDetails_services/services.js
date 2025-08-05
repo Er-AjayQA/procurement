@@ -10,3 +10,14 @@ export const getEmployeeDetails = async (id) => {
 
   return response;
 };
+
+// Get All Employee Details Service
+export const getAllEmployeeDetails = async (id) => {
+  const response = await axiosInstance.post(`/get-all-users`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response.data;
+};

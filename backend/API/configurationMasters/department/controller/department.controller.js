@@ -31,7 +31,7 @@ module.exports.createDepartment = async (req, res) => {
       const newDepartment = await DB.tbl_department_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Department Created Successfully!",
+        message: "Department Created Successfully!",
         data: newDepartment,
       });
     }
@@ -75,7 +75,7 @@ module.exports.updateDepartment = async (req, res) => {
         const updateDepartment = await isDepartmentExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Department Updated Successfully!",
+          message: "Department Updated Successfully!",
           data: updateDepartment,
         });
       }
@@ -107,7 +107,7 @@ module.exports.getDepartmentDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Department Details Successfully!",
+        message: "Get Department Details Successfully!",
         data: getAllData,
       });
     }
@@ -119,13 +119,44 @@ module.exports.getDepartmentDetails = async (req, res) => {
 // ========== GET ALL DEPARTMENT DETAILS CONTROLLER ========== //
 module.exports.getAllDepartmentDetails = async (req, res) => {
   try {
-    const query = `
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
+
+    let countQuery = `
+      SELECT COUNT(*) as total 
+      FROM DEPARTMENT_MASTER AS D 
+      WHERE D.isDeleted = false`;
+
+    let query = `
             SELECT D.*, U.emp_code, U.name As department_head_name
             FROM DEPARTMENT_MASTER AS D
             LEFT JOIN USER_MASTER AS U on U.id=D.department_head_id
             WHERE D.isDeleted=false`;
 
+    if (filter) {
+      countQuery += ` AND D.name LIKE :filter`;
+      query += ` AND D.name LIKE :filter`;
+    }
+
+    query += ` ORDER BY D.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
+
+    // Get total count
+    const totalResult = await DB.sequelize.query(countQuery, {
+      replacements: { filter: `%${filter}%` },
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
     const getAllData = await DB.sequelize.query(query, {
+      replacements: {
+        filter: filter ? `%${filter}%` : null,
+        limit,
+        offset,
+      },
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
@@ -136,8 +167,14 @@ module.exports.getAllDepartmentDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Departments List!",
+        message: "Get All Departments List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -168,7 +205,7 @@ module.exports.updateDepartmentStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -200,7 +237,7 @@ module.exports.deleteDepartment = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Department Deleted Successfully!",
+        message: "Department Deleted Successfully!",
       });
     }
   } catch (error) {
