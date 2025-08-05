@@ -22,7 +22,7 @@ module.exports.createDesignation = async (req, res) => {
       const newDesignation = await DB.tbl_designation_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Designation Created Successfully!",
+        message: "Designation Created Successfully!",
         data: newDesignation,
       });
     }
@@ -67,7 +67,7 @@ module.exports.updateDesignation = async (req, res) => {
         const updateDesignation = await isDesignationExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Designation Updated Successfully!",
+          message: "Designation Updated Successfully!",
           data: updateDesignation,
         });
       }
@@ -99,7 +99,7 @@ module.exports.getDesignationDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Designation Details Successfully!",
+        message: "Get Designation Details Successfully!",
         data: getAllData,
       });
     }
@@ -111,12 +111,44 @@ module.exports.getDesignationDetails = async (req, res) => {
 // ========== GET ALL DESIGNATION DETAILS CONTROLLER ========== //
 module.exports.getAllDesignationDetails = async (req, res) => {
   try {
-    const query = `
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
+
+    // Get total count of records
+    let countQuery = `
+      SELECT COUNT(*) as total 
+      FROM DESIGNATION_MASTER AS D 
+      WHERE D.isDeleted = false`;
+
+    let query = `
             SELECT D.*
             FROM DESIGNATION_MASTER AS D
             WHERE D.isDeleted=false`;
 
+    if (filter) {
+      countQuery += ` AND D.name LIKE :filter`;
+      query += ` AND D.name LIKE :filter`;
+    }
+
+    query += ` ORDER BY D.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
+
+    // Get total count
+    const totalResult = await DB.sequelize.query(countQuery, {
+      replacements: { filter: `%${filter}%` },
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
     const getAllData = await DB.sequelize.query(query, {
+      replacements: {
+        filter: filter ? `%${filter}%` : null,
+        limit,
+        offset,
+      },
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
@@ -129,6 +161,12 @@ module.exports.getAllDesignationDetails = async (req, res) => {
         success: true,
         status: "Get All Designations List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -159,7 +197,7 @@ module.exports.updateDesignationStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -191,7 +229,7 @@ module.exports.deleteDesignation = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Designation Deleted Successfully!",
+        message: "Designation Deleted Successfully!",
       });
     }
   } catch (error) {
