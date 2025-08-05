@@ -19,15 +19,16 @@ export const RoleMasterPage = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState(null);
   const [limit, setLimit] = useState(10);
-  const [totalPages, setTotalPages] = useState(15);
+  const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
 
   // Get Master Roles List From API
   const getAllRoleMasters = async () => {
-    const data = await getAllRoles({ limit, page });
+    const data = await getAllRoles({ limit, page, filter });
 
     if (data.success) {
       setRolesList(data.data);
+      setTotalPages(data.pagination.totalPages);
     } else {
       setRolesList([]);
     }
@@ -93,6 +94,13 @@ export const RoleMasterPage = () => {
     setLimit(e.target.value);
   };
 
+  // HAndle Filter Value
+  const handleChangeFilter = (e) => {
+    e.preventDefault();
+    setFilter(e.target.value);
+  };
+
+  console.log(filter);
   useEffect(() => {
     getAllRoleMasters();
 
@@ -105,39 +113,46 @@ export const RoleMasterPage = () => {
     }
   }, [limit, page, filter, updateId, deleteId]);
 
-  console.log("Limit.....", limit);
-  console.log("TotalPages.....", totalPages);
-  console.log("Page.....", page);
-
   return (
     <>
       <div className="px-5 h-full">
         <div className="flex justify-between items-center pt-3 pb-10">
-          {/* Sorting Element Start */}
-          <div className="flex justify-center items-center gap-2">
-            <label htmlFor="limit" className="text-sm">
-              Limit
-            </label>
-            <select
-              id="limit"
-              className="rounded-md py-1 text-sm border-borders-light"
-              onChange={(e) => handleLimitChange(e)}
-            >
-              <option value={10} className="text-sm">
-                10
-              </option>
-              <option value={50} className="text-sm">
-                50
-              </option>
-              <option value={100} className="text-sm">
-                100
-              </option>
-              <option value={500} className="text-sm">
-                500
-              </option>
-            </select>
+          <div className="flex items-center gap-5">
+            {/* Sorting Element Start */}
+            <div className="flex justify-center items-center gap-2">
+              <label htmlFor="limit" className="text-sm">
+                Limit
+              </label>
+              <select
+                id="limit"
+                className="rounded-md py-1 text-sm border-borders-light"
+                onChange={(e) => handleLimitChange(e)}
+              >
+                <option value={10} className="text-sm">
+                  10
+                </option>
+                <option value={50} className="text-sm">
+                  50
+                </option>
+                <option value={100} className="text-sm">
+                  100
+                </option>
+                <option value={500} className="text-sm">
+                  500
+                </option>
+              </select>
+            </div>
+            {/* Sorting Element End */}
+            <div>
+              <input
+                type="search"
+                placeholder="Search here.."
+                className="py-1 px-2 rounded-md text-sm border-borders-light"
+                onChange={(e) => handleChangeFilter(e)}
+              />
+            </div>
           </div>
-          {/* Sorting Element End */}
+
           <div onClick={() => handleFormVisibility("open", "add")}>
             <AddButton text="Create New Role" />
           </div>

@@ -110,30 +110,45 @@ module.exports.getRoleDetails = async (req, res) => {
 // ========== GET ALL ROLE DETAILS CONTROLLER ========== //
 module.exports.getAllRoleDetails = async (req, res) => {
   try {
-    const limit = req.body.limit || 10;
-    const page = req.body.page || 1;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
     const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    // Get total count of records (for pagination metadata)
-    const countQuery = `
+    // Get total count of records
+    let countQuery = `
       SELECT COUNT(*) as total 
       FROM ROLE_MASTER AS R 
       WHERE R.isDeleted = false`;
 
+    let query = `
+      SELECT R.*
+      FROM ROLE_MASTER AS R
+      WHERE R.isDeleted = false`;
+
+    if (filter) {
+      countQuery += ` AND R.name LIKE :filter`;
+      query += ` AND R.name LIKE :filter`;
+    }
+
+    query += ` ORDER BY R.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
+
+    // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
+      replacements: { filter: `%${filter}%` },
       type: DB.sequelize.QueryTypes.SELECT,
     });
     const totalRecords = totalResult[0].total;
     const totalPages = Math.ceil(totalRecords / limit);
 
-    const query = `
-            SELECT R.*
-            FROM ROLE_MASTER AS R
-            WHERE R.isDeleted=false
-            LIMIT :limit OFFSET :offset`;
-
+    // Get paginated data
     const getAllData = await DB.sequelize.query(query, {
-      replacements: { limit, offset },
+      replacements: {
+        filter: filter ? `%${filter}%` : null,
+        limit,
+        offset,
+      },
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
