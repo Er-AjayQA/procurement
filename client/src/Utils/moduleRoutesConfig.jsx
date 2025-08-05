@@ -9,7 +9,7 @@ import { BranchPage } from "../pages/Masters/branchPage";
 import { CityPage } from "../pages/Masters/cityPage";
 import { ContractTypePage } from "../pages/Masters/contractTypePage";
 import { CountryPage } from "../pages/Masters/countryPage";
-import { DepartmentPage } from "../pages/Masters/departmentPage";
+import { DepartmentMasterPage } from "../pages/Masters/departmentMasterPage";
 import { DesignationMasterPage } from "../pages/Masters/designationMasterPage";
 import { EmploymentTypePage } from "../pages/Masters/employmentTypePage";
 import { ItemCategoryPage } from "../pages/Masters/itemCategoryPage";
@@ -38,7 +38,7 @@ export const moduleComponents = {
   },
   masters: {
     "designation-master": DesignationMasterPage,
-    "department-master": DepartmentPage,
+    "department-master": DepartmentMasterPage,
     "country-master": CountryPage,
     "state-master": StatePage,
     "city-master": CityPage,
