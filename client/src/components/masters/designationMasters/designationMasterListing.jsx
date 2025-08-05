@@ -2,10 +2,10 @@ import { MdEdit, MdDelete } from "react-icons/md";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
-export const RoleMasterListing = ({
-  rolesList,
+export const DesignationMasterListing = ({
+  listing,
   handleFormVisibility,
-  handleRoleActiveInactive,
+  handleActiveInactive,
   setUpdateId,
   setDeleteId,
   page,
@@ -28,25 +28,25 @@ export const RoleMasterListing = ({
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
           <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide">
-            {rolesList?.length > 0 ? (
-              rolesList?.map((role, i) => {
+            {listing?.length > 0 ? (
+              listing?.map((list, i) => {
                 return (
                   <div
-                    key={role.id}
+                    key={list.id}
                     className="grid grid-cols-4 border-b border-gray-200 last:border-none gap-2"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {role.name}
+                      {list.name}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {role.status ? (
+                      {list.status ? (
                         <span className="text-green-400 font-bold text-[.8rem] flex gap-2 items-center">
                           <span
                             className="block w-[15px] h-[15px] bg-green-400 rounded-[50%] shadow-lg shadow-green-400 cursor-pointer"
-                            onClick={() => handleRoleActiveInactive(role.id)}
+                            onClick={() => handleActiveInactive(list.id)}
                           ></span>
                           <span className="text-green-400 font-bold text-[.8rem]">
                             Active
@@ -59,7 +59,7 @@ export const RoleMasterListing = ({
                           </span>
                           <span
                             className="block w-[15px] h-[15px] bg-red-400 rounded-[50%] shadow-lg shadow-red-400 cursor-pointer"
-                            onClick={() => handleRoleActiveInactive(role.id)}
+                            onClick={() => handleActiveInactive(list.id)}
                           ></span>
                         </span>
                       )}
@@ -69,14 +69,14 @@ export const RoleMasterListing = ({
                         className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                         onClick={() => {
                           handleFormVisibility("open", "update");
-                          setUpdateId(role.id);
+                          setUpdateId(list.id);
                         }}
                       >
                         <MdEdit className="hover:fill-white" />
                       </div>
                       <div
                         className="p-1 hover:bg-red-600 rounded-lg cursor-pointer"
-                        onClick={() => setDeleteId(role.id)}
+                        onClick={() => setDeleteId(list.id)}
                       >
                         <MdDelete className="hover:fill-white" />
                       </div>
@@ -96,74 +96,76 @@ export const RoleMasterListing = ({
 
         {/* Pagination */}
         <div className="bg-button-hover h-12 py-2 px-1 rounded-b-md">
-          <div className="flex justify-end pe-5 gap-2">
-            <button
-              className={`${
-                page === 1 ? "cursor-not-allowed" : "cursor-pointer"
-              }`}
-              disabled={page === 1}
-            >
-              <FaAngleDoubleLeft
-                className={`${page === 1 ? "fill-gray-400" : "fill-white"}`}
-                onClick={() => setPage(1)}
-              />
-            </button>
-            <button
-              className={`${
-                page === 1 ? "cursor-not-allowed" : "cursor-pointer"
-              }`}
-              disabled={page === 1}
-            >
-              <MdKeyboardArrowLeft
-                className={`${page === 1 ? "fill-gray-400" : "fill-white"}`}
-                onClick={() => setPage(page - 1)}
-              />
-            </button>
-            {/* Page numbers */}
-            <div className="flex gap-1 mx-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNumber) => (
-                  <button
-                    key={pageNumber}
-                    className={`w-6 h-6 rounded-full text-xs flex items-center justify-center ${
-                      page === pageNumber
-                        ? "bg-white text-button-hover font-bold"
-                        : "text-white hover:bg-white hover:text-button-hover"
-                    }`}
-                    onClick={() => setPage(pageNumber)}
-                  >
-                    {pageNumber}
-                  </button>
-                )
-              )}
+          {listing && (
+            <div className="flex justify-end pe-5 gap-2">
+              <button
+                className={`${
+                  page === 1 ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
+                disabled={page === 1}
+              >
+                <FaAngleDoubleLeft
+                  className={`${page === 1 ? "fill-gray-400" : "fill-white"}`}
+                  onClick={() => setPage(1)}
+                />
+              </button>
+              <button
+                className={`${
+                  page === 1 ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
+                disabled={page === 1}
+              >
+                <MdKeyboardArrowLeft
+                  className={`${page === 1 ? "fill-gray-400" : "fill-white"}`}
+                  onClick={() => setPage(page - 1)}
+                />
+              </button>
+              {/* Page numbers */}
+              <div className="flex gap-1 mx-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      className={`w-6 h-6 rounded-full text-xs flex items-center justify-center ${
+                        page === pageNumber
+                          ? "bg-white text-button-hover font-bold"
+                          : "text-white hover:bg-white hover:text-button-hover"
+                      }`}
+                      onClick={() => setPage(pageNumber)}
+                    >
+                      {pageNumber}
+                    </button>
+                  )
+                )}
+              </div>
+              <button
+                className={`${
+                  page === totalPages ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
+                disabled={page === totalPages}
+              >
+                <MdKeyboardArrowRight
+                  className={`${
+                    page === totalPages ? "fill-gray-400" : "fill-white"
+                  }`}
+                  onClick={() => setPage(page + 1)}
+                />
+              </button>
+              <button
+                className={`${
+                  page === totalPages ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
+                disabled={page === totalPages}
+              >
+                <FaAngleDoubleRight
+                  className={`${
+                    page === totalPages ? "fill-gray-400" : "fill-white"
+                  }`}
+                  onClick={() => setPage(totalPages)}
+                />
+              </button>
             </div>
-            <button
-              className={`${
-                page === totalPages ? "cursor-not-allowed" : "cursor-pointer"
-              }`}
-              disabled={page === totalPages}
-            >
-              <MdKeyboardArrowRight
-                className={`${
-                  page === totalPages ? "fill-gray-400" : "fill-white"
-                }`}
-                onClick={() => setPage(page + 1)}
-              />
-            </button>
-            <button
-              className={`${
-                page === totalPages ? "cursor-not-allowed" : "cursor-pointer"
-              }`}
-              disabled={page === totalPages}
-            >
-              <FaAngleDoubleRight
-                className={`${
-                  page === totalPages ? "fill-gray-400" : "fill-white"
-                }`}
-                onClick={() => setPage(totalPages)}
-              />
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </>

@@ -10,7 +10,7 @@ import { CityPage } from "../pages/Masters/cityPage";
 import { ContractTypePage } from "../pages/Masters/contractTypePage";
 import { CountryPage } from "../pages/Masters/countryPage";
 import { DepartmentPage } from "../pages/Masters/departmentPage";
-import { DesignationPage } from "../pages/Masters/designationPage";
+import { DesignationMasterPage } from "../pages/Masters/designationMasterPage";
 import { EmploymentTypePage } from "../pages/Masters/employmentTypePage";
 import { ItemCategoryPage } from "../pages/Masters/itemCategoryPage";
 import { ItemPage } from "../pages/Masters/itemPage";
@@ -37,7 +37,7 @@ export const moduleComponents = {
     "rbac-permissions": RBACPermissions,
   },
   masters: {
-    "designation-master": DesignationPage,
+    "designation-master": DesignationMasterPage,
     "department-master": DepartmentPage,
     "country-master": CountryPage,
     "state-master": StatePage,

@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { RoleMasterForm } from "../../components/rbac/roleMaster/roleMasterForm";
-import { RoleMasterListing } from "../../components/rbac/roleMaster/roleMasterListing";
 import { AddButton } from "../../components/UI/addButtonUi";
 import {
-  deleteRole,
-  getAllRoles,
-  getRoleById,
-  updateRoleStatus,
+  deleteDesignation,
+  getAllDesignations,
+  getDesignationById,
+  updateDesignationStatus,
 } from "../../services/master_services/service";
 import { toast } from "react-toastify";
+import { DesignationMasterForm } from "../../components/masters/designationMasters/designationMasterForm";
+import { DesignationMasterListing } from "../../components/masters/designationMasters/designationMasterListing";
 
-export const RoleMasterPage = () => {
-  const [rolesList, setRolesList] = useState(null);
+export const DesignationMasterPage = () => {
+  const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
-  const [roleData, setRoleData] = useState(null);
+  const [data, setData] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState(null);
@@ -22,32 +22,32 @@ export const RoleMasterPage = () => {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
 
-  // Get Master Roles List From API
-  const getAllRoleMasters = async () => {
-    const data = await getAllRoles({ limit, page, filter });
+  // Get All Master Data
+  const getAllData = async () => {
+    const data = await getAllDesignations({ limit, page, filter });
 
     if (data.success) {
-      setRolesList(data.data);
+      setListing(data.data);
       setTotalPages(data.pagination.totalPages);
     } else {
-      setRolesList([]);
+      setListing([]);
     }
   };
 
-  // Get Role Data By Id
-  const getRoleDataById = async () => {
-    const response = await getRoleById(updateId);
+  // Get Data By Id
+  const getDataById = async () => {
+    const response = await getDesignationById(updateId);
     if (response.success) {
-      setRoleData(response.data);
+      setData(response.data);
     }
   };
 
-  // Delete Role By Id
-  const deleteRoleMaster = async () => {
-    const response = await deleteRole(deleteId);
+  // Delete Data By Id
+  const deleteData = async () => {
+    const response = await deleteDesignation(deleteId);
     if (response.success) {
       toast(response.message);
-      getAllRoleMasters();
+      getAllData();
       setDeleteId(null);
     } else {
       toast.error(response.message);
@@ -60,7 +60,7 @@ export const RoleMasterPage = () => {
       if (formType === "add") {
         setFormType("Add");
         setUpdateId(null);
-        setRoleData(null);
+        setData(null);
       } else if (formType === "update") {
         setFormType("Update");
       }
@@ -68,17 +68,17 @@ export const RoleMasterPage = () => {
     } else if (visibility === "close") {
       setFormVisibility(false);
       setUpdateId(null);
-      setRoleData(null);
+      setData(null);
     }
   };
 
-  // Handle Role Active/Inactive
-  const handleRoleActiveInactive = async (id) => {
+  // Handle Active/Inactive
+  const handleActiveInactive = async (id) => {
     try {
-      const response = await updateRoleStatus(id);
+      const response = await updateDesignationStatus(id);
 
       if (response.success) {
-        getAllRoleMasters();
+        getAllData();
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -95,7 +95,7 @@ export const RoleMasterPage = () => {
     setLimit(e.target.value);
   };
 
-  // HAndle Filter Value
+  // Handle Filter Value
   const handleChangeFilter = (e) => {
     e.preventDefault();
     setFilter(e.target.value);
@@ -103,20 +103,20 @@ export const RoleMasterPage = () => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllRoleMasters();
+    getAllData();
   }, [limit, page, filter]);
 
   // For update operations
   useEffect(() => {
     if (updateId) {
-      getRoleDataById();
+      getDataById();
     }
   }, [updateId]);
 
   // For delete operations
   useEffect(() => {
     if (deleteId) {
-      deleteRoleMaster();
+      deleteData();
     }
   }, [deleteId]);
 
@@ -161,23 +161,23 @@ export const RoleMasterPage = () => {
           </div>
 
           <div onClick={() => handleFormVisibility("open", "add")}>
-            <AddButton text="Create New Role" />
+            <AddButton text="Create Designation" />
           </div>
         </div>
 
         {/* Role Listing */}
-        <RoleMasterForm
+        <DesignationMasterForm
           formVisibility={formVisibility}
           onClose={() => handleFormVisibility("close", "add")}
-          getAllRoleMasters={getAllRoleMasters}
+          getAllData={getAllData}
           formType={formType}
           updateId={updateId}
-          roleData={roleData}
+          data={data}
         />
-        <RoleMasterListing
-          rolesList={rolesList}
+        <DesignationMasterListing
+          listing={listing}
           handleFormVisibility={handleFormVisibility}
-          handleRoleActiveInactive={handleRoleActiveInactive}
+          handleActiveInactive={handleActiveInactive}
           setUpdateId={setUpdateId}
           setDeleteId={setDeleteId}
           page={page}

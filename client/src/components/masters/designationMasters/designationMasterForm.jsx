@@ -1,19 +1,19 @@
 import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import {
-  createRole,
-  updateRole,
+  createDesignation,
+  updateDesignation,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 
-export const RoleMasterForm = ({
+export const DesignationMasterForm = ({
   formVisibility,
   formType,
   onClose,
-  getAllRoleMasters,
+  getAllData,
   updateId,
-  roleData,
+  data,
 }) => {
   const {
     register,
@@ -24,14 +24,14 @@ export const RoleMasterForm = ({
 
   // Set form values when in update mode
   useEffect(() => {
-    if (formType === "Update" && roleData) {
+    if (formType === "Update" && data) {
       reset({
-        name: roleData.name || roleData[0]?.name || "",
+        name: data.name || data[0]?.name || "",
       });
     } else {
       reset({ name: "" });
     }
-  }, [formType, roleData, reset]);
+  }, [formType, data, reset]);
 
   // Handle Form Close
   const handleFormClose = () => {
@@ -44,15 +44,15 @@ export const RoleMasterForm = ({
     try {
       let response = "";
       if (formType === "Update") {
-        response = await updateRole(updateId, { name: data.name });
+        response = await updateDesignation(updateId, { name: data.name });
       } else {
-        response = await createRole({ name: data.name });
+        response = await createDesignation({ name: data.name });
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllRoleMasters();
+        getAllData();
         reset();
       } else {
         toast.error(response.message);
@@ -76,7 +76,7 @@ export const RoleMasterForm = ({
       >
         <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center">
           <h3 className="text-white text-sm font-bold">
-            {formType === "Add" ? "Add Role" : "Update Role"}
+            {formType === "Add" ? "Add Designation" : "Update Designation"}
           </h3>
           {/* Form Close Button */}
           <div
@@ -101,9 +101,9 @@ export const RoleMasterForm = ({
                 type="text"
                 id="name"
                 className="rounded-lg text-[.8rem]"
-                placeholder="Enter role name"
+                placeholder="Enter designation name"
                 {...register("name", {
-                  required: "Role Name is required!",
+                  required: "Designation Name is required!",
                 })}
               />
               {errors.name && (

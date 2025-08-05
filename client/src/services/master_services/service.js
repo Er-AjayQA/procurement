@@ -1,6 +1,7 @@
 import axiosInstance from "../axisInstance";
 
-// Get All Master Roles List
+// **************************** ROLE MASTER **************************** //
+// Create Role Master
 export const createRole = async (formData) => {
   const response = await axiosInstance.post("create-role", formData, {
     headers: {
@@ -53,6 +54,71 @@ export const getAllRoles = async (formData) => {
 // Delete Role Master
 export const deleteRole = async (id) => {
   const response = await axiosInstance.put(`delete-role/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// **************************** DESIGNATION MASTER **************************** //
+// Create Designations Master
+export const createDesignation = async (formData) => {
+  const response = await axiosInstance.post("create-designation", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Designation
+export const updateDesignation = async (id, formData) => {
+  const response = await axiosInstance.put(
+    `update-designation/${id}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Update Status
+export const updateDesignationStatus = async (id) => {
+  const response = await axiosInstance.put(`update-designation-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Designations by ID
+export const getDesignationById = async (id) => {
+  const response = await axiosInstance.post(`get-designation-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Designations List
+export const getAllDesignations = async (formData) => {
+  const response = await axiosInstance.post("get-all-designations", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Delete Designation Master
+export const deleteDesignation = async (id) => {
+  const response = await axiosInstance.put(`delete-designation/${id}`, {
     headers: {
       "Content-Type": "application/json",
     },
