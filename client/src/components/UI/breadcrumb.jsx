@@ -5,10 +5,10 @@ export const Breadcrumb = () => {
   return (
     <>
       <div className="flex gap-2">
-        <p className="text-[.7rem]">{activeModule}</p>
+        <p className="text-[.8rem]">{activeModule}</p>
         {activeSubmodule && <span className="text-[.7rem]">/</span>}
 
-        <p className="text-[.7rem]">{activeSubmodule}</p>
+        <p className="text-[.8rem]">{activeSubmodule}</p>
       </div>
     </>
   );

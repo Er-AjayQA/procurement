@@ -20,14 +20,14 @@ export const RoleMasterListing = ({
         </div>
 
         {/* List Form */}
-        <div className="p-3 h-full">
+        <div className="p-3 h-[86%]">
           <div className="grid grid-cols-4 border-b border-gray-300 gap-2">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
             <div className="text-[.8rem] font-bold p-2">Name</div>
             <div className="text-[.8rem] font-bold p-2">Status</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
-          <div className="h-full overflow-y-scroll scrollbar-hide">
+          <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide">
             {rolesList?.length > 0 ? (
               rolesList?.map((role, i) => {
                 return (
@@ -94,34 +94,72 @@ export const RoleMasterListing = ({
           </div>
         </div>
 
-        <div className="bg-button-hover py-2 px-1 rounded-b-md">
+        {/* Pagination */}
+        <div className="bg-button-hover h-12 py-2 px-1 rounded-b-md">
           <div className="flex justify-end pe-5 gap-2">
             <button
               className={`${
                 page === 1 ? "cursor-not-allowed" : "cursor-pointer"
               }`}
-              disabled={page === 1 ? true : false}
+              disabled={page === 1}
             >
               <FaAngleDoubleLeft
                 className={`${page === 1 ? "fill-gray-400" : "fill-white"}`}
                 onClick={() => setPage(1)}
               />
             </button>
-            <button className="cursor-pointer">
+            <button
+              className={`${
+                page === 1 ? "cursor-not-allowed" : "cursor-pointer"
+              }`}
+              disabled={page === 1}
+            >
               <MdKeyboardArrowLeft
-                className="fill-white"
+                className={`${page === 1 ? "fill-gray-400" : "fill-white"}`}
                 onClick={() => setPage(page - 1)}
               />
             </button>
-            <button className="cursor-pointer">
+            {/* Page numbers */}
+            <div className="flex gap-1 mx-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    className={`w-6 h-6 rounded-full text-xs flex items-center justify-center ${
+                      page === pageNumber
+                        ? "bg-white text-button-hover font-bold"
+                        : "text-white hover:bg-white hover:text-button-hover"
+                    }`}
+                    onClick={() => setPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </button>
+                )
+              )}
+            </div>
+            <button
+              className={`${
+                page === totalPages ? "cursor-not-allowed" : "cursor-pointer"
+              }`}
+              disabled={page === totalPages}
+            >
               <MdKeyboardArrowRight
-                className="fill-white"
+                className={`${
+                  page === totalPages ? "fill-gray-400" : "fill-white"
+                }`}
                 onClick={() => setPage(page + 1)}
               />
             </button>
-            <button className="cursor-pointer">
+            <button
+              className={`${
+                page === totalPages ? "cursor-not-allowed" : "cursor-pointer"
+              }`}
+              disabled={page === totalPages}
+            >
               <FaAngleDoubleRight
-                className="fill-white"
+                className={`${
+                  page === totalPages ? "fill-gray-400" : "fill-white"
+                }`}
                 onClick={() => setPage(totalPages)}
               />
             </button>
