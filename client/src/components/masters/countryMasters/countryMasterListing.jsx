@@ -12,6 +12,23 @@ export const CountryMasterListing = ({
   setPage,
   setViewVisibility,
 }) => {
+  // Function to get visible page numbers (max 5 at a time)
+  const getVisiblePages = () => {
+    const visiblePages = [];
+    let startPage = Math.max(1, page - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+
+    // Adjust if we're at the end
+    if (endPage - startPage < 4) {
+      startPage = Math.max(1, endPage - 4);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      visiblePages.push(i);
+    }
+
+    return visiblePages;
+  };
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
@@ -104,24 +121,55 @@ export const CountryMasterListing = ({
                   onClick={() => setPage(page - 1)}
                 />
               </button>
-              {/* Page numbers */}
+
+              {/* Show first page and ellipsis if needed */}
+              {getVisiblePages()[0] > 1 && (
+                <>
+                  <button
+                    className="w-6 h-6 rounded-full text-xs flex items-center justify-center text-white hover:bg-white hover:text-button-hover"
+                    onClick={() => setPage(1)}
+                  >
+                    1
+                  </button>
+                  {getVisiblePages()[0] > 2 && (
+                    <span className="text-white flex items-center">...</span>
+                  )}
+                </>
+              )}
+
+              {/* Visible page numbers (max 5) */}
               <div className="flex gap-1 mx-2">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (pageNumber) => (
-                    <button
-                      key={pageNumber}
-                      className={`w-6 h-6 rounded-full text-xs flex items-center justify-center ${
-                        page === pageNumber
-                          ? "bg-white text-button-hover font-bold"
-                          : "text-white hover:bg-white hover:text-button-hover"
-                      }`}
-                      onClick={() => setPage(pageNumber)}
-                    >
-                      {pageNumber}
-                    </button>
-                  )
-                )}
+                {getVisiblePages().map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    className={`w-6 h-6 rounded-full text-xs flex items-center justify-center ${
+                      page === pageNumber
+                        ? "bg-white text-button-hover font-bold"
+                        : "text-white hover:bg-white hover:text-button-hover"
+                    }`}
+                    onClick={() => setPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
               </div>
+
+              {/* Show last page and ellipsis if needed */}
+              {getVisiblePages()[getVisiblePages().length - 1] < totalPages && (
+                <>
+                  {getVisiblePages()[getVisiblePages().length - 1] <
+                    totalPages - 1 && (
+                    <span className="text-white flex items-center">...</span>
+                  )}
+                  <button
+                    className="w-6 h-6 rounded-full text-xs flex items-center justify-center text-white hover:bg-white hover:text-button-hover"
+                    onClick={() => setPage(totalPages)}
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+
               <button
                 className={`${
                   page === totalPages ? "cursor-not-allowed" : "cursor-pointer"

@@ -2,7 +2,7 @@
 const DB = require("../../../../config/index");
 const xlsx = require("xlsx");
 
-// ========== CREATE COUNTRY CONTROLLER ========== //
+// ========== UPLOAD COUNTRY CONTROLLER ========== //
 module.exports.uploadCountry = async (req, res) => {
   try {
     if (!req.file) {
@@ -114,16 +114,15 @@ module.exports.getAllCountryDetails = async (req, res) => {
 
     let countQuery = `
     Select Count(*) AS total
-    FROM COUNTRY_MASTER AS C
-    `;
+    FROM COUNTRY_MASTER AS C`;
 
     let query = `
     SELECT C.*
     FROM COUNTRY_MASTER AS C`;
 
     if (filter) {
-      countQuery += ` AND C.name LIKE :filter`;
-      query += ` AND C.name LIKE :filter`;
+      countQuery += ` WHERE C.name LIKE :filter`;
+      query += ` WHERE C.name LIKE :filter`;
     }
 
     query += ` ORDER BY C.createdAt DESC`;

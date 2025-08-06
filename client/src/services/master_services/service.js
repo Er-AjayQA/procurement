@@ -200,7 +200,7 @@ export const deleteDepartment = async (id) => {
 export const uploadCountries = async (formData) => {
   const response = await axiosInstance.post("upload-countries", formData, {
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "multipart/form-data",
     },
   });
   return response.data;
