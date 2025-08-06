@@ -17,7 +17,7 @@ import { ItemPage } from "../pages/Masters/itemPage";
 import { ServiceCategoryPage } from "../pages/Masters/serviceCategoryPage";
 import { ServicePage } from "../pages/Masters/servicePage";
 import { ShiftPage } from "../pages/Masters/shiftPage";
-import { StatePage } from "../pages/Masters/statePage";
+import { StateMasterPage } from "../pages/Masters/stateMasterPage";
 import { UOMPage } from "../pages/Masters/uomPage";
 import { WorkflowPage } from "../pages/Masters/workflowPage";
 import { RBACPermissions } from "../pages/RbacManagement/rbacPermissionsPage";
@@ -40,7 +40,7 @@ export const moduleComponents = {
     "designation-master": DesignationMasterPage,
     "department-master": DepartmentMasterPage,
     "country-master": CountryMasterPage,
-    "state-master": StatePage,
+    "state-master": StateMasterPage,
     "city-master": CityPage,
     "branch-master": BranchPage,
     "area-master": AreaPage,

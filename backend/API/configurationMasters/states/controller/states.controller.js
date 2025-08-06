@@ -86,23 +86,52 @@ module.exports.getStateDetails = async (req, res) => {
 // ========== GET ALL STATE DETAILS CONTROLLER ========== //
 module.exports.getAllStateDetails = async (req, res) => {
   try {
-    const data = req.body;
-    let query = "";
+    const limit = parseInt(req.body.limit) || null;
+    const page = parseInt(req.body.page) || null;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || {};
 
-    if (data.country_id === "") {
-      query = `
+    let countQuery = `
+    Select Count(*) AS total
+    FROM STATE_MASTER AS S`;
+
+    let query = `
       SELECT S.*, CM.name AS country_name
       FROM STATE_MASTER AS S
       LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=s.country_id`;
-    } else {
-      query = `
-      SELECT S.*, CM.name AS country_name
-      FROM STATE_MASTER AS S
-      LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=s.country_id
-      WHERE S.country_id=${data.country_id}`;
+
+    const whereConditions = [];
+    const replacements = {
+      limit: limit,
+      offset: offset,
+    };
+
+    if (filter.name) {
+      whereConditions.push(` S.name LIKE :name`);
+      replacements.name = `%${filter.name}%`;
+    } else if (filter.country_id) {
+      whereConditions.push(` S.country_id = :country_id`);
+      replacements.country_id = filter.country_id;
     }
 
+    if (whereConditions.length > 0) {
+      const whereClause = ` WHERE ` + whereConditions.join(" AND ");
+      countQuery += whereClause;
+      query += whereClause;
+    }
+
+    query += ` ORDER BY S.createdAt DESC LIMIT :limit OFFSET :offset`;
+
+    // Get total count
+    const totalResult = await DB.sequelize.query(countQuery, {
+      replacements: replacements,
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
     const getAllData = await DB.sequelize.query(query, {
+      replacements: replacements,
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
@@ -116,6 +145,12 @@ module.exports.getAllStateDetails = async (req, res) => {
         status: "Get All States List!",
         records: getAllData.length,
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {

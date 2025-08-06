@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { AddButton } from "../../components/UI/addButtonUi";
 import {
   getAllCountries,
+  getAllStates,
   getCountryById,
+  getStateById,
 } from "../../services/master_services/service";
-import { CountryMasterForm } from "../../components/masters/countryMasters/countryMasterForm";
-import { CountryMasterListing } from "../../components/masters/countryMasters/countryMasterListing";
-import { CountryMasterView } from "../../components/masters/countryMasters/countryMasterView";
+import { StateMasterForm } from "../../components/masters/stateMasters/stateMasterForm";
+import { StateMasterListing } from "../../components/masters/stateMasters/stateMasterListing";
+import { StateMasterView } from "../../components/masters/stateMasters/stateMasterView";
 
-export const CountryMasterPage = () => {
+export const StateMasterPage = () => {
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
@@ -24,7 +26,7 @@ export const CountryMasterPage = () => {
   // Get All Master Data
   const getAllData = async () => {
     setIsLoading(true);
-    const data = await getAllCountries({ limit, page, filter });
+    const data = await getAllStates({ limit, page, filter });
 
     if (data.success) {
       setIsLoading(false);
@@ -38,7 +40,7 @@ export const CountryMasterPage = () => {
 
   // Get Data By Id
   const getDataById = async () => {
-    const response = await getCountryById(viewId);
+    const response = await getStateById(viewId);
     if (response.success) {
       setData(response.data[0]);
     }
@@ -129,19 +131,21 @@ export const CountryMasterPage = () => {
           </div>
 
           <div onClick={() => handleFormVisibility("open", "add")}>
-            <AddButton text="Upload Countries" />
+            <AddButton text="Upload States" />
           </div>
         </div>
 
-        {/* Countries Listing */}
-        <CountryMasterForm
+        {/* Sates Form */}
+        <StateMasterForm
           formVisibility={formVisibility}
-          onClose={() => handleFormVisibility("close", "add")}
+          onClose={() => handleFormVisibility("close")}
           getAllData={getAllData}
           formType={formType}
           data={data}
         />
-        <CountryMasterListing
+
+        {/* Sates Listing */}
+        <StateMasterListing
           isLoading={isLoading}
           listing={listing}
           handleFormVisibility={handleFormVisibility}
@@ -152,7 +156,8 @@ export const CountryMasterPage = () => {
           setViewVisibility={setViewVisibility}
         />
 
-        <CountryMasterView
+        {/* Sates View */}
+        <StateMasterView
           viewVisibility={viewVisibility}
           onClose={() => handleViewVisibility("close")}
           data={data}

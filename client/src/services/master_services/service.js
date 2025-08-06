@@ -196,7 +196,7 @@ export const deleteDepartment = async (id) => {
 };
 
 // **************************** COUNTRY MASTER **************************** //
-// Create Department Master
+// Upload Country File
 export const uploadCountries = async (formData) => {
   const response = await axiosInstance.post("upload-countries", formData, {
     headers: {
@@ -249,6 +249,41 @@ export const getAllCurrencies = async () => {
   const response = await axiosInstance.post(
     "get-all-currency-details",
 
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// **************************** STATE MASTER **************************** //
+// Upload States File
+export const uploadStates = async (formData) => {
+  const response = await axiosInstance.post("upload-states", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
+// Get State Details By Id
+export const getStateById = async (id) => {
+  const response = await axiosInstance.post(`get-states-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master States List
+export const getAllStates = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-states-details",
+    formData,
     {
       headers: {
         "Content-Type": "application/json",
