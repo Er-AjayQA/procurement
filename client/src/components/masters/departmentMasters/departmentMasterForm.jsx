@@ -142,9 +142,9 @@ export const DepartmentMasterForm = ({
                 type="text"
                 id="name"
                 className="rounded-lg text-[.8rem]"
-                placeholder="Enter designation name"
+                placeholder="Enter department name"
                 {...register("name", {
-                  required: "Designation Name is required!",
+                  required: "Department Name is required!",
                 })}
               />
               {errors.name && (

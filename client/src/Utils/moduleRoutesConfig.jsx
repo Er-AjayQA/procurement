@@ -8,7 +8,7 @@ import { BankPage } from "../pages/Masters/bankPage";
 import { BranchPage } from "../pages/Masters/branchPage";
 import { CityPage } from "../pages/Masters/cityPage";
 import { ContractTypePage } from "../pages/Masters/contractTypePage";
-import { CountryPage } from "../pages/Masters/countryPage";
+import { CountryMasterPage } from "../pages/Masters/countryMasterPage";
 import { DepartmentMasterPage } from "../pages/Masters/departmentMasterPage";
 import { DesignationMasterPage } from "../pages/Masters/designationMasterPage";
 import { EmploymentTypePage } from "../pages/Masters/employmentTypePage";
@@ -39,7 +39,7 @@ export const moduleComponents = {
   masters: {
     "designation-master": DesignationMasterPage,
     "department-master": DepartmentMasterPage,
-    "country-master": CountryPage,
+    "country-master": CountryMasterPage,
     "state-master": StatePage,
     "city-master": CityPage,
     "branch-master": BranchPage,
