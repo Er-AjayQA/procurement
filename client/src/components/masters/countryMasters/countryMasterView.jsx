@@ -57,7 +57,10 @@ export const CountryMasterView = ({ viewVisibility, onClose, data }) => {
                 <span className="text-sm font-bold">Phone Code:</span>
               </div>
               <div>
-                <span className="text-sm">+{data?.phone_code || "N/A"}</span>
+                <span className="text-sm">
+                  {data?.phone_code ? "+" : ""}
+                  {data?.phone_code || "N/A"}
+                </span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">

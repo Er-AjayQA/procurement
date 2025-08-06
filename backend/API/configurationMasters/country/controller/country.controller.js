@@ -107,11 +107,42 @@ module.exports.getCountryDetails = async (req, res) => {
 // ========== GET ALL COUNTRY DETAILS CONTROLLER ========== //
 module.exports.getAllCountryDetails = async (req, res) => {
   try {
-    const query = `
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
+
+    let countQuery = `
+    Select Count(*) AS total
+    FROM COUNTRY_MASTER AS C
+    `;
+
+    let query = `
     SELECT C.*
     FROM COUNTRY_MASTER AS C`;
 
+    if (filter) {
+      countQuery += ` AND C.name LIKE :filter`;
+      query += ` AND C.name LIKE :filter`;
+    }
+
+    query += ` ORDER BY C.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
+
+    // Get total count
+    const totalResult = await DB.sequelize.query(countQuery, {
+      replacements: { filter: `%${filter}%` },
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
     const getAllData = await DB.sequelize.query(query, {
+      replacements: {
+        filter: filter ? `%${filter}%` : null,
+        limit,
+        offset,
+      },
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
@@ -122,9 +153,14 @@ module.exports.getAllCountryDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Countries List!",
-        records: getAllData.length,
+        message: "Get All Countries List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
