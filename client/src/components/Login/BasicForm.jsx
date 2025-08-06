@@ -14,6 +14,7 @@ import { ButtonLoader } from "../../components/UI/buttonLoader";
 export const BasicForm = () => {
   const dispatch = useDispatch();
   const { isLoading, showLoginPassword } = useSelector((state) => state.login);
+  const { activeModule, activeSubmodule } = useSelector((state) => state.auth);
 
   const navigate = useNavigate();
   const {
@@ -32,6 +33,7 @@ export const BasicForm = () => {
     };
     try {
       const response = await dispatch(loginUser(formData)).unwrap();
+
       navigate("/procurement/dashboard");
       reset();
     } catch (error) {
