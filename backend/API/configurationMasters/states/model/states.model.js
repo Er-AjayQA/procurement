@@ -14,7 +14,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       state_code: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("state_code", value === "" ? null : value);
+        },
       },
     },
     { freezeTableName: true }
