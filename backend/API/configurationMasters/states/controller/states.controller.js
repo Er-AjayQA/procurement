@@ -107,8 +107,8 @@ module.exports.getStateDetails = async (req, res) => {
 // ========== GET ALL STATE DETAILS CONTROLLER ========== //
 module.exports.getAllStateDetails = async (req, res) => {
   try {
-    const limit = parseInt(req.body.limit) || null;
-    const page = parseInt(req.body.page) || null;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
     const offset = (page - 1) * limit;
     const filter = req.body.filter || {};
 
@@ -127,7 +127,12 @@ module.exports.getAllStateDetails = async (req, res) => {
       offset: offset,
     };
 
-    if (filter.name) {
+    if (filter.name && filter.country_id) {
+      whereConditions.push(` S.name LIKE :name`);
+      replacements.name = `%${filter.name}%`;
+      whereConditions.push(` S.country_id = :country_id`);
+      replacements.country_id = filter.country_id;
+    } else if (filter.name) {
       whereConditions.push(` S.name LIKE :name`);
       replacements.name = `%${filter.name}%`;
     } else if (filter.country_id) {

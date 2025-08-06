@@ -26,11 +26,19 @@ export const StateMasterView = ({ viewVisibility, onClose, data }) => {
         </div>
 
         {/* Form */}
-        <div className="w-[70%] mt-[10%] h-full mx-auto">
+        <div className="w-[80%] mt-[10%] h-full mx-auto">
           <div className="h-[85%] overflow-y-scroll scrollbar-hide flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Name:</span>
+                <span className="text-sm font-bold">State ID:</span>
+              </div>
+              <div>
+                <span className="text-sm">{data?.id || "N/A"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-sm font-bold">State Name:</span>
               </div>
               <div>
                 <span className="text-sm">{data?.name || "N/A"}</span>
@@ -46,7 +54,17 @@ export const StateMasterView = ({ viewVisibility, onClose, data }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Country:</span>
+                <span className="text-sm font-bold">
+                  Associated Country ID:
+                </span>
+              </div>
+              <div>
+                <span className="text-sm">{data?.country_id || "N/A"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-sm font-bold">Associated Country:</span>
               </div>
               <div>
                 <span className="text-sm">{data?.country_name || "N/A"}</span>

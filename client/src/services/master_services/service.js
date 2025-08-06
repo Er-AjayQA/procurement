@@ -292,3 +292,38 @@ export const getAllStates = async (formData) => {
   );
   return response.data;
 };
+
+// **************************** CITY MASTER **************************** //
+// Upload States File
+export const uploadCities = async (formData) => {
+  const response = await axiosInstance.post("upload-cities", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
+// Get State Details By Id
+export const getCityById = async (id) => {
+  const response = await axiosInstance.post(`get-city-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master States List
+export const getAllCities = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-cities-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};

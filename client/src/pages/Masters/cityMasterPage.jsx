@@ -2,33 +2,39 @@ import { useEffect, useState } from "react";
 import { AddButton } from "../../components/UI/addButtonUi";
 import Select from "react-select";
 import {
+  getAllCities,
   getAllCountries,
   getAllStates,
-  getStateById,
+  getCityById,
 } from "../../services/master_services/service";
-import { StateMasterForm } from "../../components/masters/stateMasters/stateMasterForm";
-import { StateMasterListing } from "../../components/masters/stateMasters/stateMasterListing";
-import { StateMasterView } from "../../components/masters/stateMasters/stateMasterView";
+import { CityMasterForm } from "../../components/masters/cityMasters/cityMasterForm";
+import { CityMasterListing } from "../../components/masters/cityMasters/cityMasterListing";
+import { CityMasterView } from "../../components/masters/cityMasters/cityMasterView";
 
-export const StateMasterPage = () => {
+export const CityMasterPage = () => {
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
-  const [formType, setFormType] = useState("Add");
   const [data, setData] = useState(null);
   const [viewId, setViewId] = useState(null);
-  const [filter, setFilter] = useState({ name: "", country_id: "" });
+  const [filter, setFilter] = useState({
+    name: "",
+    country_id: "",
+    state_id: "",
+  });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [viewVisibility, setViewVisibility] = useState(false);
+  const [selectedStateDropdown, setSelectedStateDropdown] = useState(null);
   const [selectedCountryDropdown, setSelectedCountryDropdown] = useState(null);
+  const [stateOptions, setStateOptions] = useState(null);
   const [countryOptions, setCountryOptions] = useState(null);
 
   // Get All Master Data
   const getAllData = async () => {
     setIsLoading(true);
-    const data = await getAllStates({ limit, page, filter });
+    const data = await getAllCities({ limit, page, filter });
 
     if (data.success) {
       setIsLoading(false);
@@ -37,6 +43,25 @@ export const StateMasterPage = () => {
     } else {
       setIsLoading(false);
       setListing([]);
+    }
+  };
+
+  // Get State List
+  const getStatesList = async () => {
+    const response = await getAllStates({ limit: 50000, page: "" });
+
+    if (response.success) {
+      setStateOptions((prev) => {
+        return (
+          response.data?.map((state) => ({
+            id: state.id,
+            value: state.id,
+            label: state.name,
+          })) || null
+        );
+      });
+    } else {
+      setStateOptions(null);
     }
   };
 
@@ -61,7 +86,7 @@ export const StateMasterPage = () => {
 
   // Get Data By Id
   const getDataById = async () => {
-    const response = await getStateById(viewId);
+    const response = await getCityById(viewId);
     if (response.success) {
       setData(response.data[0]);
     }
@@ -86,6 +111,12 @@ export const StateMasterPage = () => {
   const handleChangeFilter = (e) => {
     e.preventDefault();
     setFilter((prev) => ({ ...prev, name: e.target.value }));
+  };
+
+  // Handle State Select
+  const handleSelectState = (selectedOption) => {
+    setSelectedStateDropdown(selectedOption);
+    setFilter((prev) => ({ ...prev, state_id: selectedOption?.id || "" }));
   };
 
   // Handle Country Select
@@ -118,6 +149,7 @@ export const StateMasterPage = () => {
   }, [viewId]);
 
   useEffect(() => {
+    getStatesList();
     getCountriesList();
   }, []);
 
@@ -157,6 +189,54 @@ export const StateMasterPage = () => {
                 placeholder="Search here.."
                 className="py-1 px-2 rounded-md text-sm border-borders-light"
                 onChange={(e) => handleChangeFilter(e)}
+              />
+
+              <Select
+                value={selectedStateDropdown}
+                onChange={handleSelectState}
+                options={stateOptions}
+                placeholder="Search by state..."
+                isClearable
+                isSearchable
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: "32px",
+                    height: "32px",
+                    borderRadius: "0.375rem",
+                    borderColor: "#d1d5db", // gray-300
+                    fontSize: "0.875rem", // text-sm
+                    paddingLeft: "0.5rem", // px-2
+                    paddingRight: "0.5rem", // px-2
+                    "&:hover": {
+                      borderColor: "#d1d5db", // gray-300
+                    },
+                  }),
+                  dropdownIndicator: (base) => ({
+                    ...base,
+                    padding: "4px",
+                  }),
+                  clearIndicator: (base) => ({
+                    ...base,
+                    padding: "4px",
+                  }),
+                  valueContainer: (base) => ({
+                    ...base,
+                    padding: "0px",
+                  }),
+                  input: (base) => ({
+                    ...base,
+                    margin: "0px",
+                    paddingBottom: "0px",
+                    paddingTop: "0px",
+                  }),
+                  option: (base) => ({
+                    ...base,
+                    fontSize: "0.875rem", // text-sm
+                  }),
+                }}
               />
 
               <Select
@@ -210,21 +290,20 @@ export const StateMasterPage = () => {
           </div>
 
           <div onClick={() => handleFormVisibility("open", "add")}>
-            <AddButton text="Upload States" />
+            <AddButton text="Upload Cities" />
           </div>
         </div>
 
-        {/* Sates Form */}
-        <StateMasterForm
+        {/* Cities Form */}
+        <CityMasterForm
           formVisibility={formVisibility}
           onClose={() => handleFormVisibility("close")}
           getAllData={getAllData}
-          formType={formType}
           data={data}
         />
 
-        {/* Sates Listing */}
-        <StateMasterListing
+        {/* Cities Listing */}
+        <CityMasterListing
           isLoading={isLoading}
           listing={listing}
           handleFormVisibility={handleFormVisibility}
@@ -235,8 +314,8 @@ export const StateMasterPage = () => {
           setViewVisibility={setViewVisibility}
         />
 
-        {/* Sates View */}
-        <StateMasterView
+        {/* Cities View */}
+        <CityMasterView
           viewVisibility={viewVisibility}
           onClose={() => handleViewVisibility("close")}
           data={data}
