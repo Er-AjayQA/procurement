@@ -93,25 +93,61 @@ module.exports.getCityDetails = async (req, res) => {
 // ========== GET ALL CITY DETAILS CONTROLLER ========== //
 module.exports.getAllCityDetails = async (req, res) => {
   try {
-    const data = req.body;
-    let query = "";
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || {};
 
-    if (data.country_id === "" && data.state_id === "") {
-      query = `
+    let countQuery = `
+            SELECT COUNT(*) AS total
+            FROM CITY_MASTER AS C
+            `;
+
+    let query = `
             SELECT C.*, CM.name AS country_name, S.name AS state_name
             FROM CITY_MASTER AS C
             LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=C.country_id
             LEFT JOIN STATE_MASTER AS S ON S.id=C.state_id`;
-    } else {
-      query = `
-      SELECT C.*, CM.name AS country_name, S.name AS state_name
-      FROM CITY_MASTER AS C
-      LEFT JOIN COUNTRY_MASTER AS CM ON CM.id=C.country_id
-      LEFT JOIN STATE_MASTER AS S ON S.id=C.state_id
-      WHERE C.country_id=${data.country_id} AND C.state_id=${data.state_id}`;
+
+    const whereConditions = [];
+    const replacements = {
+      limit: limit,
+      offset: offset,
+    };
+
+    if (filter.name) {
+      whereConditions.push(`C.name LIKE :name`);
+      replacements.name = `%${filter.name}%`;
     }
 
+    if (filter.country_id) {
+      whereConditions.push(`C.country_id = :country_id`);
+      replacements.country_id = filter.country_id;
+    }
+
+    if (filter.state_id) {
+      whereConditions.push(`C.state_id = :state_id`);
+      replacements.state_id = filter.state_id;
+    }
+
+    if (whereConditions.length > 0) {
+      const whereClause = ` WHERE ` + whereConditions.join(" AND ");
+      countQuery += whereClause;
+      query += whereClause;
+    }
+
+    query += ` ORDER BY S.country_id ASC LIMIT :limit OFFSET :offset`;
+
+    // Get total count
+    const totalResult = await DB.sequelize.query(countQuery, {
+      replacements: replacements,
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
     const getAllData = await DB.sequelize.query(query, {
+      replacements: replacements,
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
@@ -122,9 +158,14 @@ module.exports.getAllCityDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Cities List!",
-        records: getAllData.length,
+        message: "Get All Cities List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {

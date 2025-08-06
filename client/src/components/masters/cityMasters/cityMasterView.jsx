@@ -1,6 +1,6 @@
 import { MdOutlineClose } from "react-icons/md";
 
-export const CountryMasterView = ({ viewVisibility, onClose, data }) => {
+export const CityMasterView = ({ viewVisibility, onClose, data }) => {
   return (
     <>
       <div
@@ -15,7 +15,7 @@ export const CountryMasterView = ({ viewVisibility, onClose, data }) => {
       >
         {/* Form Title */}
         <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
-          <h3 className="text-white text-sm font-bold">Country Details</h3>
+          <h3 className="text-white text-sm font-bold">City Details</h3>
           {/* Form Close Button */}
           <div
             className="hover:bg-red-500 p-2 rounded-lg hover:fill-white"
@@ -26,11 +26,11 @@ export const CountryMasterView = ({ viewVisibility, onClose, data }) => {
         </div>
 
         {/* Form */}
-        <div className="w-[70%] mt-[10%] h-full mx-auto">
+        <div className="w-[80%] mt-[10%] h-full mx-auto">
           <div className="h-[85%] overflow-y-scroll scrollbar-hide flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Country ID:</span>
+                <span className="text-sm font-bold">City ID:</span>
               </div>
               <div>
                 <span className="text-sm">{data?.id || "N/A"}</span>
@@ -38,7 +38,7 @@ export const CountryMasterView = ({ viewVisibility, onClose, data }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Country Name:</span>
+                <span className="text-sm font-bold">City Name:</span>
               </div>
               <div>
                 <span className="text-sm">{data?.name || "N/A"}</span>
@@ -46,47 +46,34 @@ export const CountryMasterView = ({ viewVisibility, onClose, data }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">country Code:</span>
+                <span className="text-sm font-bold">State ID:</span>
               </div>
               <div>
-                <span className="text-sm">{data?.country_code || "N/A"}</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <span className="text-sm font-bold">Nationality:</span>
-              </div>
-              <div>
-                <span className="text-sm">{data?.nationality || "N/A"}</span>
+                <span className="text-sm">{data?.state_id || "N/A"}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Phone Code:</span>
+                <span className="text-sm font-bold">State Name:</span>
               </div>
               <div>
-                <span className="text-sm">
-                  {data?.phone_code ? "+" : ""}
-                  {data?.phone_code || "N/A"}
-                </span>
+                <span className="text-sm">{data?.state_name || "N/A"}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Currency Code:</span>
+                <span className="text-sm font-bold">Country ID:</span>
               </div>
               <div>
-                <span className="text-sm">{data?.currency_code || "N/A"}</span>
+                <span className="text-sm">{data?.country_id || "N/A"}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Currency Symbol:</span>
+                <span className="text-sm font-bold">Country Name:</span>
               </div>
               <div>
-                <span className="text-sm">
-                  {data?.currency_symbol || "N/A"}
-                </span>
+                <span className="text-sm">{data?.country_name || "N/A"}</span>
               </div>
             </div>
           </div>

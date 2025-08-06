@@ -11,7 +11,6 @@ import { CountryMasterView } from "../../components/masters/countryMasters/count
 export const CountryMasterPage = () => {
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
-  const [formType, setFormType] = useState("Add");
   const [data, setData] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [filter, setFilter] = useState(null);
@@ -138,7 +137,6 @@ export const CountryMasterPage = () => {
           formVisibility={formVisibility}
           onClose={() => handleFormVisibility("close", "add")}
           getAllData={getAllData}
-          formType={formType}
           data={data}
         />
         <CountryMasterListing

@@ -5,8 +5,8 @@ import { CoursePage } from "../pages/LearningManagement/coursesPage";
 import { AllowancePage } from "../pages/Masters/allowancePage";
 import { AreaPage } from "../pages/Masters/areaPage";
 import { BankPage } from "../pages/Masters/bankPage";
-import { BranchPage } from "../pages/Masters/branchPage";
-import { CityPage } from "../pages/Masters/cityPage";
+import { BranchMasterPage } from "../pages/Masters/branchMasterPage";
+import { CityMasterPage } from "../pages/Masters/cityMasterPage";
 import { ContractTypePage } from "../pages/Masters/contractTypePage";
 import { CountryMasterPage } from "../pages/Masters/countryMasterPage";
 import { DepartmentMasterPage } from "../pages/Masters/departmentMasterPage";
@@ -41,8 +41,8 @@ export const moduleComponents = {
     "department-master": DepartmentMasterPage,
     "country-master": CountryMasterPage,
     "state-master": StateMasterPage,
-    "city-master": CityPage,
-    "branch-master": BranchPage,
+    "city-master": CityMasterPage,
+    "branch-master": BranchMasterPage,
     "area-master": AreaPage,
     "allowance-master": AllowancePage,
     "contract-type-master": ContractTypePage,
