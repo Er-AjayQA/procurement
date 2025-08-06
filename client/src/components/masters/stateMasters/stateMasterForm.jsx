@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { useRef, useState } from "react";
 import { LoadingButton } from "../../UI/loadingButton";
 
-export const CountryMasterForm = ({ formVisibility, onClose, getAllData }) => {
+export const StateMasterForm = ({ formVisibility, onClose, getAllData }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const {
@@ -81,7 +81,7 @@ export const CountryMasterForm = ({ formVisibility, onClose, getAllData }) => {
       >
         <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
           <h3 className="text-white text-sm font-bold">
-            Upload Countries List File
+            Upload States List File
           </h3>
           {/* Form Close Button */}
           <div
