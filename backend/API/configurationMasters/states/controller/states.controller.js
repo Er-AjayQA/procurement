@@ -20,24 +20,45 @@ module.exports.uploadState = async (req, res) => {
       const { id, name, state_code, country_id } = row;
 
       // Validate required fields
-      if (!id || !name || !state_code || !country_id) {
+      if (!id || !name || !country_id) {
         console.warn("Skipping row - missing name", row);
         continue;
       }
 
+      // Get country
+      const countryData = await DB.tbl_country_master.findOne({
+        where: { id: country_id },
+      });
+
+      if (!countryData) {
+        continue;
+      }
+
+      const whereCondition = {
+        [DB.Sequelize.Op.and]: [{ id: id }, { name: name }],
+      };
+
+      if (
+        state_code !== undefined &&
+        state_code !== null &&
+        state_code !== ""
+      ) {
+        whereCondition[DB.Sequelize.Op.and].push({
+          state_code: state_code,
+        });
+      } else {
+        whereCondition[DB.Sequelize.Op.and].push({
+          [DB.Sequelize.Op.or]: [{ state_code: null }, { state_code: "" }],
+        });
+      }
+
       // Insert country if not exists and get ID
-      const [country, created] = await DB.tbl_state_master.findOrCreate({
-        where: {
-          [DB.Sequelize.Op.and]: [
-            { id: id },
-            { name: name },
-            { state_code: state_code },
-          ],
-        },
+      const [state, created] = await DB.tbl_state_master.findOrCreate({
+        where: whereCondition,
         defaults: {
           id: id,
           name: name,
-          state_code: state_code,
+          state_code: state_code || null,
           country_id: country_id,
         },
       });
@@ -120,7 +141,7 @@ module.exports.getAllStateDetails = async (req, res) => {
       query += whereClause;
     }
 
-    query += ` ORDER BY S.createdAt DESC LIMIT :limit OFFSET :offset`;
+    query += ` ORDER BY S.country_id ASC LIMIT :limit OFFSET :offset`;
 
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
