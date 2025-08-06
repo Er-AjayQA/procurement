@@ -194,3 +194,66 @@ export const deleteDepartment = async (id) => {
   });
   return response.data;
 };
+
+// **************************** COUNTRY MASTER **************************** //
+// Create Department Master
+export const uploadCountries = async (formData) => {
+  const response = await axiosInstance.post("upload-countries", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Country Details By Id
+export const getCountryById = async (id) => {
+  const response = await axiosInstance.post(`get-country-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Countries List
+export const getAllCountries = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-country-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Nationalities
+export const getAllNationalities = async () => {
+  const response = await axiosInstance.post(
+    "get-all-nationality-details",
+
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Currencies
+export const getAllCurrencies = async () => {
+  const response = await axiosInstance.post(
+    "get-all-currency-details",
+
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
