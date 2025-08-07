@@ -32,7 +32,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: true,
         set(value) {
-          this.setDataValue("alt_country_code", value == "" ? null : value);
+          this.setDataValue("alt_country_code", value === "" ? null : value);
         },
       },
       branch_alt_contact_number: {
@@ -53,14 +53,14 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: true,
         set(value) {
-          this.setDataValue("branch_alt_email_id", value == "" ? null : value);
+          this.setDataValue("branch_alt_emailId", value === "" ? null : value);
         },
       },
       branch_address: {
         type: Sequelize.TEXT,
         allowNull: true,
         set(value) {
-          this.setDataValue("branch_alt_email_id", value == "" ? null : value);
+          this.setDataValue("branch_address", value === "" ? null : value);
         },
       },
       billing_status: {

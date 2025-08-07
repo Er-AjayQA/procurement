@@ -4,7 +4,7 @@ export const HeaderBrand = () => {
   return (
     <>
       {/* Logo Container */}
-      <div className="basis-[16rem] flex-shrink-0 border-e-gray-200 px-2 py-2 sticky top-0">
+      <div className="basis-[16rem] bg-body-bg_color flex-shrink-0 border-e-gray-200 px-2 py-2 sticky top-0">
         <Link
           to="/procurement/dashboard"
           className="flex flex-col items-center"
