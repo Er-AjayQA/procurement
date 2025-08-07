@@ -17,6 +17,7 @@ export default {
         borders: {
           dark: "#00000037",
           light: "#0000004a",
+          inputHover: "#d1d5db",
         },
         button: {
           color: "#140843",
