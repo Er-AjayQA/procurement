@@ -199,7 +199,7 @@ module.exports.getAllNationalityDetails = async (req, res) => {
 module.exports.getAllCountryCodes = async (req, res) => {
   try {
     const query = `
-    SELECT C.phone_code, C.name
+    SELECT C.phone_code, C.country_code
     FROM COUNTRY_MASTER AS C`;
 
     let getAllData = await DB.sequelize.query(query, {
@@ -208,7 +208,7 @@ module.exports.getAllCountryCodes = async (req, res) => {
 
     getAllData = getAllData.map((data) => {
       return {
-        display: `(+${data.phone_code}) - ${data.name}`,
+        display: `${data.phone_code} - ${data.country_code}`,
         code: `+${data.phone_code}`,
       };
     });
