@@ -52,7 +52,7 @@ module.exports.uploadState = async (req, res) => {
         });
       }
 
-      // Insert country if not exists and get ID
+      // Insert States if not exists and get ID
       const [state, created] = await DB.tbl_state_master.findOrCreate({
         where: whereCondition,
         defaults: {

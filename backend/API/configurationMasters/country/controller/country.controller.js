@@ -195,6 +195,41 @@ module.exports.getAllNationalityDetails = async (req, res) => {
   }
 };
 
+// ========== GET ALL COUNTRY CODE DETAILS CONTROLLER ========== //
+module.exports.getAllCountryCodes = async (req, res) => {
+  try {
+    const query = `
+    SELECT C.phone_code, C.name
+    FROM COUNTRY_MASTER AS C`;
+
+    let getAllData = await DB.sequelize.query(query, {
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+
+    getAllData = getAllData.map((data) => {
+      return {
+        display: `(+${data.phone_code}) - ${data.name}`,
+        code: `+${data.phone_code}`,
+      };
+    });
+
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Country Phone Codes Not Found!" });
+    } else {
+      return res.status(200).send({
+        success: true,
+        status: "Get All Countries Phone Codes List!",
+        records: getAllData.length,
+        data: getAllData,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
 // ========== GET ALL COUNTRY CURRENCY DETAILS CONTROLLER ========== //
 module.exports.getAllCountryCurrencyDetails = async (req, res) => {
   try {

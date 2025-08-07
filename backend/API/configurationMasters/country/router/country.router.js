@@ -20,6 +20,10 @@ router.post(
   CountryController.getAllNationalityDetails
 );
 router.post(
+  "/get-all-country-phone-codes-details",
+  CountryController.getAllCountryCodes
+);
+router.post(
   "/get-all-currency-details",
   CountryController.getAllCountryCurrencyDetails
 );

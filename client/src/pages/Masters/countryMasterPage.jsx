@@ -22,16 +22,22 @@ export const CountryMasterPage = () => {
 
   // Get All Master Data
   const getAllData = async () => {
-    setIsLoading(true);
-    const data = await getAllCountries({ limit, page, filter });
+    try {
+      setIsLoading(true);
+      const data = await getAllCountries({ limit, page, filter });
 
-    if (data.success) {
+      if (data.success) {
+        setListing(data.data);
+        setTotalPages(data.pagination.totalPages);
+      } else {
+        setTotalPages(null);
+        setListing(null);
+      }
+    } catch (error) {
+      setTotalPages(null);
+      setListing(null);
+    } finally {
       setIsLoading(false);
-      setListing(data.data);
-      setTotalPages(data.pagination.totalPages);
-    } else {
-      setIsLoading(false);
-      setListing([]);
     }
   };
 

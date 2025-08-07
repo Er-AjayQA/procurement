@@ -230,6 +230,20 @@ export const getAllCountries = async (formData) => {
   return response.data;
 };
 
+// Get All Master Countries Phone Codes List
+export const getAllPhoneCodes = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-country-phone-codes-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
 // Get All Nationalities
 export const getAllNationalities = async () => {
   const response = await axiosInstance.post(
@@ -325,5 +339,70 @@ export const getAllCities = async (formData) => {
       },
     }
   );
+  return response.data;
+};
+
+// **************************** BRANCH MASTER **************************** //
+// Create Branch Master
+export const createBranch = async (formData) => {
+  const response = await axiosInstance.post("create-branch", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Branch
+export const updateBranch = async (id, formData) => {
+  const response = await axiosInstance.put(`update-branch/${id}`, formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Status
+export const updateBranchStatus = async (id) => {
+  const response = await axiosInstance.put(`update-branch-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Branches by ID
+export const getBranchById = async (id) => {
+  const response = await axiosInstance.post(`get-branch-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Branches List
+export const getAllBranches = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-branch-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Branches Master
+export const deleteBranch = async (id) => {
+  const response = await axiosInstance.put(`delete-branch/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
