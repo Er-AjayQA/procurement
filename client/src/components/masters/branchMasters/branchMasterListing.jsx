@@ -53,7 +53,7 @@ export const BranchMasterListing = ({
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list.branch_contact_number
-                        ? `+${list?.country_code} - ${list?.branch_contact_number}`
+                        ? `${list?.country_code} - ${list?.branch_contact_number}`
                         : "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">

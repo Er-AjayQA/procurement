@@ -2,16 +2,15 @@ import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import Select from "react-select";
 import {
-  createDepartment,
+  createBranch,
   getAllCities,
   getAllCountries,
   getAllPhoneCodes,
   getAllStates,
-  updateDepartment,
+  updateBranch,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 
 export const BranchMasterForm = ({
   formVisibility,
@@ -21,9 +20,22 @@ export const BranchMasterForm = ({
   updateId,
   data,
 }) => {
+  const [selectedCodeDropdown, setSelectedCodeDropdown] = useState(null);
+  const [codeOptions, setCodeOptions] = useState(null);
+  const [selectedAltCodeDropdown, setSelectedAltCodeDropdown] = useState(null);
+  const [altCodeOptions, setAltCodeOptions] = useState(null);
+
+  const [selectedCountryDropdown, setSelectedCountryDropdown] = useState(null);
+  const [countryOptions, setCountryOptions] = useState(null);
+  const [selectedStateDropdown, setSelectedStateDropdown] = useState(null);
+  const [stateOptions, setStateOptions] = useState(null);
+  const [selectedCityDropdown, setSelectedCityDropdown] = useState(null);
+  const [cityOptions, setCityOptions] = useState(null);
+
   const {
     register,
     handleSubmit,
+    watch,
     setValue,
     reset,
     formState: { errors },
@@ -46,40 +58,27 @@ export const BranchMasterForm = ({
     },
   });
 
-  const [selectedCodeDropdown, setSelectedCodeDropdown] = useState(null);
-  const [codeOptions, setCodeOptions] = useState(null);
-  const [selectedAltCodeDropdown, setSelectedAltCodeDropdown] = useState(null);
-  const [altCodeOptions, setAltCodeOptions] = useState(null);
-
-  const [selectedCountryDropdown, setSelectedCountryDropdown] = useState(null);
-  const [countryOptions, setCountryOptions] = useState(null);
-  const [selectedStateDropdown, setSelectedStateDropdown] = useState(null);
-  const [stateOptions, setStateOptions] = useState(null);
-  const [selectedCityDropdown, setSelectedCityDropdown] = useState(null);
-  const [cityOptions, setCityOptions] = useState(null);
-  const [allUser, setAllUsers] = useState(null);
-
   // Get All Country Code
   const getAllCodes = async () => {
     try {
       const response = await getAllPhoneCodes();
 
       if (response.success) {
-        setCodeOptions((prev) => {
-          return response.data.map((code) => ({
+        setCodeOptions(
+          response.data.map((code) => ({
             value: code.code,
             label: code.display,
             codeOnly: code.code,
-          }));
-        });
+          }))
+        );
 
-        setAltCodeOptions((prev) => {
-          return response.data.map((code) => ({
+        setAltCodeOptions(
+          response.data.map((code) => ({
             value: code.code,
             label: code.display,
             codeOnly: code.code,
-          }));
-        });
+          }))
+        );
       } else {
         setCodeOptions(null);
         setAltCodeOptions(null);
@@ -224,20 +223,114 @@ export const BranchMasterForm = ({
   // Set form values when in update mode
   useEffect(() => {
     if (formType === "Update" && data) {
+      const branchData = Array.isArray(data) ? data[0] : data;
       reset({
-        name: data.name || data[0]?.name || "",
-        department_head_id: data[0].department_head_id || "",
-        dept_head_name: data[0].dept_head_name || "",
+        name: branchData.name || "",
+        branch_contact_person: branchData.branch_contact_person || "",
+        branch_contact_number: branchData.branch_contact_number || "",
+        branch_alt_contact_number: branchData.branch_alt_contact_number || "",
+        branch_emailId: branchData.branch_emailId || "",
+        branch_alt_emailId: branchData.branch_alt_emailId || "",
+        branch_address: branchData.branch_address || "",
+        billing_status: branchData.billing_status || false,
       });
+
+      // Set Selected Country Code
+      if (branchData.country_code && codeOptions) {
+        const codeOption = codeOptions?.find(
+          (opt) => opt.value === branchData.country_code
+        );
+        if (codeOption)
+          setSelectedCodeDropdown({
+            value: codeOption.value,
+            label: codeOption.codeOnly,
+          });
+      }
+
+      // Set Selected Alt. Country Code
+      if (branchData.alt_country_code && altCodeOptions) {
+        const altCodeOption = altCodeOptions?.find(
+          (opt) => opt.value === branchData.alt_country_code
+        );
+        if (altCodeOption)
+          setSelectedAltCodeDropdown({
+            value: altCodeOption.value,
+            label: altCodeOption.codeOnly,
+          });
+      }
+
+      // Set Selected Country
+      if (branchData.country_id && countryOptions) {
+        const countryOption = countryOptions?.find(
+          (opt) => opt.value === branchData.country_id
+        );
+        if (countryOption)
+          setSelectedCountryDropdown({
+            value: countryOption.value,
+            label: countryOption.label,
+          });
+      }
+
+      // Set Selected State
+      if (branchData.state_id && stateOptions) {
+        const stateOption = stateOptions?.find(
+          (opt) => opt.value === branchData.state_id
+        );
+        if (stateOption)
+          setSelectedStateDropdown({
+            value: stateOption.value,
+            label: stateOption.label,
+          });
+      }
+
+      // Set Selected City
+      if (branchData.city_id && cityOptions) {
+        const cityOption = cityOptions?.find(
+          (opt) => opt.value === branchData.city_id
+        );
+        if (cityOption)
+          setSelectedCityDropdown({
+            value: cityOption.value,
+            label: cityOption.label,
+          });
+      }
     } else {
-      reset({ name: "", department_head_id: "", dept_head_name: "" });
+      reset({
+        name: "",
+        branch_contact_person: "",
+        branch_contact_number: "",
+        branch_alt_contact_number: "",
+        branch_emailId: "",
+        branch_alt_emailId: "",
+        branch_address: "",
+        billing_status: false,
+      });
+      setSelectedCodeDropdown(null);
+      setSelectedAltCodeDropdown(null);
+      setSelectedCountryDropdown(null);
+      setSelectedStateDropdown(null);
+      setSelectedCityDropdown(null);
     }
-  }, [formType, data, reset, setValue]);
+  }, [
+    formType,
+    data,
+    reset,
+    codeOptions,
+    altCodeOptions,
+    countryOptions,
+    stateOptions,
+    cityOptions,
+  ]);
 
   // Handle Form Close
   const handleFormClose = () => {
     onClose();
     reset();
+    setSelectedCodeDropdown(null);
+    setSelectedAltCodeDropdown(null);
+    setSelectedCountryDropdown(null);
+    setSelectedStateDropdown(null);
+    setSelectedCityDropdown(null);
   };
 
   // Handle Form Submit
@@ -245,24 +338,31 @@ export const BranchMasterForm = ({
     try {
       const payload = {
         name: formData.name,
-        department_head_id: formData.department_head_id || null, // This handles empty string
-        dept_head_name: formData.department_head_id
-          ? allUser.find((u) => u.id == formData.department_head_id)?.name
-          : null,
+        branch_contact_person: formData.branch_contact_person,
+        country_code: selectedCodeDropdown?.value || "",
+        branch_contact_number: formData.branch_contact_number,
+        alt_country_code: selectedAltCodeDropdown?.value || "",
+        branch_alt_contact_number: formData.branch_alt_contact_number || "",
+        branch_emailId: formData.branch_emailId,
+        branch_alt_emailId: formData.branch_alt_emailId || "",
+        branch_address: formData.branch_address,
+        billing_status: formData.billing_status || false,
+        country_id: selectedCountryDropdown?.value || "",
+        state_id: selectedStateDropdown?.value || "",
+        city_id: selectedCityDropdown?.value || "",
       };
 
       let response = "";
       if (formType === "Update") {
-        response = await updateDepartment(updateId, payload);
+        response = await updateBranch(updateId, payload);
       } else {
-        response = await createDepartment(payload);
+        response = await createBranch(payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
         getAllData();
-        reset();
       } else {
         toast.error(response.message);
       }
@@ -271,38 +371,29 @@ export const BranchMasterForm = ({
     }
   };
 
-  // Get All Users
-  const getAllUsers = async () => {
-    const response = await getAllEmployeeDetails();
-
-    if (response.success) {
-      setAllUsers(response.data);
-    }
-  };
-
-  useEffect(() => {
-    getAllUsers();
-  }, []);
-
+  // Get All Codes on Page Load
   useEffect(() => {
     getAllCodes();
   }, []);
 
+  // Get All Countries on Page Load
   useEffect(() => {
     getAllCountriesList();
-  }, []);
+  }, [updateId]);
 
+  // Get All States on Page Load
   useEffect(() => {
     if (selectedCountryDropdown) {
       getAllStatesList(selectedCountryDropdown);
     }
-  }, [selectedCountryDropdown]);
+  }, [updateId, selectedCountryDropdown]);
 
+  // Get All Cities on Page Load
   useEffect(() => {
     if (selectedCountryDropdown && selectedStateDropdown) {
       getAllCitiesList(selectedCountryDropdown, selectedStateDropdown);
     }
-  }, [selectedStateDropdown]);
+  }, [updateId, selectedStateDropdown]);
 
   return (
     <>
@@ -704,7 +795,7 @@ export const BranchMasterForm = ({
               {/* City Dropdown */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="city_id" className="text-sm">
-                  State
+                  City
                 </label>
                 <Select
                   value={selectedCityDropdown}
@@ -765,7 +856,7 @@ export const BranchMasterForm = ({
 
               {/* Branch Address */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="branch_emailId" className="text-sm">
+                <label htmlFor="branch_address" className="text-sm">
                   Branch Address
                 </label>
                 <textarea
@@ -781,6 +872,20 @@ export const BranchMasterForm = ({
                     {errors.branch_address.message}
                   </p>
                 )}
+              </div>
+
+              {/* Is Billing Address */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="billing_status"
+                  className="border-black text-[.8rem]"
+                  placeholder="Enter branch address"
+                  {...register("billing_status")}
+                />
+                <label htmlFor="billing_status" className="text-sm">
+                  Is Billing Branch?
+                </label>
               </div>
             </div>
 

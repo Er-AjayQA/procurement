@@ -3,6 +3,8 @@ import { AddButton } from "../../components/UI/addButtonUi";
 import {
   deleteBranch,
   getAllBranches,
+  getAllCountries,
+  getAllStates,
   getBranchById,
   updateBranchStatus,
 } from "../../services/master_services/service";
@@ -26,6 +28,9 @@ export const BranchMasterPage = () => {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [allCountriesList, setAllCountriesList] = useState(null);
+  const [allStateList, setAllStateList] = useState(null);
+  const [allCitiesList, setAllCitiesList] = useState(null);
 
   // Get All Master Data
   const getAllData = async () => {
@@ -65,6 +70,60 @@ export const BranchMasterPage = () => {
       setDeleteId(null);
     } else {
       toast.error(response.message);
+    }
+  };
+
+  // Get All Countries List
+  const getAllCountriesList = async () => {
+    try {
+      const response = await getAllCountries({
+        limit: 500,
+        page: 1,
+        filter: { name: "" },
+      });
+      if (response.success) {
+        setAllCountriesList(response.data);
+      } else {
+        setAllCountriesList((prev) => null);
+      }
+    } catch (error) {
+      setAllCountriesList((prev) => null);
+    }
+  };
+
+  // Get All State List
+  const getAllStatesList = async () => {
+    try {
+      const response = await getAllStates({
+        limit: 50000,
+        page: 1,
+        filter: { country_id: "", name: "" },
+      });
+      if (response.success) {
+        setAllStateList(response.data);
+      } else {
+        setAllStateList((prev) => null);
+      }
+    } catch (error) {
+      setAllStateList((prev) => null);
+    }
+  };
+
+  // Get All Cities List
+  const getAllCitiesList = async () => {
+    try {
+      const response = await getAllStates({
+        limit: 50000,
+        page: 1,
+        filter: { state_id: "", country_id: "", name: "" },
+      });
+      if (response.success) {
+        setAllCitiesList(response.data);
+      } else {
+        setAllCitiesList((prev) => (prev = null));
+      }
+    } catch (error) {
+      setAllCitiesList((prev) => (prev = null));
     }
   };
 
