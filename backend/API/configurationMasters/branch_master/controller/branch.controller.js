@@ -45,7 +45,7 @@ module.exports.createBranch = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Branch Created Successfully!",
+        message: "Branch Created Successfully!",
         data: newBranch,
       });
     }
@@ -90,7 +90,7 @@ module.exports.updateBranch = async (req, res) => {
         const updateBranch = await isBranchExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Branch Updated Successfully!",
+          message: "Branch Updated Successfully!",
           data: updateBranch,
         });
       }
@@ -125,7 +125,7 @@ module.exports.getBranchDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Branch Details Successfully!",
+        message: "Get Branch Details Successfully!",
         data: getAllData,
       });
     }
@@ -137,16 +137,33 @@ module.exports.getBranchDetails = async (req, res) => {
 // ========== GET ALL BRANCH DETAILS CONTROLLER ========== //
 module.exports.getAllBranchDetails = async (req, res) => {
   try {
-    const { billing_status, status } = req.body;
-    let filter = { isDeleted: false };
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    if (billing_status !== undefined) {
-      filter.billing_status = billing_status;
+    let whereClause = { isDeleted: false };
+
+    if (filter.billing_status !== undefined || filter.billing_status !== "") {
+      whereClause.billing_status = {
+        [DB.Sequelize.Op.like]: `%${filter.billing_status}%`,
+      };
     }
 
-    if (status !== undefined) {
-      filter.status = status;
+    if (filter.status !== undefined || filter.status !== "") {
+      whereClause.status = { [DB.Sequelize.Op.like]: `%${filter.status}%` };
     }
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: `%${filter.name}%` };
+    }
+
+    // Get total count using Sequelize for consistency
+    const totalRecords = await DB.tbl_branch_master.count({
+      where: whereClause,
+    });
+
+    const totalPages = Math.ceil(totalRecords / limit);
 
     const getAllData = await DB.tbl_branch_master.findAll({
       include: [
@@ -166,21 +183,29 @@ module.exports.getAllBranchDetails = async (req, res) => {
           as: "city_details",
         },
       ],
-      where: filter,
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Branch Not Found!" });
-    } else {
-      return res.status(200).send({
-        success: true,
-        records: getAllData.length,
-        status: "Get All Branch List!",
-        data: getAllData,
-      });
     }
+    return res.status(200).send({
+      success: true,
+      records: getAllData.length,
+      message: "Get All Branch List!",
+      data: getAllData,
+      pagination: {
+        currentPage: page,
+        itemsPerPage: limit,
+        totalItems: getAllData.length,
+        totalPages: totalPages,
+      },
+    });
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
   }
@@ -209,7 +234,7 @@ module.exports.updateBranchStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -241,7 +266,7 @@ module.exports.deleteBranch = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Branch Deleted Successfully!",
+        message: "Branch Deleted Successfully!",
       });
     }
   } catch (error) {

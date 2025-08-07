@@ -35,20 +35,36 @@ module.exports.uploadCity = async (req, res) => {
         continue;
       }
 
-      // Insert City if not exists and get ID
-      const [City, created] = await DB.tbl_city_master.findOrCreate({
-        where: {
-          [DB.Sequelize.Op.and]: [{ id: row.id }, { name: row.name }],
-        },
-        defaults: {
-          id: row.id,
-          name: row.name,
-          state_id: row.state_id,
-          country_id: row.country_id,
-        },
+      // Get country
+      const countryData = await DB.tbl_country_master.findOne({
+        where: { id: row.country_id },
       });
-    }
 
+      if (!countryData) {
+        continue;
+      } else {
+        let stateData = await DB.tbl_state_master.findOne({
+          where: { id: row.state_id, country_id: row.country_id },
+        });
+
+        if (!stateData) {
+          continue;
+        } else {
+          // Insert City if not exists and get ID
+          const [City, created] = await DB.tbl_city_master.findOrCreate({
+            where: {
+              [DB.Sequelize.Op.and]: [{ id: row.id }, { name: row.name }],
+            },
+            defaults: {
+              id: row.id,
+              name: row.name,
+              state_id: row.state_id,
+              country_id: row.country_id,
+            },
+          });
+        }
+      }
+    }
     return res
       .status(201)
       .send({ success: true, message: "Data Uploaded Successfully!" });

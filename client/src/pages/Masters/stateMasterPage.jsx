@@ -27,16 +27,21 @@ export const StateMasterPage = () => {
 
   // Get All Master Data
   const getAllData = async () => {
-    setIsLoading(true);
-    const data = await getAllStates({ limit, page, filter });
+    try {
+      setIsLoading(true);
+      const data = await getAllStates({ limit, page, filter });
 
-    if (data.success) {
+      if (data.success) {
+        setListing(data.data);
+        setTotalPages(data.pagination.totalPages);
+      } else {
+        setTotalPages(null);
+        setListing(null);
+      }
+    } catch (error) {
+      setListing(null);
+    } finally {
       setIsLoading(false);
-      setListing(data.data);
-      setTotalPages(data.pagination.totalPages);
-    } else {
-      setIsLoading(false);
-      setListing([]);
     }
   };
 

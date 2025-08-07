@@ -33,34 +33,44 @@ export const CityMasterPage = () => {
 
   // Get All Master Data
   const getAllData = async () => {
-    setIsLoading(true);
-    const data = await getAllCities({ limit, page, filter });
+    try {
+      setIsLoading(true);
+      const data = await getAllCities({ limit, page, filter });
 
-    if (data.success) {
+      if (data?.success) {
+        setListing(data.data);
+        setTotalPages(data.pagination.totalPages);
+      } else {
+        setTotalPages(null);
+        setListing(null);
+      }
+    } catch (error) {
+      setTotalPages(null);
+      setListing(null);
+    } finally {
       setIsLoading(false);
-      setListing(data.data);
-      setTotalPages(data.pagination.totalPages);
-    } else {
-      setIsLoading(false);
-      setListing([]);
     }
   };
 
   // Get State List
   const getStatesList = async () => {
-    const response = await getAllStates({ limit: 50000, page: "" });
+    try {
+      const response = await getAllStates({ limit: 50000, page: "" });
 
-    if (response.success) {
-      setStateOptions((prev) => {
-        return (
-          response.data?.map((state) => ({
-            id: state.id,
-            value: state.id,
-            label: state.name,
-          })) || null
-        );
-      });
-    } else {
+      if (response.success) {
+        setStateOptions((prev) => {
+          return (
+            response.data?.map((state) => ({
+              id: state.id,
+              value: state.id,
+              label: state.name,
+            })) || null
+          );
+        });
+      } else {
+        setStateOptions(null);
+      }
+    } catch (error) {
       setStateOptions(null);
     }
   };

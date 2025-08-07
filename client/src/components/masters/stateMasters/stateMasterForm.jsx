@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import { FaUpload } from "react-icons/fa";
-import { uploadCountries } from "../../../services/master_services/service";
+import { uploadStates } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useRef, useState } from "react";
 import { LoadingButton } from "../../UI/loadingButton";
@@ -47,16 +47,16 @@ export const StateMasterForm = ({ formVisibility, onClose, getAllData }) => {
       const formData = new FormData();
       formData.append("excelFile", selectedFile);
 
-      const response = await uploadCountries(formData);
+      const response = await uploadStates(formData);
 
       if (response.success) {
         toast.success(response.message);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ""; // Clear the file input
-        }
         getAllData();
         setSelectedFile(null);
         handleFormClose();
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""; // Clear the file input
+        }
       } else {
         toast.error(response.message || "Failed to upload file!");
       }
@@ -103,7 +103,7 @@ export const StateMasterForm = ({ formVisibility, onClose, getAllData }) => {
           >
             <div className="flex flex-col gap-2">
               <label htmlFor="excelFile" className="text-sm">
-                Countries List File
+                States List File
               </label>
               <div className="relative">
                 <input
