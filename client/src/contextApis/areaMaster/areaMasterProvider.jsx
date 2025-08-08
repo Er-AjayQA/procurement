@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AreaMasterContext } from "./areaMasterContext";
 import {
   deleteArea,
   getAllArea,
@@ -14,7 +15,7 @@ export const AreaMasterProvider = ({ children }) => {
   const [data, setData] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [filter, setFilter] = useState(null);
+  const [filter, setFilter] = useState({ name: "", dept_id: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
@@ -22,16 +23,22 @@ export const AreaMasterProvider = ({ children }) => {
 
   // Get All Master Data
   const getAllData = async () => {
-    setIsLoading(true);
-    const data = await getAllArea({ limit, page, filter });
+    try {
+      setIsLoading(true);
+      const data = await getAllArea({ limit, page, filter });
 
-    if (data.success) {
+      if (data.success) {
+        setListing(data.data);
+        setTotalPages(data.pagination.totalPages);
+      } else {
+        setListing(null);
+        setTotalPages(null);
+      }
+    } catch (error) {
+      setListing(null);
+      setTotalPages(null);
+    } finally {
       setIsLoading(false);
-      setListing(data.data);
-      setTotalPages(data.pagination.totalPages);
-    } else {
-      setIsLoading(false);
-      setListing([]);
     }
   };
 
@@ -45,13 +52,16 @@ export const AreaMasterProvider = ({ children }) => {
 
   // Delete Data By Id
   const deleteData = async () => {
-    const response = await deleteArea(deleteId);
-    if (response.success) {
-      toast(response.message);
-      getAllData();
+    try {
+      const response = await deleteArea(deleteId);
+      if (response.success) {
+        toast(response.message);
+        getAllData();
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
       setDeleteId(null);
-    } else {
-      toast.error(response.message);
     }
   };
 

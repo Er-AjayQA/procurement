@@ -1,7 +1,7 @@
 import { AddButton } from "../../UI/addButtonUi";
 import { AreaMasterListing } from "./areaMasterListing";
 import { AreaMasterForm } from "./areaMasterForm";
-import { useAreaMaster } from "../../../contextApis/areaMaster/useAreaMasterContext";
+import { useMasterContext } from "../../../contextApis/useMastersContextFile";
 
 export const AreaMasterPage = () => {
   const {
@@ -24,7 +24,7 @@ export const AreaMasterPage = () => {
     setUpdateId,
     setDeleteId,
     setPage,
-  } = useAreaMaster();
+  } = useMasterContext();
 
   return (
     <>
@@ -67,7 +67,7 @@ export const AreaMasterPage = () => {
           </div>
 
           <div onClick={() => handleFormVisibility("open", "add")}>
-            <AddButton text="Create Department" />
+            <AddButton text="Create Area" />
           </div>
         </div>
 

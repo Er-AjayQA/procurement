@@ -314,10 +314,11 @@ export const BranchMasterForm = ({
         toast.success(response.message);
         handleFormClose();
         getAllData();
-      } else {
-        toast.error(response.message);
+      } else if (response.success === false) {
+        toast.error(response?.message);
       }
     } catch (error) {
+      toast.error(error.message || "An error occurred");
       throw new Error(error.message);
     }
   };
@@ -334,15 +335,12 @@ export const BranchMasterForm = ({
   useEffect(() => {
     if (countryId) {
       getAllStatesList(countryId?.value);
-      // setValue("state_id", null);
-      // setValue("city_id", null);
     }
   }, [countryId, setValue]);
 
   useEffect(() => {
     if (countryId && stateId) {
       getAllCitiesList(countryId?.value, stateId?.value);
-      // setValue("city_id", null);
     }
   }, [stateId, setValue]);
 

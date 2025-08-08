@@ -1,12 +1,13 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import Select from "react-select";
 import { MdOutlineClose } from "react-icons/md";
 import {
-  createDepartment,
-  updateDepartment,
+  createArea,
+  getAllDepartments,
+  updateArea,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 
 export const AreaMasterForm = ({
   formVisibility,
@@ -16,10 +17,12 @@ export const AreaMasterForm = ({
   updateId,
   data,
 }) => {
+  const [departmentOptions, setDepartmentOptions] = useState(null);
   const {
     register,
     handleSubmit,
     setValue,
+    control,
     reset,
     formState: { errors },
   } = useForm({
@@ -32,48 +35,87 @@ export const AreaMasterForm = ({
   });
   const [allUser, setAllUsers] = useState(null);
 
+  // Get All Department List
+  const getAllDepartmentList = async () => {
+    try {
+      const response = await getAllDepartments({ limit: 1000, page: "" });
+
+      if (response.success) {
+        setDepartmentOptions(
+          response.data.map((data) => ({
+            value: data.id,
+            label: data.name,
+          }))
+        );
+      } else {
+        setDepartmentOptions(null);
+      }
+    } catch (error) {
+      setDepartmentOptions(null);
+    }
+  };
+
   // Set form values when in update mode
   useEffect(() => {
     if (formType === "Update" && data) {
       reset({
         name: data.name || data[0]?.name || "",
-        department_head_id: data[0].department_head_id || "",
-        dept_head_name: data[0].dept_head_name || "",
       });
+
+      const setDepartmentDropdown = async () => {
+        try {
+          if (!departmentOptions) {
+            await getAllDepartmentList();
+          }
+
+          if (data[0].dept_id) {
+            const departmentOption = departmentOptions.find(
+              (code) => code.value === data[0].dept_id
+            );
+
+            if (departmentOption) {
+              setValue("dept_id", departmentOption);
+            }
+          }
+        } catch (error) {
+          console.error("Error setting dropdown options:", error);
+        }
+      };
+
+      setDepartmentDropdown();
     } else {
-      reset({ name: "", department_head_id: "", dept_head_name: "" });
+      reset({ name: "", dept_id: "" });
     }
-  }, [formType, data, reset, setValue]);
+  }, [formType, data, reset, setValue, departmentOptions]);
 
   // Handle Form Close
   const handleFormClose = () => {
+    reset({
+      name: "",
+      dept_id: null,
+    });
     onClose();
-    reset();
   };
 
   // Handle Form Submit
   const onSubmit = async (formData) => {
     try {
       const payload = {
-        name: formData.name,
-        department_head_id: formData.department_head_id || null, // This handles empty string
-        dept_head_name: formData.department_head_id
-          ? allUser.find((u) => u.id == formData.department_head_id)?.name
-          : null,
+        name: formData.name || "",
+        dept_id: formData.dept_id?.value || "",
       };
 
       let response = "";
       if (formType === "Update") {
-        response = await updateDepartment(updateId, payload);
+        response = await updateArea(updateId, payload);
       } else {
-        response = await createDepartment(payload);
+        response = await createArea(payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
         getAllData();
-        reset();
       } else {
         toast.error(response.message);
       }
@@ -82,26 +124,57 @@ export const AreaMasterForm = ({
     }
   };
 
-  // Get All Users
-  const getAllUsers = async () => {
-    const response = await getAllEmployeeDetails();
-
-    if (response.success) {
-      setAllUsers(response.data);
-    }
-  };
-
-  // Handle Department Head Change
-  const handleDepartmentHeadChange = (e) => {
-    const selectedUserId = e.target.value;
-    const selectedUser = allUser?.find((user) => user.id == selectedUserId);
-    setValue("department_head_id", selectedUserId);
-    setValue("dept_head_name", selectedUser?.name || "");
-  };
-
+  // Get All Departments on Page Load
   useEffect(() => {
-    getAllUsers();
+    getAllDepartmentList();
   }, []);
+
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "32px",
+      borderRadius: "0.5rem",
+      borderColor: "rgb(78, 79, 80)",
+      fontSize: "0.8rem",
+      paddingLeft: "0.75rem",
+      paddingRight: "0.75rem",
+      paddingTop: "0.5rem",
+      paddingBottom: "0.5rem",
+      "&:hover": {
+        borderColor: "#d1d5db",
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      fontSize: "0.8rem",
+    }),
+    menu: (base) => ({
+      ...base,
+      fontSize: "0.875rem",
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "3px",
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      padding: "2px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0px",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: "0px",
+      paddingBottom: "0px",
+      paddingTop: "0px",
+    }),
+    option: (base) => ({
+      ...base,
+      fontSize: "0.8rem",
+    }),
+  };
 
   return (
     <>
@@ -117,7 +190,7 @@ export const AreaMasterForm = ({
       >
         <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
           <h3 className="text-white text-sm font-bold">
-            {formType === "Add" ? "Add Department" : "Update Department"}
+            {formType === "Add" ? "Add Area" : "Update Area"}
           </h3>
           {/* Form Close Button */}
           <div
@@ -142,9 +215,9 @@ export const AreaMasterForm = ({
                 type="text"
                 id="name"
                 className="rounded-lg text-[.8rem]"
-                placeholder="Enter department name"
+                placeholder="Enter area name"
                 {...register("name", {
-                  required: "Department Name is required!",
+                  required: "Area Name is required!",
                 })}
               />
               {errors.name && (
@@ -154,31 +227,30 @@ export const AreaMasterForm = ({
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="department_head_id" className="text-sm">
-                Dept. Head
+              <label htmlFor="dept_id" className="text-sm">
+                Department
               </label>
-              <select
-                id="department_head_id"
-                className="rounded-lg text-[.8rem]"
-                placeholder="Select department head"
-                {...register("department_head_id", {
-                  setValueAs: (v) => (v === "" ? null : parseInt(v)),
-                })}
-                onChange={handleDepartmentHeadChange}
-              >
-                <option value="">--Select--</option>
-                {allUser
-                  ? allUser.map((user) => {
-                      return (
-                        <option key={user.id} value={user.id}>
-                          {user.name}
-                        </option>
-                      );
-                    })
-                  : ""}
-              </select>
-              {/* Hidden field to store the department head name */}
-              <input type="hidden" {...register("dept_head_name")} />
+              <Controller
+                name="dept_id"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={departmentOptions}
+                    placeholder="Select department"
+                    isClearable
+                    isSearchable
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={selectStyles}
+                  />
+                )}
+              />
+              {errors.dept_id && (
+                <p className="text-red-500 text-[.7rem]">
+                  {errors.dept_id.message}
+                </p>
+              )}
             </div>
             <div>
               <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">

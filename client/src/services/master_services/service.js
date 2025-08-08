@@ -450,7 +450,7 @@ export const getAreaById = async (id) => {
 
 // Get All Master Areas List
 export const getAllArea = async (formData) => {
-  const response = await axiosInstance.post("get-all-areas-details", formData, {
+  const response = await axiosInstance.post("get-all-area-details", formData, {
     headers: {
       "Content-Type": "application/json",
     },
