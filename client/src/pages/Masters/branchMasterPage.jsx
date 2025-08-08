@@ -246,6 +246,7 @@ export const BranchMasterPage = () => {
           formType={formType}
           updateId={updateId}
           data={data}
+          setUpdateId={setUpdateId}
         />
         <BranchMasterListing
           isLoading={isLoading}
