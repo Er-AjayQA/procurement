@@ -27,7 +27,7 @@ export const CityMasterView = ({ viewVisibility, onClose, data }) => {
 
         {/* Form */}
         <div className="w-[80%] mt-[10%] h-full mx-auto">
-          <div className="h-[85%] overflow-y-scroll scrollbar-hide flex flex-col gap-3">
+          <div className="h-[75%] overflow-y-scroll scrollbar-hide flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <span className="text-sm font-bold">City ID:</span>

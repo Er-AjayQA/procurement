@@ -7,9 +7,9 @@ import { HeaderBrand } from "../UI/headerBrandUi";
 export const HomeLayout = () => {
   return (
     <>
-      <div className="flex h-screen p-3 bg-body-bg_color">
+      <div className="flex h-screen p-3 haze_purple gap-2">
         {/* Sidebar */}
-        <aside className="bg-body-bg_color basis-[16rem] ps-2 flex-shrink-0 h-full sticky top-[header-height] overflow-y-auto scrollbar-hide rounded-s-md">
+        <aside className="bg-body-bg_color basis-[16rem] ps-2 flex-shrink-0 rounded-lg h-full sticky top-[header-height] overflow-y-auto scrollbar-hide rounded-s-md">
           <HeaderBrand />
           <SidebarMenu />
         </aside>
