@@ -406,3 +406,64 @@ export const deleteBranch = async (id) => {
   });
   return response.data;
 };
+
+// **************************** AREA MASTER **************************** //
+// Create Area Master
+export const createArea = async (formData) => {
+  const response = await axiosInstance.post("create-area", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Area
+export const updateArea = async (id, formData) => {
+  const response = await axiosInstance.put(`update-area/${id}`, formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Status
+export const updateAreaStatus = async (id) => {
+  const response = await axiosInstance.put(`update-area-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Areas by ID
+export const getAreaById = async (id) => {
+  const response = await axiosInstance.post(`get-area-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Areas List
+export const getAllArea = async (formData) => {
+  const response = await axiosInstance.post("get-all-areas-details", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Delete Areas Master
+export const deleteArea = async (id) => {
+  const response = await axiosInstance.put(`delete-area/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

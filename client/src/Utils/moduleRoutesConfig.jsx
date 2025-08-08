@@ -3,7 +3,7 @@ import { EmployeeDetailPage } from "../pages/EmployeeSelfService/employeeDetails
 import { CourseAssessmentReportPage } from "../pages/LearningManagement/CourseAssessmentReport";
 import { CoursePage } from "../pages/LearningManagement/coursesPage";
 import { AllowancePage } from "../pages/Masters/allowancePage";
-import { AreaPage } from "../pages/Masters/areaPage";
+import { MasterAreaPage } from "../pages/Masters/areaMaster";
 import { BankPage } from "../pages/Masters/bankPage";
 import { BranchMasterPage } from "../pages/Masters/branchMasterPage";
 import { CityMasterPage } from "../pages/Masters/cityMasterPage";
@@ -43,7 +43,7 @@ export const moduleComponents = {
     "state-master": StateMasterPage,
     "city-master": CityMasterPage,
     "branch-master": BranchMasterPage,
-    "area-master": AreaPage,
+    "area-master": MasterAreaPage,
     "allowance-master": AllowancePage,
     "contract-type-master": ContractTypePage,
     "employement-type-master": EmploymentTypePage,
