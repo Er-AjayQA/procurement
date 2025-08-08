@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import Select from "react-select";
 import {
@@ -11,7 +11,6 @@ import {
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { Controller } from "react-hook-form";
 
 export const BranchMasterForm = ({
   formVisibility,
@@ -21,16 +20,10 @@ export const BranchMasterForm = ({
   updateId,
   data,
 }) => {
-  const [selectedCodeDropdown, setSelectedCodeDropdown] = useState(null);
   const [codeOptions, setCodeOptions] = useState(null);
-  const [selectedAltCodeDropdown, setSelectedAltCodeDropdown] = useState(null);
   const [altCodeOptions, setAltCodeOptions] = useState(null);
-
-  const [selectedCountryDropdown, setSelectedCountryDropdown] = useState(null);
   const [countryOptions, setCountryOptions] = useState(null);
-  const [selectedStateDropdown, setSelectedStateDropdown] = useState(null);
   const [stateOptions, setStateOptions] = useState(null);
-  const [selectedCityDropdown, setSelectedCityDropdown] = useState(null);
   const [cityOptions, setCityOptions] = useState(null);
 
   const {
@@ -51,17 +44,17 @@ export const BranchMasterForm = ({
       if (response.success) {
         setCodeOptions(
           response.data.map((code) => ({
-            value: code.code,
-            label: code.display,
-            codeOnly: code.code,
+            value: `${code.code}`,
+            label: `${code.code}`,
+            codeOnly: `${code.code}`,
           }))
         );
 
         setAltCodeOptions(
           response.data.map((code) => ({
-            value: code.code,
-            label: code.display,
-            codeOnly: code.code,
+            value: `${code.code}`,
+            label: `${code.code}`,
+            codeOnly: `${code.code}`,
           }))
         );
       } else {
@@ -83,126 +76,77 @@ export const BranchMasterForm = ({
       });
 
       if (response.success) {
-        setCountryOptions((prev) => {
-          return response.data.map((data) => ({
+        setCountryOptions(
+          response.data.map((data) => ({
             value: data.id,
             label: data.name,
-          }));
-        });
+          }))
+        );
       } else {
-        setSelectedCountryDropdown(null);
         setCountryOptions(null);
       }
     } catch (error) {
-      setSelectedCountryDropdown(null);
       setCountryOptions(null);
     }
   };
 
   // Get All States List
-  const getAllStatesList = async (selectedCountryDropdown) => {
+  const getAllStatesList = async (id) => {
     try {
-      if (!selectedCountryDropdown) {
+      if (!id) {
         return;
       }
       const response = await getAllStates({
         limit: 500,
         page: 1,
         filter: {
-          country_id: selectedCountryDropdown.value,
+          country_id: id,
+          name: "",
         },
       });
 
       if (response.success) {
-        setStateOptions((prev) => {
-          return response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }));
-        });
-      } else {
-        setSelectedStateDropdown(null);
-        setStateOptions(null);
+        const states = response.data.map((data) => ({
+          value: data.id,
+          label: data.name,
+        }));
+        setStateOptions(states);
+        return states;
       }
+      return null;
     } catch (error) {
-      setSelectedStateDropdown(null);
-      setStateOptions(null);
+      return null;
     }
   };
 
   // Get All Cities List
-  const getAllCitiesList = async (
-    selectedCountryDropdown,
-    selectedStateDropdown
-  ) => {
+  const getAllCitiesList = async (country, state) => {
     try {
-      if (!selectedCountryDropdown || !selectedStateDropdown) {
+      if (!country || !state) {
         return;
       }
       const response = await getAllCities({
         limit: 500,
         page: 1,
         filter: {
-          country_id: selectedCountryDropdown.value,
-          state_id: selectedStateDropdown.value,
+          country_id: country,
+          state_id: state,
           name: "",
         },
       });
 
       if (response.success) {
-        setCityOptions((prev) => {
-          return response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }));
-        });
-      } else {
-        setSelectedCityDropdown(null);
-        setCityOptions(null);
+        const cities = response.data.map((data) => ({
+          value: data.id,
+          label: data.name,
+        }));
+        setCityOptions(cities);
+        return cities;
       }
+      return null;
     } catch (error) {
-      setSelectedCityDropdown(null);
-      setCityOptions(null);
+      return null;
     }
-  };
-
-  // Handle Selected Code
-  const handleSelectCode = (selectedOption) => {
-    setSelectedCodeDropdown(
-      selectedOption
-        ? {
-            value: selectedOption.value,
-            label: selectedOption.codeOnly,
-          }
-        : null
-    );
-  };
-
-  // Handle Selected Code
-  const handleSelectAltCode = (selectedOption) => {
-    setSelectedAltCodeDropdown(
-      selectedOption
-        ? {
-            value: selectedOption.value,
-            label: selectedOption.codeOnly,
-          }
-        : null
-    );
-  };
-
-  // Handle Selected Country
-  const handleSelectCountry = (selectedOption) => {
-    setSelectedCountryDropdown(selectedOption);
-  };
-
-  // Handle Selected State
-  const handleSelectState = (selectedOption) => {
-    setSelectedStateDropdown(selectedOption);
-  };
-
-  // Handle Selected City
-  const handleSelectCity = (selectedOption) => {
-    setSelectedCityDropdown(selectedOption);
   };
 
   // Set form values when in update mode
@@ -220,66 +164,80 @@ export const BranchMasterForm = ({
         billing_status: branchData.billing_status || false,
       });
 
-      // Set Selected Country Code
-      if (branchData.country_code && codeOptions) {
-        const codeOption = codeOptions?.find(
-          (opt) => opt.value === branchData.country_code
-        );
-        if (codeOption)
-          setSelectedCodeDropdown({
-            value: codeOption.value,
-            label: codeOption.codeOnly,
-          });
-      }
+      const setDropdownOptions = async () => {
+        try {
+          // Load phone codes if not already loaded
+          if (!codeOptions || !altCodeOptions) {
+            await getAllCodes();
+          }
 
-      // Set Selected Alt. Country Code
-      if (branchData.alt_country_code && altCodeOptions) {
-        const altCodeOption = altCodeOptions?.find(
-          (opt) => opt.value === branchData.alt_country_code
-        );
-        if (altCodeOption)
-          setSelectedAltCodeDropdown({
-            value: altCodeOption.value,
-            label: altCodeOption.codeOnly,
-          });
-      }
+          // Set phone codes
+          if (branchData.country_code) {
+            const countryCodeOption = codeOptions?.find(
+              (code) => code.value === branchData.country_code
+            );
+            if (countryCodeOption) setValue("country_code", countryCodeOption);
+          }
 
-      // Set Selected Country
-      if (branchData.country_id && countryOptions) {
-        const countryOption = countryOptions?.find(
-          (opt) => opt.value === branchData.country_id
-        );
-        if (countryOption)
-          setSelectedCountryDropdown({
-            value: countryOption.value,
-            label: countryOption.label,
-          });
-      }
+          if (branchData.alt_country_code) {
+            const altCountryCodeOption = altCodeOptions?.find(
+              (code) => code.value === branchData.alt_country_code
+            );
+            if (altCountryCodeOption)
+              setValue("alt_country_code", altCountryCodeOption);
+          }
 
-      // Set Selected State
-      if (branchData.state_id && stateOptions) {
-        const stateOption = stateOptions?.find(
-          (opt) => opt.value === branchData.state_id
-        );
-        if (stateOption)
-          setSelectedStateDropdown({
-            value: stateOption.value,
-            label: stateOption.label,
-          });
-      }
+          // Load countries if not already loaded
+          if (!countryOptions) {
+            await getAllCountriesList();
+          }
 
-      // Set Selected City
-      if (branchData.city_id && cityOptions) {
-        const cityOption = cityOptions?.find(
-          (opt) => opt.value === branchData.city_id
-        );
-        if (cityOption)
-          setSelectedCityDropdown({
-            value: cityOption.value,
-            label: cityOption.label,
-          });
-      }
+          // Set country if available
+          if (branchData.country_id) {
+            const countryOption = countryOptions?.find(
+              (c) => c.value === branchData.country_id
+            );
+
+            if (countryOption) {
+              setValue("country_id", countryOption);
+
+              // Load states for this country
+              const states = await getAllStatesList(branchData.country_id);
+
+              // Set state if available
+              if (branchData.state_id && states) {
+                const stateOption = states.find(
+                  (s) => s.value === branchData.state_id
+                );
+
+                if (stateOption) {
+                  setValue("state_id", stateOption);
+
+                  // Load cities for this state
+                  const cities = await getAllCitiesList(
+                    branchData.country_id,
+                    branchData.state_id
+                  );
+
+                  // Set city if available
+                  if (branchData.city_id && cities) {
+                    const cityOption = cities.find(
+                      (c) => c.value === branchData.city_id
+                    );
+                    if (cityOption) setValue("city_id", cityOption);
+                  }
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error setting dropdown options:", error);
+        }
+      };
+
+      setDropdownOptions();
     } else {
+      // Reset form for add mode
       reset({
         name: "",
         branch_contact_person: "",
@@ -289,33 +247,41 @@ export const BranchMasterForm = ({
         branch_alt_emailId: "",
         branch_address: "",
         billing_status: false,
+        country_code: null,
+        alt_country_code: null,
+        country_id: null,
+        state_id: null,
+        city_id: null,
       });
-      setSelectedCodeDropdown(null);
-      setSelectedAltCodeDropdown(null);
-      setSelectedCountryDropdown(null);
-      setSelectedStateDropdown(null);
-      setSelectedCityDropdown(null);
     }
   }, [
     formType,
     data,
     reset,
+    setValue,
     codeOptions,
     altCodeOptions,
     countryOptions,
-    stateOptions,
-    cityOptions,
   ]);
 
   // Handle Form Close
   const handleFormClose = () => {
+    reset({
+      name: "",
+      branch_contact_person: "",
+      branch_contact_number: "",
+      branch_alt_contact_number: "",
+      branch_emailId: "",
+      branch_alt_emailId: "",
+      branch_address: "",
+      billing_status: false,
+      country_code: null,
+      alt_country_code: null,
+      country_id: null,
+      state_id: null,
+      city_id: null,
+    });
     onClose();
-    reset();
-    setSelectedCodeDropdown(null);
-    setSelectedAltCodeDropdown(null);
-    setSelectedCountryDropdown(null);
-    setSelectedStateDropdown(null);
-    setSelectedCityDropdown(null);
   };
 
   // Handle Form Submit
@@ -324,17 +290,17 @@ export const BranchMasterForm = ({
       const payload = {
         name: formData.name,
         branch_contact_person: formData.branch_contact_person,
-        country_code: selectedCodeDropdown?.value || "",
+        country_code: formData.country_code?.value || "",
         branch_contact_number: formData.branch_contact_number,
-        alt_country_code: selectedAltCodeDropdown?.value || "",
+        alt_country_code: formData.alt_country_code?.value || "",
         branch_alt_contact_number: formData.branch_alt_contact_number || "",
         branch_emailId: formData.branch_emailId,
         branch_alt_emailId: formData.branch_alt_emailId || "",
         branch_address: formData.branch_address,
         billing_status: formData.billing_status || false,
-        country_id: selectedCountryDropdown?.value || "",
-        state_id: selectedStateDropdown?.value || "",
-        city_id: selectedCityDropdown?.value || "",
+        country_id: formData.country_id?.value || "",
+        state_id: formData.state_id?.value || "",
+        city_id: formData.city_id?.value || "",
       };
 
       let response = "";
@@ -356,29 +322,76 @@ export const BranchMasterForm = ({
     }
   };
 
+  const countryId = watch("country_id");
+  const stateId = watch("state_id");
+
   // Get All Codes on Page Load
   useEffect(() => {
     getAllCodes();
-  }, []);
-
-  // Get All Countries on Page Load
-  useEffect(() => {
     getAllCountriesList();
-  }, [updateId]);
+  }, [setValue]);
 
-  // Get All States on Page Load
   useEffect(() => {
-    if (selectedCountryDropdown) {
-      getAllStatesList(selectedCountryDropdown);
+    if (countryId) {
+      getAllStatesList(countryId?.value);
+      // setValue("state_id", null);
+      // setValue("city_id", null);
     }
-  }, [updateId, selectedCountryDropdown]);
+  }, [countryId, setValue]);
 
-  // Get All Cities on Page Load
   useEffect(() => {
-    if (selectedCountryDropdown && selectedStateDropdown) {
-      getAllCitiesList(selectedCountryDropdown, selectedStateDropdown);
+    if (countryId && stateId) {
+      getAllCitiesList(countryId?.value, stateId?.value);
+      // setValue("city_id", null);
     }
-  }, [updateId, selectedStateDropdown]);
+  }, [stateId, setValue]);
+
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "32px",
+      borderRadius: "0.5rem",
+      borderColor: "rgb(78, 79, 80)",
+      fontSize: "0.8rem",
+      paddingLeft: "0.75rem",
+      paddingRight: "0.75rem",
+      paddingTop: "0.5rem",
+      paddingBottom: "0.5rem",
+      "&:hover": {
+        borderColor: "#d1d5db",
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      fontSize: "0.8rem",
+    }),
+    menu: (base) => ({
+      ...base,
+      fontSize: "0.875rem",
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "3px",
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      padding: "2px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0px",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: "0px",
+      paddingBottom: "0px",
+      paddingTop: "0px",
+    }),
+    option: (base) => ({
+      ...base,
+      fontSize: "0.8rem",
+    }),
+  };
 
   return (
     <>
@@ -419,10 +432,7 @@ export const BranchMasterForm = ({
                 </label>
                 <input
                   type="text"
-                  name="name"
                   id="name"
-                  value={watch("name") || ""}
-                  onChange={(e) => setValue("name", e.target.value)}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter department name"
                   {...register("name", {
@@ -443,12 +453,7 @@ export const BranchMasterForm = ({
                 </label>
                 <input
                   type="text"
-                  name="branch_contact_person"
                   id="branch_contact_person"
-                  value={watch("branch_contact_person") || ""}
-                  onChange={(e) =>
-                    setValue("branch_contact_person", e.target.value)
-                  }
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter contact person name"
                   {...register("branch_contact_person", {
@@ -469,76 +474,30 @@ export const BranchMasterForm = ({
                     Contact No.
                   </label>
                   <div className="flex">
-                    <Select
+                    <Controller
                       name="country_code"
-                      value={watch("country_code")}
-                      onChange={(selected) =>
-                        setValue("country_code", selected)
-                      }
-                      options={codeOptions}
-                      placeholder="code"
-                      isClearable
-                      isSearchable
-                      className="react-select-container"
-                      classNamePrefix="react-select"
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          minHeight: "32px",
-                          width: "120px",
-                          borderRadius: "0.5rem",
-                          borderTopRightRadius: "0",
-                          borderBottomRightRadius: "0",
-                          borderColor: "rgb(78, 79, 80)", // gray-300
-                          fontSize: "0.8rem", // text-sm
-                          paddingLeft: "0.75rem", // px-2
-                          paddingRight: "0.75rem", // px-2
-                          paddingTop: "0.5rem", // px-2
-                          paddingBottom: "0.5rem", // px-2
-                          "&:hover": {
-                            borderColor: "#d1d5db", // gray-300
-                          },
-                        }),
-                        singleValue: (base) => ({
-                          ...base,
-                          fontSize: "0.8rem", // Explicitly set font size for selected value
-                        }),
-                        menu: (base) => ({
-                          ...base,
-                          fontSize: "0.875rem", // Slightly larger in dropdown
-                        }),
-                        dropdownIndicator: (base) => ({
-                          ...base,
-                          padding: "3px",
-                        }),
-                        clearIndicator: (base) => ({
-                          ...base,
-                          padding: "2px",
-                        }),
-                        valueContainer: (base) => ({
-                          ...base,
-                          padding: "0px",
-                        }),
-                        input: (base) => ({
-                          ...base,
-                          margin: "0px",
-                          paddingBottom: "0px",
-                          paddingTop: "0px",
-                        }),
-                        option: (base) => ({
-                          ...base,
-                          fontSize: "0.8rem", // text-sm
-                        }),
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={codeOptions}
+                          placeholder="code"
+                          isClearable
+                          isSearchable
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          styles={{
+                            ...selectStyles,
+                            width: "120px",
+                            borderTopRightRadius: "0",
+                            borderBottomRightRadius: "0",
+                          }}
+                        />
+                      )}
                     />
                     <input
                       type="text"
-                      name="branch_contact_number"
                       id="branch_contact_number"
-                      value={watch("branch_contact_number") || ""}
-                      onChange={(e) =>
-                        setValue("branch_contact_number", e.target.value)
-                      }
                       className="flex-grow rounded-e-lg border-s-0 text-[.8rem] hover:border-borders-inputHover"
                       placeholder="Enter contact number"
                       {...register("branch_contact_number", {
@@ -564,76 +523,30 @@ export const BranchMasterForm = ({
                     Alt. Contact No.
                   </label>
                   <div className="flex">
-                    <Select
+                    <Controller
                       name="alt_country_code"
-                      value={watch("alt_country_code")}
-                      onChange={(selected) =>
-                        setValue("alt_country_code", selected)
-                      }
-                      options={altCodeOptions}
-                      placeholder="code"
-                      isClearable
-                      isSearchable
-                      className="react-select-container"
-                      classNamePrefix="react-select"
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          minHeight: "32px",
-                          width: "120px",
-                          borderRadius: "0.5rem",
-                          borderTopRightRadius: "0",
-                          borderBottomRightRadius: "0",
-                          borderColor: "rgb(78, 79, 80)", // gray-300
-                          fontSize: "0.8rem", // text-sm
-                          paddingLeft: "0.75rem", // px-2
-                          paddingRight: "0.75rem", // px-2
-                          paddingTop: "0.5rem", // px-2
-                          paddingBottom: "0.5rem", // px-2
-                          "&:hover": {
-                            borderColor: "#d1d5db", // gray-300
-                          },
-                        }),
-                        singleValue: (base) => ({
-                          ...base,
-                          fontSize: "0.8rem", // Explicitly set font size for selected value
-                        }),
-                        menu: (base) => ({
-                          ...base,
-                          fontSize: "0.875rem", // Slightly larger in dropdown
-                        }),
-                        dropdownIndicator: (base) => ({
-                          ...base,
-                          padding: "3px",
-                        }),
-                        clearIndicator: (base) => ({
-                          ...base,
-                          padding: "2px",
-                        }),
-                        valueContainer: (base) => ({
-                          ...base,
-                          padding: "0px",
-                        }),
-                        input: (base) => ({
-                          ...base,
-                          margin: "0px",
-                          paddingBottom: "0px",
-                          paddingTop: "0px",
-                        }),
-                        option: (base) => ({
-                          ...base,
-                          fontSize: "0.8rem", // text-sm
-                        }),
-                      }}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={altCodeOptions}
+                          placeholder="code"
+                          isClearable
+                          isSearchable
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          styles={{
+                            ...selectStyles,
+                            width: "120px",
+                            borderTopRightRadius: "0",
+                            borderBottomRightRadius: "0",
+                          }}
+                        />
+                      )}
                     />
                     <input
                       type="text"
-                      name="branch_alt_contact_number"
                       id="branch_alt_contact_number"
-                      value={watch("branch_alt_contact_number") || ""}
-                      onChange={(e) =>
-                        setValue("branch_alt_contact_number", e.target.value)
-                      }
                       className="flex-grow rounded-e-lg border-s-0 text-[.8rem] hover:border-borders-inputHover"
                       placeholder="Enter alt contact number"
                       {...register("branch_alt_contact_number")}
@@ -649,10 +562,7 @@ export const BranchMasterForm = ({
                 </label>
                 <input
                   type="text"
-                  name="branch_emailId"
                   id="branch_emailId"
-                  value={watch("branch_emailId") || ""}
-                  onChange={(e) => setValue("branch_emailId", e.target.value)}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter branch emailId"
                   {...register("branch_emailId", {
@@ -672,13 +582,8 @@ export const BranchMasterForm = ({
                   Alt. Email ID
                 </label>
                 <input
-                  name="branch_alt_emailId"
                   type="text"
                   id="branch_alt_emailId"
-                  value={watch("branch_alt_emailId") || ""}
-                  onChange={(e) =>
-                    setValue("branch_alt_emailId", e.target.value)
-                  }
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter branch alt. emailId"
                   {...register("branch_alt_emailId")}
@@ -690,56 +595,21 @@ export const BranchMasterForm = ({
                 <label htmlFor="country_id" className="text-sm">
                   Country
                 </label>
-                <Select
+                <Controller
                   name="country_id"
-                  value={watch("country_id")}
-                  onChange={(selected) => setValue("country_id", selected)}
-                  options={countryOptions}
-                  placeholder="Select country"
-                  isClearable
-                  isSearchable
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      minHeight: "32px",
-                      flexBasis: "40%",
-                      // height: "32px",
-                      borderRadius: "0.5rem",
-                      borderColor: "rgb(78, 79, 80)", // gray-300
-                      fontSize: "0.8rem", // text-sm
-                      paddingLeft: "0.75rem", // px-2
-                      paddingRight: "0.75rem", // px-2
-                      paddingTop: "0.5rem", // px-2
-                      paddingBottom: "0.5rem", // px-2
-                      "&:hover": {
-                        borderColor: "#d1d5db", // gray-300
-                      },
-                    }),
-                    dropdownIndicator: (base) => ({
-                      ...base,
-                      padding: "3px",
-                    }),
-                    clearIndicator: (base) => ({
-                      ...base,
-                      padding: "2px",
-                    }),
-                    valueContainer: (base) => ({
-                      ...base,
-                      padding: "0px",
-                    }),
-                    input: (base) => ({
-                      ...base,
-                      margin: "0px",
-                      paddingBottom: "0px",
-                      paddingTop: "0px",
-                    }),
-                    option: (base) => ({
-                      ...base,
-                      fontSize: "0.875rem", // text-sm
-                    }),
-                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={countryOptions}
+                      placeholder="Select country"
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={selectStyles}
+                    />
+                  )}
                 />
                 {errors.country_id && (
                   <p className="text-red-500 text-[.7rem]">
@@ -753,56 +623,22 @@ export const BranchMasterForm = ({
                 <label htmlFor="state_id" className="text-sm">
                   State
                 </label>
-                <Select
+                <Controller
                   name="state_id"
-                  value={watch("state_id")}
-                  onChange={(selected) => setValue("state_id", selected)}
-                  options={stateOptions}
-                  placeholder="Select state"
-                  isClearable
-                  isSearchable
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      minHeight: "32px",
-                      flexBasis: "40%",
-                      // height: "32px",
-                      borderRadius: "0.5rem",
-                      borderColor: "rgb(78, 79, 80)", // gray-300
-                      fontSize: "0.8rem", // text-sm
-                      paddingLeft: "0.75rem", // px-2
-                      paddingRight: "0.75rem", // px-2
-                      paddingTop: "0.5rem", // px-2
-                      paddingBottom: "0.5rem", // px-2
-                      "&:hover": {
-                        borderColor: "#d1d5db", // gray-300
-                      },
-                    }),
-                    dropdownIndicator: (base) => ({
-                      ...base,
-                      padding: "3px",
-                    }),
-                    clearIndicator: (base) => ({
-                      ...base,
-                      padding: "2px",
-                    }),
-                    valueContainer: (base) => ({
-                      ...base,
-                      padding: "0px",
-                    }),
-                    input: (base) => ({
-                      ...base,
-                      margin: "0px",
-                      paddingBottom: "0px",
-                      paddingTop: "0px",
-                    }),
-                    option: (base) => ({
-                      ...base,
-                      fontSize: "0.875rem", // text-sm
-                    }),
-                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={stateOptions}
+                      placeholder="Select state"
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={selectStyles}
+                      isDisabled={!countryId}
+                    />
+                  )}
                 />
                 {errors.state_id && (
                   <p className="text-red-500 text-[.7rem]">
@@ -816,56 +652,22 @@ export const BranchMasterForm = ({
                 <label htmlFor="city_id" className="text-sm">
                   City
                 </label>
-                <Select
+                <Controller
                   name="city_id"
-                  value={watch("city_id")}
-                  onChange={(selected) => setValue("city_id", selected)}
-                  options={cityOptions}
-                  placeholder="Select city"
-                  isClearable
-                  isSearchable
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      minHeight: "32px",
-                      flexBasis: "40%",
-                      // height: "32px",
-                      borderRadius: "0.5rem",
-                      borderColor: "rgb(78, 79, 80)", // gray-300
-                      fontSize: "0.8rem", // text-sm
-                      paddingLeft: "0.75rem", // px-2
-                      paddingRight: "0.75rem", // px-2
-                      paddingTop: "0.5rem", // px-2
-                      paddingBottom: "0.5rem", // px-2
-                      "&:hover": {
-                        borderColor: "#d1d5db", // gray-300
-                      },
-                    }),
-                    dropdownIndicator: (base) => ({
-                      ...base,
-                      padding: "3px",
-                    }),
-                    clearIndicator: (base) => ({
-                      ...base,
-                      padding: "2px",
-                    }),
-                    valueContainer: (base) => ({
-                      ...base,
-                      padding: "0px",
-                    }),
-                    input: (base) => ({
-                      ...base,
-                      margin: "0px",
-                      paddingBottom: "0px",
-                      paddingTop: "0px",
-                    }),
-                    option: (base) => ({
-                      ...base,
-                      fontSize: "0.875rem", // text-sm
-                    }),
-                  }}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={cityOptions}
+                      placeholder="Select city"
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={selectStyles}
+                      isDisabled={!stateId}
+                    />
+                  )}
                 />
                 {errors.city_id && (
                   <p className="text-red-500 text-[.7rem]">
@@ -881,9 +683,6 @@ export const BranchMasterForm = ({
                 </label>
                 <textarea
                   id="branch_address"
-                  name="branch_address"
-                  value={watch("branch_address") || ""}
-                  onChange={(e) => setValue("branch_address", e.target.value)}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter branch address"
                   {...register("branch_address", {
@@ -903,10 +702,7 @@ export const BranchMasterForm = ({
                   type="checkbox"
                   name="billing_status"
                   id="billing_status"
-                  value={watch("billing_status") || ""}
-                  onChange={(e) => setValue("billing_status", e.target.value)}
                   className="border-black text-[.8rem]"
-                  placeholder="Enter branch address"
                   {...register("billing_status")}
                 />
                 <label htmlFor="billing_status" className="text-sm">
