@@ -1,4 +1,5 @@
 // ========== REQUIRE STATEMENTS ========== //
+const { Model } = require("sequelize");
 const DB = require("../../../../config/index");
 
 // ========== CREATE AREA CONTROLLER ========== //
@@ -23,7 +24,7 @@ module.exports.createArea = async (req, res) => {
       const newArea = await DB.tbl_area_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Area Created Successfully!",
+        message: "Area Created Successfully!",
         data: newArea,
       });
     }
@@ -55,7 +56,7 @@ module.exports.updateArea = async (req, res) => {
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           name: data.name,
-          dept_id: isAreaExist.dept_id,
+          dept_id: data.dept_id,
           isDeleted: false,
         },
       });
@@ -68,7 +69,7 @@ module.exports.updateArea = async (req, res) => {
         const updateArea = await isAreaExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Area Updated Successfully!",
+          message: "Area Updated Successfully!",
           data: updateArea,
         });
       }
@@ -100,7 +101,7 @@ module.exports.getAreaDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Area Details Successfully!",
+        message: "Get Area Details Successfully!",
         data: getAllData,
       });
     }
@@ -112,36 +113,55 @@ module.exports.getAreaDetails = async (req, res) => {
 // ========== GET ALL AREA DETAILS CONTROLLER ========== //
 module.exports.getAllAreaDetails = async (req, res) => {
   try {
-    const data = req.body;
-    let query = "";
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    if (data.dept_id) {
-      query = `
-      SELECT A.*, D.name AS department_name
-      FROM AREA_MASTER AS A
-      LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
-      WHERE A.dept_id=${data.dept_id} AND A.isDeleted=false`;
-    } else {
-      query = `
-      SELECT A.*, D.name AS department_name
-      FROM AREA_MASTER AS A
-      LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
-      WHERE A.isDeleted=false`;
+    let whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: `%${filter.name}%` };
     }
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    if (filter.dept_id !== undefined || filter.dept_id !== "") {
+      whereClause.dept_id = { [DB.Sequelize.Op.like]: `%${filter.dept_id}%` };
+    }
+
+    const totalRecords = await DB.tbl_area_master.count({
+      where: whereClause,
     });
 
-    if (getAllData.length < 1) {
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_area_master.findAll({
+      include: [
+        {
+          model: DB.tbl_department_master,
+          attributes: ["id", "name"],
+        },
+      ],
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Area Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Areas List!",
+        message: "Get All Areas List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -172,7 +192,7 @@ module.exports.updateAreaStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -204,7 +224,7 @@ module.exports.deleteArea = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Area Deleted Successfully!",
+        message: "Area Deleted Successfully!",
       });
     }
   } catch (error) {

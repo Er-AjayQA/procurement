@@ -17,17 +17,16 @@ export const AreaMasterListing = ({
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
-        <div className="bg-button-hover py-2 px-1 rounded-t-md">
-          <h3 className="text-white text-xs">Department Listing</h3>
+        <div className="bg-button-hover py-2 px-2 rounded-t-md">
+          <h3 className="text-white text-xs font-bold">Area Listing</h3>
         </div>
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="grid grid-cols-6 border-b border-gray-300 gap-2">
+          <div className="grid grid-cols-5 border-b border-gray-300 gap-2">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
-            <div className="text-[.8rem] font-bold p-2">Dept. Code</div>
+            <div className="text-[.8rem] font-bold p-2">Name</div>
             <div className="text-[.8rem] font-bold p-2">Dept. Name</div>
-            <div className="text-[.8rem] font-bold p-2">Dept. Head</div>
             <div className="text-[.8rem] font-bold p-2">Status</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
@@ -39,19 +38,16 @@ export const AreaMasterListing = ({
                 return (
                   <div
                     key={list.id}
-                    className="grid grid-cols-6 border-b border-gray-200 last:border-none gap-2"
+                    className="grid grid-cols-5 border-b border-gray-200 last:border-none gap-2"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.dep_code || "N/A"}
-                    </div>
-                    <div className="flex items-center p-2 text-[.8rem]">
                       {list?.name || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.department_head_name || "N/A"}
+                      {list.DEPARTMENT_MASTER?.name || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list.status ? (
