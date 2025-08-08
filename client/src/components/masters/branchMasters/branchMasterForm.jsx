@@ -11,6 +11,7 @@ import {
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
+import { Controller } from "react-hook-form";
 
 export const BranchMasterForm = ({
   formVisibility,
@@ -38,25 +39,9 @@ export const BranchMasterForm = ({
     watch,
     setValue,
     reset,
+    control,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      // Set default empty values
-      name: "",
-      branch_contact_person: "",
-      country_code: "",
-      branch_contact_number: "",
-      alt_country_code: "91",
-      branch_alt_contact_number: "",
-      branch_emailId: "",
-      branch_alt_emailId: "",
-      branch_address: "",
-      billing_status: "",
-      country_id: "",
-      state_id: "",
-      city_id: "",
-    },
-  });
+  } = useForm();
 
   // Get All Country Code
   const getAllCodes = async () => {
@@ -434,7 +419,10 @@ export const BranchMasterForm = ({
                 </label>
                 <input
                   type="text"
+                  name="name"
                   id="name"
+                  value={watch("name") || ""}
+                  onChange={(e) => setValue("name", e.target.value)}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter department name"
                   {...register("name", {
@@ -455,7 +443,12 @@ export const BranchMasterForm = ({
                 </label>
                 <input
                   type="text"
+                  name="branch_contact_person"
                   id="branch_contact_person"
+                  value={watch("branch_contact_person") || ""}
+                  onChange={(e) =>
+                    setValue("branch_contact_person", e.target.value)
+                  }
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter contact person name"
                   {...register("branch_contact_person", {
@@ -477,8 +470,11 @@ export const BranchMasterForm = ({
                   </label>
                   <div className="flex">
                     <Select
-                      value={selectedCodeDropdown}
-                      onChange={handleSelectCode}
+                      name="country_code"
+                      value={watch("country_code")}
+                      onChange={(selected) =>
+                        setValue("country_code", selected)
+                      }
                       options={codeOptions}
                       placeholder="code"
                       isClearable
@@ -537,7 +533,12 @@ export const BranchMasterForm = ({
                     />
                     <input
                       type="text"
+                      name="branch_contact_number"
                       id="branch_contact_number"
+                      value={watch("branch_contact_number") || ""}
+                      onChange={(e) =>
+                        setValue("branch_contact_number", e.target.value)
+                      }
                       className="flex-grow rounded-e-lg border-s-0 text-[.8rem] hover:border-borders-inputHover"
                       placeholder="Enter contact number"
                       {...register("branch_contact_number", {
@@ -564,8 +565,11 @@ export const BranchMasterForm = ({
                   </label>
                   <div className="flex">
                     <Select
-                      value={selectedAltCodeDropdown}
-                      onChange={handleSelectAltCode}
+                      name="alt_country_code"
+                      value={watch("alt_country_code")}
+                      onChange={(selected) =>
+                        setValue("alt_country_code", selected)
+                      }
                       options={altCodeOptions}
                       placeholder="code"
                       isClearable
@@ -624,7 +628,12 @@ export const BranchMasterForm = ({
                     />
                     <input
                       type="text"
+                      name="branch_alt_contact_number"
                       id="branch_alt_contact_number"
+                      value={watch("branch_alt_contact_number") || ""}
+                      onChange={(e) =>
+                        setValue("branch_alt_contact_number", e.target.value)
+                      }
                       className="flex-grow rounded-e-lg border-s-0 text-[.8rem] hover:border-borders-inputHover"
                       placeholder="Enter alt contact number"
                       {...register("branch_alt_contact_number")}
@@ -640,7 +649,10 @@ export const BranchMasterForm = ({
                 </label>
                 <input
                   type="text"
+                  name="branch_emailId"
                   id="branch_emailId"
+                  value={watch("branch_emailId") || ""}
+                  onChange={(e) => setValue("branch_emailId", e.target.value)}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter branch emailId"
                   {...register("branch_emailId", {
@@ -660,8 +672,13 @@ export const BranchMasterForm = ({
                   Alt. Email ID
                 </label>
                 <input
+                  name="branch_alt_emailId"
                   type="text"
                   id="branch_alt_emailId"
+                  value={watch("branch_alt_emailId") || ""}
+                  onChange={(e) =>
+                    setValue("branch_alt_emailId", e.target.value)
+                  }
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter branch alt. emailId"
                   {...register("branch_alt_emailId")}
@@ -674,8 +691,9 @@ export const BranchMasterForm = ({
                   Country
                 </label>
                 <Select
-                  value={selectedCountryDropdown}
-                  onChange={handleSelectCountry}
+                  name="country_id"
+                  value={watch("country_id")}
+                  onChange={(selected) => setValue("country_id", selected)}
                   options={countryOptions}
                   placeholder="Select country"
                   isClearable
@@ -736,8 +754,9 @@ export const BranchMasterForm = ({
                   State
                 </label>
                 <Select
-                  value={selectedStateDropdown}
-                  onChange={handleSelectState}
+                  name="state_id"
+                  value={watch("state_id")}
+                  onChange={(selected) => setValue("state_id", selected)}
                   options={stateOptions}
                   placeholder="Select state"
                   isClearable
@@ -798,8 +817,9 @@ export const BranchMasterForm = ({
                   City
                 </label>
                 <Select
-                  value={selectedCityDropdown}
-                  onChange={handleSelectCity}
+                  name="city_id"
+                  value={watch("city_id")}
+                  onChange={(selected) => setValue("city_id", selected)}
                   options={cityOptions}
                   placeholder="Select city"
                   isClearable
@@ -861,6 +881,9 @@ export const BranchMasterForm = ({
                 </label>
                 <textarea
                   id="branch_address"
+                  name="branch_address"
+                  value={watch("branch_address") || ""}
+                  onChange={(e) => setValue("branch_address", e.target.value)}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter branch address"
                   {...register("branch_address", {
@@ -878,7 +901,10 @@ export const BranchMasterForm = ({
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
+                  name="billing_status"
                   id="billing_status"
+                  value={watch("billing_status") || ""}
+                  onChange={(e) => setValue("billing_status", e.target.value)}
                   className="border-black text-[.8rem]"
                   placeholder="Enter branch address"
                   {...register("billing_status")}
