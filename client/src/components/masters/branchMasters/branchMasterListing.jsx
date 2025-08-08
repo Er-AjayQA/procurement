@@ -1,4 +1,5 @@
 import { MdEdit, MdDelete } from "react-icons/md";
+import { FaEye } from "react-icons/fa";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
@@ -8,8 +9,10 @@ export const BranchMasterListing = ({
   listing,
   handleFormVisibility,
   handleActiveInactive,
+  handleViewVisibility,
   setUpdateId,
   setDeleteId,
+  setViewId,
   page,
   totalPages,
   setPage,
@@ -83,6 +86,15 @@ export const BranchMasterListing = ({
                       )}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
+                      <div
+                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                        onClick={() => {
+                          handleViewVisibility("open");
+                          setViewId(list.id);
+                        }}
+                      >
+                        <FaEye className="hover:fill-white" />
+                      </div>
                       <div
                         className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                         onClick={() => {

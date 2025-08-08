@@ -17,6 +17,61 @@
   color: #4e4f50;
 }
 
+.royal_purple_gradient {
+  background: linear-gradient(135deg, #140843 0%, #3a1b6a 50%, #6a2c8e 100%);
+}
+.cosmic_purple {
+  background: linear-gradient(
+    to right,
+    #140843 0%,
+    #3d0b5f 30%,
+    #6a1b9a 70%,
+    #9c27b0 100%
+  );
+}
+.deep_ocean {
+  background: linear-gradient(45deg, #140843 0%, #1a237e 50%, #283593 100%);
+}
+.sunset_purple {
+  background: linear-gradient(
+    to bottom,
+    #140843 0%,
+    #4a148c 30%,
+    #7b1fa2 60%,
+    #e91e63 100%
+  );
+}
+.neon_purple {
+  background: linear-gradient(-45deg, #140843 0%, #6a1b9a 50%, #ab47bc 100%);
+}
+.mystic_purple {
+  background: linear-gradient(to right, #140843 0%, #311b92 50%, #4527a0 100%);
+}
+.haze_purple {
+  background: linear-gradient(-135deg, #140843 0%, #4a148c 50%, #7b1fa2 100%);
+}
+.dark_cosmic {
+  background: radial-gradient(circle, #140843 0%, #1a0033 50%, #000000 100%);
+}
+.jewel_tone {
+  background: linear-gradient(
+    to bottom right,
+    #140843 0%,
+    #4a148c 33%,
+    #7b1fa2 66%,
+    #ce93d8 100%
+  );
+}
+.purple_twilight {
+  background: linear-gradient(
+    to top,
+    #000000 0%,
+    #140843 30%,
+    #6a1b9a 70%,
+    #e1bee7 100%
+  );
+}
+
 img {
   max-width: 100%;
   height: auto;

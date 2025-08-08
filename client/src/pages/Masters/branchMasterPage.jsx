@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
 import { AddButton } from "../../components/UI/addButtonUi";
+import Select from "react-select";
 import {
   deleteBranch,
   getAllBranches,
-  getAllCountries,
-  getAllStates,
   getBranchById,
   updateBranchStatus,
 } from "../../services/master_services/service";
 import { toast } from "react-toastify";
 import { BranchMasterForm } from "../../components/masters/branchMasters/branchMasterForm";
 import { BranchMasterListing } from "../../components/masters/branchMasters/branchMasterListing";
+import { BranchMasterView } from "../../components/masters/branchMasters/branchMasterView";
 
 export const BranchMasterPage = () => {
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
+  const [viewVisibility, setViewVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
   const [data, setData] = useState(null);
   const [updateId, setUpdateId] = useState(null);
+  const [viewId, setViewId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState({
     name: "",
@@ -28,9 +30,9 @@ export const BranchMasterPage = () => {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [allCountriesList, setAllCountriesList] = useState(null);
-  const [allStateList, setAllStateList] = useState(null);
-  const [allCitiesList, setAllCitiesList] = useState(null);
+  const [selectedStatusFilter, setSelectedStatusFIlter] = useState(null);
+  const [selectedBillingStatusFilter, setSelectedBillingStatusFIlter] =
+    useState(null);
 
   // Get All Master Data
   const getAllData = async () => {
@@ -54,10 +56,10 @@ export const BranchMasterPage = () => {
   };
 
   // Get Data By Id
-  const getDataById = async () => {
-    const response = await getBranchById(updateId);
+  const getDataById = async (id) => {
+    const response = await getBranchById(id);
     if (response.success) {
-      setData(response.data);
+      setData(response.data[0]);
     }
   };
 
@@ -70,60 +72,6 @@ export const BranchMasterPage = () => {
       setDeleteId(null);
     } else {
       toast.error(response.message);
-    }
-  };
-
-  // Get All Countries List
-  const getAllCountriesList = async () => {
-    try {
-      const response = await getAllCountries({
-        limit: 500,
-        page: 1,
-        filter: { name: "" },
-      });
-      if (response.success) {
-        setAllCountriesList(response.data);
-      } else {
-        setAllCountriesList((prev) => null);
-      }
-    } catch (error) {
-      setAllCountriesList((prev) => null);
-    }
-  };
-
-  // Get All State List
-  const getAllStatesList = async () => {
-    try {
-      const response = await getAllStates({
-        limit: 50000,
-        page: 1,
-        filter: { country_id: "", name: "" },
-      });
-      if (response.success) {
-        setAllStateList(response.data);
-      } else {
-        setAllStateList((prev) => null);
-      }
-    } catch (error) {
-      setAllStateList((prev) => null);
-    }
-  };
-
-  // Get All Cities List
-  const getAllCitiesList = async () => {
-    try {
-      const response = await getAllStates({
-        limit: 50000,
-        page: 1,
-        filter: { state_id: "", country_id: "", name: "" },
-      });
-      if (response.success) {
-        setAllCitiesList(response.data);
-      } else {
-        setAllCitiesList((prev) => (prev = null));
-      }
-    } catch (error) {
-      setAllCitiesList((prev) => (prev = null));
     }
   };
 
@@ -169,9 +117,26 @@ export const BranchMasterPage = () => {
   };
 
   // Handle Filter Value
-  const handleChangeFilter = (e) => {
-    e.preventDefault();
-    setFilter(e.target.value);
+  const handleChangeFilter = (type, e) => {
+    if (type === "input") {
+      const { name, value } = e.target;
+      setFilter((prev) => ({ ...prev, [name]: value }));
+    }
+
+    if (type === "dropdown") {
+      const { field, value } = e;
+      setFilter((prev) => ({ ...prev, [field]: value }));
+    }
+  };
+
+  // Handle View Visibility
+  const handleViewVisibility = (type) => {
+    if (type === "open") {
+      setViewVisibility(true);
+    } else if (type === "close") {
+      setViewVisibility(false);
+      setViewId(null);
+    }
   };
 
   // For initial load and filter/pagination changes
@@ -181,10 +146,11 @@ export const BranchMasterPage = () => {
 
   // For update operations
   useEffect(() => {
-    if (updateId) {
-      getDataById();
+    if (viewId || updateId) {
+      let id = viewId || updateId;
+      getDataById(id);
     }
-  }, [updateId]);
+  }, [updateId, viewId]);
 
   // For delete operations
   useEffect(() => {
@@ -192,6 +158,46 @@ export const BranchMasterPage = () => {
       deleteData();
     }
   }, [deleteId]);
+
+  const styledDropdown = {
+    control: (base) => ({
+      ...base,
+      minHeight: "32px",
+      height: "32px",
+      borderRadius: "0.375rem",
+      borderColor: "#d1d5db", // gray-300
+      fontSize: "0.875rem", // text-sm
+      paddingLeft: "0.5rem", // px-2
+      paddingRight: "0.5rem", // px-2
+      "&:hover": {
+        borderColor: "#d1d5db", // gray-300
+      },
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "4px",
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      padding: "4px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0px",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: "0px",
+      paddingBottom: "0px",
+      paddingTop: "0px",
+    }),
+    option: (base) => ({
+      ...base,
+      fontSize: "0.875rem", // text-sm
+    }),
+  };
+
+  console.log(data);
 
   return (
     <>
@@ -223,12 +229,58 @@ export const BranchMasterPage = () => {
               </select>
             </div>
             {/* Sorting Element End */}
-            <div>
+            <div className="flex gap-3 items-center">
+              {/* Search Filter By Name */}
               <input
                 type="search"
+                name="name"
+                value={filter.name}
                 placeholder="Search here.."
                 className="py-1 px-2 rounded-md text-sm border-borders-light"
-                onChange={(e) => handleChangeFilter(e)}
+                onChange={(e) => handleChangeFilter("input", e)}
+              />
+
+              {/* Search Filter By Billing Status */}
+              <Select
+                value={selectedBillingStatusFilter}
+                onChange={(selectedOption) => {
+                  setSelectedBillingStatusFIlter(selectedOption);
+                  handleChangeFilter("dropdown", {
+                    field: "billing_status",
+                    value: selectedOption ? selectedOption.value : "",
+                  });
+                }}
+                options={[
+                  { value: 1, label: "Billing" },
+                  { value: 0, label: "Non-Billing" },
+                ]}
+                placeholder="Search by billingStatus..."
+                isClearable
+                isSearchable={false}
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={styledDropdown}
+              />
+              {/* Search Filter By Status */}
+              <Select
+                value={selectedStatusFilter}
+                onChange={(selectedOption) => {
+                  setSelectedStatusFIlter(selectedOption);
+                  handleChangeFilter("dropdown", {
+                    field: "status",
+                    value: selectedOption ? selectedOption.value : "",
+                  });
+                }}
+                options={[
+                  { value: 1, label: "Active" },
+                  { value: 0, label: "In-Active" },
+                ]}
+                placeholder="Search by status..."
+                isClearable
+                isSearchable={false}
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={styledDropdown}
               />
             </div>
           </div>
@@ -238,7 +290,22 @@ export const BranchMasterPage = () => {
           </div>
         </div>
 
-        {/* Role Listing */}
+        {/* Branch Listing */}
+        <BranchMasterListing
+          isLoading={isLoading}
+          listing={listing}
+          handleFormVisibility={handleFormVisibility}
+          handleActiveInactive={handleActiveInactive}
+          handleViewVisibility={handleViewVisibility}
+          setUpdateId={setUpdateId}
+          setDeleteId={setDeleteId}
+          setViewId={setViewId}
+          page={page}
+          totalPages={totalPages}
+          setPage={setPage}
+        />
+
+        {/* Branch Form */}
         <BranchMasterForm
           formVisibility={formVisibility}
           onClose={() => handleFormVisibility("close", "add")}
@@ -248,16 +315,12 @@ export const BranchMasterPage = () => {
           data={data}
           setUpdateId={setUpdateId}
         />
-        <BranchMasterListing
-          isLoading={isLoading}
-          listing={listing}
-          handleFormVisibility={handleFormVisibility}
-          handleActiveInactive={handleActiveInactive}
-          setUpdateId={setUpdateId}
-          setDeleteId={setDeleteId}
-          page={page}
-          totalPages={totalPages}
-          setPage={setPage}
+
+        {/* Branch View */}
+        <BranchMasterView
+          viewVisibility={viewVisibility}
+          onClose={() => handleViewVisibility("close")}
+          data={data}
         />
       </div>
     </>
