@@ -117,9 +117,10 @@ export const AreaMasterForm = ({
         handleFormClose();
         getAllData();
       } else {
-        toast.error(response.message);
+        toast.error(response.message || "Operation failed");
       }
     } catch (error) {
+      toast.error(error.message || "An error occurred");
       throw new Error(error.message);
     }
   };
@@ -214,7 +215,7 @@ export const AreaMasterForm = ({
               <input
                 type="text"
                 id="name"
-                className="rounded-lg text-[.8rem]"
+                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                 placeholder="Enter area name"
                 {...register("name", {
                   required: "Area Name is required!",

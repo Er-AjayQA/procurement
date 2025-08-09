@@ -3,6 +3,7 @@ import { AreaMasterContext } from "./areaMasterContext";
 import {
   deleteArea,
   getAllArea,
+  getAllDepartments,
   getAreaById,
   updateAreaStatus,
 } from "../../services/master_services/service";
@@ -107,9 +108,16 @@ export const AreaMasterProvider = ({ children }) => {
   };
 
   // Handle Filter Value
-  const handleChangeFilter = (e) => {
-    e.preventDefault();
-    setFilter(e.target.value);
+  const handleChangeFilter = (type, e) => {
+    if (type === "input") {
+      const { name, value } = e.target;
+      setFilter((prev) => ({ ...prev, [name]: value }));
+    }
+
+    if (type === "dropdown") {
+      const { field, value } = e;
+      setFilter((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   // For initial load and filter/pagination changes
@@ -130,6 +138,44 @@ export const AreaMasterProvider = ({ children }) => {
       deleteData();
     }
   }, [deleteId]);
+
+  const styledComponent = {
+    control: (base) => ({
+      ...base,
+      minHeight: "32px",
+      height: "32px",
+      borderRadius: "0.375rem",
+      borderColor: "#d1d5db", // gray-300
+      fontSize: "0.875rem", // text-sm
+      paddingLeft: "0.5rem", // px-2
+      paddingRight: "0.5rem", // px-2
+      "&:hover": {
+        borderColor: "#d1d5db", // gray-300
+      },
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "4px",
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      padding: "4px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0px",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: "0px",
+      paddingBottom: "0px",
+      paddingTop: "0px",
+    }),
+    option: (base) => ({
+      ...base,
+      fontSize: "0.875rem", // text-sm
+    }),
+  };
 
   const contextValue = {
     listing,
@@ -153,6 +199,7 @@ export const AreaMasterProvider = ({ children }) => {
     setUpdateId,
     setDeleteId,
     setPage,
+    styledComponent,
   };
 
   return (
