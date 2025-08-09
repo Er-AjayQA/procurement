@@ -1,15 +1,15 @@
 import { AddButton } from "../../UI/addButtonUi";
-import { BankMasterListing } from "./bankMasterListing";
-import { BankMasterForm } from "./bankMasterForm";
-import { useBankMasterContext } from "../../../contextApis/useMastersContextFile";
+import { EmployeeTypeMasterListing } from "./employeeTypeMasterListing";
+import { useEmployeeTypeMasterContext } from "../../../contextApis/useMastersContextFile";
+import { EmployeeTypeMasterForm } from "./employeeTypeMasterForm";
 
-export const BankMasterPage = () => {
+export const EmployeeTypeMasterPage = () => {
   const {
     filter,
     handleFormVisibility,
     handleLimitChange,
     handleChangeFilter,
-  } = useBankMasterContext();
+  } = useEmployeeTypeMasterContext();
 
   return (
     <>
@@ -54,15 +54,17 @@ export const BankMasterPage = () => {
           </div>
 
           <div onClick={() => handleFormVisibility("open", "add")}>
-            <AddButton text="Create Bank" />
+            <AddButton text="Create Employement Type" />
           </div>
         </div>
 
-        {/* Bank Listing */}
-        <BankMasterListing />
+        {/* Employee Type Listing */}
+        <EmployeeTypeMasterListing />
 
-        {/* Bank Form */}
-        <BankMasterForm onClose={() => handleFormVisibility("close", "add")} />
+        {/* Employee Type Form */}
+        <EmployeeTypeMasterForm
+          onClose={() => handleFormVisibility("close", "add")}
+        />
       </div>
     </>
   );

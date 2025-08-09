@@ -8,11 +8,11 @@ import {
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import { useBankMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useEmployeeTypeMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const BankMasterForm = ({ onClose }) => {
+export const EmployeeTypeMasterForm = ({ onClose }) => {
   const { formVisibility, formType, getAllData, updateId, data } =
-    useBankMasterContext();
+    useEmployeeTypeMasterContext();
 
   console.log(data);
 
@@ -58,9 +58,9 @@ export const BankMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateBank(updateId, payload);
+        response = await updateEmployementType(updateId, payload);
       } else {
-        response = await createBank(payload);
+        response = await createEmployementType(payload);
       }
 
       if (response.success) {
@@ -137,7 +137,9 @@ export const BankMasterForm = ({ onClose }) => {
       >
         <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
           <h3 className="text-white text-sm font-bold">
-            {formType === "Add" ? "Add Bank" : "Update Bank"}
+            {formType === "Add"
+              ? "Add Employement Type"
+              : "Update Employement Type"}
           </h3>
           {/* Form Close Button */}
           <div
@@ -162,7 +164,7 @@ export const BankMasterForm = ({ onClose }) => {
                 type="text"
                 id="name"
                 className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                placeholder="Enter bank name"
+                placeholder="Enter employement type name"
                 {...register("name", {
                   required: "Bank Name is required!",
                 })}
