@@ -22,7 +22,7 @@ module.exports.createEmploymentType = async (req, res) => {
       const newEmploymentType = await DB.tbl_employmentType_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Employment-Type Created Successfully!",
+        message: "Employment-Type Created Successfully!",
         data: newEmploymentType,
       });
     }
@@ -67,7 +67,7 @@ module.exports.updateEmploymentType = async (req, res) => {
         const updateEmploymentType = await isEmploymentTypeExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Employment-Type Updated Successfully!",
+          message: "Employment-Type Updated Successfully!",
           data: updateEmploymentType,
         });
       }
@@ -98,7 +98,7 @@ module.exports.getEmploymentTypeDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Employment-Type Details Successfully!",
+        message: "Get Employment-Type Details Successfully!",
         data: getAllData,
       });
     }
@@ -110,24 +110,44 @@ module.exports.getEmploymentTypeDetails = async (req, res) => {
 // ========== GET ALL EMPLOYMENT TYPE DETAILS CONTROLLER ========== //
 module.exports.getAllEmploymentTypesDetails = async (req, res) => {
   try {
-    const query = `
-            SELECT E.*
-            FROM EMPLOYMENT_TYPE_MASTER AS E
-            WHERE E.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    const totalRecords = await DB.tbl_employmentType_master.count({
+      whereClause,
+    });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_employmentType_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Employment-Type Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Employment-Types List!",
+        message: "Get All Employment-Types List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -158,7 +178,7 @@ module.exports.updateEmploymentTypeStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -190,7 +210,7 @@ module.exports.deleteEmploymentType = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Employment-Type Deleted Successfully!",
+        message: "Employment-Type Deleted Successfully!",
       });
     }
   } catch (error) {

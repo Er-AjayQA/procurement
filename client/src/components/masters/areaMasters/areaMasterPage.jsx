@@ -1,32 +1,19 @@
 import { AddButton } from "../../UI/addButtonUi";
 import { AreaMasterListing } from "./areaMasterListing";
 import { AreaMasterForm } from "./areaMasterForm";
-import { useMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useAreaMasterContext } from "../../../contextApis/useMastersContextFile";
 import Select from "react-select";
 import { useEffect, useState } from "react";
 import { getAllDepartments } from "../../../services/master_services/service";
 
 export const AreaMasterPage = () => {
   const {
-    listing,
-    formVisibility,
-    formType,
-    data,
-    updateId,
     filter,
-    totalPages,
-    page,
-    isLoading,
-    getAllData,
     handleFormVisibility,
-    handleActiveInactive,
     handleLimitChange,
     handleChangeFilter,
-    setUpdateId,
-    setDeleteId,
-    setPage,
     styledComponent,
-  } = useMasterContext();
+  } = useAreaMasterContext();
 
   const [departmentOptions, setDepartmentOptions] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
@@ -121,27 +108,10 @@ export const AreaMasterPage = () => {
         </div>
 
         {/* Area Listing */}
-        <AreaMasterListing
-          isLoading={isLoading}
-          listing={listing}
-          handleFormVisibility={handleFormVisibility}
-          handleActiveInactive={handleActiveInactive}
-          setUpdateId={setUpdateId}
-          setDeleteId={setDeleteId}
-          page={page}
-          totalPages={totalPages}
-          setPage={setPage}
-        />
+        <AreaMasterListing />
 
         {/* Area Form */}
-        <AreaMasterForm
-          formVisibility={formVisibility}
-          onClose={() => handleFormVisibility("close", "add")}
-          getAllData={getAllData}
-          formType={formType}
-          updateId={updateId}
-          data={data}
-        />
+        <AreaMasterForm onClose={() => handleFormVisibility("close", "add")} />
       </div>
     </>
   );

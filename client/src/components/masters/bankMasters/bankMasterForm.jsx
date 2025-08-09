@@ -1,19 +1,21 @@
-import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
+import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import {
-  createArea,
-  getAllDepartments,
-  updateArea,
+  createBank,
+  createEmployementType,
+  updateBank,
+  updateEmployementType,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
-import { useEffect, useState } from "react";
-import { useAreaMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useEffect } from "react";
+import { useEmployeeTypeMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const AreaMasterForm = ({ onClose }) => {
+export const BankMasterForm = ({ onClose }) => {
   const { formVisibility, formType, getAllData, updateId, data } =
-    useAreaMasterContext();
-  const [departmentOptions, setDepartmentOptions] = useState(null);
+    useEmployeeTypeMasterContext();
+
+  console.log(data);
+
   const {
     register,
     handleSubmit,
@@ -25,30 +27,8 @@ export const AreaMasterForm = ({ onClose }) => {
     defaultValues: {
       // Set default empty values
       name: "",
-      department_head_id: "",
-      dept_head_name: "",
     },
   });
-
-  // Get All Department List
-  const getAllDepartmentList = async () => {
-    try {
-      const response = await getAllDepartments({ limit: 1000, page: "" });
-
-      if (response.success) {
-        setDepartmentOptions(
-          response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }))
-        );
-      } else {
-        setDepartmentOptions(null);
-      }
-    } catch (error) {
-      setDepartmentOptions(null);
-    }
-  };
 
   // Set form values when in update mode
   useEffect(() => {
@@ -56,38 +36,15 @@ export const AreaMasterForm = ({ onClose }) => {
       reset({
         name: data.name || data[0]?.name || "",
       });
-
-      const setDepartmentDropdown = async () => {
-        try {
-          if (!departmentOptions) {
-            await getAllDepartmentList();
-          }
-
-          if (data[0].dept_id) {
-            const departmentOption = departmentOptions.find(
-              (code) => code.value === data[0].dept_id
-            );
-
-            if (departmentOption) {
-              setValue("dept_id", departmentOption);
-            }
-          }
-        } catch (error) {
-          console.error("Error setting dropdown options:", error);
-        }
-      };
-
-      setDepartmentDropdown();
     } else {
-      reset({ name: "", dept_id: "" });
+      reset({ name: "" });
     }
-  }, [formType, data, reset, setValue, departmentOptions]);
+  }, [formType, data, reset, setValue]);
 
   // Handle Form Close
   const handleFormClose = () => {
     reset({
       name: "",
-      dept_id: null,
     });
     onClose();
   };
@@ -97,14 +54,13 @@ export const AreaMasterForm = ({ onClose }) => {
     try {
       const payload = {
         name: formData.name || "",
-        dept_id: formData.dept_id?.value || "",
       };
 
       let response = "";
       if (formType === "Update") {
-        response = await updateArea(updateId, payload);
+        response = await updateEmployementType(updateId, payload);
       } else {
-        response = await createArea(payload);
+        response = await createEmployementType(payload);
       }
 
       if (response.success) {
@@ -119,11 +75,6 @@ export const AreaMasterForm = ({ onClose }) => {
       throw new Error(error.message);
     }
   };
-
-  // Get All Departments on Page Load
-  useEffect(() => {
-    getAllDepartmentList();
-  }, []);
 
   const selectStyles = {
     control: (base) => ({
@@ -186,7 +137,9 @@ export const AreaMasterForm = ({ onClose }) => {
       >
         <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
           <h3 className="text-white text-sm font-bold">
-            {formType === "Add" ? "Add Area" : "Update Area"}
+            {formType === "Add"
+              ? "Add Employement Type"
+              : "Update Employement Type"}
           </h3>
           {/* Form Close Button */}
           <div
@@ -211,40 +164,14 @@ export const AreaMasterForm = ({ onClose }) => {
                 type="text"
                 id="name"
                 className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                placeholder="Enter area name"
+                placeholder="Enter employement type name"
                 {...register("name", {
-                  required: "Area Name is required!",
+                  required: "Bank Name is required!",
                 })}
               />
               {errors.name && (
                 <p className="text-red-500 text-[.7rem]">
                   {errors.name.message}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="dept_id" className="text-sm">
-                Department
-              </label>
-              <Controller
-                name="dept_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    options={departmentOptions}
-                    placeholder="Select department"
-                    isClearable
-                    isSearchable
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    styles={selectStyles}
-                  />
-                )}
-              />
-              {errors.dept_id && (
-                <p className="text-red-500 text-[.7rem]">
-                  {errors.dept_id.message}
                 </p>
               )}
             </div>
