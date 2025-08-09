@@ -420,12 +420,15 @@ export const createArea = async (formData) => {
 
 // Update Area
 export const updateArea = async (id, formData) => {
-  const response = await axiosInstance.put(`update-area/${id}`, formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return response.data;
+  try {
+    const response = await axiosInstance.put(`update-area/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
 };
 
 // Update Status
