@@ -31,7 +31,7 @@ module.exports.createBank = async (req, res) => {
       const newBank = await DB.tbl_bank_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Bank Created Successfully!",
+        message: "Bank Created Successfully!",
         data: newBank,
       });
     }
@@ -75,7 +75,7 @@ module.exports.updateBank = async (req, res) => {
         const updateBank = await isBankExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Bank Updated Successfully!",
+          message: "Bank Updated Successfully!",
           data: updateBank,
         });
       }
@@ -106,7 +106,7 @@ module.exports.getBankDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Bank Details Successfully!",
+        message: "Get Bank Details Successfully!",
         data: getAllData,
       });
     }
@@ -118,24 +118,42 @@ module.exports.getBankDetails = async (req, res) => {
 // ========== GET ALL BANK DETAILS CONTROLLER ========== //
 module.exports.getAllBankDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT B.*
-    FROM BANK_MASTER AS B
-    WHERE B.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    const totalRecords = await DB.tbl_bank_master.count({ whereClause });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_bank_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Bank Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Bank List!",
+        message: "Get All Bank List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -166,7 +184,7 @@ module.exports.updateBankStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -198,7 +216,7 @@ module.exports.deleteBank = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Bank Deleted Successfully!",
+        message: "Bank Deleted Successfully!",
       });
     }
   } catch (error) {

@@ -4,14 +4,14 @@ import { CourseAssessmentReportPage } from "../pages/LearningManagement/CourseAs
 import { CoursePage } from "../pages/LearningManagement/coursesPage";
 import { AllowancePage } from "../pages/Masters/allowancePage";
 import { MasterAreaPage } from "../pages/Masters/areaMaster";
-import { BankPage } from "../pages/Masters/bankPage";
+import { MasterBankPage } from "../pages/Masters/bankMaster";
 import { BranchMasterPage } from "../pages/Masters/branchMasterPage";
 import { CityMasterPage } from "../pages/Masters/cityMasterPage";
 import { ContractTypePage } from "../pages/Masters/contractTypePage";
 import { CountryMasterPage } from "../pages/Masters/countryMasterPage";
 import { DepartmentMasterPage } from "../pages/Masters/departmentMasterPage";
 import { DesignationMasterPage } from "../pages/Masters/designationMasterPage";
-import { EmploymentTypePage } from "../pages/Masters/employmentTypePage";
+import { MasterEmployeeTypePage } from "../pages/Masters/employeeTypeMaster";
 import { ItemCategoryPage } from "../pages/Masters/itemCategoryPage";
 import { ItemPage } from "../pages/Masters/itemPage";
 import { ServiceCategoryPage } from "../pages/Masters/serviceCategoryPage";
@@ -46,14 +46,14 @@ export const moduleComponents = {
     "area-master": MasterAreaPage,
     "allowance-master": AllowancePage,
     "contract-type-master": ContractTypePage,
-    "employement-type-master": EmploymentTypePage,
+    "employement-type-master": MasterEmployeeTypePage,
     "shift-master": ShiftPage,
     "uom-master": UOMPage,
     "item-category-master": ItemCategoryPage,
     "item-master": ItemPage,
     "service-category-master": ServiceCategoryPage,
     "service-master": ServicePage,
-    "bank-master": BankPage,
+    "bank-master": MasterBankPage,
     "workflow-master": WorkflowPage,
   },
 };

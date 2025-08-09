@@ -470,3 +470,148 @@ export const deleteArea = async (id) => {
   });
   return response.data;
 };
+
+// **************************** BANK MASTER **************************** //
+// Create Bank Master
+export const createBank = async (formData) => {
+  const response = await axiosInstance.post("create-bank", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Bank
+export const updateBank = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(`update-bank/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateBankStatus = async (id) => {
+  const response = await axiosInstance.put(`update-bank-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Banks by ID
+export const getBankById = async (id) => {
+  const response = await axiosInstance.post(`get-bank-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Banks List
+export const getAllBank = async (formData) => {
+  const response = await axiosInstance.post("get-all-bank-details", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Delete Banks Master
+export const deleteBank = async (id) => {
+  const response = await axiosInstance.put(`delete-bank/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// **************************** EMPLOYEMENT TYPE MASTER **************************** //
+// Create EmployementType Master
+export const createEmployementType = async (formData) => {
+  const response = await axiosInstance.post(
+    "create-employment-type",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Update EmployementType
+export const updateEmployementType = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-employment-type/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateEmployementTypeStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-employment-type-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get Master EmployementTypes by ID
+export const getEmployementTypeById = async (id) => {
+  const response = await axiosInstance.post(
+    `get-employments-type-details/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Master EmployementTypes List
+export const getAllEmployementType = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-employment-type-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete EmployementTypes Master
+export const deleteEmployementType = async (id) => {
+  const response = await axiosInstance.put(`delete-employment-type/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
