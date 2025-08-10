@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { AreaMasterContext } from "./areaMaster/areaMasterContext";
 import { BankMasterContext } from "./bankMaster/bankMasterContext";
 import { EmployeeTypeMasterContext } from "./employeeTypeMaster/employeeTypeMasterContext";
+import { AllowanceMasterContext } from "./allowanceMaster/allowanceMasterContext";
 
 // Use Area Master Context
 export const useAreaMasterContext = () => {
@@ -27,6 +28,17 @@ export const useEmployeeTypeMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useEmployeeTypeMasterContext must be used within a EmployeeTypeMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use EAllowance Master Context
+export const useAllowanceMasterContext = () => {
+  const context = useContext(AllowanceMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useAllowanceMasterContext must be used within a AllowanceMasterProvider"
     );
   }
   return context;

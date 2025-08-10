@@ -2,7 +2,7 @@ import { AttendanceCalendarPage } from "../pages/EmployeeSelfService/attendanceC
 import { EmployeeDetailPage } from "../pages/EmployeeSelfService/employeeDetails";
 import { CourseAssessmentReportPage } from "../pages/LearningManagement/CourseAssessmentReport";
 import { CoursePage } from "../pages/LearningManagement/coursesPage";
-import { AllowancePage } from "../pages/Masters/allowancePage";
+import { MasterAllowancePage } from "../pages/Masters/allowanceMaster";
 import { MasterAreaPage } from "../pages/Masters/areaMaster";
 import { MasterBankPage } from "../pages/Masters/bankMaster";
 import { BranchMasterPage } from "../pages/Masters/branchMasterPage";
@@ -44,7 +44,7 @@ export const moduleComponents = {
     "city-master": CityMasterPage,
     "branch-master": BranchMasterPage,
     "area-master": MasterAreaPage,
-    "allowance-master": AllowancePage,
+    "allowance-master": MasterAllowancePage,
     "contract-type-master": ContractTypePage,
     "employement-type-master": MasterEmployeeTypePage,
     "shift-master": ShiftPage,

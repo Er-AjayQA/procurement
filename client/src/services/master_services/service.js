@@ -615,3 +615,74 @@ export const deleteEmployementType = async (id) => {
   });
   return response.data;
 };
+
+// **************************** ALLOWANCE TYPE MASTER **************************** //
+// Create Allowance Master
+export const createAllowance = async (formData) => {
+  const response = await axiosInstance.post("create-allowance", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Allowance
+export const updateAllowance = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-allowance/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateAllowanceStatus = async (id) => {
+  const response = await axiosInstance.put(`update-allowance-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Allowance by ID
+export const getAllowanceById = async (id) => {
+  const response = await axiosInstance.post(`get-allowance-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Allowance List
+export const getAllAllowance = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-allowance-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Allowance Master
+export const deleteAllowance = async (id) => {
+  const response = await axiosInstance.put(`delete-allowance/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
