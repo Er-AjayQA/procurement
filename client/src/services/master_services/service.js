@@ -827,3 +827,141 @@ export const deleteShift = async (id) => {
   });
   return response.data;
 };
+
+// **************************** UOM MASTER **************************** //
+// Create Uom Master
+export const createUom = async (formData) => {
+  const response = await axiosInstance.post("create-uom", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Uom
+export const updateUom = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(`update-uom/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateUomStatus = async (id) => {
+  const response = await axiosInstance.put(`update-uom-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Uom by ID
+export const getUomById = async (id) => {
+  const response = await axiosInstance.post(`get-uom-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Uom List
+export const getAllUom = async (formData) => {
+  const response = await axiosInstance.post("get-all-uom-details", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Delete Uom Master
+export const deleteUom = async (id) => {
+  const response = await axiosInstance.put(`delete-uom/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// **************************** ITEM CATEGORY MASTER **************************** //
+// Create Item Category Master
+export const createItemCategory = async (formData) => {
+  const response = await axiosInstance.post("create-item-category", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Item Category
+export const updateItemCategory = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-item-category/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateItemCategoryStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-item-category-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get Master Item Category by ID
+export const getItemCategoryById = async (id) => {
+  const response = await axiosInstance.post(`get-item-category-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Item Category List
+export const getAllItemCategory = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-item-categories",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Item Category Master
+export const deleteItemCategory = async (id) => {
+  const response = await axiosInstance.put(`delete-item-category/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

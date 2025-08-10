@@ -12,13 +12,13 @@ import { CountryMasterPage } from "../pages/Masters/countryMasterPage";
 import { DepartmentMasterPage } from "../pages/Masters/departmentMasterPage";
 import { DesignationMasterPage } from "../pages/Masters/designationMasterPage";
 import { MasterEmployeeTypePage } from "../pages/Masters/employeeTypeMaster";
-import { ItemCategoryPage } from "../pages/Masters/itemCategoryPage";
+import { MasterItemCategoryPage } from "../pages/Masters/itemCategoryMaster";
 import { ItemPage } from "../pages/Masters/itemPage";
 import { ServiceCategoryPage } from "../pages/Masters/serviceCategoryPage";
 import { ServicePage } from "../pages/Masters/servicePage";
 import { MasterShiftPage } from "../pages/Masters/shiftMaster";
 import { StateMasterPage } from "../pages/Masters/stateMasterPage";
-import { UOMPage } from "../pages/Masters/uomPage";
+import { MasterUomPage } from "../pages/Masters/uomMaster";
 import { WorkflowPage } from "../pages/Masters/workflowPage";
 import { RBACPermissions } from "../pages/RbacManagement/rbacPermissionsPage";
 import { RoleMasterPage } from "../pages/RbacManagement/roleMasterPage";
@@ -48,8 +48,8 @@ export const moduleComponents = {
     "contract-type-master": MasterContractTypePage,
     "employement-type-master": MasterEmployeeTypePage,
     "shift-master": MasterShiftPage,
-    "uom-master": UOMPage,
-    "item-category-master": ItemCategoryPage,
+    "uom-master": MasterUomPage,
+    "item-category-master": MasterItemCategoryPage,
     "item-master": ItemPage,
     "service-category-master": ServiceCategoryPage,
     "service-master": ServicePage,
