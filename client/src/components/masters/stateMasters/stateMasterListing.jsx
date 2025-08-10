@@ -33,7 +33,7 @@ export const StateMasterListing = ({
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-1 rounded-t-md">
-          <h3 className="text-white text-xs">Countries Listing</h3>
+          <h3 className="text-white text-xs">States Listing</h3>
         </div>
 
         {/* List Form */}

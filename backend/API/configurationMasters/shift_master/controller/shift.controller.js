@@ -22,7 +22,7 @@ module.exports.createShift = async (req, res) => {
       const newShift = await DB.tbl_shift_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Shift Created Successfully!",
+        message: "Shift Created Successfully!",
         data: newShift,
       });
     }
@@ -66,7 +66,7 @@ module.exports.updateShift = async (req, res) => {
         const updateShift = await isShiftExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Shift Updated Successfully!",
+          message: "Shift Updated Successfully!",
           data: updateShift,
         });
       }
@@ -97,7 +97,7 @@ module.exports.getShiftDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Shift Details Successfully!",
+        message: "Get Shift Details Successfully!",
         data: getAllData,
       });
     }
@@ -109,24 +109,42 @@ module.exports.getShiftDetails = async (req, res) => {
 // ========== GET ALL SHIFT DETAILS CONTROLLER ========== //
 module.exports.getAllShiftDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT S.*
-    FROM SHIFT_MASTER AS S
-    WHERE S.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    const totalRecords = await DB.tbl_shift_master.count({ whereClause });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_shift_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Shift Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Shifts List!",
+        message: "Get All Shifts List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -157,7 +175,7 @@ module.exports.updateShiftStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -189,7 +207,7 @@ module.exports.deleteShift = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Shift Deleted Successfully!",
+        message: "Shift Deleted Successfully!",
       });
     }
   } catch (error) {

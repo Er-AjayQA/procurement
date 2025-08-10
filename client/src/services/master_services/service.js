@@ -763,3 +763,67 @@ export const deleteContractType = async (id) => {
   });
   return response.data;
 };
+
+// **************************** SHIFT MASTER **************************** //
+// Create Shift Master
+export const createShift = async (formData) => {
+  const response = await axiosInstance.post("create-shift", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Shift
+export const updateShift = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(`update-shift/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateShiftStatus = async (id) => {
+  const response = await axiosInstance.put(`update-shift-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Shift by ID
+export const getShiftById = async (id) => {
+  const response = await axiosInstance.post(`get-shift-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Shift List
+export const getAllShift = async (formData) => {
+  const response = await axiosInstance.post("get-all-shift-details", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Delete Shift Master
+export const deleteShift = async (id) => {
+  const response = await axiosInstance.put(`delete-shift/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

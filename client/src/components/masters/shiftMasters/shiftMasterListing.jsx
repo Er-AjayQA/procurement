@@ -1,31 +1,54 @@
 import { MdEdit, MdDelete } from "react-icons/md";
-import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
+import { FaAngleDoubleLeft, FaAngleDoubleRight, FaEye } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
+import { useShiftMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const DesignationMasterListing = ({
-  isLoading,
-  listing,
-  handleFormVisibility,
-  handleActiveInactive,
-  setUpdateId,
-  setDeleteId,
-  page,
-  totalPages,
-  setPage,
-}) => {
+export const ShiftMasterListing = () => {
+  const {
+    isLoading,
+    listing,
+    handleFormVisibility,
+    handleActiveInactive,
+    setUpdateId,
+    setDeleteId,
+    page,
+    totalPages,
+    setPage,
+    setViewId,
+    handleViewVisibility,
+  } = useShiftMasterContext();
+
+  // Calculate Start Period
+  const calculatePeriod = (time) => {
+    if (!time) {
+      return "AM";
+    }
+    const [hours, minutes] = time.split(":").map(Number);
+
+    if (hours >= 12) {
+      return "PM";
+    } else if (hours === 0) {
+      return "AM";
+    } else if (hours <= 12) {
+      return "AM";
+    }
+  };
+
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
-        <div className="bg-button-hover py-2 px-1 rounded-t-md">
-          <h3 className="text-white text-xs">Designation Listing</h3>
+        <div className="bg-button-hover py-2 px-2 rounded-t-md">
+          <h3 className="text-white text-xs font-bold">Shift Listing</h3>
         </div>
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="grid grid-cols-4 border-b border-gray-300 gap-2">
+          <div className="grid grid-cols-6 border-b border-gray-300 gap-2">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
-            <div className="text-[.8rem] font-bold p-2">Name</div>
+            <div className="text-[.8rem] font-bold p-2">Shift Name</div>
+            <div className="text-[.8rem] font-bold p-2">Timings</div>
+            <div className="text-[.8rem] font-bold p-2">Duration</div>
             <div className="text-[.8rem] font-bold p-2">Status</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
@@ -37,13 +60,25 @@ export const DesignationMasterListing = ({
                 return (
                   <div
                     key={list.id}
-                    className="grid grid-cols-4 border-b border-gray-200 last:border-none gap-2"
+                    className="grid grid-cols-6 border-b border-gray-200 last:border-none gap-2"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list.name}
+                      {list?.name || "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {list?.start_time
+                        ? `${list?.start_time} ${calculatePeriod(
+                            list?.start_time
+                          )} to ${list?.end_time} ${calculatePeriod(
+                            list?.end_time
+                          )}`
+                        : "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {list?.shift_duration + " Hrs" || "Non-Taxable"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list.status ? (
@@ -69,6 +104,15 @@ export const DesignationMasterListing = ({
                       )}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
+                      <div
+                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                        onClick={() => {
+                          handleViewVisibility("open");
+                          setViewId(list.id);
+                        }}
+                      >
+                        <FaEye className="hover:fill-white" />
+                      </div>
                       <div
                         className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                         onClick={() => {
