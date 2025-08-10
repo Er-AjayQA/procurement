@@ -16,7 +16,7 @@ import { ItemCategoryPage } from "../pages/Masters/itemCategoryPage";
 import { ItemPage } from "../pages/Masters/itemPage";
 import { ServiceCategoryPage } from "../pages/Masters/serviceCategoryPage";
 import { ServicePage } from "../pages/Masters/servicePage";
-import { ShiftPage } from "../pages/Masters/shiftPage";
+import { MasterShiftPage } from "../pages/Masters/shiftMaster";
 import { StateMasterPage } from "../pages/Masters/stateMasterPage";
 import { UOMPage } from "../pages/Masters/uomPage";
 import { WorkflowPage } from "../pages/Masters/workflowPage";
@@ -47,7 +47,7 @@ export const moduleComponents = {
     "allowance-master": MasterAllowancePage,
     "contract-type-master": MasterContractTypePage,
     "employement-type-master": MasterEmployeeTypePage,
-    "shift-master": ShiftPage,
+    "shift-master": MasterShiftPage,
     "uom-master": UOMPage,
     "item-category-master": ItemCategoryPage,
     "item-master": ItemPage,

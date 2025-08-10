@@ -4,6 +4,7 @@ import { BankMasterContext } from "./bankMaster/bankMasterContext";
 import { EmployeeTypeMasterContext } from "./employeeTypeMaster/employeeTypeMasterContext";
 import { AllowanceMasterContext } from "./allowanceMaster/allowanceMasterContext";
 import { ContractTypeMasterContext } from "./contractTypeMaster/contractTypeMasterContext";
+import { ShiftMasterContext } from "./shiftMaster/shiftMasterContext";
 
 // Use Area Master Context
 export const useAreaMasterContext = () => {
@@ -51,6 +52,17 @@ export const useContractTypeMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useContractTypeMasterContext must be used within a ContractTypeMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Shift Master Context
+export const useShiftMasterContext = () => {
+  const context = useContext(ShiftMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useShiftMasterContext must be used within a ShiftMasterProvider"
     );
   }
   return context;

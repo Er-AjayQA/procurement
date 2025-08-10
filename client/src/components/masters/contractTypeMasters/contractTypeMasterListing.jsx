@@ -21,7 +21,9 @@ export const ContractTypeMasterListing = () => {
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">Bank Listing</h3>
+          <h3 className="text-white text-xs font-bold">
+            Contract Type Listing
+          </h3>
         </div>
 
         {/* List Form */}
