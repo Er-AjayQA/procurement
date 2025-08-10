@@ -22,7 +22,7 @@ module.exports.createAllowance = async (req, res) => {
       const newAllowance = await DB.tbl_allowance_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Allowance Created Successfully!",
+        message: "Allowance Created Successfully!",
         data: newAllowance,
       });
     }
@@ -66,7 +66,7 @@ module.exports.updateAllowance = async (req, res) => {
         const updateAllowance = await isAllowanceExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Allowance Updated Successfully!",
+          message: "Allowance Updated Successfully!",
           data: updateAllowance,
         });
       }
@@ -97,7 +97,7 @@ module.exports.getAllowanceDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Allowance Details Successfully!",
+        message: "Get Allowance Details Successfully!",
         data: getAllData,
       });
     }
@@ -109,24 +109,48 @@ module.exports.getAllowanceDetails = async (req, res) => {
 // ========== GET ALL ALLOWANCE DETAILS CONTROLLER ========== //
 module.exports.getAllAllowanceDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT A.*
-    FROM ALLOWANCE_MASTER AS A
-    WHERE A.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    if (filter.is_taxable !== undefined || filter.is_taxable !== "") {
+      whereClause.is_taxable = {
+        [DB.Sequelize.Op.like]: [`%${filter.is_taxable}%`],
+      };
+    }
+
+    const totalRecords = await DB.tbl_allowance_master.count({ whereClause });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_allowance_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Allowance Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Allowance List!",
+        message: "Get All Allowance List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -157,7 +181,7 @@ module.exports.updateAllowanceStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -189,7 +213,7 @@ module.exports.deleteAllowance = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Allowance Deleted Successfully!",
+        message: "Allowance Deleted Successfully!",
       });
     }
   } catch (error) {
