@@ -1,23 +1,21 @@
 import { useEffect, useState } from "react";
 import {
-  deleteAllowance,
-  getAllAllowance,
-  getAllowanceById,
-  updateAllowanceStatus,
+  deleteContractType,
+  getAllContractType,
+  getContractTypeById,
+  updateContractTypeStatus,
 } from "../../services/master_services/service";
 import { toast } from "react-toastify";
-import { AllowanceMasterContext } from "./allowanceMasterContext";
+import { ContractTypeMasterContext } from "./contractTypeMasterContext";
 
-export const AllowanceMasterProvider = ({ children }) => {
+export const ContractTypeMasterProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
-  const [viewVisibility, setViewVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
   const [data, setData] = useState(null);
   const [updateId, setUpdateId] = useState(null);
-  const [viewId, setViewId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [filter, setFilter] = useState({ name: "", is_taxable: "" });
+  const [filter, setFilter] = useState({ name: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
@@ -27,7 +25,7 @@ export const AllowanceMasterProvider = ({ children }) => {
   const getAllData = async () => {
     try {
       setIsLoading(true);
-      const data = await getAllAllowance({ limit, page, filter });
+      const data = await getAllContractType({ limit, page, filter });
 
       if (data.success) {
         setListing(data.data);
@@ -45,23 +43,17 @@ export const AllowanceMasterProvider = ({ children }) => {
   };
 
   // Get Data By Id
-  const getDataById = async (id) => {
-    try {
-      const response = await getAllowanceById(id);
-      if (response.success) {
-        setData(response.data[0]);
-      } else {
-        toast.error(response.message);
-      }
-    } catch (error) {
-      setData(null);
+  const getDataById = async () => {
+    const response = await getContractTypeById(updateId);
+    if (response.success) {
+      setData(response.data);
     }
   };
 
   // Delete Data By Id
   const deleteData = async () => {
     try {
-      const response = await deleteAllowance(deleteId);
+      const response = await deleteContractType(deleteId);
       if (response.success) {
         toast(response.message);
         getAllData();
@@ -91,20 +83,10 @@ export const AllowanceMasterProvider = ({ children }) => {
     }
   };
 
-  // Handle View Visibility
-  const handleViewVisibility = (type) => {
-    if (type === "open") {
-      setViewVisibility(true);
-    } else if (type === "close") {
-      setViewVisibility(false);
-      setViewId(null);
-    }
-  };
-
   // Handle Active/Inactive
   const handleActiveInactive = async (id) => {
     try {
-      const response = await updateAllowanceStatus(id);
+      const response = await updateContractTypeStatus(id);
 
       if (response.success) {
         getAllData();
@@ -125,16 +107,9 @@ export const AllowanceMasterProvider = ({ children }) => {
   };
 
   // Handle Filter Value
-  const handleChangeFilter = (type, e) => {
-    if (type === "input") {
-      const { name, value } = e.target;
-      setFilter((prev) => ({ ...prev, [name]: value }));
-    }
-
-    if (type === "dropdown") {
-      const { field, value } = e;
-      setFilter((prev) => ({ ...prev, [field]: value }));
-    }
+  const handleChangeFilter = (e) => {
+    const { name, value } = e.target;
+    setFilter((prev) => ({ ...prev, [name]: value }));
   };
 
   // For initial load and filter/pagination changes
@@ -144,11 +119,10 @@ export const AllowanceMasterProvider = ({ children }) => {
 
   // For update operations
   useEffect(() => {
-    if (viewId || updateId) {
-      let id = viewId || updateId;
-      getDataById(id);
+    if (updateId) {
+      getDataById();
     }
-  }, [updateId, viewId]);
+  }, [updateId]);
 
   // For delete operations
   useEffect(() => {
@@ -156,44 +130,6 @@ export const AllowanceMasterProvider = ({ children }) => {
       deleteData();
     }
   }, [deleteId]);
-
-  const styledComponent = {
-    control: (base) => ({
-      ...base,
-      minHeight: "32px",
-      height: "32px",
-      borderRadius: "0.375rem",
-      borderColor: "#d1d5db", // gray-300
-      fontSize: "0.875rem", // text-sm
-      paddingLeft: "0.5rem", // px-2
-      paddingRight: "0.5rem", // px-2
-      "&:hover": {
-        borderColor: "#d1d5db", // gray-300
-      },
-    }),
-    dropdownIndicator: (base) => ({
-      ...base,
-      padding: "4px",
-    }),
-    clearIndicator: (base) => ({
-      ...base,
-      padding: "4px",
-    }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: "0px",
-    }),
-    input: (base) => ({
-      ...base,
-      margin: "0px",
-      paddingBottom: "0px",
-      paddingTop: "0px",
-    }),
-    option: (base) => ({
-      ...base,
-      fontSize: "0.875rem", // text-sm
-    }),
-  };
 
   const contextValue = {
     listing,
@@ -207,8 +143,6 @@ export const AllowanceMasterProvider = ({ children }) => {
     totalPages,
     page,
     isLoading,
-    styledComponent,
-    viewVisibility,
     getAllData,
     getDataById,
     deleteData,
@@ -219,13 +153,11 @@ export const AllowanceMasterProvider = ({ children }) => {
     setUpdateId,
     setDeleteId,
     setPage,
-    setViewId,
-    handleViewVisibility,
   };
 
   return (
-    <AllowanceMasterContext.Provider value={contextValue}>
+    <ContractTypeMasterContext.Provider value={contextValue}>
       {children}
-    </AllowanceMasterContext.Provider>
+    </ContractTypeMasterContext.Provider>
   );
 };

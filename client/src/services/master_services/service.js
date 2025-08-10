@@ -616,7 +616,7 @@ export const deleteEmployementType = async (id) => {
   return response.data;
 };
 
-// **************************** ALLOWANCE TYPE MASTER **************************** //
+// **************************** ALLOWANCE MASTER **************************** //
 // Create Allowance Master
 export const createAllowance = async (formData) => {
   const response = await axiosInstance.post("create-allowance", formData, {
@@ -680,6 +680,83 @@ export const getAllAllowance = async (formData) => {
 // Delete Allowance Master
 export const deleteAllowance = async (id) => {
   const response = await axiosInstance.put(`delete-allowance/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// **************************** CONTRACT TYPE MASTER **************************** //
+// Create ContractType Master
+export const createContractType = async (formData) => {
+  const response = await axiosInstance.post("create-contract-type", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update ContractType
+export const updateContractType = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-contract-type/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateContractTypeStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-contract-type-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get Master ContractType by ID
+export const getContractTypeById = async (id) => {
+  const response = await axiosInstance.post(
+    `get-contracts-type-details/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Master ContractType List
+export const getAllContractType = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-contract-type-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete ContractType Master
+export const deleteContractType = async (id) => {
+  const response = await axiosInstance.put(`delete-contract-type/${id}`, {
     headers: {
       "Content-Type": "application/json",
     },

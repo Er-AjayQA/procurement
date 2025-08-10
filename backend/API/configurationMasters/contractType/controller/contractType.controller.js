@@ -22,7 +22,7 @@ module.exports.createContractType = async (req, res) => {
       const newEmploymentType = await DB.tbl_contractType_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Contract-Type Created Successfully!",
+        message: "Contract-Type Created Successfully!",
         data: newEmploymentType,
       });
     }
@@ -98,7 +98,7 @@ module.exports.getContractTypeDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Contract-Type Details Successfully!",
+        message: "Get Contract-Type Details Successfully!",
         data: getAllData,
       });
     }
@@ -110,24 +110,44 @@ module.exports.getContractTypeDetails = async (req, res) => {
 // ========== GET ALL CONTRACT TYPE DETAILS CONTROLLER ========== //
 module.exports.getAllContractTypesDetails = async (req, res) => {
   try {
-    const query = `
-            SELECT C.*
-            FROM CONTRACT_TYPE_MASTER AS C
-            WHERE C.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    const totalRecords = await DB.tbl_contractType_master.count({
+      whereClause,
+    });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_contractType_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Contract-Type Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Contract-Types List!",
+        message: "Get All Contract-Types List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -158,7 +178,7 @@ module.exports.updateContractTypeStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -190,7 +210,7 @@ module.exports.deleteContractType = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Contract-Type Deleted Successfully!",
+        message: "Contract-Type Deleted Successfully!",
       });
     }
   } catch (error) {
