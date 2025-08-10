@@ -22,7 +22,7 @@ module.exports.createUom = async (req, res) => {
       const newUom = await DB.tbl_uom_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "UOM Created Successfully!",
+        message: "UOM Created Successfully!",
         data: newUom,
       });
     }
@@ -63,10 +63,12 @@ module.exports.updateUom = async (req, res) => {
           .status(409)
           .send({ success: false, message: "UOM Name Already Exist!" });
       } else {
-        const updateUom = await isUomExist.update(data);
+        const updateUom = await isUomExist.update(data, {
+          where: { id: isUomExist.id },
+        });
         return res.status(200).send({
           success: true,
-          status: "UOM Updated Successfully!",
+          message: "UOM Updated Successfully!",
           data: updateUom,
         });
       }
@@ -97,7 +99,7 @@ module.exports.getUomDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get UOM Details Successfully!",
+        message: "Get UOM Details Successfully!",
         data: getAllData,
       });
     }
@@ -109,24 +111,42 @@ module.exports.getUomDetails = async (req, res) => {
 // ========== GET ALL UOM DETAILS CONTROLLER ========== //
 module.exports.getAllUomDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT U.*
-    FROM UOM_MASTER AS U
-    WHERE U.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    const totalRecords = await DB.tbl_uom_master.count({ whereClause });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_uom_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "UOM Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All UOM List!",
+        message: "Get All UOM List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -157,7 +177,7 @@ module.exports.updateUomStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -189,7 +209,7 @@ module.exports.deleteUom = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "UOM Deleted Successfully!",
+        message: "UOM Deleted Successfully!",
       });
     }
   } catch (error) {

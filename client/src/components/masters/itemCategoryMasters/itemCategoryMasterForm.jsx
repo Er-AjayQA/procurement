@@ -1,18 +1,16 @@
 import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import {
-  createBank,
-  createEmployementType,
-  updateBank,
-  updateEmployementType,
+  createItemCategory,
+  updateItemCategory,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import { useBankMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useItemCategoryMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const BankMasterForm = ({ onClose }) => {
+export const ItemCategoryMasterForm = ({ onClose }) => {
   const { formVisibility, formType, getAllData, updateId, data } =
-    useBankMasterContext();
+    useItemCategoryMasterContext();
 
   const {
     register,
@@ -25,6 +23,7 @@ export const BankMasterForm = ({ onClose }) => {
     defaultValues: {
       // Set default empty values
       name: "",
+      item_category_description: "",
     },
   });
 
@@ -33,9 +32,13 @@ export const BankMasterForm = ({ onClose }) => {
     if (formType === "Update" && data) {
       reset({
         name: data.name || data[0]?.name || "",
+        item_category_description:
+          data.item_category_description ||
+          data[0]?.item_category_description ||
+          "",
       });
     } else {
-      reset({ name: "" });
+      reset({ name: "", item_category_description: "" });
     }
   }, [formType, data, reset, setValue]);
 
@@ -43,6 +46,7 @@ export const BankMasterForm = ({ onClose }) => {
   const handleFormClose = () => {
     reset({
       name: "",
+      item_category_description: "",
     });
     onClose();
   };
@@ -52,13 +56,14 @@ export const BankMasterForm = ({ onClose }) => {
     try {
       const payload = {
         name: formData.name || "",
+        item_category_description: formData.item_category_description || "",
       };
 
       let response = "";
       if (formType === "Update") {
-        response = await updateBank(updateId, payload);
+        response = await updateItemCategory(updateId, payload);
       } else {
-        response = await createBank(payload);
+        response = await createItemCategory(payload);
       }
 
       if (response.success) {
@@ -72,53 +77,6 @@ export const BankMasterForm = ({ onClose }) => {
       toast.error(error.message || "An error occurred");
       throw new Error(error.message);
     }
-  };
-
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: "32px",
-      borderRadius: "0.5rem",
-      borderColor: "rgb(78, 79, 80)",
-      fontSize: "0.8rem",
-      paddingLeft: "0.75rem",
-      paddingRight: "0.75rem",
-      paddingTop: "0.5rem",
-      paddingBottom: "0.5rem",
-      "&:hover": {
-        borderColor: "#d1d5db",
-      },
-    }),
-    singleValue: (base) => ({
-      ...base,
-      fontSize: "0.8rem",
-    }),
-    menu: (base) => ({
-      ...base,
-      fontSize: "0.875rem",
-    }),
-    dropdownIndicator: (base) => ({
-      ...base,
-      padding: "3px",
-    }),
-    clearIndicator: (base) => ({
-      ...base,
-      padding: "2px",
-    }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: "0px",
-    }),
-    input: (base) => ({
-      ...base,
-      margin: "0px",
-      paddingBottom: "0px",
-      paddingTop: "0px",
-    }),
-    option: (base) => ({
-      ...base,
-      fontSize: "0.8rem",
-    }),
   };
 
   return (
@@ -135,7 +93,7 @@ export const BankMasterForm = ({ onClose }) => {
       >
         <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
           <h3 className="text-white text-sm font-bold">
-            {formType === "Add" ? "Add Bank" : "Update Bank"}
+            {formType === "Add" ? "Add Item Category" : "Update Item Category"}
           </h3>
           {/* Form Close Button */}
           <div
@@ -147,9 +105,9 @@ export const BankMasterForm = ({ onClose }) => {
         </div>
 
         {/* Form */}
-        <div className="w-[50%] absolute top-[50%] start-[50%] translate-x-[-50%] translate-y-[-50%]">
+        <div className="w-full mx-auto p-10">
           <form
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-4 w-[70%] mx-auto"
             onSubmit={handleSubmit(onSubmit)}
           >
             <div className="flex flex-col gap-2">
@@ -160,14 +118,33 @@ export const BankMasterForm = ({ onClose }) => {
                 type="text"
                 id="name"
                 className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                placeholder="Enter bank name"
+                placeholder="Enter category name"
                 {...register("name", {
-                  required: "Bank Name is required!",
+                  required: "Uom Name is required!",
                 })}
               />
               {errors.name && (
                 <p className="text-red-500 text-[.7rem]">
                   {errors.name.message}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="item_category_description" className="text-sm">
+                Description
+              </label>
+              <textarea
+                name="item_category_description"
+                id="item_category_description"
+                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="Enter description"
+                {...register("item_category_description", {
+                  required: "Description is required!",
+                })}
+              />
+              {errors.item_category_description && (
+                <p className="text-red-500 text-[.7rem]">
+                  {errors.item_category_description.message}
                 </p>
               )}
             </div>

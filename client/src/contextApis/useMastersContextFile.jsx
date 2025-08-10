@@ -5,6 +5,8 @@ import { EmployeeTypeMasterContext } from "./employeeTypeMaster/employeeTypeMast
 import { AllowanceMasterContext } from "./allowanceMaster/allowanceMasterContext";
 import { ContractTypeMasterContext } from "./contractTypeMaster/contractTypeMasterContext";
 import { ShiftMasterContext } from "./shiftMaster/shiftMasterContext";
+import { UomMasterContext } from "./uomMaster/uomMasterContext";
+import { ItemCategoryMasterContext } from "./itemCategoryMaster/itemCategoryMasterContext";
 
 // Use Area Master Context
 export const useAreaMasterContext = () => {
@@ -63,6 +65,28 @@ export const useShiftMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useShiftMasterContext must be used within a ShiftMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Uom Master Context
+export const useUomMasterContext = () => {
+  const context = useContext(UomMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useUomMasterContext must be used within a UomMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Item Category Master Context
+export const useItemCategoryMasterContext = () => {
+  const context = useContext(ItemCategoryMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useItemCategoryMasterContext must be used within a ItemCategoryMasterProvider"
     );
   }
   return context;

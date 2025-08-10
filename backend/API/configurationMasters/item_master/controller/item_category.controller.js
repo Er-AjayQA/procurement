@@ -31,7 +31,7 @@ module.exports.createItemCategory = async (req, res) => {
       const newItemCategory = await DB.tbl_item_category_master.create(data);
       return res.status(200).send({
         success: true,
-        status: "Item-Category Created Successfully!",
+        message: "Item-Category Created Successfully!",
         data: newItemCategory,
       });
     }
@@ -76,7 +76,7 @@ module.exports.updateItemCategory = async (req, res) => {
         const updateItemCategory = await isItemCategoryExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Item-Category Updated Successfully!",
+          message: "Item-Category Updated Successfully!",
           data: updateItemCategory,
         });
       }
@@ -107,7 +107,7 @@ module.exports.getItemCategoryDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Item-Category Details Successfully!",
+        message: "Get Item-Category Details Successfully!",
         data: getAllData,
       });
     }
@@ -119,24 +119,44 @@ module.exports.getItemCategoryDetails = async (req, res) => {
 // ========== GET ALL ITEM CATEGORY DETAILS CONTROLLER ========== //
 module.exports.getAllItemCategoryDetails = async (req, res) => {
   try {
-    const query = `
-            SELECT IC.*
-            FROM ITEM_CATEGORY_MASTER AS IC
-            WHERE IC.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    const totalRecords = await DB.tbl_item_category_master.count({
+      whereClause,
+    });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_item_category_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Item-Categories Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Item-Categories List!",
+        message: "Get All Item-Categories List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -167,7 +187,7 @@ module.exports.updateItemCategoryStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -199,7 +219,7 @@ module.exports.deleteItemCategory = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Item-Category Deleted Successfully!",
+        message: "Item-Category Deleted Successfully!",
       });
     }
   } catch (error) {
