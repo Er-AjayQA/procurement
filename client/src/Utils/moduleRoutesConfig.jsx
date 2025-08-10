@@ -7,7 +7,7 @@ import { MasterAreaPage } from "../pages/Masters/areaMaster";
 import { MasterBankPage } from "../pages/Masters/bankMaster";
 import { BranchMasterPage } from "../pages/Masters/branchMasterPage";
 import { CityMasterPage } from "../pages/Masters/cityMasterPage";
-import { ContractTypePage } from "../pages/Masters/contractTypePage";
+import { MasterContractTypePage } from "../pages/Masters/contractTypeMaster";
 import { CountryMasterPage } from "../pages/Masters/countryMasterPage";
 import { DepartmentMasterPage } from "../pages/Masters/departmentMasterPage";
 import { DesignationMasterPage } from "../pages/Masters/designationMasterPage";
@@ -45,7 +45,7 @@ export const moduleComponents = {
     "branch-master": BranchMasterPage,
     "area-master": MasterAreaPage,
     "allowance-master": MasterAllowancePage,
-    "contract-type-master": ContractTypePage,
+    "contract-type-master": MasterContractTypePage,
     "employement-type-master": MasterEmployeeTypePage,
     "shift-master": ShiftPage,
     "uom-master": UOMPage,

@@ -197,8 +197,6 @@ export const BranchMasterPage = () => {
     }),
   };
 
-  console.log(data);
-
   return (
     <>
       <div className="px-5 h-full">

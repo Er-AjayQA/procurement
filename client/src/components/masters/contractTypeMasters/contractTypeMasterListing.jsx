@@ -1,10 +1,10 @@
 import { MdEdit, MdDelete } from "react-icons/md";
-import { FaAngleDoubleLeft, FaAngleDoubleRight, FaEye } from "react-icons/fa";
+import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
-import { useAllowanceMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useContractTypeMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const AllowanceMasterListing = () => {
+export const ContractTypeMasterListing = () => {
   const {
     isLoading,
     listing,
@@ -15,23 +15,20 @@ export const AllowanceMasterListing = () => {
     page,
     totalPages,
     setPage,
-    setViewId,
-    handleViewVisibility,
-  } = useAllowanceMasterContext();
+  } = useContractTypeMasterContext();
 
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">Allowance Listing</h3>
+          <h3 className="text-white text-xs font-bold">Bank Listing</h3>
         </div>
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="grid grid-cols-5 border-b border-gray-300 gap-2">
+          <div className="grid grid-cols-4 border-b border-gray-300 gap-2">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
-            <div className="text-[.8rem] font-bold p-2">Allowance Name</div>
-            <div className="text-[.8rem] font-bold p-2">Is Taxable</div>
+            <div className="text-[.8rem] font-bold p-2">Name</div>
             <div className="text-[.8rem] font-bold p-2">Status</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
@@ -43,16 +40,13 @@ export const AllowanceMasterListing = () => {
                 return (
                   <div
                     key={list.id}
-                    className="grid grid-cols-5 border-b border-gray-200 last:border-none gap-2"
+                    className="grid grid-cols-4 border-b border-gray-200 last:border-none gap-2"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list?.name || "N/A"}
-                    </div>
-                    <div className="flex items-center p-2 text-[.8rem]">
-                      {list.is_taxable ? "Taxable" : "Non-Taxable"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list.status ? (
@@ -78,15 +72,6 @@ export const AllowanceMasterListing = () => {
                       )}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
-                      <div
-                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
-                        onClick={() => {
-                          handleViewVisibility("open");
-                          setViewId(list.id);
-                        }}
-                      >
-                        <FaEye className="hover:fill-white" />
-                      </div>
                       <div
                         className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                         onClick={() => {

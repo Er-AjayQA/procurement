@@ -1,19 +1,15 @@
 import { AddButton } from "../../UI/addButtonUi";
-import { AllowanceMasterListing } from "./allowanceMasterListing";
-import { AllowanceMasterForm } from "./allowanceMasterForm";
-import { useAllowanceMasterContext } from "../../../contextApis/useMastersContextFile";
-import Select from "react-select";
-import { AllowanceMasterView } from "./allowanceMasterView";
+import { ContractTypeMasterListing } from "./contractTypeMasterListing";
+import { ContractTypeMasterForm } from "./contractTypeMasterForm";
+import { useContractTypeMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const AllowanceMasterPage = () => {
+export const ContractTypeMasterPage = () => {
   const {
     filter,
     handleFormVisibility,
     handleLimitChange,
     handleChangeFilter,
-    styledComponent,
-    handleViewVisibility,
-  } = useAllowanceMasterContext();
+  } = useContractTypeMasterContext();
 
   return (
     <>
@@ -52,50 +48,21 @@ export const AllowanceMasterPage = () => {
                 value={filter.name}
                 placeholder="Search here.."
                 className="py-1 px-2 rounded-md text-sm border-borders-light"
-                onChange={(e) => handleChangeFilter("input", e)}
-              />
-
-              <Select
-                value={filter.value}
-                onChange={(selectedOption) => {
-                  handleChangeFilter("dropdown", {
-                    field: "is_taxable",
-                    value: selectedOption ? selectedOption.value : "",
-                  });
-                }}
-                options={[
-                  {
-                    value: 1,
-                    label: "Taxable",
-                  },
-                  {
-                    value: 0,
-                    label: "Non-Taxable",
-                  },
-                ]}
-                placeholder="Tax status..."
-                isClearable
-                isSearchable
-                className="react-select-container"
-                classNamePrefix="react-select"
-                styles={styledComponent}
+                onChange={(e) => handleChangeFilter(e)}
               />
             </div>
           </div>
 
           <div onClick={() => handleFormVisibility("open", "add")}>
-            <AddButton text="Create Allowance" />
+            <AddButton text="Create Contract Type" />
           </div>
         </div>
 
-        {/* Allowance Listing */}
-        <AllowanceMasterListing />
+        {/* Bank Listing */}
+        <ContractTypeMasterListing />
 
-        {/* Allowance View */}
-        <AllowanceMasterView onClose={() => handleViewVisibility("close")} />
-
-        {/* Allowance Form */}
-        <AllowanceMasterForm
+        {/* Bank Form */}
+        <ContractTypeMasterForm
           onClose={() => handleFormVisibility("close", "add")}
         />
       </div>
