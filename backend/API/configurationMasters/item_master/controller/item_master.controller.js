@@ -125,10 +125,10 @@ module.exports.getItemDetails = async (req, res) => {
     JSON_ARRAYAGG(
           JSON_OBJECT(
               'item_specification_id', ISS.id,
-              'specification_type', ISS.spec_type,
-              'specification_description', ISS.spec_description
+              'type', ISS.spec_type,
+              'description', ISS.spec_description
             )
-      ) AS item_specifications
+      ) AS specifications
     FROM ITEM_MASTER AS IM
     LEFT JOIN UOM_MASTER AS U ON U.id=IM.uom_id
     LEFT JOIN ITEM_SPECIFICATION AS ISS ON ISS.item_id=IM.id

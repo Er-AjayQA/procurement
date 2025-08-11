@@ -27,15 +27,18 @@ export const ItemMasterListing = () => {
         </div>
 
         {/* List Form */}
-        <div className="p-3 h-[86%]">
-          <div className="grid grid-cols-5 border-b border-gray-300 gap-2">
+        <div className="p-3 h-[86%] overflow-auto scrollbar-hide">
+          <div className="grid grid-cols-8 border-b border-gray-300 gap-2 min-w-[900px]">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
             <div className="text-[.8rem] font-bold p-2">Name</div>
-            <div className="text-[.8rem] font-bold p-2">Dept. Name</div>
+            <div className="text-[.8rem] font-bold p-2">Item Code</div>
+            <div className="text-[.8rem] font-bold p-2">Item Category</div>
+            <div className="text-[.8rem] font-bold p-2">ManageBy</div>
+            <div className="text-[.8rem] font-bold p-2">Type</div>
             <div className="text-[.8rem] font-bold p-2">Status</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
-          <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide">
+          <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide min-w-[900px]">
             {isLoading ? (
               <SkeltonUi />
             ) : listing?.length > 0 ? (
@@ -43,7 +46,7 @@ export const ItemMasterListing = () => {
                 return (
                   <div
                     key={list.id}
-                    className="grid grid-cols-5 border-b border-gray-200 last:border-none gap-2"
+                    className="grid grid-cols-8 border-b border-gray-200 last:border-none gap-2"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
@@ -52,7 +55,16 @@ export const ItemMasterListing = () => {
                       {list?.name || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list.DEPARTMENT_MASTER?.name || "N/A"}
+                      {list?.item_code || "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {list?.item_category_name || "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {list?.manage_by || "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {list?.item_type || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list.status ? (

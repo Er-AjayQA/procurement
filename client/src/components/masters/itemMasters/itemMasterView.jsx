@@ -12,7 +12,7 @@ export const ItemMasterView = ({ onClose }) => {
         }`}
       ></div>
       <div
-        className={`absolute top-0 end-0 w-[30%] bg-white z-30 h-full shadow-lg rounded-lg transition-all duration-[.4s] origin-top ${
+        className={`absolute top-0 end-0 w-[50%] bg-white z-30 h-full shadow-lg rounded-lg transition-all duration-[.4s] origin-top ${
           viewVisibility ? "translate-x-[0%]" : "translate-x-[100%]"
         }`}
       >
@@ -70,7 +70,9 @@ export const ItemMasterView = ({ onClose }) => {
                 <span className="text-sm font-bold">Bar Code Type:</span>
               </div>
               <div>
-                <span className="text-sm">{data?.bar_code_type || "N/A"}</span>
+                <span className="text-sm">
+                  {data?.bar_code_type ? "Yes" : "No"}
+                </span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -120,6 +122,41 @@ export const ItemMasterView = ({ onClose }) => {
                   )}
                 </span>
               </div>
+            </div>
+
+            {/* Specifications */}
+            <div className="shadow-lg mt-5">
+              <div className="flex justify-between bg-button-hover py-2 px-2 rounded-t-md">
+                <h3 className="text-white text-xs font-bold">
+                  Item Specifications
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 border-b border-b-gray-500">
+                <div className="p-3 border-e border-e-gray-500">
+                  <span className="font-bold">Type</span>
+                </div>
+                <div className="p-3">
+                  <span className="font-bold">Description</span>
+                </div>
+              </div>
+              {data?.specifications.length > 0 ? (
+                data.specifications.map((spec) => {
+                  return (
+                    <div className="grid grid-cols-2 border-b border-b-gray-300 ">
+                      <div className="p-3 border-e border-e-gray-300">
+                        <span>{spec.type}</span>
+                      </div>
+                      <div className="p-3">
+                        <span>{spec.description}</span>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div>
+                  <p className="text-xs">No Specs Found!</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

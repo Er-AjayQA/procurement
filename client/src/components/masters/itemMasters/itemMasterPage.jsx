@@ -4,8 +4,12 @@ import { ItemMasterForm } from "./itemMasterForm";
 import { useItemMasterContext } from "../../../contextApis/useMastersContextFile";
 import Select from "react-select";
 import { useEffect, useState } from "react";
-import { getAllDepartments } from "../../../services/master_services/service";
+import {
+  getAllDepartments,
+  getAllItemCategory,
+} from "../../../services/master_services/service";
 import { ItemMasterView } from "./itemMasterView";
+import { toast } from "react-toastify";
 
 export const ItemMasterPage = () => {
   const {
@@ -17,31 +21,32 @@ export const ItemMasterPage = () => {
     handleViewVisibility,
   } = useItemMasterContext();
 
-  const [departmentOptions, setDepartmentOptions] = useState(null);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [categoryOptions, setCategoryOptions] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // Get All Department List
-  const getAllDepartmentList = async () => {
+  // Get All Item Category List
+  const getAllCategoryList = async () => {
     try {
-      const response = await getAllDepartments({ limit: 500, page: 1 });
+      const response = await getAllItemCategory({
+        limit: 5000,
+        page: 1,
+        filter: { name: "" },
+      });
 
       if (response.success) {
-        setDepartmentOptions(
-          response.data.map((code) => ({
-            value: `${code.id}`,
-            label: `${code.name}`,
+        setCategoryOptions(
+          response.data.map((data) => ({
+            value: data.id,
+            label: data.name,
           }))
         );
-      } else {
-        setDepartmentOptions(null);
       }
     } catch (error) {
-      setDepartmentOptions(null);
+      toast.error("Failed to load item categories");
     }
   };
-
   useEffect(() => {
-    getAllDepartmentList();
+    getAllCategoryList();
   }, []);
 
   return (
@@ -85,16 +90,16 @@ export const ItemMasterPage = () => {
               />
 
               <Select
-                value={selectedDepartment}
+                value={selectedCategory}
                 onChange={(selectedOption) => {
-                  setSelectedDepartment(selectedOption);
+                  setSelectedCategory(selectedOption);
                   handleChangeFilter("dropdown", {
-                    field: "dept_id",
+                    field: "item_category_id",
                     value: selectedOption ? selectedOption.value : "",
                   });
                 }}
-                options={departmentOptions}
-                placeholder="Search by department..."
+                options={categoryOptions}
+                placeholder="Search by category..."
                 isClearable
                 isSearchable
                 className="react-select-container"

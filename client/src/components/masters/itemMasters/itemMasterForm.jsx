@@ -1,41 +1,38 @@
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
-import { MdOutlineClose } from "react-icons/md";
+import { MdOutlineClose, MdDelete } from "react-icons/md";
+import { IoMdAdd } from "react-icons/io";
 import {
-  createArea,
+  createItem,
   getAllItemCategory,
   getAllUom,
-  updateArea,
+  updateItem,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useItemMasterContext } from "../../../contextApis/useMastersContextFile";
 
 export const ItemMasterForm = ({ onClose }) => {
-  const {
-    formVisibility,
-    formType,
-    getAllData,
-    updateId,
-    data,
-    styledComponent,
-  } = useItemMasterContext();
+  const { formVisibility, formType, getAllData, updateId, data } =
+    useItemMasterContext();
 
-  const [barCodeOptions, setBarCodeOptions] = useState([
+  const [barCodeOptions] = useState([
     { value: 1, label: "Yes" },
     { value: 0, label: "No" },
   ]);
-  const [manageByOptions, setManageByOptions] = useState([
+  const [manageByOptions] = useState([
     { value: "Batch", label: "Batch" },
     { value: "Serial", label: "Serial" },
   ]);
-  const [itemTypeOptions, setItemTypeOptions] = useState([
+  const [itemTypeOptions] = useState([
     { value: "Item", label: "Item" },
     { value: "Assets", label: "Assets" },
   ]);
 
-  const [itemCategoryOptions, setItemCategoryOptions] = useState(null);
-  const [uomOptions, setUomOptions] = useState(null);
+  const [itemCategoryOptions, setItemCategoryOptions] = useState([]);
+  const [uomOptions, setUomOptions] = useState([]);
+  const [specifications, setSpecifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -46,10 +43,15 @@ export const ItemMasterForm = ({ onClose }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      // Set default empty values
       name: "",
-      department_head_id: "",
-      dept_head_name: "",
+      mvp: "",
+      bar_code_type: { value: 0, label: "No" },
+      manage_by: { value: "Batch", label: "Batch" },
+      item_desc: "",
+      threshold_stock: 0,
+      item_type: { value: "Item", label: "Item" },
+      item_category_id: null,
+      uom_id: null,
     },
   });
 
@@ -69,11 +71,9 @@ export const ItemMasterForm = ({ onClose }) => {
             label: data.name,
           }))
         );
-      } else {
-        setItemCategoryOptions(null);
       }
     } catch (error) {
-      setItemCategoryOptions(null);
+      toast.error("Failed to load item categories");
     }
   };
 
@@ -93,65 +93,131 @@ export const ItemMasterForm = ({ onClose }) => {
             label: data.name,
           }))
         );
-      } else {
-        setUomOptions(null);
       }
     } catch (error) {
-      setUomOptions(null);
+      toast.error("Failed to load UOMs");
     }
   };
 
   // Set form values when in update mode
   useEffect(() => {
-    if (formType === "Update" && data) {
-      reset({
-        name: data.name || data[0]?.name || "",
-      });
+    const initializeForm = async () => {
+      setIsLoading(true);
+      try {
+        // Load options if not already loaded
+        if (itemCategoryOptions.length === 0) await getAllCategoryList();
+        if (uomOptions.length === 0) await getAllUomList();
 
-      const setDepartmentDropdown = async () => {
-        try {
-          if (data[0].bar_code_type) {
-            const departmentOption = barCodeOptions.find(
-              (code) => code.label === data[0].bar_code_type
+        if (formType === "Update" && data) {
+          const formData = Array.isArray(data) ? data[0] : data;
+
+          reset({
+            name: formData.name || "",
+            mvp: formData.mvp || "",
+            bar_code_type:
+              barCodeOptions.find(
+                (opt) => opt.value === formData.bar_code_type
+              ) || barCodeOptions[1], // Default to "No"
+            manage_by:
+              manageByOptions.find((opt) => opt.value === formData.manage_by) ||
+              manageByOptions[0], // Default to "Batch"
+            item_desc: formData.item_desc || "",
+            threshold_stock: formData.threshold_stock || 0,
+            item_type:
+              itemTypeOptions.find((opt) => opt.value === formData.item_type) ||
+              itemTypeOptions[0], // Default to "Item"
+          });
+
+          // Set Category
+          if (formData.item_category_id) {
+            const categoryOption = itemCategoryOptions.find(
+              (category) => category.value === formData.item_category_id
             );
-
-            if (departmentOption) {
-              setValue("dept_id", departmentOption);
-            }
+            if (categoryOption) setValue("item_category_id", categoryOption);
           }
-        } catch (error) {
-          console.error("Error setting dropdown options:", error);
-        }
-      };
 
-      setDepartmentDropdown();
-    } else {
-      reset({ name: "", dept_id: "" });
-    }
-  }, [formType, data, reset, setValue, barCodeOptions]);
+          // Set UOM
+          if (formData.uom_id) {
+            const uomOption = uomOptions.find(
+              (uom) => uom.value === formData.uom_id
+            );
+            if (uomOption) setValue("uom_id", uomOption);
+          }
+
+          setSpecifications(formData.specifications || []);
+        } else {
+          reset({
+            name: "",
+            mvp: "",
+            bar_code_type: barCodeOptions[1], // Default to "No"
+            manage_by: manageByOptions[0], // Default to "Batch"
+            item_desc: "",
+            threshold_stock: 0,
+            item_type: itemTypeOptions[0], // Default to "Item"
+            item_category_id: null,
+            uom_id: null,
+          });
+          setSpecifications([]);
+        }
+      } catch (error) {
+        console.error("Error initializing form:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeForm();
+  }, [formType, data, reset]);
 
   // Handle Form Close
   const handleFormClose = () => {
-    reset({
-      name: "",
-      dept_id: null,
-    });
+    reset();
+    setSpecifications([]);
     onClose();
+  };
+
+  // Handle Add Specifications
+  const handleAddSpecification = () => {
+    setSpecifications([...specifications, { type: "", description: "" }]);
+  };
+
+  // Handle Remove Specification Row
+  const handleRemoveSpecification = (index) => {
+    const updatedSpecs = [...specifications];
+    updatedSpecs.splice(index, 1);
+    setSpecifications(updatedSpecs);
+  };
+
+  // Handle Specification Change
+  const handleSpecificationChange = (index, field, value) => {
+    const updatedSpecs = [...specifications];
+    updatedSpecs[index][field] = value;
+    setSpecifications(updatedSpecs);
   };
 
   // Handle Form Submit
   const onSubmit = async (formData) => {
     try {
       const payload = {
-        name: formData.name || "",
-        dept_id: formData.dept_id?.value || "",
+        name: formData.name,
+        mvp: Number(formData.mvp),
+        bar_code_type: formData.bar_code_type?.value || false,
+        manage_by: formData.manage_by?.value || "Batch",
+        item_desc: formData.item_desc || "",
+        threshold_stock: Number(formData.threshold_stock),
+        item_type: formData.item_type?.value || "Item",
+        item_category_id: formData.item_category_id?.value,
+        uom_id: formData.uom_id?.value,
+        specifications: specifications.filter(
+          (spec) => spec.type && spec.description
+        ),
       };
 
-      let response = "";
+      let response;
       if (formType === "Update") {
-        response = await updateArea(updateId, payload);
+        response = await updateItem(updateId, payload);
       } else {
-        response = await createArea(payload);
+        response = await createItem(payload);
       }
 
       if (response.success) {
@@ -163,14 +229,9 @@ export const ItemMasterForm = ({ onClose }) => {
       }
     } catch (error) {
       toast.error(error.message || "An error occurred");
-      throw new Error(error.message);
+      console.error(error);
     }
   };
-
-  useEffect(() => {
-    getAllCategoryList();
-    getAllUomList();
-  }, []);
 
   const selectStyles = {
     control: (base) => ({
@@ -219,6 +280,14 @@ export const ItemMasterForm = ({ onClose }) => {
     }),
   };
 
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div
@@ -227,25 +296,24 @@ export const ItemMasterForm = ({ onClose }) => {
         }`}
       ></div>
       <div
-        className={`absolute top-0 start-[50%] w-[70%] translate-x-[-50%] bg-white z-30 min-h-[60%] shadow-lg rounded-lg transition-all duration-[.4s] origin-top ${
+        className={`absolute top-0 start-[50%] w-[70%] translate-x-[-50%] bg-white z-30 max-h-[80vh] shadow-lg rounded-lg transition-all duration-[.4s] origin-top flex flex-col ${
           formVisibility ? "translate-y-[0%]" : "translate-y-[-100%]"
         }`}
       >
-        <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
+        {/* Fixed Header */}
+        <div className="haze_purple py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
           <h3 className="text-white text-sm font-bold">
             {formType === "Add" ? "Add Item" : "Update Item"}
           </h3>
-          {/* Form Close Button */}
           <div
             className="hover:bg-red-500 p-2 rounded-lg hover:fill-white"
-            onClick={onClose}
+            onClick={handleFormClose}
           >
             <MdOutlineClose className="fill-white" />
           </div>
         </div>
 
-        {/* Form */}
-        <div className="w-full mx-auto p-10">
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-10 py-4">
           <form
             className="flex flex-col gap-4"
             onSubmit={handleSubmit(onSubmit)}
@@ -255,24 +323,28 @@ export const ItemMasterForm = ({ onClose }) => {
               {/* Item Category */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="item_category_id" className="text-sm">
-                  Item Category
+                  Item Category <span className="text-red-700">*</span>
                 </label>
                 <Controller
                   name="item_category_id"
                   control={control}
+                  rules={{ required: "Category is required" }}
                   render={({ field }) => (
                     <Select
                       {...field}
                       options={itemCategoryOptions}
+                      value={itemCategoryOptions.find(
+                        (opt) =>
+                          opt.value === field.value?.value ||
+                          opt.value === field.value
+                      )}
+                      onChange={(selected) => field.onChange(selected)}
                       placeholder="Select category"
                       isClearable
                       isSearchable
                       className="react-select-container"
                       classNamePrefix="react-select"
                       styles={selectStyles}
-                      {...register("item_category_id", {
-                        required: "Category is required!",
-                      })}
                     />
                   )}
                 />
@@ -282,10 +354,11 @@ export const ItemMasterForm = ({ onClose }) => {
                   </p>
                 )}
               </div>
+
               {/* Name */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="name" className="text-sm">
-                  Name
+                  Name <span className="text-red-700">*</span>
                 </label>
                 <input
                   type="text"
@@ -302,10 +375,11 @@ export const ItemMasterForm = ({ onClose }) => {
                   </p>
                 )}
               </div>
+
               {/* MVP */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="mvp" className="text-sm">
-                  MVP
+                  MVP <span className="text-red-700">*</span>
                 </label>
                 <input
                   type="number"
@@ -314,6 +388,7 @@ export const ItemMasterForm = ({ onClose }) => {
                   placeholder="Enter mvp"
                   {...register("mvp", {
                     required: "MVP is required!",
+                    min: { value: 0, message: "MVP must be positive" },
                   })}
                 />
                 {errors.mvp && (
@@ -338,6 +413,12 @@ export const ItemMasterForm = ({ onClose }) => {
                     <Select
                       {...field}
                       options={barCodeOptions}
+                      value={barCodeOptions.find(
+                        (opt) =>
+                          opt.value === field.value?.value ||
+                          opt.value === field.value
+                      )}
+                      onChange={(selected) => field.onChange(selected)}
                       placeholder="Select.."
                       isClearable
                       isSearchable
@@ -347,42 +428,43 @@ export const ItemMasterForm = ({ onClose }) => {
                     />
                   )}
                 />
-                {errors.bar_code_type && (
-                  <p className="text-red-500 text-[.7rem]">
-                    {errors.bar_code_type.message}
-                  </p>
-                )}
               </div>
-              {/* Manage By Type */}
+
+              {/* Manage By */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="bar_code_type" className="text-sm">
+                <label htmlFor="manage_by" className="text-sm">
                   Manage By
                 </label>
                 <Controller
-                  name="bar_code_type"
+                  name="manage_by"
                   control={control}
+                  rules={{ required: "Manage by is required" }}
                   render={({ field }) => (
                     <Select
                       {...field}
                       options={manageByOptions}
+                      value={manageByOptions.find(
+                        (opt) =>
+                          opt.value === field.value?.value ||
+                          opt.value === field.value
+                      )}
+                      onChange={(selected) => field.onChange(selected)}
                       placeholder="Select.."
                       isClearable
                       isSearchable
                       className="react-select-container"
                       classNamePrefix="react-select"
                       styles={selectStyles}
-                      {...register("bar_code_type", {
-                        required: "Bar Code Type is required!",
-                      })}
                     />
                   )}
                 />
-                {errors.bar_code_type && (
+                {errors.manage_by && (
                   <p className="text-red-500 text-[.7rem]">
-                    {errors.bar_code_type.message}
+                    {errors.manage_by.message}
                   </p>
                 )}
               </div>
+
               {/* Threshold Stock */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="threshold_stock" className="text-sm">
@@ -395,6 +477,7 @@ export const ItemMasterForm = ({ onClose }) => {
                   placeholder="Enter threshold value"
                   {...register("threshold_stock", {
                     required: "Threshold is required!",
+                    min: { value: 0, message: "Threshold must be positive" },
                   })}
                 />
                 {errors.threshold_stock && (
@@ -419,45 +502,48 @@ export const ItemMasterForm = ({ onClose }) => {
                     <Select
                       {...field}
                       options={itemTypeOptions}
+                      value={itemTypeOptions.find(
+                        (opt) =>
+                          opt.value === field.value?.value ||
+                          opt.value === field.value
+                      )}
+                      onChange={(selected) => field.onChange(selected)}
                       placeholder="Select.."
                       isClearable
                       isSearchable
                       className="react-select-container"
                       classNamePrefix="react-select"
                       styles={selectStyles}
-                      {...register("item_type", {
-                        required: "Item Type is required!",
-                      })}
                     />
                   )}
                 />
-                {errors.item_type && (
-                  <p className="text-red-500 text-[.7rem]">
-                    {errors.item_type.message}
-                  </p>
-                )}
               </div>
+
               {/* UOM */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="uom_id" className="text-sm">
-                  UOM
+                  UOM <span className="text-red-700">*</span>
                 </label>
                 <Controller
                   name="uom_id"
                   control={control}
+                  rules={{ required: "UOM is required" }}
                   render={({ field }) => (
                     <Select
                       {...field}
                       options={uomOptions}
+                      value={uomOptions.find(
+                        (opt) =>
+                          opt.value === field.value?.value ||
+                          opt.value === field.value
+                      )}
+                      onChange={(selected) => field.onChange(selected)}
                       placeholder="Select.."
                       isClearable
                       isSearchable
                       className="react-select-container"
                       classNamePrefix="react-select"
                       styles={selectStyles}
-                      {...register("uom_id", {
-                        required: "Uom is required!",
-                      })}
                     />
                   )}
                 />
@@ -467,10 +553,89 @@ export const ItemMasterForm = ({ onClose }) => {
                   </p>
                 )}
               </div>
+
+              {/* Description */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="item_desc" className="text-sm">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  id="item_desc"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter description"
+                  {...register("item_desc")}
+                />
+              </div>
             </div>
 
-            <div>
-              <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">
+            {/* Specifications Section */}
+            <div className="mt-5">
+              <div className="flex justify-between bg-button-hover py-2 px-2 rounded-t-md">
+                <h3 className="text-white text-xs font-bold">
+                  Add Specifications
+                </h3>
+                <IoMdAdd
+                  className="fill-white cursor-pointer"
+                  onClick={handleAddSpecification}
+                />
+              </div>
+
+              {specifications.map((spec, index) => (
+                <div
+                  key={index}
+                  className="flex w-full border-b border-b-gray-500"
+                >
+                  <div className="basis-[40%] p-3 border-e border-e-gray-500">
+                    <input
+                      type="text"
+                      value={spec.type}
+                      onChange={(e) =>
+                        handleSpecificationChange(index, "type", e.target.value)
+                      }
+                      placeholder="Enter title"
+                      className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                    />
+                  </div>
+                  <div className="basis-[40%] p-3 border-e border-e-gray-500">
+                    <input
+                      type="text"
+                      value={spec.description}
+                      onChange={(e) =>
+                        handleSpecificationChange(
+                          index,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter description..."
+                      className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                    />
+                  </div>
+                  <div className="flex justify-center items-center basis-[20%] p-3">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSpecification(index)}
+                    >
+                      <MdDelete className="hover:fill-red-500 text-xl" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <button
+                type="button"
+                className="bg-red-500 px-5 py-2 rounded-md text-xs text-white hover:bg-red-600 mr-3"
+                onClick={handleFormClose}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover"
+              >
                 {formType === "Add" ? "Create" : "Update"}
               </button>
             </div>
