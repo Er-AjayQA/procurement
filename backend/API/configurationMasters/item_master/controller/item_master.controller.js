@@ -121,7 +121,7 @@ module.exports.getItemDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT IM.*, IC.name AS item_category_name, IC.item_category_code,
+    SELECT IM.*, IC.name AS item_category_name, IC.item_category_code, U.name as uom_name,
     JSON_ARRAYAGG(
           JSON_OBJECT(
               'item_specification_id', ISS.id,
@@ -130,6 +130,7 @@ module.exports.getItemDetails = async (req, res) => {
             )
       ) AS item_specifications
     FROM ITEM_MASTER AS IM
+    LEFT JOIN UOM_MASTER AS U ON U.id=IM.uom_id
     LEFT JOIN ITEM_SPECIFICATION AS ISS ON ISS.item_id=IM.id
     LEFT JOIN ITEM_CATEGORY_MASTER AS IC ON IC.id=IM.item_category_id
     WHERE IM.id=${id} AND IM.isDeleted=false
@@ -187,6 +188,9 @@ module.exports.getAllItemDetails = async (req, res) => {
       include: [
         {
           model: DB.tbl_item_category_master,
+        },
+        {
+          model: DB.tbl_uom_master,
         },
       ],
       where: whereClause,

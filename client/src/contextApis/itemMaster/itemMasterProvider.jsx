@@ -48,7 +48,7 @@ export const ItemMasterProvider = ({ children }) => {
   const getDataById = async (id) => {
     const response = await getItemById(id);
     if (response.success) {
-      setData(response.data);
+      setData(response.data[0]);
     }
   };
 
