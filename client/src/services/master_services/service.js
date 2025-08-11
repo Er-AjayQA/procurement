@@ -965,3 +965,148 @@ export const deleteItemCategory = async (id) => {
   });
   return response.data;
 };
+
+// **************************** ITEM MASTER **************************** //
+// Create Item Master
+export const createItem = async (formData) => {
+  const response = await axiosInstance.post("create-item", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Item
+export const updateItem = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(`update-item/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateItemStatus = async (id) => {
+  const response = await axiosInstance.put(`update-item-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Item by ID
+export const getItemById = async (id) => {
+  const response = await axiosInstance.post(`get-item-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Item List
+export const getAllItem = async (formData) => {
+  const response = await axiosInstance.post("get-all-item-details", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Delete Item Master
+export const deleteItem = async (id) => {
+  const response = await axiosInstance.put(`delete-item/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// **************************** SERVICE CATEGORY MASTER **************************** //
+// Create Service Category Master
+export const createServiceCategory = async (formData) => {
+  const response = await axiosInstance.post(
+    "create-service-category",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Update Service Category
+export const updateServiceCategory = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-service-category/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateServiceCategoryStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-service-category-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get Master Service Category by ID
+export const getServiceCategoryById = async (id) => {
+  const response = await axiosInstance.post(
+    `get-service-category-details/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Master Service Category List
+export const getAllServiceCategory = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-service-categories",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Service Category Master
+export const deleteServiceCategory = async (id) => {
+  const response = await axiosInstance.put(`delete-service-category/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

@@ -7,6 +7,8 @@ import { ContractTypeMasterContext } from "./contractTypeMaster/contractTypeMast
 import { ShiftMasterContext } from "./shiftMaster/shiftMasterContext";
 import { UomMasterContext } from "./uomMaster/uomMasterContext";
 import { ItemCategoryMasterContext } from "./itemCategoryMaster/itemCategoryMasterContext";
+import { ServiceCategoryMasterContext } from "./serviceCategoryMaster/serviceCategoryMasterContext";
+import { ItemMasterContext } from "./itemMaster/itemMasterContext";
 
 // Use Area Master Context
 export const useAreaMasterContext = () => {
@@ -87,6 +89,28 @@ export const useItemCategoryMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useItemCategoryMasterContext must be used within a ItemCategoryMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Item Master Context
+export const useItemMasterContext = () => {
+  const context = useContext(ItemMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useItemMasterContext must be used within a ItemMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Service Category Master Context
+export const useServiceCategoryMasterContext = () => {
+  const context = useContext(ServiceCategoryMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useServiceCategoryMasterContext must be used within a ServiceCategoryMasterProvider"
     );
   }
   return context;
