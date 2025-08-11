@@ -77,7 +77,7 @@ export const ItemMasterView = ({ onClose }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Manage By</span>
+                <span className="text-sm font-bold">Manage By:</span>
               </div>
               <div>
                 <span className="text-sm">{data?.manage_by || "N/A"}</span>
@@ -85,7 +85,7 @@ export const ItemMasterView = ({ onClose }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Threshold Stock</span>
+                <span className="text-sm font-bold">Threshold Stock:</span>
               </div>
               <div>
                 <span className="text-sm">
@@ -95,7 +95,7 @@ export const ItemMasterView = ({ onClose }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Item Type</span>
+                <span className="text-sm font-bold">Item Type:</span>
               </div>
               <div>
                 <span className="text-sm">{data?.item_type || "N/A"}</span>
@@ -103,7 +103,7 @@ export const ItemMasterView = ({ onClose }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">UOM</span>
+                <span className="text-sm font-bold">UOM:</span>
               </div>
               <div>
                 <span className="text-sm">{data?.uom_name || "N/A"}</span>
@@ -111,7 +111,15 @@ export const ItemMasterView = ({ onClose }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Status</span>
+                <span className="text-sm font-bold">Description:</span>
+              </div>
+              <div>
+                <span className="text-sm">{data?.item_desc || "N/A"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-sm font-bold">Status:</span>
               </div>
               <div>
                 <span className="text-sm">
