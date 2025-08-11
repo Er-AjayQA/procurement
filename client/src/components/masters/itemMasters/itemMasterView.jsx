@@ -33,7 +33,17 @@ export const ItemMasterView = ({ onClose }) => {
           <div className="h-[75%] overflow-y-scroll scrollbar-hide flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Allowance Name:</span>
+                <span className="text-sm font-bold">Item Category:</span>
+              </div>
+              <div>
+                <span className="text-sm">
+                  {data?.item_category_name || "N/A"}
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-sm font-bold">Item Name:</span>
               </div>
               <div>
                 <span className="text-sm">{data?.name || "N/A"}</span>
@@ -41,36 +51,60 @@ export const ItemMasterView = ({ onClose }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">
-                  Domestic Allowance Amount:
-                </span>
+                <span className="text-sm font-bold">Item Code:</span>
+              </div>
+              <div>
+                <span className="text-sm">{data?.item_code || "N/A"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-sm font-bold">MVP:</span>
+              </div>
+              <div>
+                <span className="text-sm">{data?.mvp || "N/A"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-sm font-bold">Bar Code Type:</span>
+              </div>
+              <div>
+                <span className="text-sm">{data?.bar_code_type || "N/A"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-sm font-bold">Manage By</span>
+              </div>
+              <div>
+                <span className="text-sm">{data?.manage_by || "N/A"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-sm font-bold">Threshold Stock</span>
               </div>
               <div>
                 <span className="text-sm">
-                  {data?.domestic_allowance || "N/A"}
+                  {data?.threshold_stock || "N/A"}
                 </span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">
-                  International Allowance Amount:
-                </span>
+                <span className="text-sm font-bold">Item Type</span>
               </div>
               <div>
-                <span className="text-sm">
-                  {data?.international_allowance || "N/A"}
-                </span>
+                <span className="text-sm">{data?.item_type || "N/A"}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-sm font-bold">Taxable Status</span>
+                <span className="text-sm font-bold">UOM</span>
               </div>
               <div>
-                <span className="text-sm">
-                  {data?.is_taxable ? "Taxable" : "Non-Taxable"}
-                </span>
+                <span className="text-sm">{data?.uom_name || "N/A"}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">

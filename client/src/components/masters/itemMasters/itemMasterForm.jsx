@@ -3,7 +3,8 @@ import Select from "react-select";
 import { MdOutlineClose } from "react-icons/md";
 import {
   createArea,
-  getAllDepartments,
+  getAllItemCategory,
+  getAllUom,
   updateArea,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
@@ -11,9 +12,31 @@ import { useEffect, useState } from "react";
 import { useItemMasterContext } from "../../../contextApis/useMastersContextFile";
 
 export const ItemMasterForm = ({ onClose }) => {
-  const { formVisibility, formType, getAllData, updateId, data } =
-    useItemMasterContext();
-  const [departmentOptions, setDepartmentOptions] = useState(null);
+  const {
+    formVisibility,
+    formType,
+    getAllData,
+    updateId,
+    data,
+    styledComponent,
+  } = useItemMasterContext();
+
+  const [barCodeOptions, setBarCodeOptions] = useState([
+    { value: 1, label: "Yes" },
+    { value: 0, label: "No" },
+  ]);
+  const [manageByOptions, setManageByOptions] = useState([
+    { value: "Batch", label: "Batch" },
+    { value: "Serial", label: "Serial" },
+  ]);
+  const [itemTypeOptions, setItemTypeOptions] = useState([
+    { value: "Item", label: "Item" },
+    { value: "Assets", label: "Assets" },
+  ]);
+
+  const [itemCategoryOptions, setItemCategoryOptions] = useState(null);
+  const [uomOptions, setUomOptions] = useState(null);
+
   const {
     register,
     handleSubmit,
@@ -30,23 +53,51 @@ export const ItemMasterForm = ({ onClose }) => {
     },
   });
 
-  // Get All Department List
-  const getAllDepartmentList = async () => {
+  // Get All Item Category List
+  const getAllCategoryList = async () => {
     try {
-      const response = await getAllDepartments({ limit: 1000, page: "" });
+      const response = await getAllItemCategory({
+        limit: 5000,
+        page: 1,
+        filter: { name: "" },
+      });
 
       if (response.success) {
-        setDepartmentOptions(
+        setItemCategoryOptions(
           response.data.map((data) => ({
             value: data.id,
             label: data.name,
           }))
         );
       } else {
-        setDepartmentOptions(null);
+        setItemCategoryOptions(null);
       }
     } catch (error) {
-      setDepartmentOptions(null);
+      setItemCategoryOptions(null);
+    }
+  };
+
+  // Get All UOM List
+  const getAllUomList = async () => {
+    try {
+      const response = await getAllUom({
+        limit: 5000,
+        page: 1,
+        filter: { name: "" },
+      });
+
+      if (response.success) {
+        setUomOptions(
+          response.data.map((data) => ({
+            value: data.id,
+            label: data.name,
+          }))
+        );
+      } else {
+        setUomOptions(null);
+      }
+    } catch (error) {
+      setUomOptions(null);
     }
   };
 
@@ -59,13 +110,9 @@ export const ItemMasterForm = ({ onClose }) => {
 
       const setDepartmentDropdown = async () => {
         try {
-          if (!departmentOptions) {
-            await getAllDepartmentList();
-          }
-
-          if (data[0].dept_id) {
-            const departmentOption = departmentOptions.find(
-              (code) => code.value === data[0].dept_id
+          if (data[0].bar_code_type) {
+            const departmentOption = barCodeOptions.find(
+              (code) => code.label === data[0].bar_code_type
             );
 
             if (departmentOption) {
@@ -81,7 +128,7 @@ export const ItemMasterForm = ({ onClose }) => {
     } else {
       reset({ name: "", dept_id: "" });
     }
-  }, [formType, data, reset, setValue, departmentOptions]);
+  }, [formType, data, reset, setValue, barCodeOptions]);
 
   // Handle Form Close
   const handleFormClose = () => {
@@ -120,9 +167,9 @@ export const ItemMasterForm = ({ onClose }) => {
     }
   };
 
-  // Get All Departments on Page Load
   useEffect(() => {
-    getAllDepartmentList();
+    getAllCategoryList();
+    getAllUomList();
   }, []);
 
   const selectStyles = {
@@ -180,7 +227,7 @@ export const ItemMasterForm = ({ onClose }) => {
         }`}
       ></div>
       <div
-        className={`absolute top-0 start-[50%] w-[50%] translate-x-[-50%] bg-white z-30 min-h-[60%] shadow-lg rounded-lg transition-all duration-[.4s] origin-top ${
+        className={`absolute top-0 start-[50%] w-[70%] translate-x-[-50%] bg-white z-30 min-h-[60%] shadow-lg rounded-lg transition-all duration-[.4s] origin-top ${
           formVisibility ? "translate-y-[0%]" : "translate-y-[-100%]"
         }`}
       >
@@ -198,56 +245,230 @@ export const ItemMasterForm = ({ onClose }) => {
         </div>
 
         {/* Form */}
-        <div className="w-[50%] absolute top-[50%] start-[50%] translate-x-[-50%] translate-y-[-50%]">
+        <div className="w-full mx-auto p-10">
           <form
             className="flex flex-col gap-4"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-sm">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                placeholder="Enter area name"
-                {...register("name", {
-                  required: "Area Name is required!",
-                })}
-              />
-              {errors.name && (
-                <p className="text-red-500 text-[.7rem]">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="dept_id" className="text-sm">
-                Department
-              </label>
-              <Controller
-                name="dept_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    options={departmentOptions}
-                    placeholder="Select department"
-                    isClearable
-                    isSearchable
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    styles={selectStyles}
-                  />
+            {/* Row 1 */}
+            <div className="grid grid-cols-3 gap-5">
+              {/* Item Category */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="item_category_id" className="text-sm">
+                  Item Category
+                </label>
+                <Controller
+                  name="item_category_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={itemCategoryOptions}
+                      placeholder="Select category"
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={selectStyles}
+                      {...register("item_category_id", {
+                        required: "Category is required!",
+                      })}
+                    />
+                  )}
+                />
+                {errors.item_category_id && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.item_category_id.message}
+                  </p>
                 )}
-              />
-              {errors.dept_id && (
-                <p className="text-red-500 text-[.7rem]">
-                  {errors.dept_id.message}
-                </p>
-              )}
+              </div>
+              {/* Name */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="name" className="text-sm">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter name"
+                  {...register("name", {
+                    required: "Name is required!",
+                  })}
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+              {/* MVP */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="mvp" className="text-sm">
+                  MVP
+                </label>
+                <input
+                  type="number"
+                  id="mvp"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter mvp"
+                  {...register("mvp", {
+                    required: "MVP is required!",
+                  })}
+                />
+                {errors.mvp && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.mvp.message}
+                  </p>
+                )}
+              </div>
             </div>
+
+            {/* Row 2 */}
+            <div className="grid grid-cols-3 gap-5">
+              {/* Bar Code Type */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="bar_code_type" className="text-sm">
+                  Bar Available?
+                </label>
+                <Controller
+                  name="bar_code_type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={barCodeOptions}
+                      placeholder="Select.."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={selectStyles}
+                    />
+                  )}
+                />
+                {errors.bar_code_type && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.bar_code_type.message}
+                  </p>
+                )}
+              </div>
+              {/* Manage By Type */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="bar_code_type" className="text-sm">
+                  Manage By
+                </label>
+                <Controller
+                  name="bar_code_type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={manageByOptions}
+                      placeholder="Select.."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={selectStyles}
+                      {...register("bar_code_type", {
+                        required: "Bar Code Type is required!",
+                      })}
+                    />
+                  )}
+                />
+                {errors.bar_code_type && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.bar_code_type.message}
+                  </p>
+                )}
+              </div>
+              {/* Threshold Stock */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="threshold_stock" className="text-sm">
+                  Stock Threshold
+                </label>
+                <input
+                  type="number"
+                  id="threshold_stock"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter threshold value"
+                  {...register("threshold_stock", {
+                    required: "Threshold is required!",
+                  })}
+                />
+                {errors.threshold_stock && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.threshold_stock.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Row 3 */}
+            <div className="grid grid-cols-3 gap-5">
+              {/* Item Type */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="item_type" className="text-sm">
+                  Item Type
+                </label>
+                <Controller
+                  name="item_type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={itemTypeOptions}
+                      placeholder="Select.."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={selectStyles}
+                      {...register("item_type", {
+                        required: "Item Type is required!",
+                      })}
+                    />
+                  )}
+                />
+                {errors.item_type && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.item_type.message}
+                  </p>
+                )}
+              </div>
+              {/* UOM */}
+              <div className="flex flex-col gap-2">
+                <label htmlFor="uom_id" className="text-sm">
+                  UOM
+                </label>
+                <Controller
+                  name="uom_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={uomOptions}
+                      placeholder="Select.."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={selectStyles}
+                      {...register("uom_id", {
+                        required: "Uom is required!",
+                      })}
+                    />
+                  )}
+                />
+                {errors.uom_id && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.uom_id.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div>
               <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">
                 {formType === "Add" ? "Create" : "Update"}
