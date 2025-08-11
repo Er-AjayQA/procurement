@@ -2,9 +2,9 @@ import { MdEdit, MdDelete } from "react-icons/md";
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaEye } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
-import { useItemMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useServiceMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const ItemMasterListing = () => {
+export const ServiceMasterListing = () => {
   const {
     isLoading,
     listing,
@@ -17,24 +17,22 @@ export const ItemMasterListing = () => {
     setPage,
     handleViewVisibility,
     setViewId,
-  } = useItemMasterContext();
+  } = useServiceMasterContext();
 
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">Item Listing</h3>
+          <h3 className="text-white text-xs font-bold">Service Listing</h3>
         </div>
 
         {/* List Form */}
         <div className="p-3 h-[86%] overflow-auto scrollbar-hide">
-          <div className="grid grid-cols-8 border-b border-gray-300 gap-2 min-w-[900px]">
+          <div className="grid grid-cols-6 border-b border-gray-300 gap-2 min-w-[900px]">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
             <div className="text-[.8rem] font-bold p-2">Name</div>
-            <div className="text-[.8rem] font-bold p-2">Item Code</div>
-            <div className="text-[.8rem] font-bold p-2">Item Category</div>
-            <div className="text-[.8rem] font-bold p-2">ManageBy</div>
-            <div className="text-[.8rem] font-bold p-2">Type</div>
+            <div className="text-[.8rem] font-bold p-2">Service Code</div>
+            <div className="text-[.8rem] font-bold p-2">Service Category</div>
             <div className="text-[.8rem] font-bold p-2">Status</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
@@ -46,7 +44,7 @@ export const ItemMasterListing = () => {
                 return (
                   <div
                     key={list.id}
-                    className="grid grid-cols-8 border-b border-gray-200 last:border-none gap-2"
+                    className="grid grid-cols-6 border-b border-gray-200 last:border-none gap-2"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
@@ -55,16 +53,10 @@ export const ItemMasterListing = () => {
                       {list?.name || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.item_code || "N/A"}
+                      {list?.service_code || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.ITEM_CATEGORY_MASTER?.name || "N/A"}
-                    </div>
-                    <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.manage_by || "N/A"}
-                    </div>
-                    <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.item_type || "N/A"}
+                      {list?.SERVICE_CATEGORY_MASTER?.name || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list.status ? (

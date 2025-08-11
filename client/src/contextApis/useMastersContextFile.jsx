@@ -9,6 +9,7 @@ import { UomMasterContext } from "./uomMaster/uomMasterContext";
 import { ItemCategoryMasterContext } from "./itemCategoryMaster/itemCategoryMasterContext";
 import { ServiceCategoryMasterContext } from "./serviceCategoryMaster/serviceCategoryMasterContext";
 import { ItemMasterContext } from "./itemMaster/itemMasterContext";
+import { ServiceMasterContext } from "./serviceMaster/serviceMasterContext";
 
 // Use Area Master Context
 export const useAreaMasterContext = () => {
@@ -111,6 +112,17 @@ export const useServiceCategoryMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useServiceCategoryMasterContext must be used within a ServiceCategoryMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Service Master Context
+export const useServiceMasterContext = () => {
+  const context = useContext(ServiceMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useServiceMasterContext must be used within a ServiceMasterProvider"
     );
   }
   return context;

@@ -15,7 +15,7 @@ import { MasterEmployeeTypePage } from "../pages/Masters/employeeTypeMaster";
 import { MasterItemCategoryPage } from "../pages/Masters/itemCategoryMaster";
 import { MasterItemPage } from "../pages/Masters/itemMaster";
 import { MasterServiceCategoryPage } from "../pages/Masters/serviceCategoryMaster";
-import { ServicePage } from "../pages/Masters/servicePage";
+import { MasterServicePage } from "../pages/Masters/serviceMaster";
 import { MasterShiftPage } from "../pages/Masters/shiftMaster";
 import { StateMasterPage } from "../pages/Masters/stateMasterPage";
 import { MasterUomPage } from "../pages/Masters/uomMaster";
@@ -52,7 +52,7 @@ export const moduleComponents = {
     "item-category-master": MasterItemCategoryPage,
     "item-master": MasterItemPage,
     "service-category-master": MasterServiceCategoryPage,
-    "service-master": ServicePage,
+    "service-master": MasterServicePage,
     "bank-master": MasterBankPage,
     "workflow-master": WorkflowPage,
   },

@@ -1110,3 +1110,71 @@ export const deleteServiceCategory = async (id) => {
   });
   return response.data;
 };
+
+// **************************** SERVICE MASTER **************************** //
+// Create Service Master
+export const createService = async (formData) => {
+  const response = await axiosInstance.post("create-service", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Service
+export const updateService = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(`update-service/${id}`, formData);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateServiceStatus = async (id) => {
+  const response = await axiosInstance.put(`update-service-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Service by ID
+export const getServiceById = async (id) => {
+  const response = await axiosInstance.post(`get-service-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Service List
+export const getAllService = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-service-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Service Master
+export const deleteService = async (id) => {
+  const response = await axiosInstance.put(`delete-service/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

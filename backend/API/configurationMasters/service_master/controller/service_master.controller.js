@@ -34,7 +34,7 @@ module.exports.createService = async (req, res) => {
 
       return res.status(200).send({
         success: true,
-        status: "Item Created Successfully!",
+        message: "Item Created Successfully!",
         data: newService,
       });
     }
@@ -82,7 +82,7 @@ module.exports.updateService = async (req, res) => {
 
         return res.status(200).send({
           success: true,
-          status: "Service Updated Successfully!",
+          message: "Service Updated Successfully!",
           data: updateService,
         });
       }
@@ -114,7 +114,7 @@ module.exports.getServiceDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Service Details Successfully!",
+        message: "Get Service Details Successfully!",
         data: getAllData,
       });
     }
@@ -126,14 +126,41 @@ module.exports.getServiceDetails = async (req, res) => {
 // ========== GET ALL SERVICE DETAILS CONTROLLER ========== //
 module.exports.getAllServiceDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT S.*, SC.name AS service_category_name, SC.service_category_description, SC.service_category_code
-    FROM SERVICE_MASTER AS S
-    LEFT JOIN SERVICE_CATEGORY_MASTER AS SC ON SC.id=S.service_category_id
-    WHERE S.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    if (
+      filter.service_category_id !== undefined ||
+      filter.service_category_id !== ""
+    ) {
+      whereClause.service_category_id = {
+        [DB.Sequelize.Op.like]: [`%${filter.service_category_id}%`],
+      };
+    }
+
+    const totalRecords = await DB.tbl_service_master.count({
+      whereClause,
+    });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_service_master.findAll({
+      include: [
+        {
+          model: DB.tbl_service_category_master,
+        },
+      ],
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
     if (getAllData.length < 1) {
@@ -143,8 +170,14 @@ module.exports.getAllServiceDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Services List!",
+        message: "Get All Services List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -176,7 +209,7 @@ module.exports.updateServiceStatus = async (req, res) => {
 
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -209,7 +242,7 @@ module.exports.deleteService = async (req, res) => {
 
       return res.status(200).send({
         success: true,
-        status: "Service Deleted Successfully!",
+        message: "Service Deleted Successfully!",
       });
     }
   } catch (error) {
