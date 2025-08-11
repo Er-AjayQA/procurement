@@ -33,7 +33,7 @@ module.exports.createServiceCategory = async (req, res) => {
       );
       return res.status(200).send({
         success: true,
-        status: "Service-Category Created Successfully!",
+        message: "Service-Category Created Successfully!",
         data: newServiceCategory,
       });
     }
@@ -80,7 +80,7 @@ module.exports.updateServiceCategory = async (req, res) => {
         const updateServiceCategory = await isServiceCategoryExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Service-Category Updated Successfully!",
+          message: "Service-Category Updated Successfully!",
           data: updateServiceCategory,
         });
       }
@@ -111,7 +111,7 @@ module.exports.getServiceCategoryDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Service-Category Details Successfully!",
+        message: "Get Service-Category Details Successfully!",
         data: getAllData,
       });
     }
@@ -123,24 +123,44 @@ module.exports.getServiceCategoryDetails = async (req, res) => {
 // ========== GET ALL SERVICE CATEGORY DETAILS CONTROLLER ========== //
 module.exports.getAllServiceCategoryDetails = async (req, res) => {
   try {
-    const query = `
-            SELECT SC.*
-            FROM SERVICE_CATEGORY_MASTER AS SC
-            WHERE SC.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    const totalRecords = await DB.tbl_service_category_master.count({
+      whereClause,
+    });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_service_category_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Service-Categories Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Service-Categories List!",
+        message: "Get All Service-Categories List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -173,7 +193,7 @@ module.exports.updateServiceCategoryStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -207,7 +227,7 @@ module.exports.deleteServiceCategory = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Service-Category Deleted Successfully!",
+        message: "Service-Category Deleted Successfully!",
       });
     }
   } catch (error) {

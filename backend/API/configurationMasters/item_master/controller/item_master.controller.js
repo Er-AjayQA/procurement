@@ -45,7 +45,7 @@ module.exports.createItem = async (req, res) => {
 
       return res.status(200).send({
         success: true,
-        status: "Item Created Successfully!",
+        message: "Item Created Successfully!",
         data: newItem,
       });
     }
@@ -105,7 +105,7 @@ module.exports.updateItem = async (req, res) => {
 
         return res.status(200).send({
           success: true,
-          status: "Item Updated Successfully!",
+          message: "Item Updated Successfully!",
           data: updateItem,
         });
       }
@@ -146,7 +146,7 @@ module.exports.getItemDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Item Details Successfully!",
+        message: "Get Item Details Successfully!",
         data: getAllData,
       });
     }
@@ -158,34 +158,58 @@ module.exports.getItemDetails = async (req, res) => {
 // ========== GET ALL ITEM DETAILS CONTROLLER ========== //
 module.exports.getAllItemDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT IM.*, IC.name AS item_category_name, IC.item_category_code,
-    JSON_ARRAYAGG(
-          JSON_OBJECT(
-              'item_specification_id', ISS.id,
-              'specification_type', ISS.spec_type,
-              'specification_description', ISS.spec_description
-            )
-      ) AS item_specifications
-    FROM ITEM_MASTER AS IM
-    LEFT JOIN ITEM_SPECIFICATION AS ISS ON ISS.item_id=IM.id
-    LEFT JOIN ITEM_CATEGORY_MASTER AS IC ON IC.id=IM.item_category_id
-    WHERE IM.isDeleted=false
-    GROUP BY IM.id`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    if (
+      filter.item_category_id !== undefined ||
+      filter.item_category_id !== ""
+    ) {
+      whereClause.item_category_id = {
+        [DB.Sequelize.Op.like]: [`%${filter.item_category_id}%`],
+      };
+    }
+
+    const totalRecords = await DB.tbl_item_category_master.count({
+      whereClause,
+    });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_item_master.findAll({
+      include: [
+        {
+          model: DB.tbl_item_category_master,
+        },
+      ],
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Items Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Items List!",
+        message: "Get All Items List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -217,7 +241,7 @@ module.exports.updateItemStatus = async (req, res) => {
 
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -256,7 +280,7 @@ module.exports.deleteItem = async (req, res) => {
       );
       return res.status(200).send({
         success: true,
-        status: "Item Deleted Successfully!",
+        message: "Item Deleted Successfully!",
       });
     }
   } catch (error) {

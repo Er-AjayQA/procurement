@@ -13,8 +13,8 @@ import { DepartmentMasterPage } from "../pages/Masters/departmentMasterPage";
 import { DesignationMasterPage } from "../pages/Masters/designationMasterPage";
 import { MasterEmployeeTypePage } from "../pages/Masters/employeeTypeMaster";
 import { MasterItemCategoryPage } from "../pages/Masters/itemCategoryMaster";
-import { ItemPage } from "../pages/Masters/itemPage";
-import { ServiceCategoryPage } from "../pages/Masters/serviceCategoryPage";
+import { MasterItemPage } from "../pages/Masters/itemMaster";
+import { MasterServiceCategoryPage } from "../pages/Masters/serviceCategoryMaster";
 import { ServicePage } from "../pages/Masters/servicePage";
 import { MasterShiftPage } from "../pages/Masters/shiftMaster";
 import { StateMasterPage } from "../pages/Masters/stateMasterPage";
@@ -50,8 +50,8 @@ export const moduleComponents = {
     "shift-master": MasterShiftPage,
     "uom-master": MasterUomPage,
     "item-category-master": MasterItemCategoryPage,
-    "item-master": ItemPage,
-    "service-category-master": ServiceCategoryPage,
+    "item-master": MasterItemPage,
+    "service-category-master": MasterServiceCategoryPage,
     "service-master": ServicePage,
     "bank-master": MasterBankPage,
     "workflow-master": WorkflowPage,
