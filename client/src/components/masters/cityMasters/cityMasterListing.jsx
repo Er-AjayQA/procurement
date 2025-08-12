@@ -2,16 +2,18 @@ import { FaEye } from "react-icons/fa";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
+import { useCityMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const CityMasterListing = ({
-  isLoading,
-  listing,
-  setViewId,
-  page,
-  totalPages,
-  setPage,
-  setViewVisibility,
-}) => {
+export const CityMasterListing = () => {
+  const {
+    isLoading,
+    listing,
+    setViewId,
+    page,
+    totalPages,
+    setPage,
+    setViewVisibility,
+  } = useCityMasterContext();
   // Function to get visible page numbers (max 5 at a time)
   const getVisiblePages = () => {
     const visiblePages = [];

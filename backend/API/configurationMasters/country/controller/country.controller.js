@@ -112,40 +112,23 @@ module.exports.getAllCountryDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    let countQuery = `
-    Select Count(*) AS total
-    FROM COUNTRY_MASTER AS C`;
+    const whereClause = {};
 
-    let query = `
-    SELECT C.*
-    FROM COUNTRY_MASTER AS C`;
-
-    if (filter) {
-      countQuery += ` WHERE C.name LIKE :filter`;
-      query += ` WHERE C.name LIKE :filter`;
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
     }
 
-    query += ` ORDER BY C.createdAt DESC`;
-    query += ` LIMIT :limit OFFSET :offset`;
-
-    // Get total count
-    const totalResult = await DB.sequelize.query(countQuery, {
-      replacements: { filter: `%${filter}%` },
-      type: DB.sequelize.QueryTypes.SELECT,
-    });
-    const totalRecords = totalResult[0].total;
+    const totalRecords = await DB.tbl_country_master.count({ whereClause });
     const totalPages = Math.ceil(totalRecords / limit);
 
-    const getAllData = await DB.sequelize.query(query, {
-      replacements: {
-        filter: filter ? `%${filter}%` : null,
-        limit,
-        offset,
-      },
-      type: DB.sequelize.QueryTypes.SELECT,
+    const getAllData = await DB.tbl_country_master.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "ASC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Countries Not Found!" });

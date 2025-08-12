@@ -1,6 +1,8 @@
 import { MdOutlineClose } from "react-icons/md";
+import { useBranchMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const BranchMasterView = ({ viewVisibility, onClose, data }) => {
+export const BranchMasterView = ({ onClose }) => {
+  const { viewVisibility, data } = useBranchMasterContext();
   return (
     <>
       <div
@@ -101,7 +103,9 @@ export const BranchMasterView = ({ viewVisibility, onClose, data }) => {
                 <span className="text-sm font-bold">Billing Status</span>
               </div>
               <div>
-                <span className="text-sm">{data?.billing_status || "N/A"}</span>
+                <span className="text-sm">
+                  {data?.billing_status ? "Applicable" : "Not-Applicable"}
+                </span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
