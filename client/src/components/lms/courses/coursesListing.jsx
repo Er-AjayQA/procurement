@@ -26,7 +26,7 @@ export const CoursesListing = () => {
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide p-2">
+          <div className="h-[390px] overflow-y-auto scrollbar-hide p-2">
             {isLoading ? (
               <SkeltonUi />
             ) : listing?.length > 0 ? (

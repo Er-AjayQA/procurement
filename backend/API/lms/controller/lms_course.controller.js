@@ -62,7 +62,8 @@ module.exports.createCourse = async (req, res) => {
             assessment_passing_percent: data.assessment_passing_percent,
             assessment_time: data.assessment_time,
             assessment_max_attempts: data.assessment_max_attempts,
-            total_marks: marks_per_question * data.assessmentQuestions.length,
+            total_marks:
+              data.marks_per_question * data.assessmentQuestions.length,
           },
           { transaction }
         );
