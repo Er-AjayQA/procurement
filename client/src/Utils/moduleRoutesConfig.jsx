@@ -9,8 +9,8 @@ import { BranchMasterPage } from "../pages/Masters/branchMasterPage";
 import { CityMasterPage } from "../pages/Masters/cityMasterPage";
 import { MasterContractTypePage } from "../pages/Masters/contractTypeMaster";
 import { CountryMasterPage } from "../pages/Masters/countryMasterPage";
-import { DepartmentMasterPage } from "../pages/Masters/departmentMasterPage";
-import { DesignationMasterPage } from "../pages/Masters/designationMasterPage";
+import { MasterDepartmentPage } from "../pages/Masters/departmentMaster";
+import { MasterDesignationPage } from "../pages/Masters/designationMaster";
 import { MasterEmployeeTypePage } from "../pages/Masters/employeeTypeMaster";
 import { MasterItemCategoryPage } from "../pages/Masters/itemCategoryMaster";
 import { MasterItemPage } from "../pages/Masters/itemMaster";
@@ -37,8 +37,8 @@ export const moduleComponents = {
     "rbac-permissions": RBACPermissions,
   },
   masters: {
-    "designation-master": DesignationMasterPage,
-    "department-master": DepartmentMasterPage,
+    "designation-master": MasterDesignationPage,
+    "department-master": MasterDepartmentPage,
     "country-master": CountryMasterPage,
     "state-master": StateMasterPage,
     "city-master": CityMasterPage,

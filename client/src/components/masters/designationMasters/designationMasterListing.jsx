@@ -2,18 +2,20 @@ import { MdEdit, MdDelete } from "react-icons/md";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
+import { useDesignationMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const DesignationMasterListing = ({
-  isLoading,
-  listing,
-  handleFormVisibility,
-  handleActiveInactive,
-  setUpdateId,
-  setDeleteId,
-  page,
-  totalPages,
-  setPage,
-}) => {
+export const DesignationMasterListing = () => {
+  const {
+    isLoading,
+    listing,
+    handleFormVisibility,
+    handleActiveInactive,
+    setUpdateId,
+    setDeleteId,
+    page,
+    totalPages,
+    setPage,
+  } = useDesignationMasterContext();
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
