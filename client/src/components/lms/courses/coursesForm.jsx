@@ -1,19 +1,35 @@
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
-import { MdOutlineClose } from "react-icons/md";
+import { MdDelete, MdOutlineClose } from "react-icons/md";
 import {
   createArea,
-  getAllDepartments,
   updateArea,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
+import { IoMdAdd } from "react-icons/io";
 
 export const CoursesForm = ({ onClose }) => {
-  const { formVisibility, formType, getAllData, updateId, data } =
-    useCoursesMasterContext();
-  const [departmentOptions, setDepartmentOptions] = useState(null);
+  const {
+    formVisibility,
+    formType,
+    getAllData,
+    updateId,
+    data,
+    categoryOptions,
+  } = useCoursesMasterContext();
+  const [certificateOptions, setCertificateOptions] = useState([
+    { value: true, label: "Provided" },
+    { value: false, label: "Not-Provided" },
+  ]);
+  const [formatOptions, setFormatOptions] = useState([
+    { value: "Live", label: "Live" },
+    { value: "Offline", label: "Offline" },
+    { value: "Online", label: "Online" },
+  ]);
+  const [contents, setContents] = useState([]);
+
   const {
     register,
     handleSubmit,
@@ -30,58 +46,30 @@ export const CoursesForm = ({ onClose }) => {
     },
   });
 
-  // Get All Department List
-  const getAllDepartmentList = async () => {
-    try {
-      const response = await getAllDepartments({ limit: 1000, page: "" });
-
-      if (response.success) {
-        setDepartmentOptions(
-          response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }))
-        );
-      } else {
-        setDepartmentOptions(null);
-      }
-    } catch (error) {
-      setDepartmentOptions(null);
-    }
-  };
-
   // Set form values when in update mode
   useEffect(() => {
     if (formType === "Update" && data) {
       reset({
         name: data.name || data[0]?.name || "",
       });
-
-      const setDepartmentDropdown = async () => {
-        try {
-          if (!departmentOptions) {
-            await getAllDepartmentList();
-          }
-
-          if (data[0].dept_id) {
-            const departmentOption = departmentOptions.find(
-              (code) => code.value === data[0].dept_id
-            );
-
-            if (departmentOption) {
-              setValue("dept_id", departmentOption);
-            }
-          }
-        } catch (error) {
-          console.error("Error setting dropdown options:", error);
-        }
-      };
-
-      setDepartmentDropdown();
     } else {
       reset({ name: "", dept_id: "" });
     }
-  }, [formType, data, reset, setValue, departmentOptions]);
+  }, [formType, data, reset, setValue]);
+
+  // Handle Add Content
+  const handleAddContent = () => {
+    setContents([
+      ...contents,
+      { content_type: "", content_name: "", content_link: "" },
+    ]);
+  };
+
+  // Handle Content Change
+  const handleContentChange = () => {};
+
+  // Handle Remove Content
+  const handleRemoveContent = () => {};
 
   // Handle Form Close
   const handleFormClose = () => {
@@ -119,11 +107,6 @@ export const CoursesForm = ({ onClose }) => {
       throw new Error(error.message);
     }
   };
-
-  // Get All Departments on Page Load
-  useEffect(() => {
-    getAllDepartmentList();
-  }, []);
 
   const selectStyles = {
     control: (base) => ({
@@ -174,84 +157,330 @@ export const CoursesForm = ({ onClose }) => {
 
   return (
     <>
-      <div
-        className={`fixed w-full h-full top-0 start-0 bg-[#0202025b] z-20 ${
-          formVisibility ? "block" : "hidden"
-        }`}
-      ></div>
-      <div
-        className={`absolute top-0 start-[50%] w-[50%] translate-x-[-50%] bg-white z-30 min-h-[60%] shadow-lg rounded-lg transition-all duration-[.4s] origin-top ${
-          formVisibility ? "translate-y-[0%]" : "translate-y-[-100%]"
-        }`}
-      >
-        <div className="bg-button-hover py-2 ps-3 pe-1 rounded-t-md flex justify-between items-center relative z-30">
-          <h3 className="text-white text-sm font-bold">
-            {formType === "Add" ? "Add Area" : "Update Area"}
+      <div className={`bg-white z-30 h-full shadow-lg rounded-lg `}>
+        <div className="bg-button-hover py-2 px-2 rounded-t-md flex justify-between items-center">
+          <h3 className="text-white text-xs font-bold">
+            {formType === "Add" ? "Add Course" : "Update Course"}
           </h3>
-          {/* Form Close Button */}
-          <div
-            className="hover:bg-red-500 p-2 rounded-lg hover:fill-white"
-            onClick={onClose}
-          >
-            <MdOutlineClose className="fill-white" />
-          </div>
         </div>
 
         {/* Form */}
-        <div className="w-[50%] absolute top-[50%] start-[50%] translate-x-[-50%] translate-y-[-50%]">
+        <div className="p-5">
           <form
             className="flex flex-col gap-4"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-sm">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                placeholder="Enter area name"
-                {...register("name", {
-                  required: "Area Name is required!",
-                })}
-              />
-              {errors.name && (
-                <p className="text-red-500 text-[.7rem]">
-                  {errors.name.message}
-                </p>
-              )}
+            {/* Course Type Selection */}
+            <div className="flex gap-5 items-center">
+              <div className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  id="common_course"
+                  name="course_type"
+                  className="border-black"
+                />
+                <label htmlFor="common_course" className="text-sm font-bold">
+                  Common Content Course
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  id="assessment_course"
+                  name="course_type"
+                  className="border-black"
+                />
+                <label
+                  htmlFor="assessment_course"
+                  className="text-sm font-bold"
+                >
+                  Course With Assessment
+                </label>
+              </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="dept_id" className="text-sm">
-                Department
-              </label>
-              <Controller
-                name="dept_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    options={departmentOptions}
-                    placeholder="Select department"
-                    isClearable
-                    isSearchable
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    styles={selectStyles}
+
+            {/* Course Form */}
+            <div className="p-3 h-[400px] overflow-y-auto scrollbar-hide flex flex-col gap-5">
+              <div className="grid grid-cols-2 gap-5">
+                {/* GRID 1 */}
+                <div className="flex flex-col gap-3 px-5 border-e border-e-gray-300">
+                  {/* Course Category */}
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="course_category_id" className="text-sm">
+                      Category <span className="text-red-700">*</span>
+                    </label>
+                    <Controller
+                      name="course_category_id"
+                      control={control}
+                      rules={{ required: "Category is required" }}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={categoryOptions}
+                          value={categoryOptions.find(
+                            (opt) =>
+                              opt.value === field.value?.value ||
+                              opt.value === field.value
+                          )}
+                          onChange={(selected) => field.onChange(selected)}
+                          placeholder="Select.."
+                          isClearable
+                          isSearchable
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          styles={selectStyles}
+                        />
+                      )}
+                    />
+                    {errors.uom_id && (
+                      <p className="text-red-500 text-[.7rem]">
+                        {errors.uom_id.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Course Name */}
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="course_name" className="text-sm">
+                      Name <span className="text-red-700">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="course_name"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter course name"
+                      {...register("course_name", {
+                        required: "Course Name is required!",
+                      })}
+                    />
+                    {errors.course_name && (
+                      <p className="text-red-500 text-[.7rem]">
+                        {errors.course_name.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Course Trainer */}
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="course_trainer" className="text-sm">
+                      Trainer Name <span className="text-red-700">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="course_trainer"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter trainer name"
+                      {...register("course_trainer", {
+                        required: "Trainer Name is required!",
+                      })}
+                    />
+                    {errors.course_trainer && (
+                      <p className="text-red-500 text-[.7rem]">
+                        {errors.course_trainer.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Course Format */}
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="course_format" className="text-sm">
+                      Course Format
+                    </label>
+                    <Controller
+                      name="course_format"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={formatOptions}
+                          value={formatOptions.find(
+                            (opt) =>
+                              opt.value === field.value?.value ||
+                              opt.value === field.value
+                          )}
+                          onChange={(selected) => field.onChange(selected)}
+                          placeholder="Select.."
+                          isClearable
+                          isSearchable
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          styles={selectStyles}
+                        />
+                      )}
+                    />
+                    {errors.uom_id && (
+                      <p className="text-red-500 text-[.7rem]">
+                        {errors.uom_id.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* GRID 2 */}
+                <div className="flex flex-col gap-3 px-5">
+                  {/* Course Objective */}
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="course_objective" className="text-sm">
+                      Objective <span className="text-red-700">*</span>
+                    </label>
+                    <textarea
+                      type="text"
+                      id="course_objective"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter course objective...."
+                      {...register("course_objective", {
+                        required: "Objective is required!",
+                      })}
+                    />
+                    {errors.course_objective && (
+                      <p className="text-red-500 text-[.7rem]">
+                        {errors.course_objective.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Course Expected Results */}
+                  <div className="flex flex-col gap-2">
+                    <label
+                      htmlFor="course_expected_results"
+                      className="text-sm"
+                    >
+                      Expected Results <span className="text-red-700">*</span>
+                    </label>
+                    <textarea
+                      type="text"
+                      id="course_expected_results"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter expected results...."
+                      {...register("course_expected_results", {
+                        required: "Expected results is required!",
+                      })}
+                    />
+                    {errors.course_expected_results && (
+                      <p className="text-red-500 text-[.7rem]">
+                        {errors.course_expected_results.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Certificate Details */}
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="is_certified" className="text-sm">
+                      Certificate Provided?
+                    </label>
+                    <Controller
+                      name="is_certified"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={certificateOptions}
+                          value={certificateOptions.find(
+                            (opt) =>
+                              opt.value === field.value?.value ||
+                              opt.value === field.value
+                          )}
+                          onChange={(selected) => field.onChange(selected)}
+                          placeholder="Select.."
+                          isClearable
+                          isSearchable
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          styles={selectStyles}
+                        />
+                      )}
+                    />
+                    {errors.uom_id && (
+                      <p className="text-red-500 text-[.7rem]">
+                        {errors.uom_id.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Section */}
+              <div className="mt-5 px-5">
+                <div className="flex justify-between bg-button-hover py-2 px-2 rounded-t-md">
+                  <h3 className="text-white text-xs font-bold">Add Content</h3>
+                  <IoMdAdd
+                    className="fill-white cursor-pointer"
+                    onClick={handleAddContent}
                   />
-                )}
-              />
-              {errors.dept_id && (
-                <p className="text-red-500 text-[.7rem]">
-                  {errors.dept_id.message}
-                </p>
-              )}
-            </div>
-            <div>
-              <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">
-                {formType === "Add" ? "Create" : "Update"}
-              </button>
+                </div>
+
+                {contents.map((content, index) => (
+                  <div
+                    key={index}
+                    className="flex w-full border-b border-b-gray-500"
+                  >
+                    <div className="basis-[40%] p-3 border-e border-e-gray-500">
+                      <select
+                        name="content_type"
+                        id="content_type"
+                        onChange={(e) =>
+                          handleContentChange(index, "type", e.target.value)
+                        }
+                        className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      >
+                        <option value="">--type--</option>
+                        <option value="pdf">PDF</option>
+                        <option value="xlsx">Excel</option>
+                        <option value="csv">CSV</option>
+                      </select>
+                    </div>
+                    <div className="basis-[40%] p-3 border-e border-e-gray-500">
+                      <input
+                        type="text"
+                        value={content.content_name}
+                        onChange={(e) =>
+                          handleContentChange(index, "name", e.target.value)
+                        }
+                        placeholder="File name"
+                        className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      />
+                    </div>
+                    <div className="basis-[40%] p-3 border-e border-e-gray-500">
+                      <input
+                        type="text"
+                        value={content.content_link}
+                        onChange={(e) =>
+                          handleContentChange(
+                            index,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter link..."
+                        className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      />
+                    </div>
+                    <div className="flex justify-center items-center basis-[20%] p-3">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveContent(index)}
+                      >
+                        <MdDelete className="hover:fill-red-500 text-xl" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons Containers */}
+              <div className="mt-auto flex items-center justify-end">
+                <button
+                  type="button"
+                  className="bg-red-500 px-5 py-2 rounded-md text-xs text-white hover:bg-red-600 mr-3"
+                  onClick={handleFormClose}
+                >
+                  Cancel
+                </button>
+                <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">
+                  {formType === "Add" ? "Create" : "Update"}
+                </button>
+              </div>
             </div>
           </form>
         </div>

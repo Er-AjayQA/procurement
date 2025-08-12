@@ -3,6 +3,7 @@ import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
 import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
+import { CourseCards } from "./courseCards";
 
 export const CoursesListing = () => {
   const {
@@ -11,7 +12,6 @@ export const CoursesListing = () => {
     handleFormVisibility,
     handleActiveInactive,
     setUpdateId,
-    setDeleteId,
     page,
     totalPages,
     setPage,
@@ -21,80 +21,20 @@ export const CoursesListing = () => {
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">Area Listing</h3>
+          <h3 className="text-white text-xs font-bold">Course Listing</h3>
         </div>
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="grid grid-cols-5 border-b border-gray-300 gap-2">
-            <div className="text-[.8rem] font-bold p-2">S.No.</div>
-            <div className="text-[.8rem] font-bold p-2">Name</div>
-            <div className="text-[.8rem] font-bold p-2">Dept. Name</div>
-            <div className="text-[.8rem] font-bold p-2">Status</div>
-            <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
-          </div>
-          <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide">
+          <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide p-2">
             {isLoading ? (
               <SkeltonUi />
             ) : listing?.length > 0 ? (
-              listing?.map((list, i) => {
-                return (
-                  <div
-                    key={list.id}
-                    className="grid grid-cols-5 border-b border-gray-200 last:border-none gap-2"
-                  >
-                    <div className="flex items-center p-2 text-[.8rem]">
-                      {i + 1}.
-                    </div>
-                    <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.name || "N/A"}
-                    </div>
-                    <div className="flex items-center p-2 text-[.8rem]">
-                      {list.DEPARTMENT_MASTER?.name || "N/A"}
-                    </div>
-                    <div className="flex items-center p-2 text-[.8rem]">
-                      {list.status ? (
-                        <span className="text-green-400 font-bold text-[.8rem] flex gap-2 items-center">
-                          <span
-                            className="block w-[15px] h-[15px] bg-green-400 rounded-[50%] shadow-lg shadow-green-400 cursor-pointer"
-                            onClick={() => handleActiveInactive(list.id)}
-                          ></span>
-                          <span className="text-green-400 font-bold text-[.8rem]">
-                            Active
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="text-red-400 font-bold text-[.8rem] flex gap-2 items-center">
-                          <span className="text-red-400 font-bold text-[.8rem]">
-                            InActive
-                          </span>
-                          <span
-                            className="block w-[15px] h-[15px] bg-red-400 rounded-[50%] shadow-lg shadow-red-400 cursor-pointer"
-                            onClick={() => handleActiveInactive(list.id)}
-                          ></span>
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
-                      <div
-                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
-                        onClick={() => {
-                          handleFormVisibility("open", "update");
-                          setUpdateId(list.id);
-                        }}
-                      >
-                        <MdEdit className="hover:fill-white" />
-                      </div>
-                      <div
-                        className="p-1 hover:bg-red-600 rounded-lg cursor-pointer"
-                        onClick={() => setDeleteId(list.id)}
-                      >
-                        <MdDelete className="hover:fill-white" />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
+              <div className="flex flex-col gap-5">
+                {listing?.map((list, i) => (
+                  <CourseCards key={list.id} data={list} />
+                ))}
+              </div>
             ) : (
               <div className="grid border-b border-gray-200 last:border-none">
                 <div className="p-5 text-[.8rem]">

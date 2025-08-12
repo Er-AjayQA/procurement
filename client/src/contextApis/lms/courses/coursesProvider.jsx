@@ -6,6 +6,7 @@ import {
   getCourseById,
   updateCourseStatus,
 } from "../../../services/lms_services/service";
+import { getAllCourseCategory } from "../../../services/master_services/service";
 
 export const CoursesProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
@@ -13,12 +14,12 @@ export const CoursesProvider = ({ children }) => {
   const [formType, setFormType] = useState("Add");
   const [data, setData] = useState(null);
   const [updateId, setUpdateId] = useState(null);
-  // const [deleteId, setDeleteId] = useState(null);
-  const [filter, setFilter] = useState({ name: "", dept_id: "" });
+  const [filter, setFilter] = useState({ name: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [categoryOptions, setCategoryOptions] = useState(null);
 
   // Get All Master Data
   const getAllData = async () => {
@@ -46,6 +47,27 @@ export const CoursesProvider = ({ children }) => {
     const response = await getCourseById(updateId);
     if (response.success) {
       setData(response.data);
+    }
+  };
+
+  // Course Category Options
+  const getAllCourseCategories = async () => {
+    try {
+      const response = await getAllCourseCategory({
+        limit: "",
+        page: "",
+        filter: { name: "" },
+      });
+
+      if (response.success) {
+        setCategoryOptions(
+          response.data.map((data) => ({ value: data.id, label: data.name }))
+        );
+      } else {
+        setCategoryOptions(null);
+      }
+    } catch (error) {
+      setCategoryOptions(null);
     }
   };
 
@@ -130,6 +152,11 @@ export const CoursesProvider = ({ children }) => {
     }
   }, [updateId]);
 
+  // For Get All Course Categories
+  useEffect(() => {
+    getAllCourseCategories();
+  }, []);
+
   // // For delete operations
   // useEffect(() => {
   //   if (deleteId) {
@@ -195,7 +222,7 @@ export const CoursesProvider = ({ children }) => {
     handleLimitChange,
     handleChangeFilter,
     setUpdateId,
-    // setDeleteId,
+    categoryOptions,
     setPage,
     styledComponent,
   };

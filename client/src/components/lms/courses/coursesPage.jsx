@@ -1,46 +1,17 @@
 import { AddButton } from "../../UI/addButtonUi";
 import { CoursesListing } from "./coursesListing";
 import { CoursesForm } from "./coursesForm";
-import Select from "react-select";
-import { useEffect, useState } from "react";
-import { getAllDepartments } from "../../../services/master_services/service";
 import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
 
 export const CoursesPageComponent = () => {
   const {
     filter,
+    formVisibility,
     handleFormVisibility,
     handleLimitChange,
     handleChangeFilter,
-    styledComponent,
+    handleFormClose,
   } = useCoursesMasterContext();
-
-  const [departmentOptions, setDepartmentOptions] = useState(null);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
-
-  // Get All Department List
-  const getAllDepartmentList = async () => {
-    try {
-      const response = await getAllDepartments({ limit: 500, page: 1 });
-
-      if (response.success) {
-        setDepartmentOptions(
-          response.data.map((code) => ({
-            value: `${code.id}`,
-            label: `${code.name}`,
-          }))
-        );
-      } else {
-        setDepartmentOptions(null);
-      }
-    } catch (error) {
-      setDepartmentOptions(null);
-    }
-  };
-
-  useEffect(() => {
-    getAllDepartmentList();
-  }, []);
 
   return (
     <>
@@ -81,37 +52,24 @@ export const CoursesPageComponent = () => {
                 className="py-1 px-2 rounded-md text-sm border-borders-light"
                 onChange={(e) => handleChangeFilter("input", e)}
               />
-
-              <Select
-                value={selectedDepartment}
-                onChange={(selectedOption) => {
-                  setSelectedDepartment(selectedOption);
-                  handleChangeFilter("dropdown", {
-                    field: "dept_id",
-                    value: selectedOption ? selectedOption.value : "",
-                  });
-                }}
-                options={departmentOptions}
-                placeholder="Search by department..."
-                isClearable
-                isSearchable
-                className="react-select-container"
-                classNamePrefix="react-select"
-                styles={styledComponent}
-              />
             </div>
           </div>
-
-          <div onClick={() => handleFormVisibility("open", "add")}>
-            <AddButton text="Create Area" />
-          </div>
+          {!formVisibility ? (
+            <div onClick={() => handleFormVisibility("open", "add")}>
+              <AddButton text="Create Course" />
+            </div>
+          ) : (
+            <div onClick={() => handleFormVisibility("close", "add")}>
+              <AddButton text="Back" />
+            </div>
+          )}
         </div>
 
-        {/* Courses Listing */}
-        <CoursesListing />
-
-        {/* Course Form */}
-        <CoursesForm onClose={() => handleFormVisibility("close", "add")} />
+        {!formVisibility ? (
+          <CoursesListing />
+        ) : (
+          <CoursesForm onClose={() => handleFormVisibility("close", "add")} />
+        )}
       </div>
     </>
   );
