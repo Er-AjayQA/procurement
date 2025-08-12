@@ -11,14 +11,11 @@ import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile"
 import { IoMdAdd } from "react-icons/io";
 
 export const CoursesForm = ({ onClose }) => {
-  const {
-    formVisibility,
-    formType,
-    getAllData,
-    updateId,
-    data,
-    categoryOptions,
-  } = useCoursesMasterContext();
+  const { formType, getAllData, updateId, data, categoryOptions } =
+    useCoursesMasterContext();
+
+  // STATES
+  const [courseType, setCourseType] = useState("commonContent");
   const [certificateOptions, setCertificateOptions] = useState([
     { value: true, label: "Provided" },
     { value: false, label: "Not-Provided" },
@@ -29,6 +26,8 @@ export const CoursesForm = ({ onClose }) => {
     { value: "Online", label: "Online" },
   ]);
   const [contents, setContents] = useState([]);
+
+  console.log(courseType);
 
   const {
     register,
@@ -65,11 +64,24 @@ export const CoursesForm = ({ onClose }) => {
     ]);
   };
 
+  // Handle Course Type Selection
+  const handleSelectCourseType = (e) => {
+    setCourseType(e.target.value);
+  };
+
   // Handle Content Change
-  const handleContentChange = () => {};
+  const handleContentChange = (index, field, value) => {
+    const updatedContent = [...contents];
+    updatedContent[index][field] = value;
+    setContents(updatedContent);
+  };
 
   // Handle Remove Content
-  const handleRemoveContent = () => {};
+  const handleRemoveContent = (index) => {
+    const updatedContent = [...contents];
+    updatedContent.splice(index, 1);
+    setContents(updatedContent);
+  };
 
   // Handle Form Close
   const handleFormClose = () => {
@@ -176,8 +188,11 @@ export const CoursesForm = ({ onClose }) => {
                 <input
                   type="radio"
                   id="common_course"
+                  value="commonContent"
                   name="course_type"
+                  checked={courseType === "commonContent"}
                   className="border-black"
+                  onChange={(e) => handleSelectCourseType(e)}
                 />
                 <label htmlFor="common_course" className="text-sm font-bold">
                   Common Content Course
@@ -188,8 +203,11 @@ export const CoursesForm = ({ onClose }) => {
                 <input
                   type="radio"
                   id="assessment_course"
+                  value="contentWithAssessment"
                   name="course_type"
+                  checked={courseType === "contentWithAssessment"}
                   className="border-black"
+                  onChange={(e) => handleSelectCourseType(e)}
                 />
                 <label
                   htmlFor="assessment_course"
@@ -199,6 +217,13 @@ export const CoursesForm = ({ onClose }) => {
                 </label>
               </div>
             </div>
+
+            {courseType === "commonContent" && (
+              <div>
+                <button>Content</button>
+                <button>Assessment</button>
+              </div>
+            )}
 
             {/* Course Form */}
             <div className="p-3 h-[400px] overflow-y-auto scrollbar-hide flex flex-col gap-5">
@@ -420,14 +445,21 @@ export const CoursesForm = ({ onClose }) => {
                         name="content_type"
                         id="content_type"
                         onChange={(e) =>
-                          handleContentChange(index, "type", e.target.value)
+                          handleContentChange(
+                            index,
+                            "content_type",
+                            e.target.value
+                          )
                         }
                         className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
                       >
-                        <option value="">--type--</option>
-                        <option value="pdf">PDF</option>
-                        <option value="xlsx">Excel</option>
-                        <option value="csv">CSV</option>
+                        <option value="">select</option>
+                        <option value="PDF">PDF</option>
+                        <option value="Image">Image</option>
+                        <option value="Video">Video</option>
+                        <option value="Word Document">Word Document</option>
+                        <option value="Excel Sheet">Excel Sheet</option>
+                        <option value="Audio">Audio</option>
                       </select>
                     </div>
                     <div className="basis-[40%] p-3 border-e border-e-gray-500">
@@ -435,7 +467,11 @@ export const CoursesForm = ({ onClose }) => {
                         type="text"
                         value={content.content_name}
                         onChange={(e) =>
-                          handleContentChange(index, "name", e.target.value)
+                          handleContentChange(
+                            index,
+                            "content_name",
+                            e.target.value
+                          )
                         }
                         placeholder="File name"
                         className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
@@ -448,7 +484,7 @@ export const CoursesForm = ({ onClose }) => {
                         onChange={(e) =>
                           handleContentChange(
                             index,
-                            "description",
+                            "content_link",
                             e.target.value
                           )
                         }
@@ -469,7 +505,7 @@ export const CoursesForm = ({ onClose }) => {
               </div>
 
               {/* Action Buttons Containers */}
-              <div className="mt-auto flex items-center justify-end">
+              <div className="mt-auto flex items-center justify-end px-5">
                 <button
                   type="button"
                   className="bg-red-500 px-5 py-2 rounded-md text-xs text-white hover:bg-red-600 mr-3"
@@ -477,9 +513,17 @@ export const CoursesForm = ({ onClose }) => {
                 >
                   Cancel
                 </button>
-                <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">
-                  {formType === "Add" ? "Create" : "Update"}
-                </button>
+                {courseType === "commonContent" && (
+                  <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">
+                    {formType === "Add" ? "Create" : "Update"}
+                  </button>
+                )}
+
+                {courseType === "contentWithAssessment" && (
+                  <button className="bg-button-color px-5 py-2 rounded-md text-xs text-white hover:bg-button-hover">
+                    {formType === "Add" ? "Save & Next" : "Update"}
+                  </button>
+                )}
               </div>
             </div>
           </form>

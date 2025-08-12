@@ -71,21 +71,6 @@ export const CoursesProvider = ({ children }) => {
     }
   };
 
-  // // Delete Data By Id
-  // const deleteData = async () => {
-  //   try {
-  //     const response = await deleteArea(deleteId);
-  //     if (response.success) {
-  //       toast(response.message);
-  //       getAllData();
-  //     } else {
-  //       toast.error(response.message);
-  //     }
-  //   } catch (error) {
-  //     setDeleteId(null);
-  //   }
-  // };
-
   // Handle Form Visibility
   const handleFormVisibility = (visibility, formType) => {
     if (visibility === "open") {
@@ -156,13 +141,6 @@ export const CoursesProvider = ({ children }) => {
   useEffect(() => {
     getAllCourseCategories();
   }, []);
-
-  // // For delete operations
-  // useEffect(() => {
-  //   if (deleteId) {
-  //     deleteData();
-  //   }
-  // }, [deleteId]);
 
   const styledComponent = {
     control: (base) => ({
