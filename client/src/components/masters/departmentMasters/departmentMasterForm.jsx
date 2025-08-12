@@ -7,15 +7,11 @@ import {
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
+import { useDepartmentMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const DepartmentMasterForm = ({
-  formVisibility,
-  formType,
-  onClose,
-  getAllData,
-  updateId,
-  data,
-}) => {
+export const DepartmentMasterForm = ({ onClose }) => {
+  const { formVisibility, formType, getAllData, updateId, data } =
+    useDepartmentMasterContext();
   const {
     register,
     handleSubmit,

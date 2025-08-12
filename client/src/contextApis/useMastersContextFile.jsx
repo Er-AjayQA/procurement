@@ -10,6 +10,30 @@ import { ItemCategoryMasterContext } from "./itemCategoryMaster/itemCategoryMast
 import { ServiceCategoryMasterContext } from "./serviceCategoryMaster/serviceCategoryMasterContext";
 import { ItemMasterContext } from "./itemMaster/itemMasterContext";
 import { ServiceMasterContext } from "./serviceMaster/serviceMasterContext";
+import { DesignationMasterContext } from "./designationMaster/designationMasterContext";
+import { DepartmentMasterContext } from "./departmentMaster/departmentMasterContext";
+
+// Use Designation Master Context
+export const useDesignationMasterContext = () => {
+  const context = useContext(DesignationMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useDesignationMasterContext must be used within a DesignationMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Department Master Context
+export const useDepartmentMasterContext = () => {
+  const context = useContext(DepartmentMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useDepartmentMasterContext must be used within a DepartmentMasterProvider"
+    );
+  }
+  return context;
+};
 
 // Use Area Master Context
 export const useAreaMasterContext = () => {

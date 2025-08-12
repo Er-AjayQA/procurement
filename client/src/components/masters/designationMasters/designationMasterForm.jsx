@@ -6,15 +6,11 @@ import {
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { useDesignationMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const DesignationMasterForm = ({
-  formVisibility,
-  formType,
-  onClose,
-  getAllData,
-  updateId,
-  data,
-}) => {
+export const DesignationMasterForm = ({ onClose }) => {
+  const { formVisibility, formType, getAllData, updateId, data } =
+    useDesignationMasterContext();
   const {
     register,
     handleSubmit,
