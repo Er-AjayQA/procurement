@@ -1,5 +1,5 @@
 import { BankMasterPage } from "../../../components/masters/bankMasters/bankMasterPage";
-import { BankMasterProvider } from "../../../contextApis/bankMaster/bankMasterProvider";
+import { BankMasterProvider } from "../../../contextApis/masters/bankMaster/bankMasterProvider";
 
 export const MasterBankPage = () => {
   return (

@@ -1,5 +1,5 @@
 import { CountryMasterPage } from "../../../components/masters/countryMasters/countryMasterPage";
-import { CountryMasterProvider } from "../../../contextApis/countryMaster/countryMasterProvider";
+import { CountryMasterProvider } from "../../../contextApis/masters/countryMaster/countryMasterProvider";
 
 export const MasterCountryPage = () => {
   return (

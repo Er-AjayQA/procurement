@@ -1,5 +1,5 @@
 import { AllowanceMasterPage } from "../../../components/masters/allowanceMasters/allowanceMasterPage";
-import { AllowanceMasterProvider } from "../../../contextApis/allowanceMaster/allowanceMasterProvider";
+import { AllowanceMasterProvider } from "../../../contextApis/masters/allowanceMaster/allowanceMasterProvider";
 
 export const MasterAllowancePage = () => {
   return (
