@@ -85,7 +85,7 @@ module.exports.createCourse = async (req, res) => {
       await transaction.commit();
       return res.status(200).send({
         success: true,
-        status: "Course Created Successfully!",
+        message: "Course Created Successfully!",
         data: newCourse,
       });
     }
@@ -226,7 +226,7 @@ module.exports.getCourseDetails = async (req, res) => {
 
       return res.status(200).send({
         success: true,
-        status: "Get Course Details Successfully!",
+        message: "Get Course Details Successfully!",
         data: responseData,
       });
     }
@@ -238,24 +238,49 @@ module.exports.getCourseDetails = async (req, res) => {
 // ========== GET ALL COURSE DETAILS CONTROLLER ========== //
 module.exports.getAllCourseDetails = async (req, res) => {
   try {
-    const query = `
-            SELECT C.*
-            FROM LMS_COURSE AS C
-            WHERE C.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.course_name = {
+        [DB.Sequelize.Op.like]: [`%${filter.name}%`],
+      };
+    }
+
+    const totalRecords = await DB.tbl_lms_course.count({ whereClause });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_lms_course.findAll({
+      include: [
+        {
+          model: DB.tbl_course_category,
+        },
+      ],
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Courses Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get All Courses List!",
+        message: "Get All Courses List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -286,7 +311,7 @@ module.exports.updateCourseStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }

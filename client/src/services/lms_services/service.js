@@ -54,13 +54,3 @@ export const getAllCourses = async (formData) => {
   );
   return response.data;
 };
-
-// // Delete Course
-// export const deleteCourse = async (id) => {
-//   const response = await axiosInstance.put(`delete-role/${id}`, {
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//   });
-//   return response.data;
-// };
