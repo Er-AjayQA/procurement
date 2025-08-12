@@ -1,22 +1,22 @@
 import { useContext } from "react";
-import { AreaMasterContext } from "./areaMaster/areaMasterContext";
-import { BankMasterContext } from "./bankMaster/bankMasterContext";
-import { EmployeeTypeMasterContext } from "./employeeTypeMaster/employeeTypeMasterContext";
-import { AllowanceMasterContext } from "./allowanceMaster/allowanceMasterContext";
-import { ContractTypeMasterContext } from "./contractTypeMaster/contractTypeMasterContext";
-import { ShiftMasterContext } from "./shiftMaster/shiftMasterContext";
-import { UomMasterContext } from "./uomMaster/uomMasterContext";
-import { ItemCategoryMasterContext } from "./itemCategoryMaster/itemCategoryMasterContext";
-import { ServiceCategoryMasterContext } from "./serviceCategoryMaster/serviceCategoryMasterContext";
-import { ItemMasterContext } from "./itemMaster/itemMasterContext";
-import { ServiceMasterContext } from "./serviceMaster/serviceMasterContext";
-import { DesignationMasterContext } from "./designationMaster/designationMasterContext";
-import { DepartmentMasterContext } from "./departmentMaster/departmentMasterContext";
-import { CountryMasterContext } from "./countryMaster/countryMasterContext";
-import { StateMasterContext } from "./stateMaster/stateMasterContext";
-import { BranchMasterContext } from "./branchMaster/branchMasterContext";
-import { CityMasterContext } from "./cityMaster/cityMasterContext";
-import { CourseCategoryMasterContext } from "./courseCategoryMaster/courseCategoryMasterContext";
+import { AreaMasterContext } from "./masters/areaMaster/areaMasterContext";
+import { BankMasterContext } from "./masters/bankMaster/bankMasterContext";
+import { EmployeeTypeMasterContext } from "./masters/employeeTypeMaster/employeeTypeMasterContext";
+import { AllowanceMasterContext } from "./masters/allowanceMaster/allowanceMasterContext";
+import { ContractTypeMasterContext } from "./masters/contractTypeMaster/contractTypeMasterContext";
+import { ShiftMasterContext } from "./masters/shiftMaster/shiftMasterContext";
+import { UomMasterContext } from "./masters/uomMaster/uomMasterContext";
+import { ItemCategoryMasterContext } from "./masters/itemCategoryMaster/itemCategoryMasterContext";
+import { ServiceCategoryMasterContext } from "./masters/serviceCategoryMaster/serviceCategoryMasterContext";
+import { ItemMasterContext } from "./masters/itemMaster/itemMasterContext";
+import { ServiceMasterContext } from "./masters/serviceMaster/serviceMasterContext";
+import { DesignationMasterContext } from "./masters/designationMaster/designationMasterContext";
+import { DepartmentMasterContext } from "./masters/departmentMaster/departmentMasterContext";
+import { CountryMasterContext } from "./masters/countryMaster/countryMasterContext";
+import { StateMasterContext } from "./masters/stateMaster/stateMasterContext";
+import { BranchMasterContext } from "./masters/branchMaster/branchMasterContext";
+import { CityMasterContext } from "./masters/cityMaster/cityMasterContext";
+import { CourseCategoryMasterContext } from "./masters/courseCategoryMaster/courseCategoryMasterContext";
 
 // Use Designation Master Context
 export const useDesignationMasterContext = () => {

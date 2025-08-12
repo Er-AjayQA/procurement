@@ -1,7 +1,7 @@
 import { AttendanceCalendarPage } from "../pages/EmployeeSelfService/attendanceCalendar";
 import { EmployeeDetailPage } from "../pages/EmployeeSelfService/employeeDetails";
 import { CourseAssessmentReportPage } from "../pages/LearningManagement/CourseAssessmentReport";
-import { CoursePage } from "../pages/LearningManagement/coursesPage";
+import { CoursesPage } from "../pages/LearningManagement/courses";
 import { MasterAllowancePage } from "../pages/Masters/allowanceMaster";
 import { MasterAreaPage } from "../pages/Masters/areaMaster";
 import { MasterBankPage } from "../pages/Masters/bankMaster";
@@ -30,7 +30,7 @@ export const moduleComponents = {
     "attendance-calendar": AttendanceCalendarPage,
   },
   "learning-management-system": {
-    courses: CoursePage,
+    courses: CoursesPage,
     "courses-assessment-report": CourseAssessmentReportPage,
   },
   "rbac-management": {

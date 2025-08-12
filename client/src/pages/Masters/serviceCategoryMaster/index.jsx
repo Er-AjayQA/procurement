@@ -1,5 +1,5 @@
 import { ServiceCategoryMasterPage } from "../../../components/masters/serviceCategoryMasters/serviceCategoryMasterPage";
-import { ServiceCategoryMasterProvider } from "../../../contextApis/serviceCategoryMaster/serviceCategoryMasterProvider";
+import { ServiceCategoryMasterProvider } from "../../../contextApis/masters/serviceCategoryMaster/serviceCategoryMasterProvider";
 
 export const MasterServiceCategoryPage = () => {
   return (

@@ -1,5 +1,5 @@
 import { ItemCategoryMasterPage } from "../../../components/masters/itemCategoryMasters/itemCategoryMasterPage";
-import { ItemCategoryMasterProvider } from "../../../contextApis/itemCategoryMaster/itemCategoryMasterProvider";
+import { ItemCategoryMasterProvider } from "../../../contextApis/masters/itemCategoryMaster/itemCategoryMasterProvider";
 
 export const MasterItemCategoryPage = () => {
   return (
