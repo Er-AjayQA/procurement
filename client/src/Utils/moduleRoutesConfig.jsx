@@ -9,6 +9,7 @@ import { MasterBranchPage } from "../pages/Masters/branchMaster";
 import { MasterCityPage } from "../pages/Masters/cityMaster";
 import { MasterContractTypePage } from "../pages/Masters/contractTypeMaster";
 import { MasterCountryPage } from "../pages/Masters/countryMaster";
+import { MasterCourseCategoryPage } from "../pages/Masters/courseCategoryMaster";
 import { MasterDepartmentPage } from "../pages/Masters/departmentMaster";
 import { MasterDesignationPage } from "../pages/Masters/designationMaster";
 import { MasterEmployeeTypePage } from "../pages/Masters/employeeTypeMaster";
@@ -55,5 +56,6 @@ export const moduleComponents = {
     "service-master": MasterServicePage,
     "bank-master": MasterBankPage,
     "workflow-master": WorkflowPage,
+    "course-category-master": MasterCourseCategoryPage,
   },
 };

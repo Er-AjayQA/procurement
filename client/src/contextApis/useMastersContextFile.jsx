@@ -16,6 +16,7 @@ import { CountryMasterContext } from "./countryMaster/countryMasterContext";
 import { StateMasterContext } from "./stateMaster/stateMasterContext";
 import { BranchMasterContext } from "./branchMaster/branchMasterContext";
 import { CityMasterContext } from "./cityMaster/cityMasterContext";
+import { CourseCategoryMasterContext } from "./courseCategoryMaster/courseCategoryMasterContext";
 
 // Use Designation Master Context
 export const useDesignationMasterContext = () => {
@@ -195,6 +196,17 @@ export const useServiceMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useServiceMasterContext must be used within a ServiceMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Course Category Master Context
+export const useCourseCategoryMasterContext = () => {
+  const context = useContext(CourseCategoryMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useCourseCategoryMasterContext must be used within a CourseCategoryMasterProvider"
     );
   }
   return context;

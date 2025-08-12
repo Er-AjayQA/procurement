@@ -23,7 +23,7 @@ module.exports.createCourseCategory = async (req, res) => {
       const newCategory = await DB.tbl_course_category.create(data);
       return res.status(200).send({
         success: true,
-        status: "Course Category Created Successfully!",
+        message: "Course Category Created Successfully!",
         data: newCategory,
       });
     }
@@ -68,7 +68,7 @@ module.exports.updateCourseCategory = async (req, res) => {
         const updateCategory = await isCategoryExist.update(data);
         return res.status(200).send({
           success: true,
-          status: "Course Category Updated Successfully!",
+          message: "Course Category Updated Successfully!",
           data: updateCategory,
         });
       }
@@ -99,7 +99,7 @@ module.exports.getCourseCategoryDetails = async (req, res) => {
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get Course Category Details Successfully!",
+        message: "Get Course Category Details Successfully!",
         data: getAllData,
       });
     }
@@ -111,16 +111,28 @@ module.exports.getCourseCategoryDetails = async (req, res) => {
 // ========== GET ALL COURSE CATEGORY DETAILS CONTROLLER ========== //
 module.exports.getAllCourseCategoryDetails = async (req, res) => {
   try {
-    const query = `
-            SELECT CC.*
-            FROM COURSE_CATEGORY AS CC
-            WHERE CC.isDeleted=false`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
 
-    const getAllData = await DB.sequelize.query(query, {
-      type: DB.sequelize.QueryTypes.SELECT,
+    const whereClause = { isDeleted: false };
+
+    if (filter.name !== undefined || filter.name !== "") {
+      whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
+    }
+
+    const totalRecords = await DB.tbl_course_category.count({ whereClause });
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.tbl_course_category.findAll({
+      where: whereClause,
+      limit: limit,
+      offset: offset,
+      order: [["createdAt", "DESC"]],
     });
 
-    if (getAllData.length < 1) {
+    if (!getAllData || getAllData.length === 0) {
       return res
         .status(400)
         .send({ success: false, message: "Course Categories Not Found!" });
@@ -128,8 +140,14 @@ module.exports.getAllCourseCategoryDetails = async (req, res) => {
       return res.status(200).send({
         success: true,
         records: getAllData.length,
-        status: "Get All Course Categories List!",
+        message: "Get All Course Categories List!",
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: getAllData.length,
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
@@ -160,7 +178,7 @@ module.exports.updateCourseCategoryStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
+        message: "Status Changed Successfully!",
         data: updateStatus,
       });
     }
@@ -192,7 +210,7 @@ module.exports.deleteCourseCategory = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Course Category Deleted Successfully!",
+        message: "Course Category Deleted Successfully!",
       });
     }
   } catch (error) {

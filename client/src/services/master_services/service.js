@@ -1178,3 +1178,84 @@ export const deleteService = async (id) => {
   });
   return response.data;
 };
+
+// **************************** COURSE CATEGORY MASTER **************************** //
+// Create Course Category Master
+export const createCourseCategory = async (formData) => {
+  const response = await axiosInstance.post(
+    "create-course_category",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Update Course Category
+export const updateCourseCategory = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-course_category/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateCourseCategoryStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-course_category-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get Master Course Category by ID
+export const getCourseCategoryById = async (id) => {
+  const response = await axiosInstance.post(
+    `get-course_category-details/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Master Course Category List
+export const getAllCourseCategory = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-course_category-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Course Category Master
+export const deleteCourseCategory = async (id) => {
+  const response = await axiosInstance.put(`delete-course_category/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
