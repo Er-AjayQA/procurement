@@ -5,8 +5,10 @@ import { uploadCountries } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useRef, useState } from "react";
 import { LoadingButton } from "../../UI/loadingButton";
+import { useCountryMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const CountryMasterForm = ({ formVisibility, onClose, getAllData }) => {
+export const CountryMasterForm = ({ onClose }) => {
+  const { formVisibility, getAllData } = useCountryMasterContext();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const {

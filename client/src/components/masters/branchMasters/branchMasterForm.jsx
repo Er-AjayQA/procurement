@@ -11,15 +11,11 @@ import {
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
+import { useBranchMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const BranchMasterForm = ({
-  formVisibility,
-  formType,
-  onClose,
-  getAllData,
-  updateId,
-  data,
-}) => {
+export const BranchMasterForm = ({ onClose }) => {
+  const { formVisibility, formType, getAllData, updateId, data } =
+    useBranchMasterContext();
   const [codeOptions, setCodeOptions] = useState(null);
   const [altCodeOptions, setAltCodeOptions] = useState(null);
   const [countryOptions, setCountryOptions] = useState(null);
@@ -73,6 +69,7 @@ export const BranchMasterForm = ({
       const response = await getAllCountries({
         limit: 500,
         page: 1,
+        filter: { name: "" },
       });
 
       if (response.success) {

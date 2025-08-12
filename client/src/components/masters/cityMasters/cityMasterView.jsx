@@ -1,6 +1,8 @@
 import { MdOutlineClose } from "react-icons/md";
+import { useCityMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const CityMasterView = ({ viewVisibility, onClose, data }) => {
+export const CityMasterView = ({ onClose }) => {
+  const { viewVisibility, data } = useCityMasterContext();
   return (
     <>
       <div

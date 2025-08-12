@@ -5,8 +5,10 @@ import { uploadCities } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useRef, useState } from "react";
 import { LoadingButton } from "../../UI/loadingButton";
+import { useCityMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const CityMasterForm = ({ formVisibility, onClose, getAllData }) => {
+export const CityMasterForm = ({ onClose }) => {
+  const { formVisibility, getAllData } = useCityMasterContext();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const {

@@ -5,8 +5,10 @@ import { uploadStates } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useRef, useState } from "react";
 import { LoadingButton } from "../../UI/loadingButton";
+import { useStateMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const StateMasterForm = ({ formVisibility, onClose, getAllData }) => {
+export const StateMasterForm = ({ onClose }) => {
+  const { formVisibility, getAllData } = useStateMasterContext();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const {

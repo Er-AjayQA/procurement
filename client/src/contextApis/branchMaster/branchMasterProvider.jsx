@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { AddButton } from "../../components/UI/addButtonUi";
-import Select from "react-select";
+import { BranchMasterContext } from "./branchMasterContext";
 import {
   deleteBranch,
   getAllBranches,
@@ -8,11 +7,8 @@ import {
   updateBranchStatus,
 } from "../../services/master_services/service";
 import { toast } from "react-toastify";
-import { BranchMasterForm } from "../../components/masters/branchMasters/branchMasterForm";
-import { BranchMasterListing } from "../../components/masters/branchMasters/branchMasterListing";
-import { BranchMasterView } from "../../components/masters/branchMasters/branchMasterView";
 
-export const BranchMasterPage = () => {
+export const BranchMasterProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
@@ -197,130 +193,42 @@ export const BranchMasterPage = () => {
     }),
   };
 
+  const contextValue = {
+    listing,
+    formVisibility,
+    formType,
+    data,
+    updateId,
+    deleteId,
+    filter,
+    limit,
+    totalPages,
+    page,
+    isLoading,
+    viewVisibility,
+    selectedStatusFilter,
+    selectedBillingStatusFilter,
+    viewId,
+    setSelectedBillingStatusFIlter,
+    setSelectedStatusFIlter,
+    getAllData,
+    getDataById,
+    deleteData,
+    handleFormVisibility,
+    handleViewVisibility,
+    handleActiveInactive,
+    handleLimitChange,
+    handleChangeFilter,
+    setUpdateId,
+    setDeleteId,
+    setPage,
+    setViewId,
+    styledDropdown,
+  };
+
   return (
-    <>
-      <div className="px-5 h-full">
-        <div className="flex justify-between items-center pt-3 pb-10">
-          <div className="flex items-center gap-5">
-            {/* Sorting Element Start */}
-            <div className="flex justify-center items-center gap-2">
-              <label htmlFor="limit" className="text-sm">
-                Limit
-              </label>
-              <select
-                id="limit"
-                className="rounded-md py-1 text-sm border-borders-light"
-                onChange={(e) => handleLimitChange(e)}
-              >
-                <option value={10} className="text-sm">
-                  10
-                </option>
-                <option value={50} className="text-sm">
-                  50
-                </option>
-                <option value={100} className="text-sm">
-                  100
-                </option>
-                <option value={500} className="text-sm">
-                  500
-                </option>
-              </select>
-            </div>
-            {/* Sorting Element End */}
-            <div className="flex gap-3 items-center">
-              {/* Search Filter By Name */}
-              <input
-                type="search"
-                name="name"
-                value={filter.name}
-                placeholder="Search here.."
-                className="py-1 px-2 rounded-md text-sm border-borders-light"
-                onChange={(e) => handleChangeFilter("input", e)}
-              />
-
-              {/* Search Filter By Billing Status */}
-              <Select
-                value={selectedBillingStatusFilter}
-                onChange={(selectedOption) => {
-                  setSelectedBillingStatusFIlter(selectedOption);
-                  handleChangeFilter("dropdown", {
-                    field: "billing_status",
-                    value: selectedOption ? selectedOption.value : "",
-                  });
-                }}
-                options={[
-                  { value: 1, label: "Billing" },
-                  { value: 0, label: "Non-Billing" },
-                ]}
-                placeholder="Search by billingStatus..."
-                isClearable
-                isSearchable={false}
-                className="react-select-container"
-                classNamePrefix="react-select"
-                styles={styledDropdown}
-              />
-              {/* Search Filter By Status */}
-              <Select
-                value={selectedStatusFilter}
-                onChange={(selectedOption) => {
-                  setSelectedStatusFIlter(selectedOption);
-                  handleChangeFilter("dropdown", {
-                    field: "status",
-                    value: selectedOption ? selectedOption.value : "",
-                  });
-                }}
-                options={[
-                  { value: 1, label: "Active" },
-                  { value: 0, label: "In-Active" },
-                ]}
-                placeholder="Search by status..."
-                isClearable
-                isSearchable={false}
-                className="react-select-container"
-                classNamePrefix="react-select"
-                styles={styledDropdown}
-              />
-            </div>
-          </div>
-
-          <div onClick={() => handleFormVisibility("open", "add")}>
-            <AddButton text="Create Branch" />
-          </div>
-        </div>
-
-        {/* Branch Listing */}
-        <BranchMasterListing
-          isLoading={isLoading}
-          listing={listing}
-          handleFormVisibility={handleFormVisibility}
-          handleActiveInactive={handleActiveInactive}
-          handleViewVisibility={handleViewVisibility}
-          setUpdateId={setUpdateId}
-          setDeleteId={setDeleteId}
-          setViewId={setViewId}
-          page={page}
-          totalPages={totalPages}
-          setPage={setPage}
-        />
-
-        {/* Branch Form */}
-        <BranchMasterForm
-          formVisibility={formVisibility}
-          onClose={() => handleFormVisibility("close", "add")}
-          getAllData={getAllData}
-          formType={formType}
-          updateId={updateId}
-          data={data}
-          setUpdateId={setUpdateId}
-        />
-
-        {/* Branch View */}
-        <BranchMasterView
-          viewVisibility={viewVisibility}
-          onClose={() => handleViewVisibility("close")}
-          data={data}
-        />
-      </div>
-    </>
+    <BranchMasterContext.Provider value={contextValue}>
+      {children}
+    </BranchMasterContext.Provider>
   );
 };

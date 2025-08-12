@@ -1,6 +1,8 @@
 import { MdOutlineClose } from "react-icons/md";
+import { useStateMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const StateMasterView = ({ viewVisibility, onClose, data }) => {
+export const StateMasterView = ({ onClose }) => {
+  const { viewVisibility, data } = useStateMasterContext();
   return (
     <>
       <div

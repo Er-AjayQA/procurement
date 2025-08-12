@@ -3,20 +3,22 @@ import { FaEye } from "react-icons/fa";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
+import { useBranchMasterContext } from "../../../contextApis/useMastersContextFile";
 
-export const BranchMasterListing = ({
-  isLoading,
-  listing,
-  handleFormVisibility,
-  handleActiveInactive,
-  handleViewVisibility,
-  setUpdateId,
-  setDeleteId,
-  setViewId,
-  page,
-  totalPages,
-  setPage,
-}) => {
+export const BranchMasterListing = () => {
+  const {
+    isLoading,
+    listing,
+    handleFormVisibility,
+    handleActiveInactive,
+    handleViewVisibility,
+    setUpdateId,
+    setDeleteId,
+    setViewId,
+    page,
+    totalPages,
+    setPage,
+  } = useBranchMasterContext();
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">

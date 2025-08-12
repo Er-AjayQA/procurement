@@ -5,10 +5,10 @@ import { CoursePage } from "../pages/LearningManagement/coursesPage";
 import { MasterAllowancePage } from "../pages/Masters/allowanceMaster";
 import { MasterAreaPage } from "../pages/Masters/areaMaster";
 import { MasterBankPage } from "../pages/Masters/bankMaster";
-import { BranchMasterPage } from "../pages/Masters/branchMasterPage";
-import { CityMasterPage } from "../pages/Masters/cityMasterPage";
+import { MasterBranchPage } from "../pages/Masters/branchMaster";
+import { MasterCityPage } from "../pages/Masters/cityMaster";
 import { MasterContractTypePage } from "../pages/Masters/contractTypeMaster";
-import { CountryMasterPage } from "../pages/Masters/countryMasterPage";
+import { MasterCountryPage } from "../pages/Masters/countryMaster";
 import { MasterDepartmentPage } from "../pages/Masters/departmentMaster";
 import { MasterDesignationPage } from "../pages/Masters/designationMaster";
 import { MasterEmployeeTypePage } from "../pages/Masters/employeeTypeMaster";
@@ -17,7 +17,7 @@ import { MasterItemPage } from "../pages/Masters/itemMaster";
 import { MasterServiceCategoryPage } from "../pages/Masters/serviceCategoryMaster";
 import { MasterServicePage } from "../pages/Masters/serviceMaster";
 import { MasterShiftPage } from "../pages/Masters/shiftMaster";
-import { StateMasterPage } from "../pages/Masters/stateMasterPage";
+import { MasterStatePage } from "../pages/Masters/stateMaster";
 import { MasterUomPage } from "../pages/Masters/uomMaster";
 import { WorkflowPage } from "../pages/Masters/workflowPage";
 import { RBACPermissions } from "../pages/RbacManagement/rbacPermissionsPage";
@@ -39,10 +39,10 @@ export const moduleComponents = {
   masters: {
     "designation-master": MasterDesignationPage,
     "department-master": MasterDepartmentPage,
-    "country-master": CountryMasterPage,
-    "state-master": StateMasterPage,
-    "city-master": CityMasterPage,
-    "branch-master": BranchMasterPage,
+    "country-master": MasterCountryPage,
+    "state-master": MasterStatePage,
+    "city-master": MasterCityPage,
+    "branch-master": MasterBranchPage,
     "area-master": MasterAreaPage,
     "allowance-master": MasterAllowancePage,
     "contract-type-master": MasterContractTypePage,

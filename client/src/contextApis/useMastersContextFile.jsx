@@ -12,6 +12,10 @@ import { ItemMasterContext } from "./itemMaster/itemMasterContext";
 import { ServiceMasterContext } from "./serviceMaster/serviceMasterContext";
 import { DesignationMasterContext } from "./designationMaster/designationMasterContext";
 import { DepartmentMasterContext } from "./departmentMaster/departmentMasterContext";
+import { CountryMasterContext } from "./countryMaster/countryMasterContext";
+import { StateMasterContext } from "./stateMaster/stateMasterContext";
+import { BranchMasterContext } from "./branchMaster/branchMasterContext";
+import { CityMasterContext } from "./cityMaster/cityMasterContext";
 
 // Use Designation Master Context
 export const useDesignationMasterContext = () => {
@@ -30,6 +34,50 @@ export const useDepartmentMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useDepartmentMasterContext must be used within a DepartmentMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Country Master Context
+export const useCountryMasterContext = () => {
+  const context = useContext(CountryMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useCountryMasterContext must be used within a CountryMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use State Master Context
+export const useStateMasterContext = () => {
+  const context = useContext(StateMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useStateMasterContext must be used within a StateMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use City Master Context
+export const useCityMasterContext = () => {
+  const context = useContext(CityMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useCityMasterContext must be used within a CityMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Branch Master Context
+export const useBranchMasterContext = () => {
+  const context = useContext(BranchMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useBranchMasterContext must be used within a BranchMasterProvider"
     );
   }
   return context;
