@@ -6,16 +6,8 @@ import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile"
 import { CourseCards } from "./courseCards";
 
 export const CoursesListing = () => {
-  const {
-    isLoading,
-    listing,
-    handleFormVisibility,
-    handleActiveInactive,
-    setUpdateId,
-    page,
-    totalPages,
-    setPage,
-  } = useCoursesMasterContext();
+  const { isLoading, listing, page, totalPages, setPage } =
+    useCoursesMasterContext();
 
   return (
     <>

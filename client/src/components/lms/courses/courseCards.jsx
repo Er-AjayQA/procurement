@@ -1,7 +1,10 @@
 import { MdEdit } from "react-icons/md";
 import { FaEye, FaDownload } from "react-icons/fa";
+import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
 
 export const CourseCards = ({ data }) => {
+  const { handleFormVisibility, handleActiveInactive, setUpdateId } =
+    useCoursesMasterContext();
   return (
     <>
       <div className="relative grid grid-cols-4 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.2)] hover:shadow-xl transition-shadow duration-300 p-2 overflow-hidden rounded-lg">
@@ -48,7 +51,13 @@ export const CourseCards = ({ data }) => {
           <button className="w-[30px] h-[30px] rounded-[10px] bg-blue-600 hover:bg-blue-700 flex items-center justify-center">
             <FaEye className="fill-white" />
           </button>
-          <button className="w-[30px] h-[30px] rounded-[10px] bg-green-600 hover:bg-green-700 flex items-center justify-center">
+          <button
+            className="w-[30px] h-[30px] rounded-[10px] bg-green-600 hover:bg-green-700 flex items-center justify-center"
+            onClick={() => {
+              setUpdateId(data?.id);
+              handleFormVisibility("open", "update");
+            }}
+          >
             <MdEdit className="fill-white" />
           </button>
           {data?.is_certified ? (

@@ -183,7 +183,7 @@ module.exports.getCourseDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Workflow Not Found!" });
+        .send({ success: false, message: "Course Not Found!" });
     } else {
       // Get Assessment Details
       let getAllAssessment;
@@ -201,6 +201,7 @@ module.exports.getCourseDetails = async (req, res) => {
           include: [
             {
               model: DB.tbl_lms_course_assessment_questions,
+              as: "assessmentQuestions",
               attributes: [
                 "id",
                 "assessment_question_type",
