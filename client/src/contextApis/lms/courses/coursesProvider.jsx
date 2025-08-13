@@ -11,12 +11,15 @@ import { getAllCourseCategory } from "../../../services/master_services/service"
 export const CoursesProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
+  const [viewVisibility, setViewVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
   const [assessmentDetails, setAssessmentDetails] = useState(null);
   const [questionDetails, setQuestionDetails] = useState(null);
+  const [componentType, setComponentType] = useState("listing");
   const [basicDetails, setBasicDetails] = useState(null);
   const [contentDetails, setContentDetails] = useState(null);
   const [data, setData] = useState(null);
+  const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [filter, setFilter] = useState({ name: "" });
   const [limit, setLimit] = useState(10);
@@ -113,6 +116,21 @@ export const CoursesProvider = ({ children }) => {
     }
   };
 
+  // Handle View Visibility
+  const handleViewVisibility = (type) => {
+    if (type === "open") {
+      setViewVisibility(true);
+    } else if (type === "close") {
+      setViewVisibility(false);
+      setViewId(null);
+    }
+  };
+
+  // Handle Component Type
+  const handleComponentView = (type) => {
+    setComponentType((prev) => (prev = type));
+  };
+
   // Handle Active/Inactive
   const handleActiveInactive = async (id) => {
     try {
@@ -156,10 +174,11 @@ export const CoursesProvider = ({ children }) => {
 
   // For update operations
   useEffect(() => {
-    if (updateId) {
-      getDataById(updateId);
+    if (updateId || viewId) {
+      const id = updateId || viewId;
+      getDataById(id);
     }
-  }, [updateId]);
+  }, [updateId, viewId]);
 
   // For Get All Course Categories
   useEffect(() => {
@@ -219,6 +238,9 @@ export const CoursesProvider = ({ children }) => {
     basicDetails,
     contentDetails,
     questionDetails,
+    viewId,
+    viewVisibility,
+    componentType,
     getAllData,
     getDataById,
     handleFormVisibility,
@@ -228,6 +250,11 @@ export const CoursesProvider = ({ children }) => {
     setUpdateId,
     categoryOptions,
     setPage,
+    setViewId,
+    setViewVisibility,
+    setComponentType,
+    handleViewVisibility,
+    handleComponentView,
     styledComponent,
   };
 

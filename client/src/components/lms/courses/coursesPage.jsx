@@ -2,15 +2,17 @@ import { AddButton } from "../../UI/addButtonUi";
 import { CoursesListing } from "./coursesListing";
 import { CoursesForm } from "./coursesForm";
 import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
+import { CoursesView } from "./coursesView";
 
 export const CoursesPageComponent = () => {
   const {
     filter,
-    formVisibility,
-    handleFormVisibility,
     handleLimitChange,
     handleChangeFilter,
-    handleFormClose,
+    componentType,
+    setViewId,
+    setUpdateId,
+    handleComponentView,
   } = useCoursesMasterContext();
 
   return (
@@ -54,22 +56,30 @@ export const CoursesPageComponent = () => {
               />
             </div>
           </div>
-          {!formVisibility ? (
-            <div onClick={() => handleFormVisibility("open", "add")}>
+          {componentType === "listing" ? (
+            <div onClick={() => handleComponentView("form")}>
               <AddButton text="Create Course" />
             </div>
           ) : (
-            <div onClick={() => handleFormVisibility("close", "add")}>
+            <div
+              onClick={() => {
+                handleComponentView("listing");
+                setViewId(null);
+                setUpdateId(null);
+              }}
+            >
               <AddButton text="Back" />
             </div>
           )}
         </div>
 
-        {!formVisibility ? (
-          <CoursesListing />
-        ) : (
-          <CoursesForm onClose={() => handleFormVisibility("close", "add")} />
+        {componentType === "listing" && <CoursesListing />}
+
+        {componentType === "form" && (
+          <CoursesForm onClose={() => handleComponentView("listing")} />
         )}
+
+        {componentType === "view" && <CoursesView />}
       </div>
     </>
   );
