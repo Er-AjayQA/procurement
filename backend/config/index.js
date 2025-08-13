@@ -695,9 +695,11 @@ db.tbl_lms_course_assessment.belongsTo(db.tbl_lms_course, {
 // Relation B/W LMS Course Assessment and LMS Course Assessment Questions Tables
 db.tbl_lms_course_assessment.hasMany(db.tbl_lms_course_assessment_questions, {
   foreignKey: "assessment_id",
+  as: "assessmentQuestions",
 });
 db.tbl_lms_course_assessment_questions.belongsTo(db.tbl_lms_course_assessment, {
   foreignKey: "assessment_id",
+  as: "assessmentQuestions",
 });
 
 // Relation B/W LMS Course and LMS Course Assessment Questions Tables

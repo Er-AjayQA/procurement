@@ -12,6 +12,10 @@ export const CoursesProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
+  const [assessmentDetails, setAssessmentDetails] = useState(null);
+  const [questionDetails, setQuestionDetails] = useState(null);
+  const [basicDetails, setBasicDetails] = useState(null);
+  const [contentDetails, setContentDetails] = useState(null);
   const [data, setData] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [filter, setFilter] = useState({ name: "" });
@@ -43,10 +47,30 @@ export const CoursesProvider = ({ children }) => {
   };
 
   // Get Data By Id
-  const getDataById = async () => {
-    const response = await getCourseById(updateId);
-    if (response.success) {
-      setData(response.data);
+  const getDataById = async (id) => {
+    try {
+      const response = await getCourseById(id);
+      if (response.success) {
+        setData(response.data);
+        setBasicDetails(response.data.basicDetails[0]);
+        setContentDetails(response.data.contentDetails);
+        setAssessmentDetails(response.data.assessmentDetails[0]);
+        setQuestionDetails(
+          response.data.assessmentDetails[0].assessmentQuestions
+        );
+      } else {
+        setData(null);
+        setBasicDetails(null);
+        setContentDetails(null);
+        setAssessmentDetails(null);
+        setQuestionDetails(null);
+      }
+    } catch (error) {
+      setData(null);
+      setBasicDetails(null);
+      setContentDetails(null);
+      setAssessmentDetails(null);
+      setQuestionDetails(null);
     }
   };
 
@@ -133,7 +157,7 @@ export const CoursesProvider = ({ children }) => {
   // For update operations
   useEffect(() => {
     if (updateId) {
-      getDataById();
+      getDataById(updateId);
     }
   }, [updateId]);
 
@@ -186,15 +210,17 @@ export const CoursesProvider = ({ children }) => {
     formType,
     data,
     updateId,
-    // deleteId,
     filter,
     limit,
     totalPages,
     page,
     isLoading,
+    assessmentDetails,
+    basicDetails,
+    contentDetails,
+    questionDetails,
     getAllData,
     getDataById,
-    // deleteData,
     handleFormVisibility,
     handleActiveInactive,
     handleLimitChange,

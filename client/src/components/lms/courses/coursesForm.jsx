@@ -13,10 +13,27 @@ import { createCourse } from "../../../services/lms_services/service";
 
 // Main Form Component
 export const CoursesForm = ({ onClose }) => {
-  const { formType, getAllData, updateId, data, categoryOptions } =
-    useCoursesMasterContext();
+  const {
+    formType,
+    getAllData,
+    data,
+    categoryOptions,
+    assessmentDetails,
+    basicDetails,
+    contentDetails,
+    questionDetails,
+  } = useCoursesMasterContext();
 
   const [courseType, setCourseType] = useState("commonContent");
+  const [courseFormats, setCourseFormats] = useState([
+    { value: "Live", label: "Live" },
+    { value: "Online", label: "Online" },
+    { value: "Offline", label: "Offline" },
+  ]);
+  const [certificateOptions, setCertificateOptions] = useState([
+    { value: "true", label: "Provided" },
+    { value: "false", label: "Not Provided" },
+  ]);
   const [contents, setContents] = useState([]);
   const [assessmentQuestion, setAssessmentQuestion] = useState([]);
   const [questionFormVisible, setQuestionFormVisible] = useState(false);
@@ -49,20 +66,65 @@ export const CoursesForm = ({ onClose }) => {
   // Set form values when in update mode
   useEffect(() => {
     if (formType === "Update" && data) {
-      const formData = {
-        ...data,
-        course_category_id: categoryOptions.find(
-          (opt) => opt.value === data.course_category_id
-        ),
-        course_format: data.course_format
-          ? { value: data.course_format, label: data.course_format }
-          : null,
-        is_certified: data.is_certified
-          ? { value: true, label: "Provided" }
-          : { value: false, label: "Not-Provided" },
-      };
-      reset(formData);
-      if (data.courseContent) setContents(data.courseContent);
+      reset({
+        course_name: basicDetails?.course_name,
+        course_category_id: basicDetails?.course_category_id,
+        course_trainer: basicDetails?.course_trainer,
+        course_format: basicDetails?.course_format,
+        course_objective: basicDetails?.course_objective,
+        course_expected_results: basicDetails?.course_expected_results,
+        is_certified: basicDetails?.is_certified,
+      });
+
+      if (basicDetails?.course_category_id) {
+        const category = categoryOptions.find(
+          (opt) => opt.value === basicDetails?.course_category_id
+        );
+
+        if (category) {
+          setValue("course_category_id", category);
+        }
+      }
+
+      if (basicDetails?.course_format) {
+        const format = courseFormats.find(
+          (opt) => opt.value === basicDetails?.course_format
+        );
+
+        if (format) {
+          setValue("course_format", format);
+        }
+      }
+
+      if (basicDetails?.is_certified) {
+        const certificate = certificateOptions.find(
+          (opt) => opt.value === basicDetails?.is_certified
+        );
+
+        if (certificate) {
+          setValue("is_certified", certificate);
+        }
+      }
+
+      if (basicDetails?.course_type) setCourseType(basicDetails?.course_type);
+
+      if (basicDetails?.course_type === "contentWithAssessment") {
+        setValue("assessment_name", assessmentDetails?.assessment_name);
+        setValue("assessment_time", assessmentDetails?.assessment_time);
+        setValue(
+          "assessment_max_attempts",
+          assessmentDetails?.assessment_max_attempts
+        );
+        setValue("marks_per_question", assessmentDetails?.marks_per_question);
+        setValue(
+          "assessment_passing_percent",
+          assessmentDetails?.assessment_passing_percent
+        );
+      }
+      if (contentDetails) setContents(contentDetails);
+      if (questionDetails) setAssessmentQuestion(questionDetails);
+
+      console.log("AssessmentQuestions....", assessmentQuestion);
     }
   }, [formType, data, reset, categoryOptions]);
 
@@ -340,11 +402,7 @@ export const CoursesForm = ({ onClose }) => {
                     render={({ field }) => (
                       <Select
                         {...field}
-                        options={[
-                          { value: "Live", label: "Live" },
-                          { value: "Offline", label: "Offline" },
-                          { value: "Online", label: "Online" },
-                        ]}
+                        options={courseFormats}
                         placeholder="Select format"
                         styles={selectStyles}
                         className="react-select-container"
@@ -365,10 +423,7 @@ export const CoursesForm = ({ onClose }) => {
                     render={({ field }) => (
                       <Select
                         {...field}
-                        options={[
-                          { value: true, label: "Provided" },
-                          { value: false, label: "Not Provided" },
-                        ]}
+                        options={certificateOptions}
                         placeholder="Select option"
                         styles={selectStyles}
                         className="react-select-container"
@@ -649,7 +704,7 @@ export const CoursesForm = ({ onClose }) => {
                   </button>
                 </div>
 
-                {assessmentQuestion.length > 0 ? (
+                {assessmentQuestion?.length > 0 ? (
                   <div className="border border-gray-200 rounded-md overflow-hidden">
                     <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
                       <div className="col-span-3 p-2 text-xs">Type</div>
@@ -671,7 +726,7 @@ export const CoursesForm = ({ onClose }) => {
                         <div className="col-span-1 p-2 text-sm">
                           {question.assessment_question_type === "true/false"
                             ? question.assessment_correct_answer
-                            : question.assessment_question_options.find(
+                            : question.assessment_question_options?.find(
                                 (opt) => opt.isCorrect
                               )?.option || "N/A"}
                         </div>
