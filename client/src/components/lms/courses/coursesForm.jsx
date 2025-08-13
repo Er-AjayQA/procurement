@@ -17,6 +17,7 @@ export const CoursesForm = ({ onClose }) => {
     formType,
     getAllData,
     data,
+    updateId,
     categoryOptions,
     assessmentDetails,
     basicDetails,
@@ -65,7 +66,7 @@ export const CoursesForm = ({ onClose }) => {
 
   // Set form values when in update mode
   useEffect(() => {
-    if (formType === "Update" && data) {
+    if (updateId && data) {
       reset({
         course_name: basicDetails?.course_name,
         course_category_id: basicDetails?.course_category_id,
@@ -266,7 +267,7 @@ export const CoursesForm = ({ onClose }) => {
       <div className="bg-button-hover py-2 px-4">
         <div className="flex justify-between items-center">
           <h3 className="text-white text-sm">
-            {formType === "Add" ? "Add New Course" : "Update Course"}
+            {!updateId ? "Add New Course" : "Update Course"}
           </h3>
         </div>
       </div>

@@ -1,4 +1,3 @@
-import { MdEdit, MdDelete } from "react-icons/md";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";

@@ -3,7 +3,7 @@ import { FaEye, FaDownload } from "react-icons/fa";
 import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
 
 export const CourseCards = ({ data }) => {
-  const { handleFormVisibility, handleActiveInactive, setUpdateId } =
+  const { setViewId, setUpdateId, handleComponentView } =
     useCoursesMasterContext();
   return (
     <>
@@ -48,14 +48,20 @@ export const CourseCards = ({ data }) => {
         </div>
         {/* Actions */}
         <div className="flex gap-2 items-center justify-center px-5">
-          <button className="w-[30px] h-[30px] rounded-[10px] bg-blue-600 hover:bg-blue-700 flex items-center justify-center">
+          <button
+            className="w-[30px] h-[30px] rounded-[10px] bg-blue-600 hover:bg-blue-700 flex items-center justify-center"
+            onClick={() => {
+              setViewId(data?.id);
+              handleComponentView("view");
+            }}
+          >
             <FaEye className="fill-white" />
           </button>
           <button
             className="w-[30px] h-[30px] rounded-[10px] bg-green-600 hover:bg-green-700 flex items-center justify-center"
             onClick={() => {
               setUpdateId(data?.id);
-              handleFormVisibility("open", "update");
+              handleComponentView("form");
             }}
           >
             <MdEdit className="fill-white" />
