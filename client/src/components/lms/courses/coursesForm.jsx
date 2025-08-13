@@ -5,221 +5,11 @@ import { IoMdAdd } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
-
-// Content Form Component
-const ContentItem = ({ content, index, onChange, onRemove }) => {
-  return (
-    <div className="flex w-full border-b border-b-gray-300">
-      <div className="basis-[40%] p-3 border-e border-e-gray-300">
-        <select
-          name="content_type"
-          value={content.content_type}
-          onChange={(e) => onChange(index, "content_type", e.target.value)}
-          className="w-full rounded-lg text-sm hover:border-blue-500 py-2 px-3 border"
-          required
-        >
-          <option value="">Select type</option>
-          <option value="PDF">PDF</option>
-          <option value="Image">Image</option>
-          <option value="Video">Video</option>
-          <option value="Word Document">Word Document</option>
-          <option value="Excel Sheet">Excel Sheet</option>
-          <option value="Audio">Audio</option>
-        </select>
-      </div>
-      <div className="basis-[40%] p-3 border-e border-e-gray-300">
-        <input
-          type="text"
-          value={content.content_name}
-          onChange={(e) => onChange(index, "content_name", e.target.value)}
-          placeholder="File name"
-          className="w-full rounded-lg text-sm hover:border-blue-500 py-2 px-3 border"
-          required
-        />
-      </div>
-      <div className="basis-[40%] p-3 border-e border-e-gray-300">
-        <input
-          type="url"
-          value={content.content_link}
-          onChange={(e) => onChange(index, "content_link", e.target.value)}
-          placeholder="Enter link..."
-          className="w-full rounded-lg text-sm hover:border-blue-500 py-2 px-3 border"
-        />
-      </div>
-      <div className="flex justify-center items-center basis-[20%] p-3">
-        <button
-          type="button"
-          onClick={() => onRemove(index)}
-          className="text-gray-500 hover:text-red-500 transition-colors"
-        >
-          <MdDelete className="text-xl" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const QuestionForm = ({
-  isVisible,
-  onClose,
-  questionType,
-  setQuestionType,
-  register,
-  errors,
-  control,
-}) => {
-  return (
-    <>
-      <div
-        className={`fixed inset-0 z-20 bg-black/50 transition-opacity ${
-          isVisible ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={onClose}
-      ></div>
-      <div
-        className={`fixed right-0 top-0 w-full max-w-md h-full bg-white z-30 shadow-xl transition-transform duration-300 ${
-          isVisible ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="flex items-center justify-between bg-blue-600 py-3 px-4">
-          <h3 className="text-white font-medium">Add Question</h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full hover:bg-blue-700 transition-colors"
-          >
-            <MdOutlineClose className="text-white text-lg" />
-          </button>
-        </div>
-        <form className="p-6 space-y-4">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Question Type <span className="text-red-500">*</span>
-            </label>
-            <Controller
-              name="assessment_question_type"
-              control={control}
-              rules={{ required: "Question type is required" }}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  options={[
-                    { value: "MCQ", label: "MCQ" },
-                    { value: "true/false", label: "True/False" },
-                  ]}
-                  value={field.value}
-                  onChange={(val) => {
-                    field.onChange(val);
-                    setQuestionType(val.value);
-                  }}
-                  placeholder="Select question type"
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (base) => ({
-                      ...base,
-                      minHeight: "40px",
-                      borderRadius: "0.375rem",
-                      borderColor: errors.assessment_question_type
-                        ? "#ef4444"
-                        : "#d1d5db",
-                    }),
-                  }}
-                />
-              )}
-            />
-            {errors.assessment_question_type && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.assessment_question_type.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Question <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              className={`w-full rounded-md border ${
-                errors.assessment_question_title
-                  ? "border-red-500"
-                  : "border-gray-300"
-              } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-              placeholder="Enter question"
-              {...register("assessment_question_title", {
-                required: "Question is required",
-              })}
-            />
-            {errors.assessment_question_title && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.assessment_question_title.message}
-              </p>
-            )}
-          </div>
-
-          {questionType === "MCQ" && (
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Options <span className="text-red-500">*</span>
-              </label>
-              {[1, 2, 3, 4].map((num) => (
-                <div key={num} className="flex items-center space-x-3">
-                  <input
-                    type="radio"
-                    name="correct_option"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  />
-                  <input
-                    type="text"
-                    className="flex-1 rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder={`Option ${num}`}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {questionType === "true/false" && (
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Correct Answer <span className="text-red-500">*</span>
-              </label>
-              <div className="flex space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="correct_answer"
-                    value="true"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">True</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="correct_answer"
-                    value="false"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">False</span>
-                </label>
-              </div>
-            </div>
-          )}
-
-          <div className="pt-4">
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
-            >
-              Add Question
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
-  );
-};
+import { ContentItem } from "./addContent";
+import { QuestionItem } from "./addQuestionForm";
+import { CancelButton } from "../../UI/cancelButtonUi";
+import { AddButton } from "../../UI/addButtonUi";
+import { createCourse } from "../../../services/lms_services/service";
 
 // Main Form Component
 export const CoursesForm = ({ onClose }) => {
@@ -228,8 +18,8 @@ export const CoursesForm = ({ onClose }) => {
 
   const [courseType, setCourseType] = useState("commonContent");
   const [contents, setContents] = useState([]);
+  const [assessmentQuestion, setAssessmentQuestion] = useState([]);
   const [questionFormVisible, setQuestionFormVisible] = useState(false);
-  const [questionType, setQuestionType] = useState("MCQ");
 
   const {
     register,
@@ -294,6 +84,22 @@ export const CoursesForm = ({ onClose }) => {
     setContents(updated);
   };
 
+  const handleAddAssessmentQuestion = (newQuestion) => {
+    setAssessmentQuestion([...assessmentQuestion, newQuestion]);
+    setQuestionFormVisible(false);
+  };
+
+  const handleAssessmentQuestionChange = (index, field, value) => {
+    const updated = [...assessmentQuestion];
+    updated[index][field] = value;
+    setAssessmentQuestion(updated);
+  };
+
+  const handleAssessmentQuestionRemove = (index) => {
+    const updated = assessmentQuestion.filter((_, i) => i !== index);
+    setAssessmentQuestion(updated);
+  };
+
   const onSubmit = async (formData) => {
     try {
       const payload = {
@@ -318,18 +124,17 @@ export const CoursesForm = ({ onClose }) => {
         payload.assessment_max_attempts = Number(
           formData.assessment_max_attempts
         );
-        // Add questions data here when implemented
+        payload.assessmentQuestions = assessmentQuestion;
       }
 
       console.log("Submitting:", payload);
 
-      // Here you would call your API
-      // let response;
-      // if (formType === "Update") {
-      //   response = await updateCourse(updateId, payload);
-      // } else {
-      //   response = await createCourse(payload);
-      // }
+      // let response = "";
+      //  if (formType === "Update") {
+      //    response = await updateCou(updateId, payload);
+      //  }
+
+      let response = await createCourse(payload);
 
       // For now, just log and show success
       toast.success(
@@ -396,17 +201,11 @@ export const CoursesForm = ({ onClose }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
       {/* Header */}
-      <div className="bg-blue-600 py-3 px-4">
+      <div className="bg-button-hover py-2 px-4">
         <div className="flex justify-between items-center">
-          <h3 className="text-white font-medium">
+          <h3 className="text-white text-sm">
             {formType === "Add" ? "Add New Course" : "Update Course"}
           </h3>
-          <button
-            onClick={onClose}
-            className="text-white hover:text-gray-200 transition-colors"
-          >
-            <MdClose className="text-xl" />
-          </button>
         </div>
       </div>
 
@@ -554,6 +353,30 @@ export const CoursesForm = ({ onClose }) => {
                     )}
                   />
                 </div>
+
+                {/* Certificate */}
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Certificate Provided?
+                  </label>
+                  <Controller
+                    name="is_certified"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={[
+                          { value: true, label: "Provided" },
+                          { value: false, label: "Not Provided" },
+                        ]}
+                        placeholder="Select option"
+                        styles={selectStyles}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                      />
+                    )}
+                  />
+                </div>
               </div>
 
               {/* Right Column */}
@@ -605,30 +428,6 @@ export const CoursesForm = ({ onClose }) => {
                     </p>
                   )}
                 </div>
-
-                {/* Certificate */}
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Certificate Provided?
-                  </label>
-                  <Controller
-                    name="is_certified"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        options={[
-                          { value: true, label: "Provided" },
-                          { value: false, label: "Not Provided" },
-                        ]}
-                        placeholder="Select option"
-                        styles={selectStyles}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                      />
-                    )}
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -650,11 +449,11 @@ export const CoursesForm = ({ onClose }) => {
 
             {contents.length > 0 ? (
               <div className="border border-gray-200 rounded-md overflow-hidden">
-                <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-200 font-medium text-xs text-gray-500 uppercase">
-                  <div className="col-span-4 p-2">Content Type</div>
-                  <div className="col-span-4 p-2">File Name</div>
-                  <div className="col-span-3 p-2">Link</div>
-                  <div className="col-span-1 p-2"></div>
+                <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
+                  <div className="col-span-4 p-2 text-xs">Content Type</div>
+                  <div className="col-span-4 p-2 text-xs">File Name</div>
+                  <div className="col-span-3 p-2 text-xs">Link</div>
+                  <div className="col-span-1 p-2 text-xs"></div>
                 </div>
                 {contents.map((content, index) => (
                   <ContentItem
@@ -850,39 +649,70 @@ export const CoursesForm = ({ onClose }) => {
                   </button>
                 </div>
 
-                {/* Placeholder for questions list */}
-                <div className="border border-gray-200 rounded-md p-4 text-center text-sm text-gray-500">
-                  No questions added yet
-                </div>
+                {assessmentQuestion.length > 0 ? (
+                  <div className="border border-gray-200 rounded-md overflow-hidden">
+                    <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
+                      <div className="col-span-3 p-2 text-xs">Type</div>
+                      <div className="col-span-7 p-2 text-xs">Question</div>
+                      <div className="col-span-1 p-2 text-xs">Correct</div>
+                      <div className="col-span-1 p-2 text-xs"></div>
+                    </div>
+                    {assessmentQuestion.map((question, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-12 border-b border-gray-200"
+                      >
+                        <div className="col-span-3 p-2 text-sm">
+                          {question.assessment_question_type}
+                        </div>
+                        <div className="col-span-7 p-2 text-sm">
+                          {question.assessment_question_title}
+                        </div>
+                        <div className="col-span-1 p-2 text-sm">
+                          {question.assessment_question_type === "true/false"
+                            ? question.assessment_correct_answer
+                            : question.assessment_question_options.find(
+                                (opt) => opt.isCorrect
+                              )?.option || "N/A"}
+                        </div>
+                        <div className="col-span-1 p-2 flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleAssessmentQuestionRemove(index)
+                            }
+                            className="text-gray-500 hover:text-red-500"
+                          >
+                            <MdDelete className="text-xl" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="border border-gray-200 rounded-md p-4 text-center text-sm text-gray-500">
+                    No questions added yet
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              {formType === "Add" ? "Create Course" : "Update Course"}
-            </button>
+            <CancelButton onClick={onClose} text={"Cancel"} />
+            <AddButton
+              text={`${formType === "Add" ? "Create Course" : "Update Course"}`}
+            />
           </div>
         </form>
       </div>
 
       {/* Question Form Modal */}
-      <QuestionForm
+      <QuestionItem
         isVisible={questionFormVisible}
         onClose={() => setQuestionFormVisible(false)}
-        questionType={questionType}
-        setQuestionType={setQuestionType}
+        onAddQuestion={handleAddAssessmentQuestion}
         register={register}
         errors={errors}
         control={control}
