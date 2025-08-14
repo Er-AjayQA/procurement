@@ -1,11 +1,11 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { CancelButton } from "../../UI/cancelButtonUi";
 import { AddButton } from "../../UI/addButtonUi";
-import { createCourse } from "../../../services/lms_services/service";
 import { useUserPermissionContext } from "../../../contextApis/useRbacContextFile";
+import { allUsersModuleAccessService } from "../../../services/rbac_services/service";
 
 // Main Form Component
 export const UserPermissionForm = ({ onClose }) => {
@@ -15,27 +15,17 @@ export const UserPermissionForm = ({ onClose }) => {
     data,
     updateId,
     handleComponentClose,
-    categoryOptions,
-    assessmentDetails,
-    basicDetails,
-    contentDetails,
-    questionDetails,
     handleComponentView,
+    allModules,
+    usersList,
+    rolesList,
+    getAllUsersList,
   } = useUserPermissionContext();
 
-  const [courseType, setCourseType] = useState("commonContent");
-  const [courseFormats, setCourseFormats] = useState([
-    { value: "Live", label: "Live" },
-    { value: "Online", label: "Online" },
-    { value: "Offline", label: "Offline" },
-  ]);
-  const [certificateOptions, setCertificateOptions] = useState([
-    { value: "true", label: "Provided" },
-    { value: "false", label: "Not Provided" },
-  ]);
-  const [contents, setContents] = useState([]);
-  const [assessmentQuestion, setAssessmentQuestion] = useState([]);
-  const [questionFormVisible, setQuestionFormVisible] = useState(false);
+  const [moduleList, setModuleList] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [updatedUserDetails, setUpdatedUserDetails] = useState(null);
 
   const {
     register,
@@ -46,156 +36,158 @@ export const UserPermissionForm = ({ onClose }) => {
     watch,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      course_name: "",
-      course_category_id: null,
-      course_trainer: "",
-      course_format: null,
-      course_objective: "",
-      course_expected_results: "",
-      is_certified: null,
-      assessment_name: "",
-      marks_per_question: "",
-      assessment_passing_percent: "",
-      assessment_time: "",
-      assessment_max_attempts: "",
-    },
+    defaultValues: {},
   });
+
+  // Get Updated User Assigned Module details
+  const getUserAssignedModules = async () => {
+    const response = await allUsersModuleAccessService({
+      limit: 1000,
+      page: "",
+      filter: { user_id: updateId },
+    });
+
+    if (response.success) {
+      setUpdatedUserDetails(response.data[0]);
+    }
+  };
 
   // Set form values when in update mode
   useEffect(() => {
-    if (updateId && data) {
-      reset({
-        course_name: basicDetails?.course_name,
-        course_category_id: basicDetails?.course_category_id,
-        course_trainer: basicDetails?.course_trainer,
-        course_format: basicDetails?.course_format,
-        course_objective: basicDetails?.course_objective,
-        course_expected_results: basicDetails?.course_expected_results,
-        is_certified: basicDetails?.is_certified,
-      });
+    if (updateId) {
+      console.log("Updated User Details....", updatedUserDetails);
 
-      if (basicDetails?.course_category_id) {
-        const category = categoryOptions.find(
-          (opt) => opt.value === basicDetails?.course_category_id
+      // Set selected role and user
+      const role = rolesList?.find(
+        (r) => r.value === updatedUserDetails?.roleId.toString()
+      );
+      const user = usersList?.find(
+        (u) => u.value === updatedUserDetails?.userId.toString()
+      );
+
+      setSelectedRole(role);
+      setSelectedUser(user);
+
+      // Set module permissions
+      // Set module permissions
+      if (updatedUserDetails?.permissions) {
+        const permissions = updatedUserDetails.permissions.flatMap((module) =>
+          module.submodules.map((submodule) => ({
+            module_id: module.moduleId,
+            submodule_id: submodule.submoduleId,
+            read: submodule.read,
+            write: submodule.write,
+            delete: submodule.delete,
+          }))
         );
-
-        if (category) {
-          setValue("course_category_id", category);
-        }
+        setModuleList(permissions);
       }
-
-      if (basicDetails?.course_format) {
-        const format = courseFormats.find(
-          (opt) => opt.value === basicDetails?.course_format
-        );
-
-        if (format) {
-          setValue("course_format", format);
-        }
-      }
-
-      if (basicDetails?.is_certified) {
-        const certificate = certificateOptions.find(
-          (opt) => opt.value === basicDetails?.is_certified
-        );
-
-        if (certificate) {
-          setValue("is_certified", certificate);
-        }
-      }
-
-      if (basicDetails?.course_type) setCourseType(basicDetails?.course_type);
-
-      if (basicDetails?.course_type === "contentWithAssessment") {
-        setValue("assessment_name", assessmentDetails?.assessment_name);
-        setValue("assessment_time", assessmentDetails?.assessment_time);
-        setValue(
-          "assessment_max_attempts",
-          assessmentDetails?.assessment_max_attempts
-        );
-        setValue("marks_per_question", assessmentDetails?.marks_per_question);
-        setValue(
-          "assessment_passing_percent",
-          assessmentDetails?.assessment_passing_percent
-        );
-      }
-      if (contentDetails) setContents(contentDetails);
-      if (questionDetails) setAssessmentQuestion(questionDetails);
-
-      console.log("AssessmentQuestions....", assessmentQuestion);
+    } else {
+      setSelectedRole(null);
+      setSelectedUser(null);
+      setModuleList([]);
     }
-  }, [formType, data, reset, categoryOptions]);
+  }, [updateId, data]);
 
-  const handleAddContent = () => {
-    setContents([
-      ...contents,
-      { content_type: "", content_name: "", content_link: "" },
-    ]);
+  // Check Is Module Selected
+  const isModuleSelected = (moduleId) => {
+    const module = allModules?.find((m) => m.id === moduleId);
+
+    if (!module) return false;
+
+    return module.RBAC_SUBMODULE_MASTERs.every((submodule) => {
+      const permission = moduleList?.find(
+        (item) =>
+          item.module_id === moduleId && item.submodule_id === submodule.id
+      );
+      return permission?.read && permission?.write && permission?.delete;
+    });
   };
 
-  const handleContentChange = (index, field, value) => {
-    const updated = [...contents];
-    updated[index][field] = value;
-    setContents(updated);
+  // Handle Select Whole Module At Once
+  const handleSelectWholeModule = (moduleId) => {
+    const module = allModules?.find((m) => m.id === moduleId);
+    if (!module) return false;
+
+    const isSelected = isModuleSelected(moduleId);
+
+    if (isSelected) {
+      setModuleList((prev) =>
+        prev.filter((item) => item.module_id !== moduleId)
+      );
+    } else {
+      const newItems = module.RBAC_SUBMODULE_MASTERs.map((submodule) => ({
+        module_id: moduleId,
+        submodule_id: submodule.id,
+        read: true,
+        write: true,
+        delete: true,
+      }));
+
+      const filteredList = moduleList.filter(
+        (item) => item.module_id !== moduleId
+      );
+
+      setModuleList([...filteredList, ...newItems]);
+    }
   };
 
-  const handleRemoveContent = (index) => {
-    const updated = contents.filter((_, i) => i !== index);
-    setContents(updated);
+  // Handle Permission Change
+  const handlePermissionChange = (
+    moduleId,
+    submoduleId,
+    permissionType,
+    value
+  ) => {
+    setModuleList((prev) => {
+      const existingindex = prev.findIndex(
+        (item) =>
+          item.module_id === moduleId && item.submodule_id === submoduleId
+      );
+
+      if (existingindex >= 0) {
+        const updated = [...prev];
+        updated[existingindex] = {
+          ...updated[existingindex],
+          [permissionType]: value,
+        };
+
+        return updated;
+      } else {
+        return [
+          ...prev,
+          {
+            module_id: moduleId,
+            submodule_id: submoduleId,
+            read: permissionType === "read" ? value : false,
+            write: permissionType === "write" ? value : false,
+            delete: permissionType === "delete" ? value : false,
+          },
+        ];
+      }
+    });
   };
 
-  const handleAddAssessmentQuestion = (newQuestion) => {
-    setAssessmentQuestion([...assessmentQuestion, newQuestion]);
-    setQuestionFormVisible(false);
+  // Check if a specific permission is granted
+  const hasPermission = (moduleId, submoduleId, permissionType) => {
+    const item = moduleList?.find(
+      (item) => item.module_id === moduleId && item.submodule_id === submoduleId
+    );
+    return item ? item[permissionType] : false;
   };
 
-  const handleAssessmentQuestionChange = (index, field, value) => {
-    const updated = [...assessmentQuestion];
-    updated[index][field] = value;
-    setAssessmentQuestion(updated);
-  };
-
-  const handleAssessmentQuestionRemove = (index) => {
-    const updated = assessmentQuestion.filter((_, i) => i !== index);
-    setAssessmentQuestion(updated);
-  };
-
+  // Handle Form Submit
   const onSubmit = async (formData) => {
     try {
       const payload = {
-        course_type: courseType,
-        course_name: formData.course_name,
-        course_category_id: formData.course_category_id.value,
-        course_trainer: formData.course_trainer,
-        course_format: formData.course_format?.value,
-        course_objective: formData.course_objective,
-        course_expected_results: formData.course_expected_results,
-        is_certified: formData.is_certified?.value,
-        courseContent: contents,
+        role_id: selectedRole.value,
+        user_id: selectedUser.value,
+        module_list: moduleList,
       };
 
-      if (courseType === "contentWithAssessment") {
-        payload.assessment_name = formData.assessment_name;
-        payload.marks_per_question = Number(formData.marks_per_question);
-        payload.assessment_passing_percent = Number(
-          formData.assessment_passing_percent
-        );
-        payload.assessment_time = Number(formData.assessment_time);
-        payload.assessment_max_attempts = Number(
-          formData.assessment_max_attempts
-        );
-        payload.assessmentQuestions = assessmentQuestion;
-      }
+      console.log(payload);
 
-      console.log("Submitting:", payload);
-
-      // let response = "";
-      //  if (formType === "Update") {
-      //    response = await updateCou(updateId, payload);
-      //  }
-
-      let response = await createCourse(payload);
+      // let response = await createCourse(payload);
 
       // For now, just log and show success
       toast.success(
@@ -274,13 +266,23 @@ export const UserPermissionForm = ({ onClose }) => {
     }),
   };
 
+  // Select Users
+  useEffect(() => {
+    getAllUsersList(selectedRole?.value);
+  }, [selectedRole]);
+
+  // Get User Assigned Module
+  useEffect(() => {
+    getUserAssignedModules();
+  }, [updateId]);
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden h-[80vh] flex flex-col">
       {/* Header */}
       <div className="bg-button-hover py-2 px-4 flex justify-between items-center">
         <div className="flex justify-between items-center">
           <h3 className="text-white text-sm">
-            {!updateId ? "Add New Course" : "Update Course"}
+            {!updateId ? "Add User Permission" : "Update User Permission"}
           </h3>
         </div>
         <div>
@@ -299,223 +301,168 @@ export const UserPermissionForm = ({ onClose }) => {
       {/* Form Content */}
       <div className="flex-1 overflow-auto scrollbar-hide p-4">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Course Type Selection */}
-          <div className="space-y-2">
-            <label className="block text-sm font-bold text-gray-700">
-              Course Type <span className="text-red-500">*</span>
-            </label>
-            <div className="flex space-x-6">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  value="commonContent"
-                  checked={courseType === "commonContent"}
-                  onChange={() => setCourseType("commonContent")}
-                />
-                <span className="ml-2 text-sm text-gray-700">
-                  Common Content Course
-                </span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  value="contentWithAssessment"
-                  checked={courseType === "contentWithAssessment"}
-                  onChange={() => setCourseType("contentWithAssessment")}
-                />
-                <span className="ml-2 text-sm text-gray-700">
-                  Course With Assessment
-                </span>
-              </label>
+          <div className="grid grid-cols-12 gap-5">
+            <div className="col-span-4">
+              <Select
+                value={selectedRole}
+                onChange={(selectedOption) => {
+                  setSelectedRole(selectedOption);
+                }}
+                options={rolesList}
+                placeholder="Select role..."
+                isClearable
+                isSearchable
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={selectStyles}
+              />
+            </div>
+            <div className="col-span-4">
+              <Select
+                value={selectedUser}
+                onChange={(selectedOption) => {
+                  setSelectedUser(selectedOption);
+                }}
+                options={usersList}
+                placeholder="Select user..."
+                isClearable
+                isSearchable
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={selectStyles}
+              />
             </div>
           </div>
 
-          {/* Course Details Section */}
-          <div className="space-y-4">
-            <div className="bg-gray-100 py-2 px-3 rounded-md">
-              <h4 className="text-sm font-bold text-gray-700">Basic Details</h4>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-10">
-              {/* Left Column */}
-              <div className="space-y-4">
-                {/* Course Category */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-gray-700">
-                    Category <span className="text-red-500">*</span>
-                  </label>
-                  <Controller
-                    name="course_category_id"
-                    control={control}
-                    rules={{ required: "Category is required" }}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        options={categoryOptions}
-                        placeholder="Select category"
-                        styles={selectStyles}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
+          {/* Modules Selection */}
+          {allModules?.length > 0
+            ? allModules?.map((module, i) => {
+                const isModuleFullySelected = isModuleSelected(module.id);
+                const modulePermissions = data?.[0]?.permissions?.find(
+                  (perm) => perm.moduleId === module.id
+                );
+                return (
+                  <div className="mb-10" key={module?.id}>
+                    <div className="bg-gray-100 py-2 px-3 rounded-md flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id={`module_id${i}`}
+                        checked={isModuleFullySelected}
+                        className="border border-black cursor-pointer"
+                        onClick={() => handleSelectWholeModule(module?.id)}
                       />
-                    )}
-                  />
-                  {errors.course_category_id && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.course_category_id.message}
-                    </p>
-                  )}
-                </div>
+                      <label
+                        className="text-sm text-gray-700 font-bold cursor-pointer"
+                        htmlFor={`module_id${i}`}
+                      >
+                        {module?.module_name}
+                      </label>
+                    </div>
 
-                {/* Course Name */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-gray-700">
-                    Course Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className={`w-full rounded-md border ${
-                      errors.course_name ? "border-red-500" : "border-gray-300"
-                    } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm`}
-                    placeholder="Enter course name"
-                    {...register("course_name", {
-                      required: "Course name is required",
-                    })}
-                  />
-                  {errors.course_name && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.course_name.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Course Trainer */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-gray-700">
-                    Trainer Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className={`w-full rounded-md border ${
-                      errors.course_trainer
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm`}
-                    placeholder="Enter trainer name"
-                    {...register("course_trainer", {
-                      required: "Trainer name is required",
-                    })}
-                  />
-                  {errors.course_trainer && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.course_trainer.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Course Format */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-gray-700">
-                    Course Format
-                  </label>
-                  <Controller
-                    name="course_format"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        options={courseFormats}
-                        placeholder="Select format"
-                        styles={selectStyles}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                      />
-                    )}
-                  />
-                </div>
-
-                {/* Certificate */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-gray-700">
-                    Certificate Provided?
-                  </label>
-                  <Controller
-                    name="is_certified"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        options={certificateOptions}
-                        placeholder="Select option"
-                        styles={selectStyles}
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-4">
-                {/* Course Objective */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-gray-700">
-                    Objective <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    rows={3}
-                    className={`w-full rounded-md border text-sm ${
-                      errors.course_objective
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                    placeholder="Enter course objective"
-                    {...register("course_objective", {
-                      required: "Objective is required",
-                    })}
-                  />
-                  {errors.course_objective && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.course_objective.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Expected Results */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-gray-700">
-                    Expected Results <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    rows={3}
-                    className={`w-full rounded-md border text-sm ${
-                      errors.course_expected_results
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                    placeholder="Enter expected results"
-                    {...register("course_expected_results", {
-                      required: "Expected results are required",
-                    })}
-                  />
-                  {errors.course_expected_results && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.course_expected_results.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+                    <div className="flex flex-col gap-8 py-5 px-3">
+                      {/* Row 1 */}
+                      <div className="grid grid-cols-12 gap-5">
+                        <div className="col-span-3 flex flex-col gap-2">
+                          <label className="text-xs font-bold">
+                            Sub Modules
+                          </label>
+                        </div>
+                        <div className="col-span-3 flex flex-col gap-2">
+                          <label className="text-xs font-bold">Read</label>
+                        </div>
+                        <div className="col-span-3 flex flex-col gap-2">
+                          <label className="text-xs font-bold">Write</label>
+                        </div>
+                        <div className="col-span-3 flex flex-col gap-2">
+                          <label className="text-xs font-bold">Delete</label>
+                        </div>
+                      </div>
+                      {module?.RBAC_SUBMODULE_MASTERs.length > 0
+                        ? module?.RBAC_SUBMODULE_MASTERs.map((data) => {
+                            const hasRead = hasPermission(
+                              module.id,
+                              data.id,
+                              "read"
+                            );
+                            const hasWrite = hasPermission(
+                              module.id,
+                              data.id,
+                              "write"
+                            );
+                            const hasDelete = hasPermission(
+                              module.id,
+                              data.id,
+                              "delete"
+                            );
+                            return (
+                              <div
+                                className="grid grid-cols-12 gap-5"
+                                key={data?.id}
+                              >
+                                <div className="col-span-3 flex flex-col gap-2">
+                                  <p className="text-xs">
+                                    {data?.submodule_name || "N/A"}
+                                  </p>
+                                </div>
+                                <div className="col-span-3 flex flex-col gap-2">
+                                  <input
+                                    type="checkbox"
+                                    className="border border-black"
+                                    checked={hasRead}
+                                    onChange={(e) =>
+                                      handlePermissionChange(
+                                        module?.id,
+                                        data?.id,
+                                        "read",
+                                        !hasRead
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className="col-span-3 flex flex-col gap-2">
+                                  <input
+                                    type="checkbox"
+                                    className="border border-black"
+                                    checked={hasWrite}
+                                    onChange={(e) =>
+                                      handlePermissionChange(
+                                        module?.id,
+                                        data?.id,
+                                        "write",
+                                        !hasWrite
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className="col-span-3 flex flex-col gap-2">
+                                  <input
+                                    type="checkbox"
+                                    className="border border-black"
+                                    checked={hasDelete}
+                                    onChange={(e) =>
+                                      handlePermissionChange(
+                                        module?.id,
+                                        data?.id,
+                                        "delete",
+                                        !hasDelete
+                                      )
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })
+                        : ""}
+                    </div>
+                  </div>
+                );
+              })
+            : ""}
 
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-4">
             <CancelButton onClick={onClose} text={"Cancel"} />
-            <AddButton
-              text={`${!updateId ? "Create Course" : "Update Course"}`}
-            />
+            <AddButton text={`${!updateId ? "Assign" : "Update Assign"}`} />
           </div>
         </form>
       </div>

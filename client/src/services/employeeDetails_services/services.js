@@ -12,8 +12,8 @@ export const getEmployeeDetails = async (id) => {
 };
 
 // Get All Employee Details Service
-export const getAllEmployeeDetails = async () => {
-  const response = await axiosInstance.post(`/get-all-users`, {
+export const getAllEmployeeDetails = async (formData) => {
+  const response = await axiosInstance.post(`/get-all-users`, formData, {
     headers: {
       "Content-Type": "application/json",
     },

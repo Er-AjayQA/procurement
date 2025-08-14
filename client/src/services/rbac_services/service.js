@@ -8,7 +8,7 @@ export const moduleService = async () => {
     },
   });
 
-  return response.data.data;
+  return response.data;
 };
 
 // Get RBAC Access Module Service

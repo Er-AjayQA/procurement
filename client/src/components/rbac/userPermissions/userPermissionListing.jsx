@@ -1,4 +1,4 @@
-import { FaAngleDoubleLeft, FaAngleDoubleRight, FaEye } from "react-icons/fa";
+import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import Select from "react-select";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { useUserPermissionContext } from "../../../contextApis/useRbacContextFile";
@@ -20,10 +20,8 @@ export const UserPermissionListing = ({ componentType }) => {
     setViewId,
     setUpdateId,
     setDeleteId,
-    handleViewVisibility,
     handleLimitChange,
     handleChangeFilter,
-    handleFormVisibility,
     handleComponentClose,
     handleComponentView,
   } = useUserPermissionContext();
@@ -181,7 +179,7 @@ export const UserPermissionListing = ({ componentType }) => {
                       />
                       <EditIcon
                         onClick={() => {
-                          handleComponentView("view");
+                          handleComponentView("form");
                           setUpdateId(list?.userId);
                         }}
                       />
