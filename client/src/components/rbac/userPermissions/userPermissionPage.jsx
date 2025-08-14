@@ -10,22 +10,14 @@ export const UserPermissionPage = () => {
     <>
       <div className="px-5 h-full">
         {componentType === "listing" && (
-          <UserPermissionListing
-            componentType={componentType}
-            handleComponentView={handleComponentView}
-          />
+          <UserPermissionListing componentType={componentType} />
         )}
 
         {componentType === "form" && (
-          <UserPermissionForm
-            onClose={() => handleComponentView("listing")}
-            handleComponentView={handleComponentView}
-          />
+          <UserPermissionForm onClose={() => handleComponentView("listing")} />
         )}
 
-        {componentType === "view" && (
-          <UserPermissionView handleComponentView={handleComponentView} />
-        )}
+        {componentType === "view" && <UserPermissionView />}
       </div>
     </>
   );

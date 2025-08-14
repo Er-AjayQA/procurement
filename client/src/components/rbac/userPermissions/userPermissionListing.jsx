@@ -9,10 +9,7 @@ import { ViewIcon } from "../../UI/viewIconUi";
 import { EditIcon } from "../../UI/editIconUi";
 import { DeleteIcon } from "../../UI/deleteIcon";
 
-export const UserPermissionListing = ({
-  componentType,
-  handleComponentView,
-}) => {
+export const UserPermissionListing = ({ componentType }) => {
   const {
     isLoading,
     listing,
@@ -28,6 +25,7 @@ export const UserPermissionListing = ({
     handleChangeFilter,
     handleFormVisibility,
     handleComponentClose,
+    handleComponentView,
   } = useUserPermissionContext();
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -177,17 +175,17 @@ export const UserPermissionListing = ({
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
                       <ViewIcon
                         onClick={() => {
-                          handleViewVisibility("open");
-                          setViewId(list?.id);
+                          handleComponentView("view");
+                          setViewId(list?.userId);
                         }}
                       />
                       <EditIcon
                         onClick={() => {
-                          handleFormVisibility("open", "update");
-                          setUpdateId(list?.id);
+                          handleComponentView("view");
+                          setUpdateId(list?.userId);
                         }}
                       />
-                      <DeleteIcon onClick={() => setDeleteId(list?.id)} />
+                      <DeleteIcon onClick={() => setDeleteId(list?.userId)} />
                     </div>
                   </div>
                 );

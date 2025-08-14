@@ -8,7 +8,7 @@ import { createCourse } from "../../../services/lms_services/service";
 import { useUserPermissionContext } from "../../../contextApis/useRbacContextFile";
 
 // Main Form Component
-export const UserPermissionForm = ({ onClose, handleComponentView }) => {
+export const UserPermissionForm = ({ onClose }) => {
   const {
     formType,
     getAllData,
@@ -20,6 +20,7 @@ export const UserPermissionForm = ({ onClose, handleComponentView }) => {
     basicDetails,
     contentDetails,
     questionDetails,
+    handleComponentView,
   } = useUserPermissionContext();
 
   const [courseType, setCourseType] = useState("commonContent");
