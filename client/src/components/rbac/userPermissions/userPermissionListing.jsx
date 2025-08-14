@@ -1,15 +1,13 @@
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaEye } from "react-icons/fa";
 import Select from "react-select";
-import {
-  MdDelete,
-  MdEdit,
-  MdKeyboardArrowLeft,
-  MdKeyboardArrowRight,
-} from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { useUserPermissionContext } from "../../../contextApis/useRbacContextFile";
 import { SkeltonUi } from "../../UI/Skelton";
 import { AddButton } from "../../UI/addButtonUi";
 import { useState } from "react";
+import { ViewIcon } from "../../UI/viewIconUi";
+import { EditIcon } from "../../UI/editIconUi";
+import { DeleteIcon } from "../../UI/deleteIcon";
 
 export const UserPermissionListing = ({
   componentType,
@@ -21,7 +19,6 @@ export const UserPermissionListing = ({
     page,
     totalPages,
     setPage,
-    filter,
     usersList,
     setViewId,
     setUpdateId,
@@ -31,9 +28,47 @@ export const UserPermissionListing = ({
     handleChangeFilter,
     handleFormVisibility,
     handleComponentClose,
-    styledComponent,
   } = useUserPermissionContext();
   const [selectedUser, setSelectedUser] = useState(null);
+
+  const styledComponent = {
+    control: (base) => ({
+      ...base,
+      minHeight: "32px",
+      minWidth: "300px",
+      height: "32px",
+      borderRadius: "0.375rem",
+      borderColor: "#d1d5db", // gray-300
+      fontSize: "0.875rem", // text-sm
+      paddingLeft: "0.5rem", // px-2
+      paddingRight: "0.5rem", // px-2
+      "&:hover": {
+        borderColor: "#d1d5db", // gray-300
+      },
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "4px",
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      padding: "4px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0px",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: "0px",
+      paddingBottom: "0px",
+      paddingTop: "0px",
+    }),
+    option: (base) => ({
+      ...base,
+      fontSize: "0.875rem", // text-sm
+    }),
+  };
 
   return (
     <>
@@ -140,30 +175,19 @@ export const UserPermissionListing = ({
                       {list?.totalModules || "N/A"}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
-                      <div
-                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                      <ViewIcon
                         onClick={() => {
                           handleViewVisibility("open");
                           setViewId(list?.id);
                         }}
-                      >
-                        <FaEye className="hover:fill-white" />
-                      </div>
-                      <div
-                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                      />
+                      <EditIcon
                         onClick={() => {
                           handleFormVisibility("open", "update");
                           setUpdateId(list?.id);
                         }}
-                      >
-                        <MdEdit className="hover:fill-white" />
-                      </div>
-                      <div
-                        className="p-1 hover:bg-red-600 rounded-lg cursor-pointer"
-                        onClick={() => setDeleteId(list?.id)}
-                      >
-                        <MdDelete className="hover:fill-white" />
-                      </div>
+                      />
+                      <DeleteIcon onClick={() => setDeleteId(list?.id)} />
                     </div>
                   </div>
                 );
