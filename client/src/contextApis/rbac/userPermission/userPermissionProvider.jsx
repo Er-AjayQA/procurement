@@ -1,33 +1,22 @@
 import { useEffect, useState } from "react";
 import { UserPermissionContext } from "./userPermissionContext";
-import { toast } from "react-toastify";
-import {
-  getAllCourses,
-  getCourseById,
-  updateCourseStatus,
-} from "../../../services/lms_services/service";
-import { getAllCourseCategory } from "../../../services/master_services/service";
+import { getAllRoles } from "../../../services/master_services/service";
 import {
   allUsersModuleAccessService,
-  moduleAccessService,
+  moduleService,
 } from "../../../services/rbac_services/service";
-import {
-  getAllEmployeeDetails,
-  getEmployeeDetails,
-} from "../../../services/employeeDetails_services/services";
+import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 
 export const UserPermissionProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [usersList, setUsersList] = useState(null);
+  const [rolesList, setRolesList] = useState(null);
+  const [allModules, setAllModules] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
   const [viewModules, setViewModules] = useState(null);
   const [formType, setFormType] = useState("Add");
-  const [assessmentDetails, setAssessmentDetails] = useState(null);
-  const [questionDetails, setQuestionDetails] = useState(null);
   const [componentType, setComponentType] = useState("listing");
-  const [basicDetails, setBasicDetails] = useState(null);
-  const [contentDetails, setContentDetails] = useState(null);
   const [data, setData] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
@@ -36,12 +25,15 @@ export const UserPermissionProvider = ({ children }) => {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [categoryOptions, setCategoryOptions] = useState(null);
 
   // Get All Users List
-  const getAllUsersList = async () => {
+  const getAllUsersList = async (id) => {
     try {
-      const response = await getAllEmployeeDetails();
+      const response = await getAllEmployeeDetails({
+        limit: 5000,
+        page: "",
+        filter: { role_id: id },
+      });
 
       if (response.success) {
         setUsersList(
@@ -55,6 +47,45 @@ export const UserPermissionProvider = ({ children }) => {
       }
     } catch (error) {
       setUsersList(null);
+    }
+  };
+
+  // Get All Roles List
+  const getAllRolesList = async () => {
+    try {
+      const response = await getAllRoles({
+        limit: 500,
+        page,
+        filter: null,
+      });
+
+      if (response.success) {
+        setRolesList(
+          response.data.map((data) => ({
+            value: `${data?.id}`,
+            label: `${data?.name}`,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setRolesList(null);
+    }
+  };
+
+  // Get All Modules List
+  const getAllModulesList = async () => {
+    try {
+      const response = await moduleService();
+
+      if (response.success) {
+        setAllModules(response.data);
+      } else {
+        throw new Error("Getting an error while fetching modules list!");
+      }
+    } catch (error) {
+      setAllModules(null);
     }
   };
 
@@ -99,27 +130,6 @@ export const UserPermissionProvider = ({ children }) => {
     }
   };
 
-  // Course Category Options
-  const getAllCourseCategories = async () => {
-    try {
-      const response = await getAllCourseCategory({
-        limit: "",
-        page: "",
-        filter: { name: "" },
-      });
-
-      if (response.success) {
-        setCategoryOptions(
-          response.data.map((data) => ({ value: data.id, label: data.name }))
-        );
-      } else {
-        setCategoryOptions(null);
-      }
-    } catch (error) {
-      setCategoryOptions(null);
-    }
-  };
-
   // Handle Form Visibility
   const handleFormVisibility = (visibility, formType) => {
     if (visibility === "open") {
@@ -156,29 +166,8 @@ export const UserPermissionProvider = ({ children }) => {
   // Handle Component Type
   const handleComponentClose = () => {
     setData(null);
-    setBasicDetails(null);
-    setAssessmentDetails(null);
-    setQuestionDetails(null);
-    setContentDetails(null);
     setUpdateId(null);
     setViewId(null);
-  };
-
-  // Handle Active/Inactive
-  const handleActiveInactive = async (id) => {
-    try {
-      const response = await updateCourseStatus(id);
-
-      if (response.success) {
-        getAllData();
-        toast.success(response.message);
-      } else {
-        toast.error(response.message);
-        throw new Error(response.message);
-      }
-    } catch (error) {
-      throw new Error(error.message);
-    }
   };
 
   // Handle Set Limit
@@ -213,14 +202,14 @@ export const UserPermissionProvider = ({ children }) => {
     }
   }, [updateId, viewId]);
 
-  // For Get All Course Categories
+  // Get Role list
   useEffect(() => {
-    getAllCourseCategories();
+    getAllRolesList();
   }, []);
 
-  // Get User list
+  // Get All Modules List
   useEffect(() => {
-    getAllUsersList();
+    getAllModulesList();
   }, []);
 
   const styledComponent = {
@@ -261,7 +250,6 @@ export const UserPermissionProvider = ({ children }) => {
     }),
   };
 
-  console.log("View Modules", viewModules);
   const contextValue = {
     listing,
     formVisibility,
@@ -273,23 +261,21 @@ export const UserPermissionProvider = ({ children }) => {
     totalPages,
     page,
     isLoading,
-    assessmentDetails,
-    basicDetails,
-    contentDetails,
-    questionDetails,
     viewId,
     viewVisibility,
     componentType,
     usersList,
     viewModules,
+    allModules,
+    rolesList,
+    styledComponent,
     getAllData,
     getDataById,
     handleFormVisibility,
-    handleActiveInactive,
     handleLimitChange,
     handleChangeFilter,
     setUpdateId,
-    categoryOptions,
+    getAllUsersList,
     setPage,
     setViewId,
     setData,
@@ -297,7 +283,6 @@ export const UserPermissionProvider = ({ children }) => {
     setComponentType,
     handleViewVisibility,
     handleComponentView,
-    styledComponent,
     handleComponentClose,
   };
 

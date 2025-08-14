@@ -838,39 +838,88 @@ module.exports.getUserDetails = async (req, res) => {
 // ========== GET ALL USER DETAILS CONTROLLER ========== //
 module.exports.getAllUserDetails = async (req, res) => {
   try {
-    const query = `
-    SELECT U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, 
-       E.name AS employment_type, M.name AS reporting_manager, BR.name AS branch_name
-       FROM USER_MASTER AS U
-       LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=U.dep_id
-       LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id=U.designation_id
-       LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id=U.emp_type_id
-       LEFT JOIN USER_MASTER AS M ON M.id=U.reporting_manager_id
-       LEFT JOIN BRANCH_MASTER AS BR ON BR.id=U.branch_id
-       WHERE U.isDeleted=false
-       GROUP BY U.id`;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || {};
 
+    // Base queries
+    let countQuery = `
+      SELECT COUNT(*) as total 
+      FROM USER_MASTER AS U
+      WHERE U.isDeleted = false`;
+
+    let query = `
+      SELECT 
+        U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, 
+       E.name AS employment_type, M.name AS reporting_manager, BR.name AS branch_name
+      FROM USER_MASTER AS U
+      LEFT JOIN DEPARTMENT_MASTER AS D ON D.id = U.dep_id
+      LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id = U.designation_id
+      LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id = U.emp_type_id
+      LEFT JOIN USER_MASTER AS M ON M.id = U.reporting_manager_id
+      LEFT JOIN BRANCH_MASTER AS BR ON BR.id = U.branch_id
+      WHERE U.isDeleted = false`;
+
+    // Add role_id filter if provided
+    if (filter.role_id) {
+      countQuery += ` AND U.role_id = :role_id`;
+      query += ` AND U.role_id = :role_id`;
+    }
+
+    // Complete the queries
+    query += ` GROUP BY U.id`; // Only group by the primary key
+    query += ` ORDER BY U.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
+
+    // Prepare replacements object
+    const replacements = {
+      limit: limit,
+      offset: offset,
+    };
+
+    // Add role_id to replacements if filtering by role
+    if (filter.role_id) {
+      replacements.role_id = filter.role_id;
+    }
+
+    // Get total count
+    const totalResult = await DB.sequelize.query(countQuery, {
+      replacements: replacements,
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    // Get paginated data
     const getAllData = await DB.sequelize.query(query, {
+      replacements: replacements,
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
-        .send({ success: false, message: "Users Not Found!" });
+        .status(200)
+        .send({ success: true, message: "No users found!", data: [] });
     } else {
       return res.status(200).send({
         success: true,
-        status: "Get User Details Successfully!",
+        message: "Get User Details Successfully!",
         records: getAllData.length,
         data: getAllData,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: totalRecords, // Use totalRecords instead of getAllData.length
+          totalPages: totalPages,
+        },
       });
     }
   } catch (error) {
+    console.error("Error in getAllUserDetails:", error);
     res.status(500).send({ success: false, message: error.message });
   }
 };
-
 // ========== UPDATE USER CONTROLLER ========== //
 module.exports.updateUserStatus = async (req, res) => {
   try {
