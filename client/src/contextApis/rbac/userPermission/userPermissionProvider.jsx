@@ -11,13 +11,17 @@ import {
   allUsersModuleAccessService,
   moduleAccessService,
 } from "../../../services/rbac_services/service";
-import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
+import {
+  getAllEmployeeDetails,
+  getEmployeeDetails,
+} from "../../../services/employeeDetails_services/services";
 
 export const UserPermissionProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [usersList, setUsersList] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
+  const [viewModules, setViewModules] = useState(null);
   const [formType, setFormType] = useState("Add");
   const [assessmentDetails, setAssessmentDetails] = useState(null);
   const [questionDetails, setQuestionDetails] = useState(null);
@@ -78,24 +82,20 @@ export const UserPermissionProvider = ({ children }) => {
   // Get Data By Id
   const getDataById = async (id) => {
     try {
-      const response = await getCourseById(id);
+      const response = await allUsersModuleAccessService({
+        limit,
+        page,
+        filter: { user_id: id },
+      });
       if (response.success) {
         setData(response.data);
-        setBasicDetails(response.data?.basicDetails[0]);
-        setContentDetails(response.data?.contentDetails);
-        setAssessmentDetails(response.data?.assessmentDetails[0]);
-        setQuestionDetails(
-          response.data.assessmentDetails[0].assessmentQuestions
-        );
+        setViewModules(response.data[0]?.permissions);
       } else {
         throw new Error(response.message);
       }
     } catch (error) {
       setData(null);
-      setBasicDetails(null);
-      setContentDetails(null);
-      setAssessmentDetails(null);
-      setQuestionDetails(null);
+      setViewModules(null);
     }
   };
 
@@ -261,6 +261,7 @@ export const UserPermissionProvider = ({ children }) => {
     }),
   };
 
+  console.log("View Modules", viewModules);
   const contextValue = {
     listing,
     formVisibility,
@@ -280,6 +281,7 @@ export const UserPermissionProvider = ({ children }) => {
     viewVisibility,
     componentType,
     usersList,
+    viewModules,
     getAllData,
     getDataById,
     handleFormVisibility,
