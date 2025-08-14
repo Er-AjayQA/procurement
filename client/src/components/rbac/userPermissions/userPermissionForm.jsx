@@ -1,18 +1,14 @@
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
-import { MdDelete } from "react-icons/md";
-import { IoMdAdd } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
-import { ContentItem } from "./addContent";
-import { QuestionItem } from "./addQuestionForm";
 import { CancelButton } from "../../UI/cancelButtonUi";
 import { AddButton } from "../../UI/addButtonUi";
 import { createCourse } from "../../../services/lms_services/service";
+import { useUserPermissionContext } from "../../../contextApis/useRbacContextFile";
 
 // Main Form Component
-export const CoursesForm = ({ onClose, handleComponentView }) => {
+export const UserPermissionForm = ({ onClose, handleComponentView }) => {
   const {
     formType,
     getAllData,
@@ -24,7 +20,7 @@ export const CoursesForm = ({ onClose, handleComponentView }) => {
     basicDetails,
     contentDetails,
     questionDetails,
-  } = useCoursesMasterContext();
+  } = useUserPermissionContext();
 
   const [courseType, setCourseType] = useState("commonContent");
   const [courseFormats, setCourseFormats] = useState([
@@ -513,286 +509,6 @@ export const CoursesForm = ({ onClose, handleComponentView }) => {
             </div>
           </div>
 
-          {/* Course Content Section */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-center bg-gray-100 py-2 px-3 rounded-md">
-              <h4 className="text-sm font-bold text-gray-700">
-                Course Content
-              </h4>
-              <button
-                type="button"
-                onClick={handleAddContent}
-                className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
-              >
-                <IoMdAdd className="mr-1" /> Add Content
-              </button>
-            </div>
-
-            <div className="px-10">
-              {contents.length > 0 ? (
-                <div className="border border-gray-200 rounded-md overflow-hidden">
-                  <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
-                    <div className="col-span-4 p-2 text-xs font-bold">
-                      Content Type
-                    </div>
-                    <div className="col-span-4 p-2 text-xs font-bold">
-                      File Name
-                    </div>
-                    <div className="col-span-3 p-2 text-xs font-bold">Link</div>
-                    <div className="col-span-1 p-2 text-xs font-bold">
-                      Action
-                    </div>
-                  </div>
-                  {contents.map((content, index) => (
-                    <ContentItem
-                      key={index}
-                      content={content}
-                      index={index}
-                      onChange={handleContentChange}
-                      onRemove={handleRemoveContent}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4 text-sm text-gray-500 border border-gray-200 rounded-md">
-                  No content added yet
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Assessment Section - Only shown when course type is with assessment */}
-          {courseType === "contentWithAssessment" && (
-            <div className="space-y-4">
-              <div className="bg-gray-100 py-2 px-3 rounded-md">
-                <h4 className="text-sm font-bold text-gray-700">
-                  Assessment Details
-                </h4>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-10">
-                {/* Left Column */}
-                <div className="space-y-4">
-                  {/* Assessment Name */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-700">
-                      Assessment Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={`w-full rounded-md border text-sm ${
-                        errors.assessment_name
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="Enter assessment name"
-                      {...register("assessment_name", {
-                        required: "Assessment name is required",
-                      })}
-                    />
-                    {errors.assessment_name && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.assessment_name.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Marks Per Question */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-700">
-                      Marks Per Question <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      className={`w-full rounded-md border text-sm ${
-                        errors.marks_per_question
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="Enter marks per question"
-                      {...register("marks_per_question", {
-                        required: "Marks per question is required",
-                        min: {
-                          value: 1,
-                          message: "Must be at least 1",
-                        },
-                      })}
-                    />
-                    {errors.marks_per_question && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.marks_per_question.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Assessment Time */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-700">
-                      Time (minutes) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      className={`w-full rounded-md border text-sm ${
-                        errors.assessment_time
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="Enter time in minutes"
-                      {...register("assessment_time", {
-                        required: "Assessment time is required",
-                        min: {
-                          value: 1,
-                          message: "Must be at least 1 minute",
-                        },
-                      })}
-                    />
-                    {errors.assessment_time && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.assessment_time.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Right Column */}
-                <div className="space-y-4">
-                  {/* Passing Percentage */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-700">
-                      Passing Percentage <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      className={`w-full rounded-md border text-sm ${
-                        errors.assessment_passing_percent
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="Enter passing percentage"
-                      {...register("assessment_passing_percent", {
-                        required: "Passing percentage is required",
-                        min: {
-                          value: 1,
-                          message: "Must be at least 1%",
-                        },
-                        max: {
-                          value: 100,
-                          message: "Cannot exceed 100%",
-                        },
-                      })}
-                    />
-                    {errors.assessment_passing_percent && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.assessment_passing_percent.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Max Attempts */}
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-700">
-                      Max Attempts <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      className={`w-full rounded-md border text-sm ${
-                        errors.assessment_max_attempts
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                      placeholder="Enter max attempts"
-                      {...register("assessment_max_attempts", {
-                        required: "Max attempts is required",
-                        min: {
-                          value: 1,
-                          message: "Must be at least 1",
-                        },
-                      })}
-                    />
-                    {errors.assessment_max_attempts && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.assessment_max_attempts.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Questions Section */}
-              <div className="space-y-4 px-10">
-                <div className="flex justify-between items-center bg-gray-100 py-2 px-3 rounded-md">
-                  <h4 className="text-sm font-bold text-gray-700">Questions</h4>
-                  <button
-                    type="button"
-                    onClick={() => setQuestionFormVisible(true)}
-                    className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
-                  >
-                    <IoMdAdd className="mr-1" /> Add Question
-                  </button>
-                </div>
-
-                {assessmentQuestion?.length > 0 ? (
-                  <div className="border border-gray-200 rounded-md overflow-hidden">
-                    <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
-                      <div className="col-span-3 p-2 text-xs font-bold">
-                        Type
-                      </div>
-                      <div className="col-span-5 p-2 text-xs font-bold">
-                        Question
-                      </div>
-                      <div className="col-span-2 p-2 text-xs font-bold">
-                        Correct
-                      </div>
-                      <div className="col-span-2 p-2 text-xs font-bold text-center">
-                        Action
-                      </div>
-                    </div>
-                    {assessmentQuestion.map((question, index) => (
-                      <div
-                        key={index}
-                        className="grid grid-cols-12 border-b border-gray-200"
-                      >
-                        <div className="col-span-3 p-2 text-xs">
-                          {question.assessment_question_type}
-                        </div>
-                        <div className="col-span-5 p-2 text-xs">
-                          {question.assessment_question_title}
-                        </div>
-                        <div className="col-span-2 p-2 text-xs">
-                          {question.assessment_question_type === "true/false"
-                            ? question.assessment_correct_answer
-                            : question.assessment_question_options?.find(
-                                (opt) => opt.isCorrect
-                              )?.option || "N/A"}
-                        </div>
-                        <div className="col-span-2 p-2 flex justify-center">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleAssessmentQuestionRemove(index)
-                            }
-                            className="text-gray-500 hover:text-red-500"
-                          >
-                            <MdDelete className="text-xl" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="border border-gray-200 rounded-md p-4 text-center text-sm text-gray-500">
-                    No questions added yet
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-4">
             <CancelButton onClick={onClose} text={"Cancel"} />
@@ -802,16 +518,6 @@ export const CoursesForm = ({ onClose, handleComponentView }) => {
           </div>
         </form>
       </div>
-
-      {/* Question Form Modal */}
-      <QuestionItem
-        isVisible={questionFormVisible}
-        onClose={() => setQuestionFormVisible(false)}
-        onAddQuestion={handleAddAssessmentQuestion}
-        register={register}
-        errors={errors}
-        control={control}
-      />
     </div>
   );
 };

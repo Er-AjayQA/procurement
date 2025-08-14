@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CoursesContext } from "./coursesContext";
+import { UserPermissionContext } from "./userPermissionContext";
 import { toast } from "react-toastify";
 import {
   getAllCourses,
@@ -7,9 +7,15 @@ import {
   updateCourseStatus,
 } from "../../../services/lms_services/service";
 import { getAllCourseCategory } from "../../../services/master_services/service";
+import {
+  allUsersModuleAccessService,
+  moduleAccessService,
+} from "../../../services/rbac_services/service";
+import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 
-export const CoursesProvider = ({ children }) => {
+export const UserPermissionProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
+  const [usersList, setUsersList] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
@@ -21,18 +27,38 @@ export const CoursesProvider = ({ children }) => {
   const [data, setData] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
-  const [filter, setFilter] = useState({ name: "" });
+  const [filter, setFilter] = useState({ user_id: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [categoryOptions, setCategoryOptions] = useState(null);
 
+  // Get All Users List
+  const getAllUsersList = async () => {
+    try {
+      const response = await getAllEmployeeDetails();
+
+      if (response.success) {
+        setUsersList(
+          response.data.map((data) => ({
+            value: `${data?.id}`,
+            label: `${data?.name} - ${data?.emp_code}`,
+          }))
+        );
+      } else {
+        setUsersList(null);
+      }
+    } catch (error) {
+      setUsersList(null);
+    }
+  };
+
   // Get All Master Data
   const getAllData = async () => {
     try {
       setIsLoading(true);
-      const data = await getAllCourses({ limit, page, filter });
+      const data = await allUsersModuleAccessService({ limit, page, filter });
 
       if (data.success) {
         setListing(data.data);
@@ -192,6 +218,11 @@ export const CoursesProvider = ({ children }) => {
     getAllCourseCategories();
   }, []);
 
+  // Get User list
+  useEffect(() => {
+    getAllUsersList();
+  }, []);
+
   const styledComponent = {
     control: (base) => ({
       ...base,
@@ -248,6 +279,7 @@ export const CoursesProvider = ({ children }) => {
     viewId,
     viewVisibility,
     componentType,
+    usersList,
     getAllData,
     getDataById,
     handleFormVisibility,
@@ -268,8 +300,8 @@ export const CoursesProvider = ({ children }) => {
   };
 
   return (
-    <CoursesContext.Provider value={contextValue}>
+    <UserPermissionContext.Provider value={contextValue}>
       {children}
-    </CoursesContext.Provider>
+    </UserPermissionContext.Provider>
   );
 };

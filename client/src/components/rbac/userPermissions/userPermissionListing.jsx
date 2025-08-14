@@ -1,11 +1,20 @@
-import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { FaAngleDoubleLeft, FaAngleDoubleRight, FaEye } from "react-icons/fa";
+import Select from "react-select";
+import {
+  MdDelete,
+  MdEdit,
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+} from "react-icons/md";
+import { useUserPermissionContext } from "../../../contextApis/useRbacContextFile";
 import { SkeltonUi } from "../../UI/Skelton";
-import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
-import { CourseCards } from "./courseCards";
 import { AddButton } from "../../UI/addButtonUi";
+import { useState } from "react";
 
-export const CoursesListing = ({ componentType, handleComponentView }) => {
+export const UserPermissionListing = ({
+  componentType,
+  handleComponentView,
+}) => {
   const {
     isLoading,
     listing,
@@ -13,10 +22,18 @@ export const CoursesListing = ({ componentType, handleComponentView }) => {
     totalPages,
     setPage,
     filter,
+    usersList,
+    setViewId,
+    setUpdateId,
+    setDeleteId,
+    handleViewVisibility,
     handleLimitChange,
     handleChangeFilter,
+    handleFormVisibility,
     handleComponentClose,
-  } = useCoursesMasterContext();
+    styledComponent,
+  } = useUserPermissionContext();
+  const [selectedUser, setSelectedUser] = useState(null);
 
   return (
     <>
@@ -48,19 +65,28 @@ export const CoursesListing = ({ componentType, handleComponentView }) => {
           </div>
           {/* Sorting Element End */}
           <div className="flex items-center gap-5">
-            <input
-              type="search"
-              name="name"
-              value={filter.name}
-              placeholder="Search here.."
-              className="py-1 px-2 rounded-md text-sm border-borders-light"
-              onChange={(e) => handleChangeFilter("input", e)}
+            <Select
+              value={selectedUser}
+              onChange={(selectedOption) => {
+                setSelectedUser(selectedOption);
+                handleChangeFilter("dropdown", {
+                  field: "user_id",
+                  value: selectedOption ? selectedOption.value : "",
+                });
+              }}
+              options={usersList}
+              placeholder="Search by user..."
+              isClearable
+              isSearchable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={styledComponent}
             />
           </div>
         </div>
         {componentType === "listing" ? (
           <div onClick={() => handleComponentView("form")}>
-            <AddButton text="Create Course" />
+            <AddButton text="Assign Module" />
           </div>
         ) : (
           <div
@@ -75,20 +101,73 @@ export const CoursesListing = ({ componentType, handleComponentView }) => {
       </div>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">Course Listing</h3>
+          <h3 className="text-white text-xs font-bold">
+            User Permissions Listing
+          </h3>
         </div>
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="h-[390px] overflow-y-auto scrollbar-hide p-2">
+          <div className="grid grid-cols-5 border-b border-gray-300 gap-2">
+            <div className="text-[.8rem] font-bold p-2">S.No.</div>
+            <div className="text-[.8rem] font-bold p-2">User Name</div>
+            <div className="text-[.8rem] font-bold p-2">User Role</div>
+            <div className="text-[.8rem] font-bold p-2">
+              Total Modules Assigned
+            </div>
+            <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
+          </div>
+          <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide">
             {isLoading ? (
               <SkeltonUi />
             ) : listing?.length > 0 ? (
-              <div className="flex flex-col gap-5">
-                {listing?.map((list, i) => (
-                  <CourseCards key={list.id} data={list} />
-                ))}
-              </div>
+              listing?.map((list, i) => {
+                return (
+                  <div
+                    key={list?.userId}
+                    className="grid grid-cols-5 border-b border-gray-200 last:border-none gap-2"
+                  >
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {i + 1}.
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {list?.userName || "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {list?.roleName || "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem]">
+                      {list?.totalModules || "N/A"}
+                    </div>
+                    <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
+                      <div
+                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                        onClick={() => {
+                          handleViewVisibility("open");
+                          setViewId(list?.id);
+                        }}
+                      >
+                        <FaEye className="hover:fill-white" />
+                      </div>
+                      <div
+                        className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                        onClick={() => {
+                          handleFormVisibility("open", "update");
+                          setUpdateId(list?.id);
+                        }}
+                      >
+                        <MdEdit className="hover:fill-white" />
+                      </div>
+                      <div
+                        className="p-1 hover:bg-red-600 rounded-lg cursor-pointer"
+                        onClick={() => setDeleteId(list?.id)}
+                      >
+                        <MdDelete className="hover:fill-white" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
             ) : (
               <div className="grid border-b border-gray-200 last:border-none">
                 <div className="p-5 text-[.8rem]">

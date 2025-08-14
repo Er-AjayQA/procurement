@@ -21,8 +21,8 @@ import { MasterShiftPage } from "../pages/Masters/shiftMaster";
 import { MasterStatePage } from "../pages/Masters/stateMaster";
 import { MasterUomPage } from "../pages/Masters/uomMaster";
 import { WorkflowPage } from "../pages/Masters/workflowPage";
-import { RBACPermissions } from "../pages/RbacManagement/rbacPermissionsPage";
-import { RoleMasterPage } from "../pages/RbacManagement/roleMasterPage";
+import { MasterRolePage } from "../pages/RbacManagement/roleMaster";
+import { MasterUserPermissionPage } from "../pages/RbacManagement/userPermission";
 
 export const moduleComponents = {
   "employee-self-service": {
@@ -34,8 +34,8 @@ export const moduleComponents = {
     "courses-assessment-report": CourseAssessmentReportPage,
   },
   "rbac-management": {
-    "role-master": RoleMasterPage,
-    "rbac-permissions": RBACPermissions,
+    "role-master": MasterRolePage,
+    "rbac-permissions": MasterUserPermissionPage,
   },
   masters: {
     "designation-master": MasterDesignationPage,

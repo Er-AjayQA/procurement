@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile";
 import { FaEye } from "react-icons/fa";
-import { CourseQuestionView } from "./courseQuestionView";
+import { useUserPermissionContext } from "../../../contextApis/useRbacContextFile";
 
-export const CoursesView = ({ handleComponentView }) => {
+export const UserPermissionView = ({ handleComponentView }) => {
   const {
     assessmentDetails,
     basicDetails,
     contentDetails,
     questionDetails,
     handleComponentClose,
-  } = useCoursesMasterContext();
+  } = useUserPermissionContext();
 
   const [questionView, setQuestionView] = useState(null);
   const [questionVisibility, setQuestionVisibility] = useState(false);
@@ -263,13 +262,6 @@ export const CoursesView = ({ handleComponentView }) => {
             })}
           </div>
         </div>
-
-        {/* QUESTION COMPONENT */}
-        <CourseQuestionView
-          data={questionView}
-          questionVisibility={questionVisibility}
-          setQuestionVisibility={setQuestionVisibility}
-        />
       </div>
     </div>
   );

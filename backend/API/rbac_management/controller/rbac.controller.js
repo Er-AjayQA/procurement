@@ -568,3 +568,136 @@ module.exports.getAssignModule = async (req, res) => {
     return res.status(500).send({ success: false, message: error.message });
   }
 };
+
+// ========== GET ALL USERS ASSIGN MODULE LIST CONTROLLER ========== //
+module.exports.getAllAssignModule = async (req, res) => {
+  try {
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
+
+    const whereClause = { isDeleted: false, status: true };
+
+    // Check if user_id exists and is a valid value
+    if (
+      filter.user_id !== undefined &&
+      filter.user_id !== null &&
+      filter.user_id !== ""
+    ) {
+      whereClause.user_id = parseInt(filter.user_id) || filter.user_id;
+    }
+
+    const getAllAssignedModules =
+      await DB.tbl_rbac_assign_module_master.findAll({
+        where: whereClause,
+        include: [
+          {
+            model: DB.tbl_user_master,
+            attributes: ["id", "name"],
+          },
+          {
+            model: DB.tbl_role_master,
+            attributes: ["id", "name"],
+          },
+          {
+            model: DB.tbl_rbac_module_master,
+            attributes: ["id", "module_name"],
+          },
+          {
+            model: DB.tbl_rbac_submodule_master,
+            attributes: ["id", "submodule_name"],
+          },
+        ],
+        order: [
+          ["user_id", "ASC"],
+          ["module_id", "ASC"],
+          ["submodule_id", "ASC"],
+        ],
+      });
+
+    if (!getAllAssignedModules || getAllAssignedModules.length === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "No Data Found!",
+      });
+    }
+
+    // Group modules by user
+    const usersMap = new Map();
+
+    getAllAssignedModules.forEach((module) => {
+      const userId = module?.user_id;
+
+      if (!usersMap.has(userId)) {
+        usersMap.set(userId, {
+          userId: userId,
+          userName: module.USER_MASTER.name,
+          roleId: module.role_id,
+          roleName: module.ROLE_MASTER.name,
+          totalModules: 0,
+          totalSubmodules: 0,
+          permissions: [],
+        });
+      }
+
+      const userData = usersMap.get(userId);
+
+      // Check if this module already exists for the user
+      const existingModuleIndex = userData.permissions.findIndex(
+        (m) => m.moduleId === module.module_id
+      );
+
+      if (existingModuleIndex === -1) {
+        // Add new module with submodule
+        userData.totalModules += 1;
+        userData.totalSubmodules += 1;
+        userData.permissions.push({
+          moduleId: module.module_id,
+          moduleName: module.RBAC_MODULE_MASTER.module_name,
+          submodules: [
+            {
+              submoduleId: module.submodule_id,
+              submoduleName: module.RBAC_SUBMODULE_MASTER.submodule_name,
+              read: module.read,
+              write: module.write,
+              delete: module.delete,
+            },
+          ],
+        });
+      } else {
+        // Add submodule to existing module
+        userData.totalSubmodules += 1;
+        userData.permissions[existingModuleIndex].submodules.push({
+          submoduleId: module.submodule_id,
+          submoduleName: module.RBAC_SUBMODULE_MASTER.submodule_name,
+          read: module.read,
+          write: module.write,
+          delete: module.delete,
+        });
+      }
+    });
+
+    // Convert map to array of users
+    const formattedData = Array.from(usersMap.values());
+
+    const data = formattedData.slice(offset, limit);
+
+    // const totalRecords = data.length;
+    const totalPages = Math.ceil(data.length / limit);
+
+    return res.status(200).send({
+      success: true,
+      message: "Get All Assigned Modules!",
+      data: data,
+      pagination: {
+        currentPage: page,
+        itemsPerPage: limit,
+        totalItems: data.length,
+        totalPages: totalPages,
+      },
+    });
+  } catch (error) {
+    return res.status(500).send({ success: false, message: error.message });
+  }
+};

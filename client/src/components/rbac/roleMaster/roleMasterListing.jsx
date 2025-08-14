@@ -2,18 +2,20 @@ import { MdEdit, MdDelete } from "react-icons/md";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
+import { useRoleMasterContext } from "../../../contextApis/useRbacContextFile";
 
-export const RoleMasterListing = ({
-  isLoading,
-  rolesList,
-  handleFormVisibility,
-  handleRoleActiveInactive,
-  setUpdateId,
-  setDeleteId,
-  page,
-  totalPages,
-  setPage,
-}) => {
+export const RoleMasterListing = () => {
+  const {
+    isLoading,
+    listing,
+    handleFormVisibility,
+    handleRoleActiveInactive,
+    setUpdateId,
+    setDeleteId,
+    page,
+    totalPages,
+    setPage,
+  } = useRoleMasterContext();
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
@@ -32,25 +34,25 @@ export const RoleMasterListing = ({
           <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide">
             {isLoading ? (
               <SkeltonUi />
-            ) : rolesList?.length > 0 ? (
-              rolesList?.map((role, i) => {
+            ) : listing?.length > 0 ? (
+              listing?.map((data, i) => {
                 return (
                   <div
-                    key={role.id}
+                    key={data?.id}
                     className="grid grid-cols-4 border-b border-gray-200 last:border-none gap-2"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {role.name}
+                      {data?.name}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {role.status ? (
+                      {data?.status ? (
                         <span className="text-green-400 font-bold text-[.8rem] flex gap-2 items-center">
                           <span
                             className="block w-[15px] h-[15px] bg-green-400 rounded-[50%] shadow-lg shadow-green-400 cursor-pointer"
-                            onClick={() => handleRoleActiveInactive(role.id)}
+                            onClick={() => handleRoleActiveInactive(data?.id)}
                           ></span>
                           <span className="text-green-400 font-bold text-[.8rem]">
                             Active
@@ -63,7 +65,7 @@ export const RoleMasterListing = ({
                           </span>
                           <span
                             className="block w-[15px] h-[15px] bg-red-400 rounded-[50%] shadow-lg shadow-red-400 cursor-pointer"
-                            onClick={() => handleRoleActiveInactive(role.id)}
+                            onClick={() => handleRoleActiveInactive(data?.id)}
                           ></span>
                         </span>
                       )}
@@ -73,14 +75,14 @@ export const RoleMasterListing = ({
                         className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                         onClick={() => {
                           handleFormVisibility("open", "update");
-                          setUpdateId(role.id);
+                          setUpdateId(data?.id);
                         }}
                       >
                         <MdEdit className="hover:fill-white" />
                       </div>
                       <div
                         className="p-1 hover:bg-red-600 rounded-lg cursor-pointer"
-                        onClick={() => setDeleteId(role.id)}
+                        onClick={() => setDeleteId(data?.id)}
                       >
                         <MdDelete className="hover:fill-white" />
                       </div>
