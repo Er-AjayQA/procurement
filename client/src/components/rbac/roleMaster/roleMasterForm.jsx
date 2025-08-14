@@ -6,37 +6,39 @@ import {
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { useRoleMasterContext } from "../../../contextApis/useRbacContextFile";
 
-export const RoleMasterForm = ({
-  formVisibility,
-  formType,
-  onClose,
-  getAllRoleMasters,
-  updateId,
-  roleData,
-}) => {
+export const RoleMasterForm = ({ onClose }) => {
+  const { formVisibility, formType, getAllMasters, updateId, data } =
+    useRoleMasterContext();
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: "",
+    },
+  });
 
   // Set form values when in update mode
   useEffect(() => {
-    if (formType === "Update" && roleData) {
+    if (formType === "Update" && data) {
       reset({
-        name: roleData.name || roleData[0]?.name || "",
+        name: data.name || data[0]?.name || "",
       });
     } else {
       reset({ name: "" });
     }
-  }, [formType, roleData, reset]);
+  }, [formType, data, reset]);
 
   // Handle Form Close
   const handleFormClose = () => {
+    getAllMasters();
     onClose();
-    reset();
+    reset({ name: "" });
   };
 
   // Handle Form Submit
@@ -52,8 +54,6 @@ export const RoleMasterForm = ({
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllRoleMasters();
-        reset();
       } else {
         toast.error(response.message);
       }
@@ -81,7 +81,10 @@ export const RoleMasterForm = ({
           {/* Form Close Button */}
           <div
             className="hover:bg-red-500 p-2 rounded-lg hover:fill-white"
-            onClick={onClose}
+            onClick={() => {
+              onClose;
+              handleFormClose();
+            }}
           >
             <MdOutlineClose className="fill-white" />
           </div>

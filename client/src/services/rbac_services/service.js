@@ -21,3 +21,18 @@ export const moduleAccessService = async (id) => {
 
   return response.data;
 };
+
+// Get RBAC All Users Access Module Service
+export const allUsersModuleAccessService = async (formData) => {
+  const response = await axiosInstance.post(
+    `/get-all-users-assigned-module`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.data;
+};

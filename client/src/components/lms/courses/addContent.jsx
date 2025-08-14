@@ -9,7 +9,7 @@ export const ContentItem = ({ content, index, onChange, onRemove }) => {
             name="content_type"
             value={content.content_type}
             onChange={(e) => onChange(index, "content_type", e.target.value)}
-            className="w-full rounded-lg text-sm hover:border-blue-500 py-2 px-3 border"
+            className="w-full rounded-lg text-xs hover:border-blue-500 py-2 px-3 border border-gray-300"
             required
           >
             <option value="">Select type</option>
@@ -27,7 +27,7 @@ export const ContentItem = ({ content, index, onChange, onRemove }) => {
             value={content.content_name}
             onChange={(e) => onChange(index, "content_name", e.target.value)}
             placeholder="File name"
-            className="w-full rounded-lg text-sm hover:border-blue-500 py-2 px-3 border"
+            className={`w-full rounded-md border py-2 px-3 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs`}
             required
           />
         </div>
@@ -37,7 +37,7 @@ export const ContentItem = ({ content, index, onChange, onRemove }) => {
             value={content.content_link}
             onChange={(e) => onChange(index, "content_link", e.target.value)}
             placeholder="Enter link..."
-            className="w-full rounded-lg text-sm hover:border-blue-500 py-2 px-3 border"
+            className={`w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs`}
           />
         </div>
         <div className="flex justify-center items-center basis-[20%] p-3">

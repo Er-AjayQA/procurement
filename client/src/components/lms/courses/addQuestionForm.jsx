@@ -92,10 +92,14 @@ export const QuestionItem = ({ isVisible, onClose, onAddQuestion }) => {
             <select
               value={questionType}
               onChange={(e) => setQuestionType(e.target.value)}
-              className="w-full rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border text-xs border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="MCQ">MCQ</option>
-              <option value="true/false">True/False</option>
+              <option value="MCQ" className="text-xs">
+                MCQ
+              </option>
+              <option value="true/false" className="text-xs">
+                True/False
+              </option>
             </select>
           </div>
 
@@ -107,7 +111,7 @@ export const QuestionItem = ({ isVisible, onClose, onAddQuestion }) => {
               type="text"
               className={`w-full rounded-md border ${
                 errors.question ? "border-red-500" : "border-gray-300"
-              } py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+              } py-2 px-3 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
               placeholder="Enter question"
               {...register("question", {
                 required: "Question is required",
@@ -140,7 +144,7 @@ export const QuestionItem = ({ isVisible, onClose, onAddQuestion }) => {
                     onChange={(e) =>
                       handleOptionChange(index, "option", e.target.value)
                     }
-                    className="flex-1 rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="flex-1 text-xs rounded-md border border-gray-300 py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder={`Option ${index + 1}`}
                     required
                   />
