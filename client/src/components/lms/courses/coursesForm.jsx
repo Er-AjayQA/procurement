@@ -12,7 +12,7 @@ import { AddButton } from "../../UI/addButtonUi";
 import { createCourse } from "../../../services/lms_services/service";
 
 // Main Form Component
-export const CoursesForm = ({ onClose }) => {
+export const CoursesForm = ({ onClose, handleComponentView }) => {
   const {
     formType,
     getAllData,
@@ -262,13 +262,21 @@ export const CoursesForm = ({ onClose }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden h-[80vh] flex flex-col">
       {/* Header */}
-      <div className="bg-button-hover py-2 px-4">
+      <div className="bg-button-hover py-2 px-4 flex justify-between items-center">
         <div className="flex justify-between items-center">
           <h3 className="text-white text-sm">
             {!updateId ? "Add New Course" : "Update Course"}
           </h3>
+        </div>
+        <div>
+          <button
+            onClick={() => handleComponentView("listing")}
+            className="bg-white py-1 px-4 rounded-lg font-bold text-sm hover:bg-red-500 hover:text-white"
+          >
+            Back
+          </button>
         </div>
       </div>
 
@@ -709,9 +717,11 @@ export const CoursesForm = ({ onClose }) => {
                   <div className="border border-gray-200 rounded-md overflow-hidden">
                     <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
                       <div className="col-span-3 p-2 text-xs">Type</div>
-                      <div className="col-span-7 p-2 text-xs">Question</div>
-                      <div className="col-span-1 p-2 text-xs">Correct</div>
-                      <div className="col-span-1 p-2 text-xs"></div>
+                      <div className="col-span-5 p-2 text-xs">Question</div>
+                      <div className="col-span-2 p-2 text-xs">Correct</div>
+                      <div className="col-span-2 p-2 text-xs text-center">
+                        Action
+                      </div>
                     </div>
                     {assessmentQuestion.map((question, index) => (
                       <div
@@ -721,17 +731,17 @@ export const CoursesForm = ({ onClose }) => {
                         <div className="col-span-3 p-2 text-sm">
                           {question.assessment_question_type}
                         </div>
-                        <div className="col-span-7 p-2 text-sm">
+                        <div className="col-span-5 p-2 text-sm">
                           {question.assessment_question_title}
                         </div>
-                        <div className="col-span-1 p-2 text-sm">
+                        <div className="col-span-2 p-2 text-sm">
                           {question.assessment_question_type === "true/false"
                             ? question.assessment_correct_answer
                             : question.assessment_question_options?.find(
                                 (opt) => opt.isCorrect
                               )?.option || "N/A"}
                         </div>
-                        <div className="col-span-1 p-2 flex justify-center">
+                        <div className="col-span-2 p-2 flex justify-center">
                           <button
                             type="button"
                             onClick={() =>

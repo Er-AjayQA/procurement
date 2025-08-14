@@ -3,7 +3,7 @@ import { useCoursesMasterContext } from "../../../contextApis/useLmsContextFile"
 import { FaEye } from "react-icons/fa";
 import { CourseQuestionView } from "./courseQuestionView";
 
-export const CoursesView = () => {
+export const CoursesView = ({ handleComponentView }) => {
   const { assessmentDetails, basicDetails, contentDetails, questionDetails } =
     useCoursesMasterContext();
 
@@ -11,11 +11,19 @@ export const CoursesView = () => {
   const [questionVisibility, setQuestionVisibility] = useState(false);
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden h-[80vh] flex flex-col">
       {/* Header */}
-      <div className="bg-button-hover py-2 px-4">
+      <div className="bg-button-hover py-2 px-4 flex justify-between items-center">
         <div className="flex justify-between items-center">
-          <h3 className="text-white text-sm">Course Details</h3>
+          <h3 className="text-white text-sm font-bold">Course Details</h3>
+        </div>
+        <div>
+          <button
+            onClick={() => handleComponentView("listing")}
+            className="bg-white py-1 px-4 rounded-lg font-bold text-sm hover:bg-red-500 hover:text-white"
+          >
+            Back
+          </button>
         </div>
       </div>
 
@@ -24,7 +32,7 @@ export const CoursesView = () => {
         {/* COURSE BASIC DETAILS */}
         <div className="mb-10">
           <div className="bg-gray-100 py-2 px-3 rounded-md">
-            <h4 className="text-sm font-medium text-gray-700">
+            <h4 className="text-sm text-gray-700 font-bold">
               Course Basic Details
             </h4>
           </div>
@@ -103,7 +111,7 @@ export const CoursesView = () => {
         {/* COURSE CONTENT DETAILS */}
         <div className="mb-10">
           <div className="bg-gray-100 py-2 px-3 rounded-md">
-            <h4 className="text-sm font-medium text-gray-700">
+            <h4 className="text-sm font-bold text-gray-700">
               Course Content Details
             </h4>
           </div>
@@ -157,7 +165,7 @@ export const CoursesView = () => {
         {/* COURSE ASSESSMENT DETAILS */}
         <div>
           <div className="bg-gray-100 py-2 px-3 rounded-md">
-            <h4 className="text-sm font-medium text-gray-700">
+            <h4 className="text-sm font-bold text-gray-700">
               Assessment Basic Details
             </h4>
           </div>
