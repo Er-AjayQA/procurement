@@ -30,6 +30,37 @@ module.exports.createNotification = async (req, res) => {
   }
 };
 
+// ========== MARK NOTIFICATION AS READ CONTROLLER ========== //
+module.exports.markAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if Notification exist
+    const isExist = await DB.tbl_notification_master.findOne({
+      where: {
+        id,
+        isDeleted: false,
+      },
+    });
+
+    if (!isExist) {
+      return res
+        .status(404)
+        .send({ success: false, message: "No Such Notification Found!" });
+    } else {
+      await isExist.update({
+        isReaded: true,
+      });
+      return res.status(200).send({
+        success: true,
+        message: "Marked as Read!",
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
 // ========== GET NOTIFICATION DETAILS CONTROLLER ========== //
 module.exports.getNotificationDetails = async (req, res) => {
   try {
