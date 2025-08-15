@@ -8,6 +8,7 @@ router.post(
   "/generate-notification",
   NotificationController.createNotification
 );
+router.put("/mark-notification-read/:id", NotificationController.markAsRead);
 router.post(
   "/get-notification-details/:id",
   NotificationController.getNotificationDetails

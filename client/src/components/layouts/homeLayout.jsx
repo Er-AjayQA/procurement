@@ -3,6 +3,7 @@ import { HeaderNav } from "../HeaderNav";
 import { SidebarMenu } from "../sidebar";
 import { Breadcrumb } from "../UI/breadcrumb";
 import { HeaderBrand } from "../UI/headerBrandUi";
+import { NotificationProvider } from "../../contextApis/notificationManagement/notificationProvider";
 
 export const HomeLayout = () => {
   return (
@@ -19,7 +20,9 @@ export const HomeLayout = () => {
         <div className="bg-white h-full flex-grow overflow-y-scroll scrollbar-hide rounded-lg">
           <div className="flex justify-between items-center py-3 px-5 bg-white border-b-2 border-b-gray-200 sticky top-0 z-10">
             <Breadcrumb />
-            <HeaderNav />
+            <NotificationProvider>
+              <HeaderNav />
+            </NotificationProvider>
           </div>
           <div className="p-4 h-[75%]">
             <Outlet />

@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+import { FaBell } from "react-icons/fa";
 import {
   Avatar,
   Dropdown,
@@ -11,10 +12,14 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../ReduxToolkit/authSlice";
 import { useEffect, useState } from "react";
+import { NotificationContainer } from "./notificationManagement/notificationContainer";
+import { useNotificationContext } from "../contextApis/useNotificationContextFile";
 
 export const HeaderNav = () => {
   const { userDetails, activeModule } = useSelector((state) => state.auth);
   const [displayModule, setDisplayModule] = useState(activeModule);
+  const { handleNotificationVisibility } = useNotificationContext();
+
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
@@ -57,6 +62,19 @@ export const HeaderNav = () => {
         </Dropdown>
         <NavbarToggle />
       </div>
+
+      <div className="me-5 relative p-2">
+        <FaBell
+          className="w-[20px] h-[20px] cursor-pointer"
+          onClick={() => handleNotificationVisibility("open")}
+        />
+        <div className="w-[10px] h-[10px] rounded-[50%] bg-red-600 absolute top-0 right-0"></div>
+      </div>
+
+      {/* Notfication Container */}
+      <NotificationContainer
+        onClose={() => handleNotificationVisibility("close")}
+      />
     </Navbar>
   );
 };

@@ -21,6 +21,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         defaultValue: "non-archieve",
       },
+      isReaded: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
