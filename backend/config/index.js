@@ -298,6 +298,13 @@ db.tbl_lms_course_assessment_results =
     Sequelize
   );
 
+// Notifications Master Table
+db.tbl_notification_master =
+  require("../API/notificationsManagement/model/notification.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
@@ -798,6 +805,14 @@ db.tbl_lms_assign_course.hasMany(db.tbl_lms_course_assessment_results, {
 });
 db.tbl_lms_course_assessment_results.belongsTo(db.tbl_lms_assign_course, {
   foreignKey: "course_assign_id",
+});
+
+// Relation B/W User Master and Notification Master Tables
+db.tbl_user_master.hasMany(db.tbl_notification_master, {
+  foreignKey: "user_id",
+});
+db.tbl_notification_master.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
 });
 
 // // Relation B/W User Master and Purchase Request Tables
