@@ -701,3 +701,93 @@ module.exports.getAllAssignModule = async (req, res) => {
     return res.status(500).send({ success: false, message: error.message });
   }
 };
+
+// ========== CHECK IF USER HAVE ALREADY ASSIGNED CONTROLLER ========== //
+module.exports.checkIfAlreadyAssign = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
+  try {
+    const user_id = req.params.id;
+
+    const checUserExist = await DB.tbl_user_master.findOne({
+      where: { id: user_id, isDeleted: false },
+      transaction,
+    });
+
+    if (!checUserExist) {
+      return res.status(404).send({
+        success: false,
+        message: "User not Exist!",
+      });
+    }
+
+    const alreadyExist = await DB.tbl_rbac_assign_module_master.findOne({
+      where: { user_id },
+      transaction,
+    });
+
+    await transaction.commit();
+
+    if (alreadyExist) {
+      return res.status(200).send({
+        success: true,
+        message:
+          "User is Already Assigned, You Can Only Update His Existing Record!",
+      });
+    }
+
+    return res.status(200).send({
+      success: false,
+      message: "User is not assigned yet!",
+    });
+  } catch (error) {
+    await transaction.rollback();
+    return res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== REVOKE USER PERMISSIONS CONTROLLER ========== //
+module.exports.revokePermissions = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
+  try {
+    const user_id = req.params.id;
+
+    const checUserExist = await DB.tbl_user_master.findOne({
+      where: { id: user_id, isDeleted: false },
+      transaction,
+    });
+
+    if (!checUserExist) {
+      return res.status(404).send({
+        success: false,
+        message: "User not Exist!",
+      });
+    }
+
+    const alreadyExist = await DB.tbl_rbac_assign_module_master.findOne({
+      where: { user_id },
+      transaction,
+    });
+
+    if (!alreadyExist) {
+      return res.status(404).send({
+        success: false,
+        message: "No Modules Assigned to User!",
+      });
+    }
+
+    await DB.tbl_rbac_assign_module_master.destroy({
+      where: { user_id },
+      transaction,
+    });
+
+    await transaction.commit();
+
+    return res.status(200).send({
+      success: true,
+      message: "User Permissions Removed!",
+    });
+  } catch (error) {
+    await transaction.rollback();
+    return res.status(500).send({ success: false, message: error.message });
+  }
+};

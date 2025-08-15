@@ -4,8 +4,10 @@ import { getAllRoles } from "../../../services/master_services/service";
 import {
   allUsersModuleAccessService,
   moduleService,
+  revokeUserPermissions,
 } from "../../../services/rbac_services/service";
 import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
+import { toast } from "react-toastify";
 
 export const UserPermissionProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
@@ -20,6 +22,7 @@ export const UserPermissionProvider = ({ children }) => {
   const [data, setData] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState({ user_id: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
@@ -110,6 +113,23 @@ export const UserPermissionProvider = ({ children }) => {
     }
   };
 
+  // Revoke User Permissions
+  const revokeAllUserPermissions = async (id) => {
+    try {
+      setIsLoading(true);
+      const data = await revokeUserPermissions(id);
+
+      if (data.success) {
+        toast.success(data.message);
+        setDeleteId(null);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      setDeleteId(null);
+    }
+  };
+
   // Get Data By Id
   const getDataById = async (id) => {
     try {
@@ -168,6 +188,7 @@ export const UserPermissionProvider = ({ children }) => {
     setData(null);
     setUpdateId(null);
     setViewId(null);
+    setRolesList(null);
   };
 
   // Handle Set Limit
@@ -192,7 +213,7 @@ export const UserPermissionProvider = ({ children }) => {
   // For initial load and filter/pagination changes
   useEffect(() => {
     getAllData();
-  }, [limit, page, filter]);
+  }, [limit, page, filter, updateId, deleteId]);
 
   // For update operations
   useEffect(() => {
@@ -202,15 +223,24 @@ export const UserPermissionProvider = ({ children }) => {
     }
   }, [updateId, viewId]);
 
+  // Get User list
+  useEffect(() => {
+    getAllUsersList();
+  }, [updateId]);
+
   // Get Role list
   useEffect(() => {
     getAllRolesList();
-  }, []);
+  }, [updateId]);
 
   // Get All Modules List
   useEffect(() => {
     getAllModulesList();
   }, []);
+
+  useEffect(() => {
+    if (deleteId) revokeAllUserPermissions(deleteId);
+  }, [deleteId]);
 
   const styledComponent = {
     control: (base) => ({
@@ -269,12 +299,14 @@ export const UserPermissionProvider = ({ children }) => {
     allModules,
     rolesList,
     styledComponent,
+    deleteId,
     getAllData,
     getDataById,
     handleFormVisibility,
     handleLimitChange,
     handleChangeFilter,
     setUpdateId,
+    setDeleteId,
     getAllUsersList,
     setPage,
     setViewId,

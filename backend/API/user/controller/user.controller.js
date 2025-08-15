@@ -31,6 +31,7 @@ module.exports.createUser = async (req, res) => {
         area_id,
         designation_id,
         emp_type_id,
+        role_id,
       } = req.body;
 
       // Check if user already exist
@@ -97,6 +98,7 @@ module.exports.createUser = async (req, res) => {
                 area_id,
                 designation_id,
                 emp_type_id,
+                role_id,
               },
               { transaction }
             );

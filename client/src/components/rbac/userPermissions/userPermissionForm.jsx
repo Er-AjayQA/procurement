@@ -5,12 +5,15 @@ import { useEffect, useState } from "react";
 import { CancelButton } from "../../UI/cancelButtonUi";
 import { AddButton } from "../../UI/addButtonUi";
 import { useUserPermissionContext } from "../../../contextApis/useRbacContextFile";
-import { allUsersModuleAccessService } from "../../../services/rbac_services/service";
+import {
+  allUsersModuleAccessService,
+  assignModuleToUserService,
+  checkUserAlreadyAssigned,
+} from "../../../services/rbac_services/service";
 
 // Main Form Component
 export const UserPermissionForm = ({ onClose }) => {
   const {
-    formType,
     getAllData,
     data,
     updateId,
@@ -52,11 +55,24 @@ export const UserPermissionForm = ({ onClose }) => {
     }
   };
 
+  // Check if User Already Assigned
+  const checkUserAlreadyAssignedModule = async (id) => {
+    try {
+      const response = await checkUserAlreadyAssigned(id);
+
+      if (response.success) {
+        toast.error(response.message);
+        setSelectedUser(null);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      setSelectedUser(null);
+    }
+  };
+
   // Set form values when in update mode
   useEffect(() => {
     if (updateId) {
-      console.log("Updated User Details....", updatedUserDetails);
-
       // Set selected role and user
       const role = rolesList?.find(
         (r) => r.value === updatedUserDetails?.roleId.toString()
@@ -68,7 +84,6 @@ export const UserPermissionForm = ({ onClose }) => {
       setSelectedRole(role);
       setSelectedUser(user);
 
-      // Set module permissions
       // Set module permissions
       if (updatedUserDetails?.permissions) {
         const permissions = updatedUserDetails.permissions.flatMap((module) =>
@@ -187,16 +202,13 @@ export const UserPermissionForm = ({ onClose }) => {
 
       console.log(payload);
 
-      // let response = await createCourse(payload);
+      let response = await assignModuleToUserService(payload);
 
-      // For now, just log and show success
-      toast.success(
-        formType === "Update"
-          ? "Course updated successfully!"
-          : "Course created successfully!"
-      );
-      onClose();
-      getAllData();
+      if (response.success) {
+        toast.success(response.message);
+        onClose();
+        getAllData();
+      }
     } catch (error) {
       toast.error(error.message || "An error occurred");
       console.error("Submission error:", error);
@@ -276,6 +288,12 @@ export const UserPermissionForm = ({ onClose }) => {
     getUserAssignedModules();
   }, [updateId]);
 
+  useEffect(() => {
+    if (selectedUser && !updateId) {
+      checkUserAlreadyAssignedModule(selectedUser.value);
+    }
+  }, [selectedUser]);
+
   return (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden h-[80vh] flex flex-col">
       {/* Header */}
@@ -312,6 +330,7 @@ export const UserPermissionForm = ({ onClose }) => {
                 placeholder="Select role..."
                 isClearable
                 isSearchable
+                isDisabled={updateId}
                 className="react-select-container"
                 classNamePrefix="react-select"
                 styles={selectStyles}
@@ -327,6 +346,7 @@ export const UserPermissionForm = ({ onClose }) => {
                 placeholder="Select user..."
                 isClearable
                 isSearchable
+                isDisabled={updateId}
                 className="react-select-container"
                 classNamePrefix="react-select"
                 styles={selectStyles}
