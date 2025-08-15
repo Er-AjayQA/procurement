@@ -28,6 +28,10 @@ router.post(
   "/get-all-users-assigned-module",
   RbacController.getAllAssignModule
 );
-
+router.post(
+  "/check-user-already-assigned/:id",
+  RbacController.checkIfAlreadyAssign
+);
+router.post("/revoke-user-permissions/:id", RbacController.revokePermissions);
 // ========== EXPORT ROUTES ========== //
 module.exports = router;
