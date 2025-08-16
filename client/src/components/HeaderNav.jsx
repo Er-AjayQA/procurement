@@ -18,7 +18,8 @@ import { useNotificationContext } from "../contextApis/useNotificationContextFil
 export const HeaderNav = () => {
   const { userDetails, activeModule } = useSelector((state) => state.auth);
   const [displayModule, setDisplayModule] = useState(activeModule);
-  const { handleNotificationVisibility } = useNotificationContext();
+  const { newNotificationsCount, handleNotificationVisibility, viewId } =
+    useNotificationContext();
 
   const navigate = useNavigate();
 
@@ -68,7 +69,10 @@ export const HeaderNav = () => {
           className="w-[20px] h-[20px] cursor-pointer"
           onClick={() => handleNotificationVisibility("open")}
         />
-        <div className="w-[10px] h-[10px] rounded-[50%] bg-red-600 absolute top-0 right-0"></div>
+
+        <div className="w-[10px] h-[10px] rounded-[50%] bg-red-600 absolute top-[-2px] right-[-2px] p-2 text-xs text-white flex items-center justify-center">
+          {newNotificationsCount}
+        </div>
       </div>
 
       {/* Notfication Container */}
