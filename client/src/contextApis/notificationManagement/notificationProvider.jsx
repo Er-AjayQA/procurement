@@ -13,6 +13,7 @@ export const NotificationProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [notificationVisibity, setNotificationVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
+  const [newNotificationsCount, setNewNotificationsCount] = useState(0);
   const [data, setData] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [archieveId, setArchieveId] = useState(null);
@@ -26,8 +27,6 @@ export const NotificationProvider = ({ children }) => {
 
   const { userDetails } = useSelector((state) => state.auth);
 
-  console.log("User Notifications", listing);
-
   // Get All Master Data
   const getAllData = async () => {
     try {
@@ -36,11 +35,15 @@ export const NotificationProvider = ({ children }) => {
 
       if (data.success) {
         setListing(data.data);
+        const unreadCount = data.data.filter((item) => !item.isReaded).length;
+        setNewNotificationsCount(unreadCount);
       } else {
         setListing(null);
+        setNewNotificationsCount(0);
       }
     } catch (error) {
       setListing(null);
+      setNewNotificationsCount(0);
     } finally {
       setIsLoading(false);
     }
@@ -50,6 +53,9 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (id) => {
     try {
       const data = await markNotificationAsReadService(id);
+      if (data.success) {
+        getAllData();
+      }
     } catch (error) {
       throw new Error(error.message);
     }
@@ -91,6 +97,8 @@ export const NotificationProvider = ({ children }) => {
       setNotificationVisibility(true);
     } else if (type === "close") {
       setNotificationVisibility(false);
+      getAllData();
+      setViewId(null);
     }
   };
 
@@ -108,6 +116,22 @@ export const NotificationProvider = ({ children }) => {
   const handleChangeFilter = (e) => {
     const { name, value } = e.target;
     setFilter((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle Mark All As Read
+  const handleMarkAllAsRead = async () => {
+    try {
+      const unreadIds = listing
+        .filter((item) => !item.isReaded)
+        .map((item) => item.id);
+
+      await Promise.all(
+        unreadIds?.map((id) => markNotificationAsReadService(id))
+      );
+      getAllData();
+    } catch (error) {
+      toast.error("Failed to mark all as read");
+    }
   };
 
   // For initial load and filter/pagination changes
@@ -182,6 +206,7 @@ export const NotificationProvider = ({ children }) => {
     styledComponent,
     deleteId,
     notificationVisibity,
+    newNotificationsCount,
     getAllData,
     getDataById,
     handleChangeFilter,
@@ -191,6 +216,7 @@ export const NotificationProvider = ({ children }) => {
     setData,
     setViewVisibility,
     handleViewVisibility,
+    handleMarkAllAsRead,
     handleNotificationVisibility,
   };
 
