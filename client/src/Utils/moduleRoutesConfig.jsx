@@ -1,5 +1,6 @@
 import { AttendanceCalendarPage } from "../pages/EmployeeSelfService/attendanceCalendar";
 import { EmployeeDetailPage } from "../pages/EmployeeSelfService/employeeDetails";
+import { MainEmployeePage } from "../pages/Hrms/EmployeeManagement";
 import { CourseAssessmentReportPage } from "../pages/LearningManagement/CourseAssessmentReport";
 import { CoursesPage } from "../pages/LearningManagement/courses";
 import { MasterAllowancePage } from "../pages/Masters/allowanceMaster";
@@ -25,6 +26,9 @@ import { MasterRolePage } from "../pages/RbacManagement/roleMaster";
 import { MasterUserPermissionPage } from "../pages/RbacManagement/userPermission";
 
 export const moduleComponents = {
+  hrms: {
+    "employee-management": MainEmployeePage,
+  },
   "employee-self-service": {
     "employee-details": EmployeeDetailPage,
     "attendance-calendar": AttendanceCalendarPage,
