@@ -21,3 +21,14 @@ export const getAllEmployeeDetails = async (formData) => {
 
   return response.data;
 };
+
+// Change Employee Status Service
+export const changeUserStatus = async (id) => {
+  const response = await axiosInstance.put(`/update-user-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  return response.data;
+};

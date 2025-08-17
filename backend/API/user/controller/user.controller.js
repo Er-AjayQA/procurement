@@ -853,26 +853,16 @@ module.exports.getAllUserDetails = async (req, res) => {
 
     let query = `
       SELECT 
-        U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, 
+        U.*, D.dep_code AS department_code, D.name AS department_name, DES.name AS designation_name, R.name AS role_name,
        E.name AS employment_type, M.name AS reporting_manager, BR.name AS branch_name
       FROM USER_MASTER AS U
       LEFT JOIN DEPARTMENT_MASTER AS D ON D.id = U.dep_id
+      LEFT JOIN ROLE_MASTER AS R ON R.id = U.role_id
       LEFT JOIN DESIGNATION_MASTER AS DES ON DES.id = U.designation_id
       LEFT JOIN EMPLOYMENT_TYPE_MASTER AS E ON E.id = U.emp_type_id
       LEFT JOIN USER_MASTER AS M ON M.id = U.reporting_manager_id
       LEFT JOIN BRANCH_MASTER AS BR ON BR.id = U.branch_id
       WHERE U.isDeleted = false`;
-
-    // Add role_id filter if provided
-    if (filter.role_id) {
-      countQuery += ` AND U.role_id = :role_id`;
-      query += ` AND U.role_id = :role_id`;
-    }
-
-    // Complete the queries
-    query += ` GROUP BY U.id`; // Only group by the primary key
-    query += ` ORDER BY U.createdAt DESC`;
-    query += ` LIMIT :limit OFFSET :offset`;
 
     // Prepare replacements object
     const replacements = {
@@ -880,10 +870,24 @@ module.exports.getAllUserDetails = async (req, res) => {
       offset: offset,
     };
 
-    // Add role_id to replacements if filtering by role
+    // Add role_id filter if provided
     if (filter.role_id) {
+      countQuery += ` AND U.role_id = :role_id`;
+      query += ` AND U.role_id = :role_id`;
       replacements.role_id = filter.role_id;
     }
+
+    // Add user_id filter if provided
+    if (filter.name) {
+      countQuery += ` AND U.name LIKE :name`;
+      query += ` AND U.name LIKE :name`;
+      replacements.name = `%${filter.name}%`;
+    }
+
+    // Complete the queries
+    query += ` GROUP BY U.id`; // Only group by the primary key
+    query += ` ORDER BY U.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
 
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
@@ -937,7 +941,7 @@ module.exports.updateUserStatus = async (req, res) => {
 
     if (!isUserExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "User Not Found!" });
     } else {
       const updateStatus = await isUserExist.update({
@@ -945,8 +949,7 @@ module.exports.updateUserStatus = async (req, res) => {
       });
       return res.status(200).send({
         success: true,
-        status: "Status Changed Successfully!",
-        data: updateStatus,
+        message: "Status Changed Successfully!",
       });
     }
   } catch (error) {
@@ -981,7 +984,7 @@ module.exports.deleteUser = async (req, res) => {
       );
       return res.status(200).send({
         success: true,
-        status: "User Deleted Successfully!",
+        message: "User Deleted Successfully!",
       });
     }
   } catch (error) {

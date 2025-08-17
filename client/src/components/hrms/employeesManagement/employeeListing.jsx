@@ -11,12 +11,13 @@ import { useEmployeeContext } from "../../../contextApis/useHrmsContextFile";
 
 export const EmployeeListing = ({ componentType }) => {
   const {
+    filter,
     isLoading,
     listing,
     page,
     totalPages,
     setPage,
-    usersList,
+    rolesList,
     setViewId,
     setUpdateId,
     setDeleteId,
@@ -24,8 +25,9 @@ export const EmployeeListing = ({ componentType }) => {
     handleChangeFilter,
     handleComponentClose,
     handleComponentView,
+    handleActiveInactive,
   } = useEmployeeContext();
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(null);
 
   const styledComponent = {
     control: (base) => ({
@@ -96,17 +98,25 @@ export const EmployeeListing = ({ componentType }) => {
           </div>
           {/* Sorting Element End */}
           <div className="flex items-center gap-5">
+            <input
+              type="search"
+              name="name"
+              value={filter.name}
+              placeholder="Search here.."
+              className="py-1 px-2 rounded-md text-sm border-borders-light"
+              onChange={(e) => handleChangeFilter("input", e)}
+            />
             <Select
-              value={selectedUser}
+              value={selectedRole}
               onChange={(selectedOption) => {
-                setSelectedUser(selectedOption);
+                setSelectedRole(selectedOption);
                 handleChangeFilter("dropdown", {
-                  field: "user_id",
+                  field: "role_id",
                   value: selectedOption ? selectedOption.value : "",
                 });
               }}
-              options={usersList}
-              placeholder="Search by user..."
+              options={rolesList}
+              placeholder="Search by role..."
               isClearable
               isSearchable
               className="react-select-container"
@@ -132,20 +142,18 @@ export const EmployeeListing = ({ componentType }) => {
       </div>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">
-            User Permissions Listing
-          </h3>
+          <h3 className="text-white text-xs font-bold">Employee Listing</h3>
         </div>
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="grid grid-cols-5 border-b border-gray-300 gap-2">
+          <div className="grid grid-cols-7 border-b border-gray-300 gap-2">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
             <div className="text-[.8rem] font-bold p-2">User Name</div>
             <div className="text-[.8rem] font-bold p-2">User Role</div>
-            <div className="text-[.8rem] font-bold p-2">
-              Total Modules Assigned
-            </div>
+            <div className="text-[.8rem] font-bold p-2">Official Email</div>
+            <div className="text-[.8rem] font-bold p-2">Phone No.</div>
+            <div className="text-[.8rem] font-bold p-2 text-center">Status</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
           <div className="h-[calc(100%-40px)] overflow-y-auto scrollbar-hide">
@@ -155,35 +163,63 @@ export const EmployeeListing = ({ componentType }) => {
               listing?.map((list, i) => {
                 return (
                   <div
-                    key={list?.userId}
-                    className="grid grid-cols-5 border-b border-gray-200 last:border-none gap-2"
+                    key={list?.id}
+                    className="grid grid-cols-7 border-b border-gray-200 last:border-none gap-2"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.userName || "N/A"}
+                      {list?.name || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.roleName || "N/A"}
+                      {list?.role_name || "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem] overflow-hidden">
+                      <span className="text-[.8rem] overflow-x-auto scrollbar-hide">
+                        {list?.official_email || "N/A"}
+                      </span>
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.totalModules || "N/A"}
+                      {list?.contact_no || "N/A"}
+                    </div>
+                    <div className="flex items-center p-2 text-[.8rem] justify-center">
+                      {list.status ? (
+                        <span className="text-green-400 font-bold text-[.8rem] flex gap-2 items-center">
+                          <span
+                            className="block w-[15px] h-[15px] bg-green-400 rounded-[50%] shadow-lg shadow-green-400 cursor-pointer"
+                            onClick={() => handleActiveInactive(list?.id)}
+                          ></span>
+                          <span className="text-green-400 font-bold text-[.8rem]">
+                            Active
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="text-red-400 font-bold text-[.8rem] flex gap-2 items-center">
+                          <span className="text-red-400 font-bold text-[.8rem]">
+                            InActive
+                          </span>
+                          <span
+                            className="block w-[15px] h-[15px] bg-red-400 rounded-[50%] shadow-lg shadow-red-400 cursor-pointer"
+                            onClick={() => handleActiveInactive(list?.id)}
+                          ></span>
+                        </span>
+                      )}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
                       <ViewIcon
                         onClick={() => {
                           handleComponentView("view");
-                          setViewId(list?.userId);
+                          setViewId(list?.id);
                         }}
                       />
                       <EditIcon
                         onClick={() => {
                           handleComponentView("form");
-                          setUpdateId(list?.userId);
+                          setUpdateId(list?.id);
                         }}
                       />
-                      <DeleteIcon onClick={() => setDeleteId(list?.userId)} />
+                      <DeleteIcon onClick={() => setDeleteId(list?.id)} />
                     </div>
                   </div>
                 );

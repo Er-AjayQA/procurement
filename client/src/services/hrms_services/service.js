@@ -10,3 +10,13 @@ export const createEmployee = async (formData) => {
   });
   return response.data;
 };
+
+// Delete Employee
+export const deleteEmployee = async (id) => {
+  const response = await axiosInstance.put(`delete-user/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

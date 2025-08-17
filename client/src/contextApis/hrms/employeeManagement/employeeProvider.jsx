@@ -2,56 +2,35 @@ import { useEffect, useState } from "react";
 import { getAllRoles } from "../../../services/master_services/service";
 import {
   allUsersModuleAccessService,
-  moduleService,
   revokeUserPermissions,
 } from "../../../services/rbac_services/service";
-import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 import { toast } from "react-toastify";
 import { EmployeeContext } from "./employeeContext";
+import {
+  changeUserStatus,
+  getAllEmployeeDetails,
+  getEmployeeDetails,
+} from "../../../services/employeeDetails_services/services";
+import { deleteEmployee } from "../../../services/hrms_services/service";
 
 export const EmployeeProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
-  const [usersList, setUsersList] = useState(null);
   const [rolesList, setRolesList] = useState(null);
-  const [allModules, setAllModules] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
   const [viewModules, setViewModules] = useState(null);
+  const [tabType, setTabType] = useState("basicDetails");
   const [formType, setFormType] = useState("Add");
   const [componentType, setComponentType] = useState("listing");
   const [data, setData] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [filter, setFilter] = useState({ user_id: "" });
+  const [filter, setFilter] = useState({ name: "", role_id: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Get All Users List
-  const getAllUsersList = async (id) => {
-    try {
-      const response = await getAllEmployeeDetails({
-        limit: 5000,
-        page: "",
-        filter: { role_id: id },
-      });
-
-      if (response.success) {
-        setUsersList(
-          response.data.map((data) => ({
-            value: `${data?.id}`,
-            label: `${data?.name} - ${data?.emp_code}`,
-          }))
-        );
-      } else {
-        setUsersList(null);
-      }
-    } catch (error) {
-      setUsersList(null);
-    }
-  };
 
   // Get All Roles List
   const getAllRolesList = async () => {
@@ -77,26 +56,11 @@ export const EmployeeProvider = ({ children }) => {
     }
   };
 
-  // Get All Modules List
-  const getAllModulesList = async () => {
-    try {
-      const response = await moduleService();
-
-      if (response.success) {
-        setAllModules(response.data);
-      } else {
-        throw new Error("Getting an error while fetching modules list!");
-      }
-    } catch (error) {
-      setAllModules(null);
-    }
-  };
-
   // Get All Master Data
   const getAllData = async () => {
     try {
       setIsLoading(true);
-      const data = await allUsersModuleAccessService({ limit, page, filter });
+      const data = await getAllEmployeeDetails({ limit, page, filter });
 
       if (data.success) {
         setListing(data.data);
@@ -113,40 +77,17 @@ export const EmployeeProvider = ({ children }) => {
     }
   };
 
-  // Revoke User Permissions
-  const revokeAllUserPermissions = async (id) => {
-    try {
-      setIsLoading(true);
-      const data = await revokeUserPermissions(id);
-
-      if (data.success) {
-        toast.success(data.message);
-        setDeleteId(null);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      setDeleteId(null);
-    }
-  };
-
   // Get Data By Id
   const getDataById = async (id) => {
     try {
-      const response = await allUsersModuleAccessService({
-        limit,
-        page,
-        filter: { user_id: id },
-      });
-      if (response.success) {
-        setData(response.data);
-        setViewModules(response.data[0]?.permissions);
+      const response = await getEmployeeDetails(id);
+      if (response.data.success) {
+        setData(response.data.data[0]);
       } else {
         throw new Error(response.message);
       }
     } catch (error) {
       setData(null);
-      setViewModules(null);
     }
   };
 
@@ -191,6 +132,38 @@ export const EmployeeProvider = ({ children }) => {
     setRolesList(null);
   };
 
+  // Handle User Delete Functionality
+  const handleDelete = async (id) => {
+    try {
+      const response = await deleteEmployee(id);
+
+      if (response.success) {
+        toast.success(response.message);
+        getAllData();
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  // Handle User Active/Inactive
+  const handleActiveInactive = async (id) => {
+    try {
+      const response = await changeUserStatus(id);
+
+      if (response.success) {
+        toast.success(response.message);
+        getAllData();
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   // Handle Set Limit
   const handleLimitChange = (e) => {
     e.preventDefault();
@@ -210,6 +183,11 @@ export const EmployeeProvider = ({ children }) => {
     }
   };
 
+  // Handle Tabs Click
+  const handleTabClick = (tabType) => {
+    setTabType(tabType);
+  };
+
   // For initial load and filter/pagination changes
   useEffect(() => {
     getAllData();
@@ -223,24 +201,18 @@ export const EmployeeProvider = ({ children }) => {
     }
   }, [updateId, viewId]);
 
-  // Get User list
+  // For Delete operations
   useEffect(() => {
-    getAllUsersList();
-  }, [updateId]);
+    if (deleteId) {
+      const id = deleteId;
+      handleDelete(id);
+    }
+  }, [deleteId]);
 
   // Get Role list
   useEffect(() => {
     getAllRolesList();
   }, [updateId]);
-
-  // Get All Modules List
-  useEffect(() => {
-    getAllModulesList();
-  }, []);
-
-  useEffect(() => {
-    if (deleteId) revokeAllUserPermissions(deleteId);
-  }, [deleteId]);
 
   const styledComponent = {
     control: (base) => ({
@@ -294,25 +266,25 @@ export const EmployeeProvider = ({ children }) => {
     viewId,
     viewVisibility,
     componentType,
-    usersList,
     viewModules,
-    allModules,
     rolesList,
     styledComponent,
     deleteId,
+    tabType,
     getAllData,
     getDataById,
     handleFormVisibility,
+    handleTabClick,
     handleLimitChange,
     handleChangeFilter,
     setUpdateId,
     setDeleteId,
-    getAllUsersList,
     setPage,
     setViewId,
     setData,
     setViewVisibility,
     setComponentType,
+    handleActiveInactive,
     handleViewVisibility,
     handleComponentView,
     handleComponentClose,
