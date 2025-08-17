@@ -58,7 +58,7 @@ router.put(
 router.get("/get-user-details/:id", UserController.getUserDetails);
 router.post("/get-all-users", UserController.getAllUserDetails);
 router.put("/update-user-status/:id", UserController.updateUserStatus);
-router.delete("/delete-user/:id", UserController.deleteUser);
+router.put("/delete-user/:id", UserController.deleteUser);
 
 // ********************* USER LOGIN LOGICS ROUTES ********************* //
 router.post("/user-login", upload.none(), UserController.userLogin);
