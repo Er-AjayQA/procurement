@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  getAllBranches,
   getAllCountries,
   getAllDepartments,
   getAllDesignations,
@@ -29,21 +30,20 @@ export const EmployeeProvider = ({ children }) => {
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+  const [createdUserId, setCreatedUserId] = useState(null);
   const [filter, setFilter] = useState({ name: "", role_id: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [countryListOptions, setCountryListOptions] = useState(null);
-  const [stateListOptions, setStateListOptions] = useState(null);
-  const [cityListOptions, setCityListOptions] = useState(null);
-  const [countryCodeOptions, setCountryCodeOptions] = useState(null);
-  const [reportingManagerOptions, setReportingManagerOptions] = useState(null);
-  const [departmentOptions, setDepartmentOptions] = useState(null);
-  const [designationOptions, setDesignationOptions] = useState(null);
-  const [employeeTypeOptions, setEmployeeTypeOptions] = useState(null);
-  const [areaOptions, setAreaOptions] = useState(null);
-  const [branchOptions, setBranchOptions] = useState(null);
+  const [countryListOptions, setCountryListOptions] = useState([]);
+  const [countryCodeOptions, setCountryCodeOptions] = useState([]);
+  const [reportingManagerOptions, setReportingManagerOptions] = useState([]);
+  const [departmentOptions, setDepartmentOptions] = useState([]);
+  const [designationOptions, setDesignationOptions] = useState([]);
+  const [employeeTypeOptions, setEmployeeTypeOptions] = useState([]);
+  const [areaOptions, setAreaOptions] = useState([]);
+  const [branchOptions, setBranchOptions] = useState([]);
 
   // Get All Roles List
   const getAllRolesList = async () => {
@@ -331,6 +331,34 @@ export const EmployeeProvider = ({ children }) => {
     }
   };
 
+  // Get All Branch List
+  const getAllBranchOptions = async () => {
+    try {
+      const response = await getAllBranches({
+        limit: 5000,
+        page: "",
+        filter: {
+          billing_status: "",
+          status: "",
+          name: "",
+        },
+      });
+
+      if (response.success) {
+        setBranchOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setBranchOptions(null);
+    }
+  };
+
   // For initial load and filter/pagination changes
   useEffect(() => {
     getAllData();
@@ -363,6 +391,7 @@ export const EmployeeProvider = ({ children }) => {
     getAllDepartmentOptions();
     getAllDesignationOptions();
     getAllEmployeeTypeOptions();
+    getAllBranchOptions();
   }, []);
 
   const styledComponent = {
@@ -477,6 +506,7 @@ export const EmployeeProvider = ({ children }) => {
     designationOptions,
     employeeTypeOptions,
     areaOptions,
+    branchOptions,
     getAllData,
     getDataById,
     handleFormVisibility,
@@ -488,6 +518,7 @@ export const EmployeeProvider = ({ children }) => {
     setPage,
     setViewId,
     setData,
+    setCreatedUserId,
     setViewVisibility,
     setComponentType,
     setAreaOptions,

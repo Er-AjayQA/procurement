@@ -44,6 +44,7 @@ export const EmployeeForm = () => {
                       ? "border-gray-300 bg-body-bg_color text-white"
                       : ""
                   }`}
+                  onClick={() => handleTabClick(tab.value)}
                 >
                   {tab.name}
                 </li>
