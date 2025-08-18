@@ -1,0 +1,379 @@
+import { Controller } from "react-hook-form";
+import Select from "react-select";
+
+export const PersonalDataForm = ({
+  control,
+  setValue,
+  register,
+  formSelectStyles,
+  nationalityOptions,
+  findSelectedOption,
+  personalStateOptions,
+  setPersonalCityOptions,
+  personalCityOptions,
+  bloodOptions,
+  maritalStatusOptions,
+  setSelectedMaritalStatus,
+  selectedMaritalStatus,
+}) => {
+  return (
+    <>
+      <div className="shadow-lg rounded-md">
+        <div className="bg-button-hover py-2 px-1 rounded-t-md">
+          <h3 className="text-white text-xs">Personal Details</h3>
+        </div>
+        <div className="flex py-5 px-3 flex-col gap-5">
+          {/* Row-1 */}
+          <div className="grid grid-cols-12 gap-5">
+            {/* Nationality */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="nationality" className="text-sm">
+                  Nationality
+                </label>
+                <Controller
+                  name="nationality"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={nationalityOptions || []}
+                      value={findSelectedOption(
+                        nationalityOptions,
+                        field.value
+                      )}
+                      onChange={(selected) => {
+                        field.onChange(selected?.value || "");
+                      }}
+                      placeholder="Select nationality..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={{
+                        ...formSelectStyles,
+                        width: "120px",
+                        borderTopRightRadius: "0",
+                        borderBottomRightRadius: "0",
+                      }}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Personal State */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="personal_state_id" className="text-sm">
+                  State
+                </label>
+                <Controller
+                  name="personal_state_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={personalStateOptions || []}
+                      value={findSelectedOption(
+                        personalStateOptions,
+                        field.value
+                      )}
+                      onChange={(selected) => {
+                        field.onChange(selected?.value || "");
+                        setPersonalCityOptions([]);
+                        setValue("personal_city_id", "");
+                      }}
+                      placeholder="Select state..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={{
+                        ...formSelectStyles,
+                        width: "120px",
+                        borderTopRightRadius: "0",
+                        borderBottomRightRadius: "0",
+                      }}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Personal City */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="personal_city_id" className="text-sm">
+                  City
+                </label>
+                <Controller
+                  name="personal_city_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={personalCityOptions || []}
+                      value={findSelectedOption(
+                        personalCityOptions,
+                        field.value
+                      )}
+                      onChange={(selected) => {
+                        field.onChange(selected?.value || "");
+                      }}
+                      placeholder="Select city..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={{
+                        ...formSelectStyles,
+                        width: "120px",
+                        borderTopRightRadius: "0",
+                        borderBottomRightRadius: "0",
+                      }}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Id Number */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="id_number" className="text-sm">
+                  ID Number
+                </label>
+                <input
+                  type="text"
+                  id="id_number"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter id number..."
+                  {...register("id_number")}
+                />
+              </div>
+            </div>
+
+            {/* Id Issue Data */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="id_issue_date" className="text-sm">
+                  ID Issue Date
+                </label>
+                <input
+                  type="date"
+                  id="id_issue_date"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter id issue number..."
+                  {...register("id_issue_date")}
+                />
+              </div>
+            </div>
+
+            {/* Id Expiry Data */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="id_exp_date" className="text-sm">
+                  ID Expiry Date
+                </label>
+                <input
+                  type="date"
+                  id="id_exp_date"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter id expiry number..."
+                  {...register("id_exp_date")}
+                />
+              </div>
+            </div>
+
+            {/* DIRE Number */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="dire_number" className="text-sm">
+                  DIRE Number
+                </label>
+                <input
+                  type="text"
+                  id="dire_number"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter dire number..."
+                  {...register("dire_number")}
+                />
+              </div>
+            </div>
+
+            {/* Driving License Number */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="driving_license" className="text-sm">
+                  Driving License No.
+                </label>
+                <input
+                  type="text"
+                  id="driving_license"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter license number..."
+                  {...register("driving_license")}
+                />
+              </div>
+            </div>
+
+            {/* Passport Number */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="passport_number" className="text-sm">
+                  Passport No.
+                </label>
+                <input
+                  type="text"
+                  id="passport_number"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter passport number..."
+                  {...register("passport_number")}
+                />
+              </div>
+            </div>
+
+            {/* Passport Issue Date */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="passport_issue_date" className="text-sm">
+                  Passport Issue Date.
+                </label>
+                <input
+                  type="date"
+                  id="passport_issue_date"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter passport issue date..."
+                  {...register("passport_issue_date")}
+                />
+              </div>
+            </div>
+
+            {/* Passport Expiry Date */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="passport_exp_date" className="text-sm">
+                  Passport Expiry Date.
+                </label>
+                <input
+                  type="date"
+                  id="passport_exp_date"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter passport expiry date..."
+                  {...register("passport_exp_date")}
+                />
+              </div>
+            </div>
+
+            {/* Blood Group */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="blood_group" className="text-sm">
+                  Blood Group
+                </label>
+                <Controller
+                  name="blood_group"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={bloodOptions || []}
+                      value={findSelectedOption(bloodOptions, field.value)}
+                      onChange={(selected) => {
+                        field.onChange(selected?.value || "");
+                      }}
+                      placeholder="Select blood group..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={{
+                        ...formSelectStyles,
+                        width: "120px",
+                        borderTopRightRadius: "0",
+                        borderBottomRightRadius: "0",
+                      }}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Tax Number */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="tax_number" className="text-sm">
+                  Tax Number
+                </label>
+                <input
+                  type="text"
+                  id="tax_number"
+                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  placeholder="Enter tax number..."
+                  {...register("tax_number")}
+                />
+              </div>
+            </div>
+
+            {/* Marital Status */}
+            <div className="col-span-4 flex flex-col gap-3">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="marital_status" className="text-sm">
+                  Marital Status
+                </label>
+                <Controller
+                  name="marital_status"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={maritalStatusOptions || []}
+                      value={findSelectedOption(
+                        maritalStatusOptions,
+                        field.value
+                      )}
+                      onChange={(selected) => {
+                        field.onChange(selected?.value || "");
+                        setSelectedMaritalStatus(selected?.value || null);
+                      }}
+                      placeholder="Select marital status..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={{
+                        ...formSelectStyles,
+                        width: "120px",
+                        borderTopRightRadius: "0",
+                        borderBottomRightRadius: "0",
+                      }}
+                    />
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Tax Number */}
+            {selectedMaritalStatus === "Married" && (
+              <div className="col-span-4 flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="spouse_name" className="text-sm">
+                    Spouse Name
+                  </label>
+                  <input
+                    type="text"
+                    id="spouse_name"
+                    className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                    placeholder="Enter spouse name..."
+                    {...register("spouse_name")}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
