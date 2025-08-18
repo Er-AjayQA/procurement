@@ -44,6 +44,23 @@ export const EmployeeProvider = ({ children }) => {
   const [employeeTypeOptions, setEmployeeTypeOptions] = useState([]);
   const [areaOptions, setAreaOptions] = useState([]);
   const [branchOptions, setBranchOptions] = useState([]);
+  const [bloodOptions, setBloodOptions] = useState([
+    { value: "A+", label: "A+" },
+    { value: "A-", label: "A-" },
+    { value: "B+", label: "B+" },
+    { value: "B-", label: "B-" },
+    { value: "AB+", label: "AB+" },
+    { value: "AB-", label: "AB-" },
+    { value: "O+", label: "O+" },
+    { value: "O-", label: "O-" },
+    { value: "Unknown", label: "Unknown" }, // Optional
+  ]);
+  const [maritalStatusOptions, setMaritalStatusOptions] = useState([
+    { value: "Married", label: "Married" },
+    { value: "Unmarried", label: "Unmarried" },
+    { value: "Separated", label: "Separated" },
+    { value: "Divorced", label: "Divorced" },
+  ]);
 
   // Get All Roles List
   const getAllRolesList = async () => {
@@ -507,6 +524,8 @@ export const EmployeeProvider = ({ children }) => {
     employeeTypeOptions,
     areaOptions,
     branchOptions,
+    bloodOptions,
+    maritalStatusOptions,
     getAllData,
     getDataById,
     handleFormVisibility,

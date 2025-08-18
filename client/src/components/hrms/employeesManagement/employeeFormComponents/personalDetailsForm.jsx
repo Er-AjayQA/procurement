@@ -8,6 +8,8 @@ import {
   getAllNationalities,
   getAllStates,
 } from "../../../../services/master_services/service";
+import { IoMdAdd } from "react-icons/io";
+import { FamilyDetailsItem } from "./familyDetailsForm";
 
 export const EmployeePersonalDetailsForm = () => {
   const {
@@ -47,7 +49,13 @@ export const EmployeePersonalDetailsForm = () => {
   const selectedPermanentState = watch("permanent_state_id");
   const selectedPersonalState = watch("personal_state_id");
 
-  const { data, countryListOptions, formSelectStyles } = useEmployeeContext();
+  const {
+    data,
+    countryListOptions,
+    formSelectStyles,
+    bloodOptions,
+    maritalStatusOptions,
+  } = useEmployeeContext();
   const [presentStateOptions, setPresentStateOptions] = useState([]);
   const [presentCityOptions, setPresentCityOptions] = useState([]);
   const [permanentStateOptions, setPermanentStateOptions] = useState([]);
@@ -55,6 +63,9 @@ export const EmployeePersonalDetailsForm = () => {
   const [personalStateOptions, setPersonalStateOptions] = useState([]);
   const [personalCityOptions, setPersonalCityOptions] = useState([]);
   const [nationalityOptions, setNationalityOptions] = useState([]);
+  const [selectedMaritalStatus, setSelectedMaritalStatus] = useState(null);
+  const [familyFormVisible, setFamilyFormVisible] = useState(false);
+  const [familyDetails, setFamilyDetails] = useState([]);
 
   // Helper function to find selected option
   const findSelectedOption = (options, value) => {
@@ -279,6 +290,12 @@ export const EmployeePersonalDetailsForm = () => {
       toast.error(error.message || "Failed to load Cities");
     }
   };
+
+  // Handle Add Family Member
+  const handleAddFamilyDetails = () => {};
+
+  // Handle Family Member Remove
+  const handleFamilyDetailsRemove = () => {};
 
   // Get Present State on Present Country Change
   useEffect(() => {
@@ -804,76 +821,262 @@ export const EmployeePersonalDetailsForm = () => {
                     />
                   </div>
                 </div>
+
+                {/* DIRE Number */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="dire_number" className="text-sm">
+                      DIRE Number
+                    </label>
+                    <input
+                      type="text"
+                      id="dire_number"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter dire number..."
+                      {...register("dire_number")}
+                    />
+                  </div>
+                </div>
+
+                {/* Driving License Number */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="driving_license" className="text-sm">
+                      Driving License No.
+                    </label>
+                    <input
+                      type="text"
+                      id="driving_license"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter license number..."
+                      {...register("driving_license")}
+                    />
+                  </div>
+                </div>
+
+                {/* Passport Number */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="passport_number" className="text-sm">
+                      Passport No.
+                    </label>
+                    <input
+                      type="text"
+                      id="passport_number"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter passport number..."
+                      {...register("passport_number")}
+                    />
+                  </div>
+                </div>
+
+                {/* Passport Issue Date */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="passport_issue_date" className="text-sm">
+                      Passport Issue Date.
+                    </label>
+                    <input
+                      type="date"
+                      id="passport_issue_date"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter passport issue date..."
+                      {...register("passport_issue_date")}
+                    />
+                  </div>
+                </div>
+
+                {/* Passport Expiry Date */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="passport_exp_date" className="text-sm">
+                      Passport Expiry Date.
+                    </label>
+                    <input
+                      type="date"
+                      id="passport_exp_date"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter passport expiry date..."
+                      {...register("passport_exp_date")}
+                    />
+                  </div>
+                </div>
+
+                {/* Blood Group */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="blood_group" className="text-sm">
+                      Blood Group
+                    </label>
+                    <Controller
+                      name="blood_group"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={bloodOptions || []}
+                          value={findSelectedOption(bloodOptions, field.value)}
+                          onChange={(selected) => {
+                            field.onChange(selected?.value || "");
+                          }}
+                          placeholder="Select blood group..."
+                          isClearable
+                          isSearchable
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          styles={{
+                            ...formSelectStyles,
+                            width: "120px",
+                            borderTopRightRadius: "0",
+                            borderBottomRightRadius: "0",
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Tax Number */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="tax_number" className="text-sm">
+                      Tax Number
+                    </label>
+                    <input
+                      type="text"
+                      id="tax_number"
+                      className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                      placeholder="Enter tax number..."
+                      {...register("tax_number")}
+                    />
+                  </div>
+                </div>
+
+                {/* Marital Status */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="marital_status" className="text-sm">
+                      Marital Status
+                    </label>
+                    <Controller
+                      name="marital_status"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={maritalStatusOptions || []}
+                          value={findSelectedOption(
+                            maritalStatusOptions,
+                            field.value
+                          )}
+                          onChange={(selected) => {
+                            field.onChange(selected?.value || "");
+                            setSelectedMaritalStatus(selected?.value || null);
+                          }}
+                          placeholder="Select marital status..."
+                          isClearable
+                          isSearchable
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          styles={{
+                            ...formSelectStyles,
+                            width: "120px",
+                            borderTopRightRadius: "0",
+                            borderBottomRightRadius: "0",
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Tax Number */}
+                {selectedMaritalStatus === "Married" && (
+                  <div className="col-span-4 flex flex-col gap-3">
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="spouse_name" className="text-sm">
+                        Spouse Name
+                      </label>
+                      <input
+                        type="text"
+                        id="spouse_name"
+                        className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                        placeholder="Enter spouse name..."
+                        {...register("spouse_name")}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
+
           {/* Family Details */}
           <div className="shadow-lg rounded-md">
-            <div className="bg-button-hover py-2 px-1 rounded-t-md">
+            <div className="bg-button-hover py-2 px-1 rounded-t-md flex justify-between">
               <h3 className="text-white text-xs">Family Details</h3>
+              <button
+                type="button"
+                onClick={() => setFamilyFormVisible(true)}
+                className="text-white hover:text-gray-200 flex items-center text-xs"
+              >
+                <IoMdAdd className="mr-1 fill-white hover:fill-gray-200" /> Add
+                Family Details
+              </button>
             </div>
-            <div className="p-3 overflow-x-auto">
-              <div className="min-w-full">
-                <div className="grid grid-cols-7  border-b border-b-gray-300 pb-2">
-                  <div className="text-xs font-bold">S.No.</div>
-                  <div className="text-xs font-bold">Member Name</div>
-                  <div className="text-xs font-bold">DOB</div>
-                  <div className="text-xs font-bold">Relation Type</div>
-                  <div className="text-xs font-bold">Contact No.</div>
-                  <div className="text-xs font-bold">Remark</div>
-                  <div className="text-xs font-bold">Emergency Contact</div>
-                </div>
 
-                <div>
-                  {data?.family_details.length > 0 ? (
-                    data?.family_details.map((family, i) => {
-                      return (
-                        <div
-                          key={family.id}
-                          className="grid grid-cols-7 border-b border-b-gray-200 py-2 last:border-none"
-                        >
-                          <div className="text-xs flex items-center">
-                            {i + 1}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {family.member_name}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {family.dob}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {family.relation_type}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {family.contact_number}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {family.remark}
-                          </div>
-                          <div className="text-xs flex items-center justify-center">
-                            {family?.selected_as_emergency ? (
-                              <span className="text-green-400 text-xs font-bold">
-                                Yes
-                              </span>
-                            ) : (
-                              <span className="text-red-400 text-xs font-bold">
-                                No
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div>
-                      <p className="text-center text-sm p-3">
-                        No Records Found
-                      </p>
-                    </div>
-                  )}
+            {familyDetails?.length > 0 ? (
+              <div className="border border-gray-200 rounded-md overflow-hidden">
+                <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
+                  <div className="p-2 text-xs font-bold">S.No.</div>
+                  <div className="p-2 text-xs font-bold">Member Name</div>
+                  <div className="p-2 text-xs font-bold">DOB</div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    Relation Type
+                  </div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    Contact Number
+                  </div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    Remark
+                  </div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    Emergency Contact
+                  </div>
                 </div>
+                {familyDetails.map((family, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 border-b border-gray-200"
+                  >
+                    <div className="col-span-3 p-2 text-xs">{index + 1}</div>
+                    <div className="col-span-5 p-2 text-xs">
+                      {family?.assessment_question_title}
+                    </div>
+                    <div className="col-span-2 p-2 text-xs">
+                      {family?.assessment_question_type === "true/false"
+                        ? family?.assessment_correct_answer
+                        : family?.assessment_question_options?.find(
+                            (opt) => opt.isCorrect
+                          )?.option || "N/A"}
+                    </div>
+                    <div className="col-span-2 p-2 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={() => handleFamilyDetailsRemove(index)}
+                        className="text-gray-500 hover:text-red-500"
+                      >
+                        <MdDelete className="text-xl" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            ) : (
+              <div className="border border-gray-200 rounded-md p-4 text-center text-sm text-gray-500">
+                No details yet
+              </div>
+            )}
           </div>
 
           {/* Previous Employer Details */}
@@ -940,6 +1143,16 @@ export const EmployeePersonalDetailsForm = () => {
           </div>
         </form>
       </div>
+
+      {/* Family Details Form Modal */}
+      <FamilyDetailsItem
+        isVisible={familyFormVisible}
+        onClose={() => setFamilyFormVisible(false)}
+        onAddFamilyRow={handleAddFamilyDetails}
+        register={register}
+        errors={errors}
+        control={control}
+      />
     </>
   );
 };
