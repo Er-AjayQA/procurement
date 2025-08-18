@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import {
   getAllCountries,
+  getAllDepartments,
+  getAllDesignations,
+  getAllEmployementType,
   getAllPhoneCodes,
   getAllRoles,
 } from "../../../services/master_services/service";
@@ -38,6 +41,7 @@ export const EmployeeProvider = ({ children }) => {
   const [reportingManagerOptions, setReportingManagerOptions] = useState(null);
   const [departmentOptions, setDepartmentOptions] = useState(null);
   const [designationOptions, setDesignationOptions] = useState(null);
+  const [employeeTypeOptions, setEmployeeTypeOptions] = useState(null);
   const [areaOptions, setAreaOptions] = useState(null);
   const [branchOptions, setBranchOptions] = useState(null);
 
@@ -240,9 +244,9 @@ export const EmployeeProvider = ({ children }) => {
 
       if (response.success) {
         setCountryListOptions(
-          response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
           }))
         );
       } else {
@@ -250,6 +254,80 @@ export const EmployeeProvider = ({ children }) => {
       }
     } catch (error) {
       setCountryListOptions(null);
+    }
+  };
+
+  // Get All Department List
+  const getAllDepartmentOptions = async () => {
+    try {
+      const response = await getAllDepartments({
+        limit: 500,
+        page: "",
+        filter: "",
+      });
+
+      if (response.success) {
+        setDepartmentOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setDepartmentOptions(null);
+    }
+  };
+
+  // Get All Designation List
+  const getAllDesignationOptions = async () => {
+    try {
+      const response = await getAllDesignations({
+        limit: 500,
+        page: "",
+        filter: "",
+      });
+
+      if (response.success) {
+        setDesignationOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setDesignationOptions(null);
+    }
+  };
+
+  // Get All Employee Type List
+  const getAllEmployeeTypeOptions = async () => {
+    try {
+      const response = await getAllEmployementType({
+        limit: 5000,
+        page: "",
+        filter: {
+          name: "",
+        },
+      });
+
+      if (response.success) {
+        setEmployeeTypeOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setEmployeeTypeOptions(null);
     }
   };
 
@@ -282,6 +360,9 @@ export const EmployeeProvider = ({ children }) => {
   useEffect(() => {
     getAllCountryOptions();
     getAllCountryCodesOptions();
+    getAllDepartmentOptions();
+    getAllDesignationOptions();
+    getAllEmployeeTypeOptions();
   }, []);
 
   const styledComponent = {
@@ -392,6 +473,10 @@ export const EmployeeProvider = ({ children }) => {
     countryCodeOptions,
     countryListOptions,
     reportingManagerOptions,
+    departmentOptions,
+    designationOptions,
+    employeeTypeOptions,
+    areaOptions,
     getAllData,
     getDataById,
     handleFormVisibility,
@@ -405,6 +490,7 @@ export const EmployeeProvider = ({ children }) => {
     setData,
     setViewVisibility,
     setComponentType,
+    setAreaOptions,
     handleActiveInactive,
     handleViewVisibility,
     handleComponentView,

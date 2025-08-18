@@ -3,8 +3,41 @@ import Select from "react-select";
 import { useEmployeeContext } from "../../../../contextApis/useHrmsContextFile";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { getAllArea } from "../../../../services/master_services/service";
 
 export const EmployeeBasicDetailsForm = () => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      title: "",
+      name: "",
+      code: "",
+      contact_no: "",
+      alt_code: "",
+      alt_contact_no: "",
+      dob: "",
+      gender: "",
+      personal_email: "",
+      official_email: "",
+      reporting_manager_id: "",
+      role_id: "",
+      emp_type_id: "",
+      designation_id: "",
+      dep_id: "",
+      area_id: "",
+    },
+  });
+
+  // Watch department changes
+  const selectedDepartment = watch("dep_id");
+
   const {
     data,
     updateId,
@@ -13,6 +46,11 @@ export const EmployeeBasicDetailsForm = () => {
     countryCodeOptions,
     countryListOptions,
     reportingManagerOptions,
+    departmentOptions,
+    designationOptions,
+    employeeTypeOptions,
+    areaOptions,
+    setAreaOptions,
     formSelectStyles,
   } = useEmployeeContext();
 
@@ -27,21 +65,46 @@ export const EmployeeBasicDetailsForm = () => {
     { value: "Other", label: "Other" },
   ]);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      name: "",
-      domestic_allowance: "",
-      international_allowance: "",
-      is_taxable: false,
-    },
-  });
+  // Get Area List
+  const getAllAreaOptions = async (deptId) => {
+    try {
+      if (!deptId) {
+        setAreaOptions([]);
+        return;
+      }
+      const response = await getAllArea({
+        limit: 5000,
+        page: "",
+        filter: {
+          name: "",
+          dept_id: deptId,
+        },
+      });
+
+      if (response.success) {
+        setAreaOptions(
+          response.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setAreaOptions([]);
+      toast.error(error.message || "Failed to load areas");
+    }
+  };
+
+  // Get Area when department change
+  useEffect(() => {
+    if (selectedDepartment) {
+      getAllAreaOptions(selectedDepartment?.value);
+    } else {
+      setAreaOptions([]);
+    }
+  }, [selectedDepartment]);
 
   // Set form values when in update mode
   useEffect(() => {
@@ -88,6 +151,12 @@ export const EmployeeBasicDetailsForm = () => {
       throw new Error(error.message);
     }
   };
+
+  // Helper function to find selected option
+  const findSelectedOption = (options, value) => {
+    if (!options || !value) return null;
+    return options.find((opt) => opt.value === value);
+  };
   return (
     <>
       <div className="flex gap-3">
@@ -114,12 +183,10 @@ export const EmployeeBasicDetailsForm = () => {
                       <Select
                         {...field}
                         options={titleOptions}
-                        value={titleOptions.find(
-                          (opt) =>
-                            opt.value === field.value?.value ||
-                            opt.value === field.value
-                        )}
-                        onChange={(selected) => field.onChange(selected)}
+                        value={findSelectedOption(titleOptions, field.value)}
+                        onChange={(selected) =>
+                          field.onChange(selected?.value || null)
+                        }
                         placeholder="Select title..."
                         isClearable
                         isSearchable
@@ -171,7 +238,14 @@ export const EmployeeBasicDetailsForm = () => {
                         render={({ field }) => (
                           <Select
                             {...field}
-                            options={countryCodeOptions}
+                            options={countryCodeOptions || {}}
+                            value={findSelectedOption(
+                              countryCodeOptions,
+                              field.value
+                            )}
+                            onChange={(selected) =>
+                              field.onChange(selected?.value || null)
+                            }
                             placeholder="code"
                             isClearable
                             isSearchable
@@ -221,7 +295,14 @@ export const EmployeeBasicDetailsForm = () => {
                         render={({ field }) => (
                           <Select
                             {...field}
-                            options={countryCodeOptions}
+                            options={countryCodeOptions || {}}
+                            value={findSelectedOption(
+                              countryCodeOptions,
+                              field.value
+                            )}
+                            onChange={(selected) =>
+                              field.onChange(selected?.value || null)
+                            }
                             placeholder="code"
                             isClearable
                             isSearchable
@@ -282,12 +363,10 @@ export const EmployeeBasicDetailsForm = () => {
                       <Select
                         {...field}
                         options={genderOptions}
-                        value={genderOptions.find(
-                          (opt) =>
-                            opt.value === field.value?.value ||
-                            opt.value === field.value
-                        )}
-                        onChange={(selected) => field.onChange(selected)}
+                        value={findSelectedOption(genderOptions, field.value)}
+                        onChange={(selected) =>
+                          field.onChange(selected?.value || null)
+                        }
                         placeholder="Select gender..."
                         isClearable
                         isSearchable
@@ -355,12 +434,13 @@ export const EmployeeBasicDetailsForm = () => {
                       <Select
                         {...field}
                         options={reportingManagerOptions}
-                        value={reportingManagerOptions.find(
-                          (opt) =>
-                            opt.value === field.value?.value ||
-                            opt.value === field.value
+                        value={findSelectedOption(
+                          reportingManagerOptions,
+                          field.value
                         )}
-                        onChange={(selected) => field.onChange(selected)}
+                        onChange={(selected) =>
+                          field.onChange(selected?.value || null)
+                        }
                         placeholder="Select reporting manager..."
                         isClearable
                         isSearchable
@@ -376,6 +456,189 @@ export const EmployeeBasicDetailsForm = () => {
 
               {/* Row-4 */}
               <div className="grid grid-cols-12 gap-5">
+                {/* Role List */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <label htmlFor="role_id" className="text-sm">
+                    Role
+                  </label>
+                  <Controller
+                    name="role_id"
+                    control={control}
+                    rules={{ required: "Role is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={rolesList}
+                        value={findSelectedOption(rolesList, field.value)}
+                        onChange={(selected) =>
+                          field.onChange(selected?.value || null)
+                        }
+                        placeholder="Select role..."
+                        isClearable
+                        isSearchable
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={formSelectStyles}
+                        {...register("role_id")}
+                      />
+                    )}
+                  />
+                  {errors.role_id && (
+                    <p className="text-red-500 text-[.7rem]">
+                      {errors.role_id.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Employee Type */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <label htmlFor="emp_type_id" className="text-sm">
+                    Employee Type
+                  </label>
+                  <Controller
+                    name="emp_type_id"
+                    control={control}
+                    rules={{ required: "Employee type is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={employeeTypeOptions}
+                        value={findSelectedOption(
+                          employeeTypeOptions,
+                          field.value
+                        )}
+                        onChange={(selected) =>
+                          field.onChange(selected?.value || null)
+                        }
+                        placeholder="Select employee type..."
+                        isClearable
+                        isSearchable
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={formSelectStyles}
+                        {...register("emp_type_id")}
+                      />
+                    )}
+                  />
+                  {errors.emp_type_id && (
+                    <p className="text-red-500 text-[.7rem]">
+                      {errors.emp_type_id.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Designation */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <label htmlFor="designation_id" className="text-sm">
+                    Designation
+                  </label>
+                  <Controller
+                    name="designation_id"
+                    control={control}
+                    rules={{ required: "Designation is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={designationOptions}
+                        value={findSelectedOption(
+                          designationOptions,
+                          field.value
+                        )}
+                        onChange={(selected) =>
+                          field.onChange(selected?.value || null)
+                        }
+                        placeholder="Select designation..."
+                        isClearable
+                        isSearchable
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={formSelectStyles}
+                        {...register("designation_id")}
+                      />
+                    )}
+                  />
+                  {errors.designation_id && (
+                    <p className="text-red-500 text-[.7rem]">
+                      {errors.designation_id.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Row-5 */}
+              <div className="grid grid-cols-12 gap-5">
+                {/* Department */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <label htmlFor="dep_id" className="text-sm">
+                    Department
+                  </label>
+                  <Controller
+                    name="dep_id"
+                    control={control}
+                    rules={{ required: "Department is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={departmentOptions || []}
+                        value={findSelectedOption(
+                          departmentOptions,
+                          field.value
+                        )}
+                        onChange={(selected) => {
+                          field.onChange(selected?.value || null);
+                          setValue("area_id", "");
+                        }}
+                        placeholder="Select department..."
+                        isClearable
+                        isSearchable
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={formSelectStyles}
+                        {...register("dep_id")}
+                      />
+                    )}
+                  />
+                  {errors.dep_id && (
+                    <p className="text-red-500 text-[.7rem]">
+                      {errors.dep_id.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Area */}
+                <div className="col-span-4 flex flex-col gap-3">
+                  <label htmlFor="area_id" className="text-sm">
+                    Area
+                  </label>
+                  <Controller
+                    name="area_id"
+                    control={control}
+                    rules={{ required: "Area is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={areaOptions || []}
+                        value={findSelectedOption(areaOptions, field.value)}
+                        onChange={(selected) =>
+                          field.onChange(selected?.value || null)
+                        }
+                        placeholder="Select area..."
+                        isClearable
+                        isSearchable
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        styles={formSelectStyles}
+                        {...register("area_id")}
+                      />
+                    )}
+                  />
+                  {errors.area_id && (
+                    <p className="text-red-500 text-[.7rem]">
+                      {errors.area_id.message}
+                    </p>
+                  )}
+                </div>
+
                 {/* Role List */}
                 <div className="col-span-4 flex flex-col gap-3">
                   <label htmlFor="role_id" className="text-sm">
@@ -410,57 +673,6 @@ export const EmployeeBasicDetailsForm = () => {
                       {errors.role_id.message}
                     </p>
                   )}
-                </div>
-
-                {/* Official Email */}
-                <div className="col-span-4 flex flex-col gap-3">
-                  <label htmlFor="official_email" className="text-sm">
-                    Official Email
-                  </label>
-                  <input
-                    type="email"
-                    id="official_email"
-                    className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                    placeholder="Email..."
-                    {...register("official_email", {
-                      required: "Official email is required!",
-                    })}
-                  />
-                  {errors.official_email && (
-                    <p className="text-red-500 text-[.7rem]">
-                      {errors.official_email.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Reporting Manager */}
-                <div className="col-span-4 flex flex-col gap-3">
-                  <label htmlFor="reporting_manager_id" className="text-sm">
-                    Reporting Manager
-                  </label>
-                  <Controller
-                    name="reporting_manager_id"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        {...field}
-                        options={reportingManagerOptions}
-                        value={reportingManagerOptions.find(
-                          (opt) =>
-                            opt.value === field.value?.value ||
-                            opt.value === field.value
-                        )}
-                        onChange={(selected) => field.onChange(selected)}
-                        placeholder="Select reporting manager..."
-                        isClearable
-                        isSearchable
-                        className="react-select-container"
-                        classNamePrefix="react-select"
-                        styles={formSelectStyles}
-                        {...register("reporting_manager_id")}
-                      />
-                    )}
-                  />
                 </div>
               </div>
             </div>
