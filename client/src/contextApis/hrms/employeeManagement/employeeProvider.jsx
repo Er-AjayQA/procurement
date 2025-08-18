@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { getAllRoles } from "../../../services/master_services/service";
 import {
-  allUsersModuleAccessService,
-  revokeUserPermissions,
-} from "../../../services/rbac_services/service";
+  getAllCountries,
+  getAllPhoneCodes,
+  getAllRoles,
+} from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { EmployeeContext } from "./employeeContext";
 import {
@@ -19,7 +19,7 @@ export const EmployeeProvider = ({ children }) => {
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
   const [viewModules, setViewModules] = useState(null);
-  const [tabType, setTabType] = useState("basicDetails");
+  const [tabType, setTabType] = useState("basic_details");
   const [formType, setFormType] = useState("Add");
   const [componentType, setComponentType] = useState("listing");
   const [data, setData] = useState(null);
@@ -31,6 +31,15 @@ export const EmployeeProvider = ({ children }) => {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [countryListOptions, setCountryListOptions] = useState(null);
+  const [stateListOptions, setStateListOptions] = useState(null);
+  const [cityListOptions, setCityListOptions] = useState(null);
+  const [countryCodeOptions, setCountryCodeOptions] = useState(null);
+  const [reportingManagerOptions, setReportingManagerOptions] = useState(null);
+  const [departmentOptions, setDepartmentOptions] = useState(null);
+  const [designationOptions, setDesignationOptions] = useState(null);
+  const [areaOptions, setAreaOptions] = useState(null);
+  const [branchOptions, setBranchOptions] = useState(null);
 
   // Get All Roles List
   const getAllRolesList = async () => {
@@ -65,13 +74,21 @@ export const EmployeeProvider = ({ children }) => {
       if (data.success) {
         setListing(data.data);
         setTotalPages(data.pagination.totalPages);
+        setReportingManagerOptions(
+          data?.data.map((item) => ({
+            value: item?.id,
+            label: `${item?.name} - ${item?.emp_code}`,
+          }))
+        );
       } else {
         setListing(null);
         setTotalPages(null);
+        setReportingManagerOptions(null);
       }
     } catch (error) {
       setListing(null);
       setTotalPages(null);
+      setReportingManagerOptions(null);
     } finally {
       setIsLoading(false);
     }
@@ -188,6 +205,54 @@ export const EmployeeProvider = ({ children }) => {
     setTabType(tabType);
   };
 
+  // Get All Country Codes
+  const getAllCountryCodesOptions = async () => {
+    try {
+      const response = await getAllPhoneCodes({
+        limit: 500,
+        page: "",
+        filter: { name: "" },
+      });
+
+      if (response.success) {
+        setCountryCodeOptions(
+          response.data.map((data) => ({
+            value: data.code,
+            label: data.code,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setCountryCodeOptions(null);
+    }
+  };
+
+  // Get All Country List
+  const getAllCountryOptions = async () => {
+    try {
+      const response = await getAllCountries({
+        limit: 500,
+        page: "",
+        filter: { name: "" },
+      });
+
+      if (response.success) {
+        setCountryListOptions(
+          response.data.map((data) => ({
+            value: data.id,
+            label: data.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setCountryListOptions(null);
+    }
+  };
+
   // For initial load and filter/pagination changes
   useEffect(() => {
     getAllData();
@@ -213,6 +278,11 @@ export const EmployeeProvider = ({ children }) => {
   useEffect(() => {
     getAllRolesList();
   }, [updateId]);
+
+  useEffect(() => {
+    getAllCountryOptions();
+    getAllCountryCodesOptions();
+  }, []);
 
   const styledComponent = {
     control: (base) => ({
@@ -252,6 +322,53 @@ export const EmployeeProvider = ({ children }) => {
     }),
   };
 
+  const formSelectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "32px",
+      borderRadius: "0.5rem",
+      borderColor: "rgb(78, 79, 80)",
+      fontSize: "0.8rem",
+      paddingLeft: "0.75rem",
+      paddingRight: "0.75rem",
+      paddingTop: "0.5rem",
+      paddingBottom: "0.5rem",
+      "&:hover": {
+        borderColor: "#d1d5db",
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      fontSize: "0.8rem",
+    }),
+    menu: (base) => ({
+      ...base,
+      fontSize: "0.875rem",
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "3px",
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      padding: "2px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0px",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: "0px",
+      paddingBottom: "0px",
+      paddingTop: "0px",
+    }),
+    option: (base) => ({
+      ...base,
+      fontSize: "0.8rem",
+    }),
+  };
+
   const contextValue = {
     listing,
     formVisibility,
@@ -271,6 +388,10 @@ export const EmployeeProvider = ({ children }) => {
     styledComponent,
     deleteId,
     tabType,
+    formSelectStyles,
+    countryCodeOptions,
+    countryListOptions,
+    reportingManagerOptions,
     getAllData,
     getDataById,
     handleFormVisibility,

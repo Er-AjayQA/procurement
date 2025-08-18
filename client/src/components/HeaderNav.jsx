@@ -75,7 +75,7 @@ export const HeaderNav = () => {
         </div>
       </div>
 
-      {/* Notfication Container */}
+      {/* Notification Container */}
       <NotificationContainer
         onClose={() => handleNotificationVisibility("close")}
       />
