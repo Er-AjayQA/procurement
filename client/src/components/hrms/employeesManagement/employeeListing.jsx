@@ -15,6 +15,7 @@ export const EmployeeListing = ({ componentType }) => {
     isLoading,
     listing,
     page,
+    getAllData,
     totalPages,
     setPage,
     rolesList,
@@ -26,6 +27,7 @@ export const EmployeeListing = ({ componentType }) => {
     handleComponentClose,
     handleComponentView,
     handleActiveInactive,
+    handleTabClick,
   } = useEmployeeContext();
   const [selectedRole, setSelectedRole] = useState(null);
 
@@ -134,6 +136,7 @@ export const EmployeeListing = ({ componentType }) => {
             onClick={() => {
               handleComponentView("listing");
               handleComponentClose();
+              getAllData();
             }}
           >
             <AddButton text="Back" />
@@ -210,6 +213,7 @@ export const EmployeeListing = ({ componentType }) => {
                       <ViewIcon
                         onClick={() => {
                           handleComponentView("view");
+                          handleTabClick("basic_details");
                           setViewId(list?.id);
                         }}
                       />

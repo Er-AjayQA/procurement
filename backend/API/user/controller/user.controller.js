@@ -15,6 +15,7 @@ const { where } = require("sequelize");
 module.exports.createUser = async (req, res) => {
   try {
     const data = req.body;
+    const user_id = req.body?.user_id || null;
 
     // ADD BASIC DETAILS TAB DATA
     if (data.tab_type === "basic_details") {
@@ -31,6 +32,7 @@ module.exports.createUser = async (req, res) => {
         area_id,
         designation_id,
         emp_type_id,
+        branch_id,
         role_id,
       } = req.body;
 
@@ -99,6 +101,7 @@ module.exports.createUser = async (req, res) => {
                 designation_id,
                 emp_type_id,
                 role_id,
+                branch_id,
               },
               { transaction }
             );
@@ -117,7 +120,7 @@ module.exports.createUser = async (req, res) => {
             return res.status(200).send({
               success: true,
               status: "User Created Successfully!",
-              data: newUser,
+              data: newUser?.id,
             });
           } catch (error) {
             await transaction.rollback();
@@ -158,7 +161,7 @@ module.exports.createUser = async (req, res) => {
       } = req.body;
 
       let findUser = await DB.tbl_user_master.findOne({
-        where: { official_email: data.official_email },
+        where: { id: user_id },
       });
 
       if (!findUser) {
@@ -272,7 +275,7 @@ module.exports.createUser = async (req, res) => {
 
       // Find user details need to update
       let findUser = await DB.tbl_user_master.findOne({
-        where: { official_email: data.official_email, isDeleted: false },
+        where: { id: user_id },
       });
 
       if (!findUser) {
@@ -360,7 +363,7 @@ module.exports.createUser = async (req, res) => {
 
       // Check User
       let findUser = await DB.tbl_user_master.findOne({
-        where: { official_email: data.official_email, isDeleted: false },
+        where: { id: user_id },
       });
 
       if (!findUser) {
@@ -417,7 +420,7 @@ module.exports.createUser = async (req, res) => {
 
       //  Check if user exist
       const findUser = await DB.tbl_user_master.findOne({
-        where: { official_email: data.official_email, isDeleted: false },
+        where: { id: user_id },
       });
 
       if (!findUser) {

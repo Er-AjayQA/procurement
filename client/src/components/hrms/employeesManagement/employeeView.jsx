@@ -7,15 +7,16 @@ import { EmployeePersonalDetails } from "./employeeViewComponents/personalDetail
 import { EmployeeSalaryDetails } from "./employeeViewComponents/salaryDetails";
 
 export const EmployeeView = () => {
-  const { data, handleTabClick, tabType,handleComponentView } = useEmployeeContext();
+  const { data, handleTabClick, tabType, handleComponentView } =
+    useEmployeeContext();
 
   const tabDisplay = {
-    basicDetails: <EmployeeBasicDetails />,
-    personalDetails: <EmployeePersonalDetails />,
-    salaryDetails: <EmployeeSalaryDetails />,
-    paymentDetails: <EmployeePaymentDetails />,
-    documentDetails: <EmployeeDocumentDetails />,
-    contractDetails: <EmployeeContractDetails />,
+    basic_details: <EmployeeBasicDetails />,
+    personal_details: <EmployeePersonalDetails />,
+    salary_details: <EmployeeSalaryDetails />,
+    payment_details: <EmployeePaymentDetails />,
+    document_details: <EmployeeDocumentDetails />,
+    contract_details: <EmployeeContractDetails />,
   };
 
   return (
@@ -39,7 +40,10 @@ export const EmployeeView = () => {
               </div>
             </div>
             <div>
-              <button className="bg-red-600 py-1 px-5 rounded-lg text-white hover:bg-red-700 text-sm font-bold" onClick={()=>handleComponentView("listing")}>
+              <button
+                className="bg-red-600 py-1 px-5 rounded-lg text-white hover:bg-red-700 text-sm font-bold"
+                onClick={() => handleComponentView("listing")}
+              >
                 Back
               </button>
             </div>
@@ -49,61 +53,61 @@ export const EmployeeView = () => {
             <ul className="flex gap-5">
               <li
                 className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
-                  tabType === "basicDetails"
+                  tabType === "basic_details"
                     ? "border-gray-300 bg-body-bg_color text-white"
                     : ""
                 }`}
-                onClick={() => handleTabClick("basicDetails")}
+                onClick={() => handleTabClick("basic_details")}
               >
                 Basic Details
               </li>
               <li
                 className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
-                  tabType === "personalDetails"
+                  tabType === "personal_details"
                     ? "border-gray-300 bg-body-bg_color text-white"
                     : ""
                 }`}
-                onClick={() => handleTabClick("personalDetails")}
+                onClick={() => handleTabClick("personal_details")}
               >
                 Personal Details
               </li>
               <li
                 className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
-                  tabType === "salaryDetails"
+                  tabType === "salary_details"
                     ? "border-gray-300 bg-body-bg_color text-white"
                     : ""
                 }`}
-                onClick={() => handleTabClick("salaryDetails")}
+                onClick={() => handleTabClick("salary_details")}
               >
                 Salary Details
               </li>
               <li
                 className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
-                  tabType === "paymentDetails"
+                  tabType === "payment_details"
                     ? "border-gray-300 bg-body-bg_color text-white"
                     : ""
                 }`}
-                onClick={() => handleTabClick("paymentDetails")}
+                onClick={() => handleTabClick("payment_details")}
               >
                 Payment Details
               </li>
               <li
                 className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
-                  tabType === "documentDetails"
+                  tabType === "document_details"
                     ? "border-gray-300 bg-body-bg_color text-white"
                     : ""
                 }`}
-                onClick={() => handleTabClick("documentDetails")}
+                onClick={() => handleTabClick("document_details")}
               >
                 Document Details
               </li>
               <li
                 className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md transition-all duration-[.4s] linear border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
-                  tabType === "contractDetails"
+                  tabType === "contract_details"
                     ? "border-gray-300 bg-body-bg_color text-white"
                     : ""
                 }`}
-                onClick={() => handleTabClick("contractDetails")}
+                onClick={() => handleTabClick("contract_details")}
               >
                 Contract Details
               </li>
