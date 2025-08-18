@@ -158,6 +158,16 @@ export const NotificationProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!userDetails?.id) return;
+
+    const pollInterval = setInterval(() => {
+      getAllData();
+    }, 3000);
+
+    return () => clearInterval(pollInterval);
+  }, [userDetails?.id]);
+
   const styledComponent = {
     control: (base) => ({
       ...base,
