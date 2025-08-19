@@ -9,10 +9,12 @@ export const FamilyDetailsAddItem = ({
   isVisible,
   onClose,
   onAddFamilyRow,
+  onUpdateFamilyRow,
   updateData,
+  updateIndex,
+  setUpdateIndex,
 }) => {
-  const { countryCodeOptions, setFamilyFormVisible, formSelectStyles } =
-    useEmployeeContext();
+  const { countryCodeOptions, formSelectStyles } = useEmployeeContext();
 
   const {
     register,
@@ -38,28 +40,36 @@ export const FamilyDetailsAddItem = ({
 
         // Find and set the country code option
         const countryCodeOption = countryCodeOptions?.find(
-          (option) => option.value === code
+          (option) => option.value == code
         );
         if (countryCodeOption) {
-          setValue("code", countryCodeOption);
+          setValue("code", countryCodeOption.value);
         }
       }
     } else {
       reset();
     }
-  }, [updateData, reset, setValue]);
+  }, [updateData, reset, setValue, countryCodeOptions]);
 
   const onSubmit = (data) => {
+    const countryCode =
+      typeof data.code === "object" ? data.code.value : data.code;
+
     const familyData = {
       member_name: data.member_name,
       dob: data.dob,
       relation_type: data.relation_type,
-      contact_number: `${data.code}-${data.contact_number}`,
+      contact_number: `${countryCode}-${data?.contact_number}`,
       remark: data.remark,
       selected_as_emergency: data.selected_as_emergency || false,
     };
 
-    onAddFamilyRow(familyData);
+    if (updateData) {
+      onUpdateFamilyRow(familyData, updateIndex);
+      setUpdateIndex(null);
+    } else {
+      onAddFamilyRow(familyData);
+    }
     reset();
     onClose();
   };
@@ -191,13 +201,12 @@ export const FamilyDetailsAddItem = ({
                       <Select
                         {...field}
                         options={countryCodeOptions || []}
-                        value={findSelectedOption(
-                          countryCodeOptions,
-                          field.value
-                        )}
-                        onChange={(selected) =>
-                          field.onChange(selected?.value || "")
+                        value={
+                          countryCodeOptions?.find(
+                            (opt) => opt.value === field.value
+                          ) || null
                         }
+                        onChange={(selected) => field.onChange(selected?.value)}
                         placeholder="code"
                         isClearable
                         isSearchable
@@ -213,7 +222,7 @@ export const FamilyDetailsAddItem = ({
                     )}
                   />
                   <input
-                    type="text"
+                    type="number"
                     id="contact_number"
                     className="flex-grow rounded-e-lg border-s-0 text-[.8rem] hover:border-borders-inputHover"
                     placeholder="Enter contact number"
@@ -271,7 +280,7 @@ export const FamilyDetailsAddItem = ({
               </label>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 flex justify-center">
               <button
                 type="submit"
                 className="bg-button-color hover:bg-button-hover rounded-lg p-2 px-4 text-white text-sm"
