@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  getAllAllowance,
   getAllBranches,
   getAllCountries,
   getAllDepartments,
@@ -46,6 +47,7 @@ export const EmployeeProvider = ({ children }) => {
   const [areaOptions, setAreaOptions] = useState([]);
   const [branchOptions, setBranchOptions] = useState([]);
   const [shiftOptions, setShiftOptions] = useState([]);
+  const [allowancesOptions, setAllowancesOptions] = useState([]);
   const [bloodOptions, setBloodOptions] = useState([
     { value: "A+", label: "A+" },
     { value: "A-", label: "A-" },
@@ -109,6 +111,30 @@ export const EmployeeProvider = ({ children }) => {
       }
     } catch (error) {
       setShiftOptions(null);
+    }
+  };
+
+  // Get All Allowances List
+  const getAllAllowancesOptions = async () => {
+    try {
+      const response = await getAllAllowance({
+        limit: 5000,
+        page,
+        filter: { name: "", is_taxable: "" },
+      });
+
+      if (response.success) {
+        setAllowancesOptions(
+          response.data.map((data) => ({
+            value: `${data?.id}`,
+            label: `${data?.name}`,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setAllowancesOptions(null);
     }
   };
 
@@ -436,6 +462,7 @@ export const EmployeeProvider = ({ children }) => {
     getAllEmployeeTypeOptions();
     getAllBranchOptions();
     getAllShiftsOptions();
+    getAllAllowancesOptions();
   }, []);
 
   const styledComponent = {
@@ -552,6 +579,7 @@ export const EmployeeProvider = ({ children }) => {
     employeeTypeOptions,
     areaOptions,
     branchOptions,
+    allowancesOptions,
     bloodOptions,
     maritalStatusOptions,
     createdUserId,
