@@ -202,7 +202,7 @@ export const EmployeeBasicDetailsForm = () => {
         area_id: formData.area_id,
       };
 
-      console.log("Form submitted:", payload);
+      console.log("Basic Details Data.....:", payload);
 
       let response;
       // Uncomment and use your actual API call
@@ -836,6 +836,7 @@ export const EmployeeBasicDetailsForm = () => {
                   onClick={() => {
                     handleComponentView("listing");
                     setCreatedUserId(null);
+                    handleTabClick("basic_details");
                   }}
                 >
                   Cancel

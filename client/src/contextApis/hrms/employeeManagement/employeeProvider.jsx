@@ -7,6 +7,7 @@ import {
   getAllEmployementType,
   getAllPhoneCodes,
   getAllRoles,
+  getAllShift,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { EmployeeContext } from "./employeeContext";
@@ -44,6 +45,7 @@ export const EmployeeProvider = ({ children }) => {
   const [employeeTypeOptions, setEmployeeTypeOptions] = useState([]);
   const [areaOptions, setAreaOptions] = useState([]);
   const [branchOptions, setBranchOptions] = useState([]);
+  const [shiftOptions, setShiftOptions] = useState([]);
   const [bloodOptions, setBloodOptions] = useState([
     { value: "A+", label: "A+" },
     { value: "A-", label: "A-" },
@@ -83,6 +85,30 @@ export const EmployeeProvider = ({ children }) => {
       }
     } catch (error) {
       setRolesList(null);
+    }
+  };
+
+  // Get All Shifts List
+  const getAllShiftsOptions = async () => {
+    try {
+      const response = await getAllShift({
+        limit: 500,
+        page,
+        filter: { name: "" },
+      });
+
+      if (response.success) {
+        setShiftOptions(
+          response.data.map((data) => ({
+            value: `${data?.id}`,
+            label: `${data?.name}`,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setShiftOptions(null);
     }
   };
 
@@ -409,6 +435,7 @@ export const EmployeeProvider = ({ children }) => {
     getAllDesignationOptions();
     getAllEmployeeTypeOptions();
     getAllBranchOptions();
+    getAllShiftsOptions();
   }, []);
 
   const styledComponent = {
@@ -519,6 +546,7 @@ export const EmployeeProvider = ({ children }) => {
     countryCodeOptions,
     countryListOptions,
     reportingManagerOptions,
+    shiftOptions,
     departmentOptions,
     designationOptions,
     employeeTypeOptions,
@@ -526,6 +554,7 @@ export const EmployeeProvider = ({ children }) => {
     branchOptions,
     bloodOptions,
     maritalStatusOptions,
+    createdUserId,
     getAllData,
     getDataById,
     handleFormVisibility,

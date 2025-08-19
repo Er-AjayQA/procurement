@@ -7,7 +7,10 @@ export const PreviousEmployerDetailsAddItem = ({
   isVisible,
   onClose,
   onAddNewRow,
+  onUpdateRow,
   updateData,
+  updateIndex,
+  setUpdateIndex,
 }) => {
   const {
     register,
@@ -49,6 +52,7 @@ export const PreviousEmployerDetailsAddItem = ({
 
   const onSubmit = (data, e) => {
     e.preventDefault();
+
     const previousEmployerData = {
       company_name: data?.company_name,
       from_date: data?.from_date,
@@ -58,7 +62,13 @@ export const PreviousEmployerDetailsAddItem = ({
       reason_of_leaving: data?.reason_of_leaving,
     };
 
-    onAddNewRow(previousEmployerData);
+    if (updateData) {
+      onUpdateRow(previousEmployerData, updateIndex);
+      setUpdateIndex(null);
+    } else {
+      onAddNewRow(previousEmployerData);
+    }
+
     reset();
     onClose();
   };
