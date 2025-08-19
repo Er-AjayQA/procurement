@@ -5,6 +5,7 @@ export const PersonalDataForm = ({
   control,
   setValue,
   register,
+  errors,
   formSelectStyles,
   nationalityOptions,
   findSelectedOption,
@@ -149,8 +150,13 @@ export const PersonalDataForm = ({
                   id="id_number"
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter id number..."
-                  {...register("id_number")}
+                  {...register("id_number", { required: "ID is required" })}
                 />
+                {errors.id_number && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.id_number.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -165,8 +171,15 @@ export const PersonalDataForm = ({
                   id="id_issue_date"
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter id issue number..."
-                  {...register("id_issue_date")}
+                  {...register("id_issue_date", {
+                    required: "Id Issue date is required!",
+                  })}
                 />
+                {errors.id_issue_date && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.id_issue_date.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -181,8 +194,15 @@ export const PersonalDataForm = ({
                   id="id_exp_date"
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter id expiry number..."
-                  {...register("id_exp_date")}
+                  {...register("id_exp_date", {
+                    required: "Id expiry date is required!",
+                  })}
                 />
+                {errors.id_exp_date && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.id_exp_date.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -229,8 +249,15 @@ export const PersonalDataForm = ({
                   id="passport_number"
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter passport number..."
-                  {...register("passport_number")}
+                  {...register("passport_number", {
+                    required: "Passport number is required!",
+                  })}
                 />
+                {errors.passport_number && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.passport_number.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -245,8 +272,15 @@ export const PersonalDataForm = ({
                   id="passport_issue_date"
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter passport issue date..."
-                  {...register("passport_issue_date")}
+                  {...register("passport_issue_date", {
+                    required: "Passport issue date is required!",
+                  })}
                 />
+                {errors.passport_issue_date && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.passport_issue_date.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -261,8 +295,15 @@ export const PersonalDataForm = ({
                   id="passport_exp_date"
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter passport expiry date..."
-                  {...register("passport_exp_date")}
+                  {...register("passport_exp_date", {
+                    required: "Passport expiry date is required!",
+                  })}
                 />
+                {errors.passport_exp_date && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.passport_exp_date.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -311,8 +352,15 @@ export const PersonalDataForm = ({
                   id="tax_number"
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter tax number..."
-                  {...register("tax_number")}
+                  {...register("tax_number", {
+                    required: "Tax number is required!",
+                  })}
                 />
+                {errors.tax_number && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.tax_number.message}
+                  </p>
+                )}
               </div>
             </div>
 

@@ -1,19 +1,14 @@
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
-import Select from "react-select";
 import { useEffect, useState } from "react";
 import { AddButton } from "../../../../UI/addButtonUi";
-import { useEmployeeContext } from "../../../../../contextApis/useHrmsContextFile";
 
 export const PreviousEmployerDetailsAddItem = ({
   isVisible,
   onClose,
-  onAddFamilyRow,
+  onAddNewRow,
   updateData,
 }) => {
-  const { countryCodeOptions, setFamilyFormVisible, formSelectStyles } =
-    useEmployeeContext();
-
   const {
     register,
     handleSubmit,
@@ -21,41 +16,64 @@ export const PreviousEmployerDetailsAddItem = ({
     setValue,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      company_name: "",
+      from_date: "",
+      to_date: "",
+      last_drawn_salary: "",
+      location: "",
+      reason_of_leaving: "",
+    },
+  });
 
   useEffect(() => {
     if (updateData) {
-      setValue("member_name", updateData?.member_name);
-      setValue("relation_type", updateData?.relation_type);
-      setValue("dob", updateData?.dob);
-      setValue("code", updateData?.code);
-      setValue("contact_number", updateData?.contact_number);
-      setValue("remark", updateData?.remark);
-      setValue("selected_as_emergency", updateData?.selected_as_emergency);
+      setValue("company_name", updateData?.company_name);
+      setValue("from_date", updateData?.from_date);
+      setValue("to_date", updateData?.to_date);
+      setValue("last_drawn_salary", updateData?.last_drawn_salary);
+      setValue("location", updateData?.location);
+      setValue("reason_of_leaving", updateData?.reason_of_leaving);
     } else {
-      reset();
+      reset({
+        company_name: "",
+        from_date: "",
+        to_date: "",
+        last_drawn_salary: "",
+        location: "",
+        reason_of_leaving: "",
+      });
     }
   }, [updateData, reset, setValue]);
 
-  const onSubmit = (data) => {
-    const familyData = {
-      member_name: data.member_name,
-      dob: data.dob,
-      relation_type: data.relation_type,
-      contact_number: `${data.code}${data.contact_number}`,
-      remark: data.remark,
-      selected_as_emergency: data.selected_as_emergency || false,
+  const onSubmit = (data, e) => {
+    e.preventDefault();
+    const previousEmployerData = {
+      company_name: data?.company_name,
+      from_date: data?.from_date,
+      to_date: data?.to_date,
+      last_drawn_salary: data?.last_drawn_salary,
+      location: data?.location,
+      reason_of_leaving: data?.reason_of_leaving,
     };
 
-    onAddFamilyRow(familyData);
+    onAddNewRow(previousEmployerData);
     reset();
     onClose();
   };
 
-  // Helper function to find selected option
-  const findSelectedOption = (options, value) => {
-    if (!options || value === undefined || value === null) return null;
-    return options.find((opt) => opt.value === value);
+  // Handle Form Reset
+  const handleFormReset = () => {
+    onClose();
+    reset({
+      company_name: "",
+      from_date: "",
+      to_date: "",
+      last_drawn_salary: "",
+      location: "",
+      reason_of_leaving: "",
+    });
   };
 
   return (
@@ -76,183 +94,161 @@ export const PreviousEmployerDetailsAddItem = ({
             Add Previous Employers Details
           </h3>
           <div
-            onClick={onClose}
+            onClick={() => handleFormReset()}
             className="hover:bg-red-500 p-2 rounded-lg hover:fill-white"
           >
             <MdOutlineClose className="fill-white" />
           </div>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="member_name"
-            >
-              Member Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="member_name"
-              className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
-              placeholder="Enter member name..."
-              {...register("member_name", {
-                required: "Member name is required",
-              })}
-            />
-            {errors.member_name && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.member_name.message}
-              </p>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="relation_type"
-            >
-              Relationship Type <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="relation_type"
-              className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
-              placeholder="Enter relation type..."
-              {...register("relation_type", {
-                required: "Relation type is required",
-              })}
-            />
-            {errors.relation_type && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.relation_type.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="dob"
-            >
-              D.O.B <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="dob"
-              className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
-              placeholder="Enter dob..."
-              {...register("dob", {
-                required: "DOB is required",
-              })}
-            />
-            {errors.dob && (
-              <p className="text-red-500 text-xs mt-1">{errors.dob.message}</p>
-            )}
-          </div>
-
-          {/* Contact Number */}
-          <div className="col-span-4 flex flex-col gap-3">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="code" className="text-sm">
-                Contact No.
+        <div className="h-[calc(100%-3.5rem)] overflow-y-auto scrollbar-hide">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+            <div className="space-y-2">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="company_name"
+              >
+                Company Name <span className="text-red-500">*</span>
               </label>
-              <div className="flex">
-                <Controller
-                  name="code"
-                  control={control}
-                  rules={{ required: "Country code is required" }}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      options={countryCodeOptions || []}
-                      value={findSelectedOption(
-                        countryCodeOptions,
-                        field.value
-                      )}
-                      onChange={(selected) =>
-                        field.onChange(selected?.value || "")
-                      }
-                      placeholder="code"
-                      isClearable
-                      isSearchable
-                      className="react-select-container"
-                      classNamePrefix="react-select"
-                      styles={{
-                        ...formSelectStyles,
-                        width: "120px",
-                        borderTopRightRadius: "0",
-                        borderBottomRightRadius: "0",
-                      }}
-                    />
-                  )}
-                />
-                <input
-                  type="text"
-                  id="contact_number"
-                  className="flex-grow rounded-e-lg border-s-0 text-[.8rem] hover:border-borders-inputHover"
-                  placeholder="Enter contact number"
-                  {...register("contact_number", {
-                    required: "Contact number is required!",
-                  })}
-                />
-              </div>
-              {errors.code && errors.contact_number ? (
-                <p className="text-red-500 text-[.7rem]">
-                  Both country code and contact number are required!
+              <input
+                type="text"
+                id="company_name"
+                className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="Enter company name..."
+                {...register("company_name", {
+                  required: "Company name is required",
+                })}
+              />
+              {errors.company_name && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.company_name.message}
                 </p>
-              ) : errors.code ? (
-                <p className="text-red-500 text-[.7rem]">
-                  {errors.code.message}
-                </p>
-              ) : errors.contact_number ? (
-                <p className="text-red-500 text-[.7rem]">
-                  {errors.contact_number.message}
-                </p>
-              ) : null}
+              )}
             </div>
-          </div>
 
-          {/* Remark */}
-          <div className="space-y-2">
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="remark"
-            >
-              Remark
-            </label>
-            <textarea
-              name="remark"
-              id="remark"
-              className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
-              placeholder="Enter remark..."
-              {...register("remark")}
-            />
-          </div>
+            {/* From Date */}
+            <div className="space-y-2">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="from_date"
+              >
+                From Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="from_date"
+                className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="Enter from date..."
+                {...register("from_date", {
+                  required: "From date is required",
+                })}
+              />
+              {errors.from_date && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.from_date.message}
+                </p>
+              )}
+            </div>
 
-          {/* Selected as Emergency */}
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="selected_as_emergency"
-              className="text-[.8rem] border border-black cursor-pointer"
-              {...register("selected_as_emergency")}
-            />
-            <label
-              className="block text-sm font-medium text-gray-700 cursor-pointer"
-              htmlFor="selected_as_emergency"
-            >
-              Selected as Emergency
-            </label>
-          </div>
+            {/* To Date */}
+            <div className="space-y-2">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="to_date"
+              >
+                To Date <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="to_date"
+                className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="Enter to date..."
+                {...register("to_date", {
+                  required: "To date is required",
+                })}
+              />
+              {errors.to_date && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.to_date.message}
+                </p>
+              )}
+            </div>
 
-          <div className="pt-4">
-            <AddButton
-              type="submit"
-              text={"Add Details"}
-              onClick={() => setFamilyFormVisible(false)}
-            />
-          </div>
-        </form>
+            {/* Last Drawn Salary */}
+            <div className="space-y-2">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="last_drawn_salary"
+              >
+                Last Drawn Salary <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="last_drawn_salary"
+                className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="Enter last drawn salary..."
+                {...register("last_drawn_salary", {
+                  required: "Last drawn salary is required",
+                })}
+              />
+              {errors.last_drawn_salary && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.last_drawn_salary.message}
+                </p>
+              )}
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="location"
+              >
+                Location<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="location"
+                className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="Enter location..."
+                {...register("location", {
+                  required: "Location is required",
+                })}
+              />
+              {errors.location && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.location.message}
+                </p>
+              )}
+            </div>
+
+            {/* Reason of Leaving */}
+            <div className="space-y-2">
+              <label
+                className="block text-sm font-medium text-gray-700"
+                htmlFor="reason_of_leaving"
+              >
+                Reason of Leaving
+              </label>
+              <textarea
+                name="reason_of_leaving"
+                id="reason_of_leaving"
+                className="w-full rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="Enter reason of leaving..."
+                {...register("reason_of_leaving")}
+              />
+            </div>
+
+            <div className="pt-4">
+              <button
+                type="submit"
+                className="bg-button-color hover:bg-button-hover rounded-lg p-2 px-4 text-white text-sm"
+              >
+                {updateData ? "Update Details" : "Add Details"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </>
   );

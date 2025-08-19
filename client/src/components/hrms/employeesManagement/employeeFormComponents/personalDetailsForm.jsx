@@ -1,5 +1,4 @@
-import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
+import { useForm } from "react-hook-form";
 import { useEmployeeContext } from "../../../../contextApis/useHrmsContextFile";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -11,8 +10,13 @@ import {
 import { PresentAddressForm } from "./personalDetailsFormComponents/presentAddressForm";
 import { PermanentAddressForm } from "./personalDetailsFormComponents/permanentAddressForm";
 import { PersonalDataForm } from "./personalDetailsFormComponents/personalDataForm";
-import { FamilyDetailsSection } from "./personalDetailsFormComponents/familyDetailsSection";
-import { PreviousEmployerSection } from "./personalDetailsFormComponents/previousEmployerSection";
+import { FamilyDetailsAddItem } from "./personalDetailsFormComponents/familyDetailsAddForm";
+import { FamilyDetailsViewItem } from "./personalDetailsFormComponents/familyDetailsViewForm";
+import { PreviousEmployerDetailsAddItem } from "./personalDetailsFormComponents/previousEmployerDetailsAddForm";
+import { PreviousEmployerDetailsViewItem } from "./personalDetailsFormComponents/previousEmployerDetailsViewForm";
+import { IoMdAdd } from "react-icons/io";
+import { FaEye } from "react-icons/fa";
+import { MdDelete, MdEdit } from "react-icons/md";
 
 export const EmployeePersonalDetailsForm = () => {
   const {
@@ -42,6 +46,8 @@ export const EmployeePersonalDetailsForm = () => {
       dep_id: "",
       area_id: "",
       userImage: null,
+      familyDetails: [],
+      previousEmployerDetails: [],
     },
   });
 
@@ -70,16 +76,16 @@ export const EmployeePersonalDetailsForm = () => {
   const [personalCityOptions, setPersonalCityOptions] = useState([]);
   const [nationalityOptions, setNationalityOptions] = useState([]);
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState(null);
+  const [familyDetails, setFamilyDetails] = useState([]);
   const [familyFormVisible, setFamilyFormVisible] = useState(false);
   const [familyFormView, setFamilyFormView] = useState(false);
-  const [familyDetails, setFamilyDetails] = useState([]);
   const [familyViewData, setFamilyViewData] = useState(null);
   const [familyEditData, setFamilyEditData] = useState(null);
+  const [previousEmployerDetails, setPreviousEmployerDetails] = useState([]);
   const [previousEmployerFormVisible, setPreviousEmployerFormVisible] =
     useState(false);
   const [previousEmployerFormView, setPreviousEmployerFormView] =
     useState(false);
-  const [previousEmployerDetails, setPreviousEmployerDetails] = useState([]);
   const [previousEmployerViewData, setPreviousEmployerViewData] =
     useState(null);
   const [previousEmployerEditData, setPreviousEmployerEditData] =
@@ -336,10 +342,37 @@ export const EmployeePersonalDetailsForm = () => {
     setFamilyDetails(updated);
   };
 
+  // Handle Add Previous Employer Details
+  const handleAddPreviousEmployerDetails = (previousEmployerData) => {
+    if (previousEmployerEditData) {
+      const updated = previousEmployerDetails.map((item, i) =>
+        i === previousEmployerEditData.index ? previousEmployerData : item
+      );
+      setPreviousEmployerDetails(updated);
+    } else {
+      setPreviousEmployerDetails([
+        ...previousEmployerDetails,
+        previousEmployerData,
+      ]);
+    }
+    setPreviousEmployerFormVisible(false);
+    setPreviousEmployerEditData(null);
+  };
+
   // Handle Previous Employer View Data
   const handlePreviousEmployerViewData = (index) => {
     const viewData = previousEmployerDetails[index];
     setPreviousEmployerViewData(viewData);
+  };
+
+  // Handle Previous Employer Remove
+  const handlePreviousEmployerDetailsRemove = (index) => {
+    if (window.confirm("Are you sure you want to remove this details?")) {
+      const updatedData = previousEmployerDetails.filter(
+        (item, i) => i !== index
+      );
+      setPreviousEmployerDetails(updatedData);
+    }
   };
 
   // Handle Previous Employer Edit
@@ -348,6 +381,9 @@ export const EmployeePersonalDetailsForm = () => {
     updated[index][field] = value;
     setPreviousEmployerDetails(updated);
   };
+
+  /// Handle Form Submission
+  const onSubmit = (data) => {};
 
   // Get Present State on Present Country Change
   useEffect(() => {
@@ -416,10 +452,11 @@ export const EmployeePersonalDetailsForm = () => {
   return (
     <>
       <div className="flex flex-col gap-5">
-        <form action="" className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           {/* Present Address */}
           <PresentAddressForm
             control={control}
+            errors={errors}
             countryListOptions={countryListOptions}
             findSelectedOption={findSelectedOption}
             setPresentStateOptions={setPresentStateOptions}
@@ -436,6 +473,7 @@ export const EmployeePersonalDetailsForm = () => {
             control={control}
             setValue={setValue}
             register={register}
+            errors={errors}
             countryListOptions={countryListOptions}
             findSelectedOption={findSelectedOption}
             setPermanentStateOptions={setPermanentStateOptions}
@@ -450,6 +488,7 @@ export const EmployeePersonalDetailsForm = () => {
             control={control}
             setValue={setValue}
             register={register}
+            errors={errors}
             formSelectStyles={formSelectStyles}
             nationalityOptions={nationalityOptions}
             findSelectedOption={findSelectedOption}
@@ -463,40 +502,211 @@ export const EmployeePersonalDetailsForm = () => {
           />
 
           {/* Family Details */}
-          <FamilyDetailsSection
-            register={register}
-            errors={errors}
-            control={control}
-            setFamilyFormVisible={setFamilyFormVisible}
-            familyDetails={familyDetails}
-            handleFamilyViewData={handleFamilyViewData}
-            setFamilyFormView={setFamilyFormView}
-            setFamilyEditData={setFamilyEditData}
-            handleFamilyDetailsEdit={handleFamilyDetailsEdit}
-            handleFamilyDetailsRemove={handleFamilyDetailsRemove}
-            familyFormVisible={familyFormVisible}
-            handleAddFamilyDetails={handleAddFamilyDetails}
-            familyEditData={familyEditData}
-            familyFormView={familyFormView}
-            setFamilyViewData={setFamilyViewData}
-            familyViewData={familyViewData}
-          />
+          <div className="shadow-lg rounded-md">
+            <div className="bg-button-hover py-2 px-1 rounded-t-md flex justify-between">
+              <h3 className="text-white text-xs">Family Details</h3>
+              <button
+                type="button"
+                onClick={() => setFamilyFormVisible(true)}
+                className="text-white hover:text-gray-200 flex items-center text-xs"
+              >
+                <IoMdAdd className="mr-1 fill-white hover:fill-gray-200" /> Add
+                Family Details
+              </button>
+            </div>
+
+            {familyDetails?.length > 0 ? (
+              <div className="border border-gray-200 rounded-md overflow-hidden">
+                <div className="min-w-[1000px]">
+                  <div className="flex bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
+                    <div className="p-2 text-xs font-bold w-[100px] border-e border-e-gray-400 text-center">
+                      S.No.
+                    </div>
+                    <div className="p-2 text-xs font-bold w-[200px] border-e border-e-gray-400 text-center">
+                      Member Name
+                    </div>
+                    <div className="p-2 text-xs font-bold w-[150px] border-e border-e-gray-400 text-center">
+                      DOB
+                    </div>
+                    <div className="p-2 text-xs font-bold w-[200px] border-e border-e-gray-400 text-center">
+                      Relation Type
+                    </div>
+                    <div className="p-2 text-xs font-bold w-[250px] border-e border-e-gray-400 text-center">
+                      Contact Number
+                    </div>
+                    <div className="p-2 text-xs font-bold  w-[300px] border-e border-e-gray-400 text-center">
+                      Remark
+                    </div>
+                    <div className="p-2 text-xs font-bold text-center w-[200px] border-e border-e-gray-400 text-center">
+                      Emergency Contact
+                    </div>
+                    <div className="p-2 text-xs font-bold text-center w-[200px] text-center">
+                      Action
+                    </div>
+                  </div>
+                  {familyDetails.map((family, index) => (
+                    <div key={index} className="flex border-b border-gray-200">
+                      <div className="px-2 py-5 text-xs w-[100px] border-e border-e-gray-300 text-center">
+                        {index + 1}
+                      </div>
+                      <div className="px-2 py-5 text-xs w-[200px] border-e border-e-gray-300 text-center">
+                        {family?.member_name}
+                      </div>
+                      <div className="px-2 py-5 text-xs w-[150px] border-e border-e-gray-300 text-center">
+                        {family?.dob}
+                      </div>
+                      <div className="px-2 py-5 text-xs w-[200px] border-e border-e-gray-300 text-center">
+                        {family?.relation_type}
+                      </div>
+                      <div className="px-2 py-5 text-xs w-[250px] border-e border-e-gray-300 text-center">
+                        {family?.contact_number}
+                      </div>
+                      <div className="px-2 py-5 text-xs w-[300px] border-e border-e-gray-300">
+                        {family?.remark}
+                      </div>
+                      <div className="px-2 py-5 text-xs w-[200px] border-e border-e-gray-300 text-center">
+                        {family?.selected_as_emergency ? (
+                          <span className="text-green-500 text-xs">Yes</span>
+                        ) : (
+                          <span className="text-red-500 text-xs">No</span>
+                        )}
+                      </div>
+                      <div className="px-2 py-5 flex justify-center gap-2 w-[200px]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            handleFamilyViewData(index);
+                            setFamilyFormView(true);
+                          }}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <FaEye className="text-xl" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFamilyEditData(familyDetails[index]);
+                            setFamilyFormVisible(true);
+                            handleFamilyDetailsEdit(index);
+                          }}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <MdEdit className="text-xl" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleFamilyDetailsRemove(index)}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <MdDelete className="text-xl" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="border border-gray-200 rounded-md p-4 text-center text-sm text-gray-500">
+                No Records Found
+              </div>
+            )}
+          </div>
+
           {/* Previous Employer Details */}
-          <PreviousEmployerSection
-            previousEmployerDetails={previousEmployerDetails}
-            setPreviousEmployerEditData={setPreviousEmployerEditData}
-            previousEmployerFormVisible={previousEmployerFormVisible}
-            previousEmployerEditData={previousEmployerEditData}
-            setPreviousEmployerFormVisible={setPreviousEmployerFormVisible}
-            setPreviousEmployerFormView={setPreviousEmployerFormView}
-            previousEmployerFormView={previousEmployerFormView}
-            previousEmployerViewData={previousEmployerViewData}
-            setPreviousEmployerViewData={setPreviousEmployerViewData}
-            handlePreviousEmployerViewData={handlePreviousEmployerViewData}
-            handlePreviousEmployerDetailsEdit={
-              handlePreviousEmployerDetailsEdit
-            }
-          />
+          <div className="shadow-lg rounded-md">
+            <div className="bg-button-hover py-2 px-1 rounded-t-md flex justify-between">
+              <h3 className="text-white text-xs">Previous Employer Details</h3>
+              <button
+                type="button"
+                onClick={() => setPreviousEmployerFormVisible(true)}
+                className="text-white hover:text-gray-200 flex items-center text-xs"
+              >
+                <IoMdAdd className="mr-1 fill-white hover:fill-gray-200" /> Add
+                Previous Employer Details
+              </button>
+            </div>
+
+            {previousEmployerDetails?.length > 0 ? (
+              <div className="border border-gray-200 rounded-md overflow-hidden">
+                <div className="grid grid-cols-8 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
+                  <div className="p-2 text-xs font-bold">S.No.</div>
+                  <div className="p-2 text-xs font-bold">Company Name</div>
+                  <div className="p-2 text-xs font-bold">From Date</div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    To Date
+                  </div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    Last Drawn Salary
+                  </div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    Location
+                  </div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    Reason of Leaving
+                  </div>
+                  <div className="p-2 text-xs font-bold text-center">
+                    Action
+                  </div>
+                </div>
+                {previousEmployerDetails.map((employer, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-8 border-b border-gray-200"
+                  >
+                    <div className="p-2 text-xs">{index + 1}</div>
+                    <div className="p-2 text-xs">{employer?.company_name}</div>
+                    <div className="p-2 text-xs">{employer?.from_date}</div>
+                    <div className="p-2 text-xs">{employer?.to_date}</div>
+                    <div className="p-2 text-xs">
+                      {employer?.last_drawn_salary}
+                    </div>
+                    <div className="p-2 text-xs">{employer?.location}</div>
+                    <div className="p-2 text-xs text-center">
+                      {employer?.reason_of_leaving}
+                    </div>
+                    <div className="p-2 flex justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handlePreviousEmployerViewData(index);
+                          setPreviousEmployerFormView(true);
+                        }}
+                        className="text-gray-500 hover:text-red-500"
+                      >
+                        <FaEye className="text-xl" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPreviousEmployerEditData(
+                            previousEmployerDetails[index]
+                          );
+                          setPreviousEmployerFormVisible(true);
+                          handlePreviousEmployerDetailsEdit(index);
+                        }}
+                        className="text-gray-500 hover:text-red-500"
+                      >
+                        <MdEdit className="text-xl" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handlePreviousEmployerDetailsRemove(index)
+                        }
+                        className="text-gray-500 hover:text-red-500"
+                      >
+                        <MdDelete className="text-xl" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="border border-gray-200 rounded-md p-4 text-center text-sm text-gray-500">
+                No Records Found
+              </div>
+            )}
+          </div>
 
           {/* Submit Button */}
           <div className="flex items-center justify-end">
@@ -521,6 +731,52 @@ export const EmployeePersonalDetailsForm = () => {
           </div>
         </form>
       </div>
+
+      {/* Family Details Form Modal */}
+      <FamilyDetailsAddItem
+        isVisible={familyFormVisible}
+        onClose={() => {
+          setFamilyEditData(null);
+          setFamilyFormVisible(false);
+        }}
+        onAddFamilyRow={handleAddFamilyDetails}
+        updateData={familyEditData}
+        register={register}
+        errors={errors}
+        control={control}
+      />
+
+      {/* Family Details View Form Modal */}
+      <FamilyDetailsViewItem
+        isView={familyFormView}
+        onClose={() => {
+          setFamilyViewData(null);
+          setFamilyFormView(false);
+        }}
+        viewData={familyViewData}
+      />
+
+      {/* Previous Employer Form Modal */}
+      <PreviousEmployerDetailsAddItem
+        isVisible={previousEmployerFormVisible}
+        onClose={() => {
+          setPreviousEmployerEditData(null);
+          setPreviousEmployerFormVisible(false);
+        }}
+        setPreviousEmployerFormVisible={setPreviousEmployerFormVisible}
+        onAddNewRow={handleAddPreviousEmployerDetails}
+        updateData={previousEmployerEditData}
+      />
+
+      {/* Previous Employer View Form Modal */}
+      <PreviousEmployerDetailsViewItem
+        isView={previousEmployerFormView}
+        onClose={() => {
+          setPreviousEmployerViewData(null);
+          setPreviousEmployerFormView(false);
+        }}
+        viewData={previousEmployerViewData}
+      />
     </>
   );
 };
