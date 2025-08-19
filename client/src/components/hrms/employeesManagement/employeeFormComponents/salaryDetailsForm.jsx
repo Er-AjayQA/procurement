@@ -2,18 +2,6 @@ import { useForm } from "react-hook-form";
 import { useEmployeeContext } from "../../../../contextApis/useHrmsContextFile";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {
-  getAllCities,
-  getAllNationalities,
-  getAllStates,
-} from "../../../../services/master_services/service";
-import { PresentAddressForm } from "./personalDetailsFormComponents/presentAddressForm";
-import { PermanentAddressForm } from "./personalDetailsFormComponents/permanentAddressForm";
-import { PersonalDataForm } from "./personalDetailsFormComponents/personalDataForm";
-import { FamilyDetailsAddItem } from "./personalDetailsFormComponents/familyDetailsAddForm";
-import { FamilyDetailsViewItem } from "./personalDetailsFormComponents/familyDetailsViewForm";
-import { PreviousEmployerDetailsAddItem } from "./personalDetailsFormComponents/previousEmployerDetailsAddForm";
-import { PreviousEmployerDetailsViewItem } from "./personalDetailsFormComponents/previousEmployerDetailsViewForm";
 import { IoMdAdd } from "react-icons/io";
 import { FaEye } from "react-icons/fa";
 import { MdDelete, MdEdit } from "react-icons/md";
@@ -63,6 +51,7 @@ export const EmployeeSalaryDetailsForm = () => {
     setCreatedUserId,
     updateId,
     handleTabClick,
+    allowancesOptions,
   } = useEmployeeContext();
 
   const [allowanceDetails, setAllowanceDetails] = useState([]);
@@ -78,31 +67,31 @@ export const EmployeeSalaryDetailsForm = () => {
     return options.find((opt) => opt.value === value);
   };
 
-  // Handle Add Family Details
-  const handleAddFamilyDetails = (familyData) => {
-    setAllowanceDetails([...allowanceDetails, familyData]);
-    setAllowanceFormVisible(false);
+  const handleAddAllowance = () => {
+    setAllowanceDetails([
+      ...allowanceDetails,
+      { allowance_id: "", amount: "" },
+    ]);
   };
 
-  // Handle Family View Data
-  const handleFamilyViewData = (index) => {
-    const viewData = allowanceDetails[index];
-    setAllowanceViewData(viewData);
-  };
+  const handleAllowanceChange = (index, field, value) => {
+    const updated = [...allowanceDetails];
+    if (field === "allowance_id") {
+      const checkIfExist = updated?.find((item) => item.allowance_id === value);
 
-  // Handle Family Member Remove
-  const handleFamilyDetailsRemove = (index) => {
-    if (window.confirm("Are you sure you want to remove this family member?")) {
-      const updatedData = allowanceDetails.filter((item, i) => i !== index);
-      setAllowanceDetails(updatedData);
+      if (checkIfExist) {
+        toast.error("Allowance Type Already Added!");
+        updated[index][field] = null;
+      }
     }
+
+    updated[index][field] = value;
+    setAllowanceDetails(updated);
   };
 
-  // Handle Family Member Edit
-  const handleFamilyDetailsEdit = (updatedData, index) => {
-    setAllowanceDetails((prev) =>
-      prev.map((item, i) => (i === index ? updatedData : item))
-    );
+  const handleRemoveAllowance = (index) => {
+    const updated = allowanceDetails.filter((_, i) => i !== index);
+    setAllowanceDetails(updated);
   };
 
   /// Handle Form Submission
@@ -180,7 +169,7 @@ export const EmployeeSalaryDetailsForm = () => {
               <h3 className="text-white text-xs">Allowance Details</h3>
               <button
                 type="button"
-                onClick={() => setAllowanceFormVisible(true)}
+                onClick={() => handleAddAllowance()}
                 className="text-white hover:text-gray-200 flex items-center text-xs"
               >
                 <IoMdAdd className="mr-1 fill-white hover:fill-gray-200" /> Add
@@ -188,64 +177,35 @@ export const EmployeeSalaryDetailsForm = () => {
               </button>
             </div>
 
-            {allowanceDetails?.length > 0 ? (
-              <div className="border border-gray-200 rounded-md overflow-x-auto">
-                <div className="min-w-[1000px]">
-                  <div className="grid grid-cols-4 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
-                    <div className="p-2 text-xs font-bold border-e border-e-gray-400 text-center">
-                      S.No.
-                    </div>
-                    <div className="p-2 text-xs font-bold border-e border-e-gray-400 text-center">
-                      Allowance Name
-                    </div>
-                    <div className="p-2 text-xs font-bold border-e border-e-gray-400 text-center">
-                      Amount
-                    </div>
-                    <div className="p-2 text-xs font-bold text-center text-center">
-                      Action
-                    </div>
+            {allowanceDetails.length > 0 ? (
+              <div className="border border-gray-200 rounded-md overflow-hidden">
+                <div className="grid grid-cols-12 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold gap-3">
+                  <div className="col-span-3 p-2 text-xs font-bold text-center">
+                    S.No
                   </div>
-                  {allowanceDetails.map((allowance, index) => (
-                    <div
-                      key={index}
-                      className="grid grid-cols-4 border-b border-gray-200"
-                    >
-                      <div className="px-2 py-5 text-xs border-e border-e-gray-300 text-center">
-                        {index + 1}
-                      </div>
-                      <div className="px-2 py-5 text-xs border-e border-e-gray-300 text-center">
-                        {allowance?.allowance_id}
-                      </div>
-                      <div className="px-2 py-5 text-xs border-e border-e-gray-300 text-center">
-                        {allowance?.amount}
-                      </div>
-                      <div className="px-2 py-5 flex justify-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAllowanceEditData(allowanceDetails[index]);
-                            setAllowanceFormVisible(true);
-                            setUpdateIndex(index);
-                          }}
-                          className="text-gray-500 hover:text-red-500"
-                        >
-                          <MdEdit className="text-xl w-[15px] h-[15px]" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleFamilyDetailsRemove(index)}
-                          className="text-gray-500 hover:text-red-500"
-                        >
-                          <MdDelete className="text-xl w-[15px] h-[15px]" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                  <div className="col-span-3 p-2 text-xs font-bold text-center">
+                    Allowance Name
+                  </div>
+                  <div className="col-span-3 p-2 text-xs font-bold text-center">
+                    Amount
+                  </div>
+                  <div className="col-span-3 p-2 text-xs font-bold text-center">
+                    Action
+                  </div>
                 </div>
+                {allowanceDetails.map((allowance, index) => (
+                  <AllowanceDetailsAddItem
+                    key={index}
+                    allowance={allowance}
+                    index={index}
+                    onChange={handleAllowanceChange}
+                    onRemove={handleRemoveAllowance}
+                  />
+                ))}
               </div>
             ) : (
-              <div className="border border-gray-200 rounded-md p-4 text-center text-sm text-gray-500">
-                No Records Found
+              <div className="text-center py-4 text-sm text-gray-500 border border-gray-200 rounded-md">
+                No content added yet
               </div>
             )}
           </div>
@@ -385,23 +345,6 @@ export const EmployeeSalaryDetailsForm = () => {
           </div>
         </form>
       </div>
-
-      {/* Allowance Details Form Modal */}
-      <AllowanceDetailsAddItem
-        isVisible={allowanceFormVisible}
-        onClose={() => {
-          setAllowanceEditData(null);
-          setAllowanceFormVisible(false);
-        }}
-        onAddFamilyRow={handleAddFamilyDetails}
-        onUpdateFamilyRow={handleFamilyDetailsEdit}
-        updateData={allowanceEditData}
-        updateIndex={updateIndex}
-        setUpdateIndex={setUpdateIndex}
-        register={register}
-        errors={errors}
-        control={control}
-      />
     </>
   );
 };
