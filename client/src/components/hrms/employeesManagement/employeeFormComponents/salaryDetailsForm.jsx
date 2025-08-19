@@ -22,6 +22,7 @@ import {
   updateEmployee,
 } from "../../../../services/hrms_services/service";
 import { SalaryDetailsAddForm } from "./salaryDetailsFormComponents/salaryDetailsAddForm";
+import { AllowanceDetailsAddItem } from "./salaryDetailsFormComponents/allowanceDetailsAddForm";
 
 export const EmployeeSalaryDetailsForm = () => {
   const {
@@ -64,24 +65,11 @@ export const EmployeeSalaryDetailsForm = () => {
     handleTabClick,
   } = useEmployeeContext();
 
-  const [personalStateOptions, setPersonalStateOptions] = useState([]);
-  const [personalCityOptions, setPersonalCityOptions] = useState([]);
-  const [nationalityOptions, setNationalityOptions] = useState([]);
-  const [selectedMaritalStatus, setSelectedMaritalStatus] = useState(null);
-  const [familyDetails, setFamilyDetails] = useState([]);
-  const [familyFormVisible, setFamilyFormVisible] = useState(false);
-  const [familyFormView, setFamilyFormView] = useState(false);
-  const [familyViewData, setFamilyViewData] = useState(null);
-  const [familyEditData, setFamilyEditData] = useState(null);
-  const [previousEmployerDetails, setPreviousEmployerDetails] = useState([]);
-  const [previousEmployerFormVisible, setPreviousEmployerFormVisible] =
-    useState(false);
-  const [previousEmployerFormView, setPreviousEmployerFormView] =
-    useState(false);
-  const [previousEmployerViewData, setPreviousEmployerViewData] =
-    useState(null);
-  const [previousEmployerEditData, setPreviousEmployerEditData] =
-    useState(null);
+  const [allowanceDetails, setAllowanceDetails] = useState([]);
+  const [allowanceFormVisible, setAllowanceFormVisible] = useState(false);
+  const [allowanceFormView, setAllowanceFormView] = useState(false);
+  const [allowanceViewData, setAllowanceViewData] = useState(null);
+  const [allowanceEditData, setAllowanceEditData] = useState(null);
   const [updateIndex, setUpdateIndex] = useState(null);
 
   // Helper function to find selected option
@@ -92,67 +80,27 @@ export const EmployeeSalaryDetailsForm = () => {
 
   // Handle Add Family Details
   const handleAddFamilyDetails = (familyData) => {
-    setFamilyDetails([...familyDetails, familyData]);
-    setFamilyFormVisible(false);
+    setAllowanceDetails([...allowanceDetails, familyData]);
+    setAllowanceFormVisible(false);
   };
 
   // Handle Family View Data
   const handleFamilyViewData = (index) => {
-    const viewData = familyDetails[index];
-    setFamilyViewData(viewData);
+    const viewData = allowanceDetails[index];
+    setAllowanceViewData(viewData);
   };
 
   // Handle Family Member Remove
   const handleFamilyDetailsRemove = (index) => {
     if (window.confirm("Are you sure you want to remove this family member?")) {
-      const updatedData = familyDetails.filter((item, i) => i !== index);
-      setFamilyDetails(updatedData);
+      const updatedData = allowanceDetails.filter((item, i) => i !== index);
+      setAllowanceDetails(updatedData);
     }
   };
 
   // Handle Family Member Edit
   const handleFamilyDetailsEdit = (updatedData, index) => {
-    setFamilyDetails((prev) =>
-      prev.map((item, i) => (i === index ? updatedData : item))
-    );
-  };
-
-  // Handle Add Previous Employer Details
-  const handleAddPreviousEmployerDetails = (previousEmployerData) => {
-    if (previousEmployerEditData) {
-      const updated = previousEmployerDetails.map((item, i) =>
-        i === previousEmployerEditData.index ? previousEmployerData : item
-      );
-      setPreviousEmployerDetails(updated);
-    } else {
-      setPreviousEmployerDetails([
-        ...previousEmployerDetails,
-        previousEmployerData,
-      ]);
-    }
-    setPreviousEmployerFormVisible(false);
-    setPreviousEmployerEditData(null);
-  };
-
-  // Handle Previous Employer View Data
-  const handlePreviousEmployerViewData = (index) => {
-    const viewData = previousEmployerDetails[index];
-    setPreviousEmployerViewData(viewData);
-  };
-
-  // Handle Previous Employer Remove
-  const handlePreviousEmployerDetailsRemove = (index) => {
-    if (window.confirm("Are you sure you want to remove this details?")) {
-      const updatedData = previousEmployerDetails.filter(
-        (item, i) => i !== index
-      );
-      setPreviousEmployerDetails(updatedData);
-    }
-  };
-
-  // Handle Previous Employer Edit
-  const handlePreviousEmployerDetailsEdit = (updatedData, index) => {
-    setPreviousEmployerDetails((prev) =>
+    setAllowanceDetails((prev) =>
       prev.map((item, i) => (i === index ? updatedData : item))
     );
   };
@@ -188,8 +136,8 @@ export const EmployeeSalaryDetailsForm = () => {
         tax_number: data?.tax_number,
         marital_status: data?.marital_status,
         spouse_name: data?.spouse_name,
-        family_details: familyDetails,
-        previous_employer_details: previousEmployerDetails,
+        allowances: allowanceDetails,
+        salary_revision_details: allowanceDetails,
       };
 
       let response;
@@ -232,7 +180,7 @@ export const EmployeeSalaryDetailsForm = () => {
               <h3 className="text-white text-xs">Allowance Details</h3>
               <button
                 type="button"
-                onClick={() => setFamilyFormVisible(true)}
+                onClick={() => setAllowanceFormVisible(true)}
                 className="text-white hover:text-gray-200 flex items-center text-xs"
               >
                 <IoMdAdd className="mr-1 fill-white hover:fill-gray-200" /> Add
@@ -240,78 +188,43 @@ export const EmployeeSalaryDetailsForm = () => {
               </button>
             </div>
 
-            {familyDetails?.length > 0 ? (
+            {allowanceDetails?.length > 0 ? (
               <div className="border border-gray-200 rounded-md overflow-x-auto">
                 <div className="min-w-[1000px]">
-                  <div className="flex bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
-                    <div className="p-2 text-xs font-bold w-[100px] border-e border-e-gray-400 text-center">
+                  <div className="grid grid-cols-4 bg-gray-50 border-b border-gray-200 text-xs text-gray-500 font-bold">
+                    <div className="p-2 text-xs font-bold border-e border-e-gray-400 text-center">
                       S.No.
                     </div>
-                    <div className="p-2 text-xs font-bold w-[200px] border-e border-e-gray-400 text-center">
-                      Member Name
+                    <div className="p-2 text-xs font-bold border-e border-e-gray-400 text-center">
+                      Allowance Name
                     </div>
-                    <div className="p-2 text-xs font-bold w-[150px] border-e border-e-gray-400 text-center">
-                      DOB
+                    <div className="p-2 text-xs font-bold border-e border-e-gray-400 text-center">
+                      Amount
                     </div>
-                    <div className="p-2 text-xs font-bold w-[200px] border-e border-e-gray-400 text-center">
-                      Relation Type
-                    </div>
-                    <div className="p-2 text-xs font-bold w-[250px] border-e border-e-gray-400 text-center">
-                      Contact Number
-                    </div>
-                    <div className="p-2 text-xs font-bold  w-[300px] border-e border-e-gray-400 text-center">
-                      Remark
-                    </div>
-                    <div className="p-2 text-xs font-bold text-center w-[200px] border-e border-e-gray-400 text-center">
-                      Emergency Contact
-                    </div>
-                    <div className="p-2 text-xs font-bold text-center w-[200px] text-center">
+                    <div className="p-2 text-xs font-bold text-center text-center">
                       Action
                     </div>
                   </div>
-                  {familyDetails.map((family, index) => (
-                    <div key={index} className="flex border-b border-gray-200">
-                      <div className="px-2 py-5 text-xs w-[100px] border-e border-e-gray-300 text-center">
+                  {allowanceDetails.map((allowance, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-4 border-b border-gray-200"
+                    >
+                      <div className="px-2 py-5 text-xs border-e border-e-gray-300 text-center">
                         {index + 1}
                       </div>
-                      <div className="px-2 py-5 text-xs w-[200px] border-e border-e-gray-300 text-center">
-                        {family?.member_name}
+                      <div className="px-2 py-5 text-xs border-e border-e-gray-300 text-center">
+                        {allowance?.allowance_id}
                       </div>
-                      <div className="px-2 py-5 text-xs w-[150px] border-e border-e-gray-300 text-center">
-                        {family?.dob}
+                      <div className="px-2 py-5 text-xs border-e border-e-gray-300 text-center">
+                        {allowance?.amount}
                       </div>
-                      <div className="px-2 py-5 text-xs w-[200px] border-e border-e-gray-300 text-center">
-                        {family?.relation_type}
-                      </div>
-                      <div className="px-2 py-5 text-xs w-[250px] border-e border-e-gray-300 text-center">
-                        {family?.contact_number}
-                      </div>
-                      <div className="px-2 py-5 text-xs w-[300px] border-e border-e-gray-300">
-                        {family?.remark}
-                      </div>
-                      <div className="px-2 py-5 text-xs w-[200px] border-e border-e-gray-300 text-center">
-                        {family?.selected_as_emergency ? (
-                          <span className="text-green-500 text-xs">Yes</span>
-                        ) : (
-                          <span className="text-red-500 text-xs">No</span>
-                        )}
-                      </div>
-                      <div className="px-2 py-5 flex justify-center gap-2 w-[200px]">
+                      <div className="px-2 py-5 flex justify-center gap-2">
                         <button
                           type="button"
                           onClick={() => {
-                            handleFamilyViewData(index);
-                            setFamilyFormView(true);
-                          }}
-                          className="text-gray-500 hover:text-red-500"
-                        >
-                          <FaEye className="text-xl w-[15px] h-[15px]" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFamilyEditData(familyDetails[index]);
-                            setFamilyFormVisible(true);
+                            setAllowanceEditData(allowanceDetails[index]);
+                            setAllowanceFormVisible(true);
                             setUpdateIndex(index);
                           }}
                           className="text-gray-500 hover:text-red-500"
@@ -338,7 +251,7 @@ export const EmployeeSalaryDetailsForm = () => {
           </div>
 
           {/* Previous Employer Details */}
-          <div className="shadow-lg rounded-md">
+          {/* <div className="shadow-lg rounded-md">
             <div className="bg-button-hover py-2 px-1 rounded-t-md flex justify-between">
               <h3 className="text-white text-xs">Previous Employer Details</h3>
               <button
@@ -446,7 +359,7 @@ export const EmployeeSalaryDetailsForm = () => {
                 No Records Found
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Submit Button */}
           <div className="flex items-center justify-end">
@@ -473,56 +386,21 @@ export const EmployeeSalaryDetailsForm = () => {
         </form>
       </div>
 
-      {/* Family Details Form Modal */}
-      <FamilyDetailsAddItem
-        isVisible={familyFormVisible}
+      {/* Allowance Details Form Modal */}
+      <AllowanceDetailsAddItem
+        isVisible={allowanceFormVisible}
         onClose={() => {
-          setFamilyEditData(null);
-          setFamilyFormVisible(false);
+          setAllowanceEditData(null);
+          setAllowanceFormVisible(false);
         }}
         onAddFamilyRow={handleAddFamilyDetails}
         onUpdateFamilyRow={handleFamilyDetailsEdit}
-        updateData={familyEditData}
+        updateData={allowanceEditData}
         updateIndex={updateIndex}
         setUpdateIndex={setUpdateIndex}
         register={register}
         errors={errors}
         control={control}
-      />
-
-      {/* Family Details View Form Modal */}
-      <FamilyDetailsViewItem
-        isView={familyFormView}
-        onClose={() => {
-          setFamilyViewData(null);
-          setFamilyFormView(false);
-        }}
-        viewData={familyViewData}
-      />
-
-      {/* Previous Employer Form Modal */}
-      <PreviousEmployerDetailsAddItem
-        isVisible={previousEmployerFormVisible}
-        onClose={() => {
-          setPreviousEmployerEditData(null);
-          setPreviousEmployerFormVisible(false);
-        }}
-        setPreviousEmployerFormVisible={setPreviousEmployerFormVisible}
-        onAddNewRow={handleAddPreviousEmployerDetails}
-        onUpdateRow={handlePreviousEmployerDetailsEdit}
-        updateIndex={updateIndex}
-        setUpdateIndex={setUpdateIndex}
-        updateData={previousEmployerEditData}
-      />
-
-      {/* Previous Employer View Form Modal */}
-      <PreviousEmployerDetailsViewItem
-        isView={previousEmployerFormView}
-        onClose={() => {
-          setPreviousEmployerViewData(null);
-          setPreviousEmployerFormView(false);
-        }}
-        viewData={previousEmployerViewData}
       />
     </>
   );
