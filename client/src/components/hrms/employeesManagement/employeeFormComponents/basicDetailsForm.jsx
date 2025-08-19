@@ -833,7 +833,10 @@ export const EmployeeBasicDetailsForm = () => {
                 <button
                   type="submit"
                   className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
-                  onClick={() => handleComponentView("listing")}
+                  onClick={() => {
+                    handleComponentView("listing");
+                    setCreatedUserId(null);
+                  }}
                 >
                   Cancel
                 </button>

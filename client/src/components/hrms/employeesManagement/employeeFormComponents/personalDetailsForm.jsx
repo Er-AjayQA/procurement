@@ -12,6 +12,7 @@ import { PresentAddressForm } from "./personalDetailsFormComponents/presentAddre
 import { PermanentAddressForm } from "./personalDetailsFormComponents/permanentAddressForm";
 import { PersonalDataForm } from "./personalDetailsFormComponents/personalDataForm";
 import { FamilyDetailsSection } from "./personalDetailsFormComponents/familyDetailsSection";
+import { PreviousEmployerSection } from "./personalDetailsFormComponents/previousEmployerSection";
 
 export const EmployeePersonalDetailsForm = () => {
   const {
@@ -57,6 +58,9 @@ export const EmployeePersonalDetailsForm = () => {
     formSelectStyles,
     bloodOptions,
     maritalStatusOptions,
+    handleComponentView,
+    setCreatedUserId,
+    updateId,
   } = useEmployeeContext();
   const [presentStateOptions, setPresentStateOptions] = useState([]);
   const [presentCityOptions, setPresentCityOptions] = useState([]);
@@ -71,6 +75,15 @@ export const EmployeePersonalDetailsForm = () => {
   const [familyDetails, setFamilyDetails] = useState([]);
   const [familyViewData, setFamilyViewData] = useState(null);
   const [familyEditData, setFamilyEditData] = useState(null);
+  const [previousEmployerFormVisible, setPreviousEmployerFormVisible] =
+    useState(false);
+  const [previousEmployerFormView, setPreviousEmployerFormView] =
+    useState(false);
+  const [previousEmployerDetails, setPreviousEmployerDetails] = useState([]);
+  const [previousEmployerViewData, setPreviousEmployerViewData] =
+    useState(null);
+  const [previousEmployerEditData, setPreviousEmployerEditData] =
+    useState(null);
 
   // Helper function to find selected option
   const findSelectedOption = (options, value) => {
@@ -323,6 +336,19 @@ export const EmployeePersonalDetailsForm = () => {
     setFamilyDetails(updated);
   };
 
+  // Handle Previous Employer View Data
+  const handlePreviousEmployerViewData = (index) => {
+    const viewData = previousEmployerDetails[index];
+    setPreviousEmployerViewData(viewData);
+  };
+
+  // Handle Previous Employer Edit
+  const handlePreviousEmployerDetailsEdit = (index, field, value) => {
+    const updated = [...previousEmployerDetails];
+    updated[index][field] = value;
+    setPreviousEmployerDetails(updated);
+  };
+
   // Get Present State on Present Country Change
   useEffect(() => {
     if (selectedPresentCountry) {
@@ -390,7 +416,7 @@ export const EmployeePersonalDetailsForm = () => {
   return (
     <>
       <div className="flex flex-col gap-5">
-        <form action="">
+        <form action="" className="flex flex-col gap-5">
           {/* Present Address */}
           <PresentAddressForm
             control={control}
@@ -456,65 +482,41 @@ export const EmployeePersonalDetailsForm = () => {
             familyViewData={familyViewData}
           />
           {/* Previous Employer Details */}
-          <div className="shadow-lg rounded-md">
-            <div className="bg-button-hover py-2 px-1 rounded-t-md">
-              <h3 className="text-white text-xs">
-                Previous Employement Details
-              </h3>
-            </div>
-            <div className="p-3 overflow-x-auto">
-              <div className="min-w-full">
-                <div className="grid grid-cols-7 border-b border-b-gray-300 pb-2">
-                  <div className="text-xs font-bold">S.No.</div>
-                  <div className="text-xs font-bold">Company Name</div>
-                  <div className="text-xs font-bold">From Date</div>
-                  <div className="text-xs font-bold">To Date</div>
-                  <div className="text-xs font-bold">Last Drawn Salary</div>
-                  <div className="text-xs font-bold">Reason of Leaving</div>
-                  <div className="text-xs font-bold">Location</div>
-                </div>
+          <PreviousEmployerSection
+            previousEmployerDetails={previousEmployerDetails}
+            setPreviousEmployerEditData={setPreviousEmployerEditData}
+            previousEmployerFormVisible={previousEmployerFormVisible}
+            previousEmployerEditData={previousEmployerEditData}
+            setPreviousEmployerFormVisible={setPreviousEmployerFormVisible}
+            setPreviousEmployerFormView={setPreviousEmployerFormView}
+            previousEmployerFormView={previousEmployerFormView}
+            previousEmployerViewData={previousEmployerViewData}
+            setPreviousEmployerViewData={setPreviousEmployerViewData}
+            handlePreviousEmployerViewData={handlePreviousEmployerViewData}
+            handlePreviousEmployerDetailsEdit={
+              handlePreviousEmployerDetailsEdit
+            }
+          />
 
-                <div>
-                  {data?.previous_employer_details.length > 0 ? (
-                    data?.previous_employer_details.map((company, i) => {
-                      return (
-                        <div
-                          key={company.id}
-                          className="grid grid-cols-7 border-b border-b-gray-200 py-2 last:border-none"
-                        >
-                          <div className="text-xs flex items-center">
-                            {i + 1}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {company.company_name}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {company.from_date}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {company.to_date}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {company.last_drawn_salary}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {company.reason_of_leaving}
-                          </div>
-                          <div className="text-xs flex items-center">
-                            {company.location}
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div>
-                      <p className="text-center text-sm p-3">
-                        No Records Found
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+          {/* Submit Button */}
+          <div className="flex items-center justify-end">
+            <div className="flex items-center justify-center gap-5">
+              <button
+                type="submit"
+                className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
+                onClick={() => {
+                  handleComponentView("listing");
+                  setCreatedUserId(null);
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-button-color hover:bg-button-hover text-white text-sm py-2 px-4 rounded-lg"
+              >
+                {updateId ? "Update & Next" : "Save & Next"}
+              </button>
             </div>
           </div>
         </form>
