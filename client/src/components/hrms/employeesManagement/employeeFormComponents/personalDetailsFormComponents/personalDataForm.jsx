@@ -1,22 +1,112 @@
+import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import Select from "react-select";
+import {
+  getAllCities,
+  getAllStates,
+} from "../../../../../services/master_services/service";
+import { toast } from "react-toastify";
 
 export const PersonalDataForm = ({
   control,
   setValue,
   register,
   errors,
+  watch,
   formSelectStyles,
   nationalityOptions,
   findSelectedOption,
-  personalStateOptions,
-  setPersonalCityOptions,
-  personalCityOptions,
   bloodOptions,
   maritalStatusOptions,
   setSelectedMaritalStatus,
   selectedMaritalStatus,
 }) => {
+  const [personalStateOptions, setPersonalStateOptions] = useState([]);
+  const [personalCityOptions, setPersonalCityOptions] = useState([]);
+
+  // Watch the present country and state values
+  const selectedPersonalState = watch("personal_state_id");
+
+  // Get All Personal State Options
+  const getAllPersonalStatesOptions = async () => {
+    try {
+      const response = await getAllStates({
+        limit: 50000000,
+        page: "",
+        filter: {
+          country_id: "",
+          name: "",
+        },
+      });
+
+      if (response.success) {
+        setPersonalStateOptions(
+          response.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setPersonalStateOptions([]);
+      toast.error(error.message || "Failed to load states");
+    }
+  };
+
+  // Get All Personal City Options
+  const getAllPersonalCityOptions = async (stateId) => {
+    try {
+      if (!stateId) {
+        setPersonalCityOptions([]);
+        return;
+      }
+      const response = await getAllCities({
+        limit: 500000,
+        page: "",
+        filter: {
+          state_id: stateId,
+          country_id: "",
+          name: "",
+        },
+      });
+
+      if (response.success) {
+        setPersonalCityOptions(
+          response.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setPersonalCityOptions([]);
+      toast.error(error.message || "Failed to load Cities");
+    }
+  };
+
+  // Get All Personal States on Page Load
+  useEffect(() => {
+    getAllPersonalStatesOptions();
+  }, []);
+
+  // Get All Personal Cities on Page Load
+  useEffect(() => {
+    if (selectedPersonalState) {
+      getAllPersonalCityOptions(selectedPersonalState);
+    }
+  }, [selectedPersonalState]);
+
+  useEffect(() => {
+    if (selectedPersonalState === undefined) {
+      setValue("personal_city_id", null);
+      setPersonalCityOptions([]);
+    }
+  }, [selectedPersonalState, setValue]);
+
   return (
     <>
       <div className="shadow-lg rounded-md">
@@ -81,9 +171,9 @@ export const PersonalDataForm = ({
                         field.value
                       )}
                       onChange={(selected) => {
-                        field.onChange(selected?.value || "");
+                        field.onChange(selected?.value || null);
+                        setValue("personal_city_id", null);
                         setPersonalCityOptions([]);
-                        setValue("personal_city_id", "");
                       }}
                       placeholder="Select state..."
                       isClearable
@@ -120,7 +210,7 @@ export const PersonalDataForm = ({
                         field.value
                       )}
                       onChange={(selected) => {
-                        field.onChange(selected?.value || "");
+                        field.onChange(selected?.value || null);
                       }}
                       placeholder="Select city..."
                       isClearable

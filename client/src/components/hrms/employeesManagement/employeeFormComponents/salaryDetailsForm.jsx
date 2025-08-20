@@ -93,8 +93,6 @@ export const EmployeeSalaryDetailsForm = () => {
 
       let response;
 
-      console.log("Payload=====>", payload);
-
       if (updateId) {
         response = await updateEmployee(updateId, payload);
       } else {

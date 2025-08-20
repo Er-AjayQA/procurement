@@ -1,19 +1,70 @@
+import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import Select from "react-select";
 
 export const PresentAddressForm = ({
   control,
   errors,
-  countryListOptions,
-  findSelectedOption,
-  setPresentStateOptions,
-  setPresentCityOptions,
-  presentStateOptions,
-  presentCityOptions,
   setValue,
   register,
+  watch,
+  getAllPresentStatesOptions,
+  getAllPresentCitiesOptions,
+  countryListOptions,
+  findSelectedOption,
   formSelectStyles,
 }) => {
+  const [presentStateOptions, setPresentStateOptions] = useState([]);
+  const [presentCityOptions, setPresentCityOptions] = useState([]);
+
+  // Watch the present country and state values
+  const selectedPresentCountry = watch("present_country_id");
+  const selectedPresentState = watch("present_state_id");
+
+  // Get Present State on Present Country Change
+  useEffect(() => {
+    if (selectedPresentCountry) {
+      getAllPresentStatesOptions(
+        selectedPresentCountry,
+        setPresentStateOptions
+      );
+    } else {
+      setPresentStateOptions([]);
+      setPresentCityOptions([]);
+      setValue("present_state_id", null);
+      setValue("present_city_id", null);
+    }
+  }, [selectedPresentCountry]);
+
+  // Get Present City on Present Country & City Change
+  useEffect(() => {
+    if (selectedPresentCountry && selectedPresentState) {
+      getAllPresentCitiesOptions(
+        selectedPresentCountry,
+        selectedPresentState,
+        setPresentCityOptions
+      );
+    } else {
+      setPresentCityOptions([]);
+    }
+  }, [selectedPresentCountry, selectedPresentState]);
+
+  useEffect(() => {
+    if (selectedPresentCountry === undefined) {
+      setValue("present_state_id", null);
+      setValue("present_city_id", null);
+      setPresentStateOptions([]);
+      setPresentCityOptions([]);
+    }
+  }, [selectedPresentCountry, setValue]);
+
+  useEffect(() => {
+    if (selectedPresentState === undefined) {
+      setValue("present_city_id", null);
+      setPresentCityOptions([]);
+    }
+  }, [selectedPresentState, setValue]);
+
   return (
     <>
       {/* Present Address */}
@@ -45,8 +96,8 @@ export const PresentAddressForm = ({
                         field.onChange(selected?.value || "");
                         setPresentStateOptions([]);
                         setPresentCityOptions([]);
-                        setValue("present_state_id", "");
-                        setValue("present_city_id", "");
+                        setValue("present_state_id", null);
+                        setValue("present_city_id", null);
                       }}
                       placeholder="Select country..."
                       isClearable
@@ -85,7 +136,7 @@ export const PresentAddressForm = ({
                       onChange={(selected) => {
                         field.onChange(selected?.value || "");
                         setPresentCityOptions([]);
-                        setValue("present_city_id", "");
+                        setValue("present_city_id", null);
                       }}
                       placeholder="Select state..."
                       isClearable

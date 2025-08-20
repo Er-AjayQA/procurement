@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import Select from "react-select";
 
@@ -5,14 +6,64 @@ export const PermanentAddressForm = ({
   control,
   setValue,
   register,
+  watch,
   countryListOptions,
   findSelectedOption,
-  setPermanentStateOptions,
-  setPermanentCityOptions,
-  permanentStateOptions,
-  permanentCityOptions,
+  getAllPermanentStatesOptions,
+  getAllPermanentCitiesOptions,
   formSelectStyles,
 }) => {
+  const [permanentStateOptions, setPermanentStateOptions] = useState([]);
+  const [permanentCityOptions, setPermanentCityOptions] = useState([]);
+
+  // Watch the present country and state values
+  const selectedPermanentCountry = watch("permanent_country_id");
+  const selectedPermanentState = watch("permanent_state_id");
+
+  // Get Permanent State on Permanent Country Change
+  useEffect(() => {
+    if (selectedPermanentCountry) {
+      getAllPermanentStatesOptions(
+        selectedPermanentCountry,
+        setPermanentStateOptions
+      );
+    } else {
+      setPermanentStateOptions([]);
+      setPermanentCityOptions([]);
+      setValue("permanent_state_id", null);
+      setValue("permanent_city_id", null);
+    }
+  }, [selectedPermanentCountry]);
+
+  // Get Permanent City on Permanent Country & City Change
+  useEffect(() => {
+    if (selectedPermanentCountry && selectedPermanentState) {
+      getAllPermanentCitiesOptions(
+        selectedPermanentCountry,
+        selectedPermanentState,
+        setPermanentCityOptions
+      );
+    } else {
+      setPermanentCityOptions([]);
+    }
+  }, [selectedPermanentCountry, selectedPermanentState]);
+
+  useEffect(() => {
+    if (selectedPermanentCountry === undefined) {
+      setValue("permanent_state_id", null);
+      setValue("permanent_city_id", null);
+      setPermanentStateOptions([]);
+      setPermanentCityOptions([]);
+    }
+  }, [selectedPermanentCountry, setValue]);
+
+  useEffect(() => {
+    if (selectedPermanentState === undefined) {
+      setValue("permanent_city_id", null);
+      setPermanentCityOptions([]);
+    }
+  }, [selectedPermanentState, setValue]);
+
   return (
     <>
       <div className="shadow-lg rounded-md">
@@ -43,8 +94,8 @@ export const PermanentAddressForm = ({
                         field.onChange(selected?.value || "");
                         setPermanentStateOptions([]);
                         setPermanentCityOptions([]);
-                        setValue("permanent_state_id", "");
-                        setValue("permanent_city_id", "");
+                        setValue("permanent_state_id", null);
+                        setValue("permanent_city_id", null);
                       }}
                       placeholder="Select country..."
                       isClearable
@@ -83,7 +134,7 @@ export const PermanentAddressForm = ({
                       onChange={(selected) => {
                         field.onChange(selected?.value || "");
                         setPermanentCityOptions([]);
-                        setValue("permanent_city_id", "");
+                        setValue("permanent_city_id", null);
                       }}
                       placeholder="Select state..."
                       isClearable
