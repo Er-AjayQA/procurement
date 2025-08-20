@@ -76,14 +76,6 @@ export const EmployeeSalaryDetailsForm = () => {
 
   const handleAllowanceChange = (index, field, value) => {
     const updated = [...allowanceDetails];
-    if (field === "allowance_id") {
-      const checkIfExist = updated?.find((item) => item.allowance_id === value);
-
-      if (checkIfExist) {
-        toast.error("Allowance Type Already Added!");
-        updated[index][field] = null;
-      }
-    }
 
     updated[index][field] = value;
     setAllowanceDetails(updated);
@@ -94,7 +86,7 @@ export const EmployeeSalaryDetailsForm = () => {
     setAllowanceDetails(updated);
   };
 
-  /// Handle Form Submission
+  // Handle Form Submission
   const onSubmit = async (data, e) => {
     try {
       e.preventDefault();
@@ -196,6 +188,7 @@ export const EmployeeSalaryDetailsForm = () => {
                 {allowanceDetails.map((allowance, index) => (
                   <AllowanceDetailsAddItem
                     key={index}
+                    allowanceDetails={allowanceDetails}
                     allowance={allowance}
                     index={index}
                     onChange={handleAllowanceChange}

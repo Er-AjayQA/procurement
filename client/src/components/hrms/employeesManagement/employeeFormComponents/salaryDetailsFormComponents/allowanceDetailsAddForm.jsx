@@ -8,6 +8,7 @@ export const AllowanceDetailsAddItem = ({
   index,
   onChange,
   onRemove,
+  allowanceDetails,
 }) => {
   const { allowancesOptions, formSelectStyles } = useEmployeeContext();
 
@@ -45,7 +46,14 @@ export const AllowanceDetailsAddItem = ({
           >
             <option value="">Select type</option>
             {allowancesOptions?.map((item) => {
-              return <option value={item.value}>{item.label}</option>;
+              const checkAlreadySelected = allowanceDetails.find(
+                (data) => data.allowance_id === item.value
+              );
+              return (
+                <option value={item.value} disabled={checkAlreadySelected}>
+                  {item.label}
+                </option>
+              );
             })}
           </select>
           {errors.allowance_id && (
