@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 export const SalaryDetailsAddForm = ({
   control,
   errors,
+  watch,
   setValue,
   register,
   shiftOptions,
@@ -15,6 +16,8 @@ export const SalaryDetailsAddForm = ({
 }) => {
   const [selectedShift, setSelectedShift] = useState(null);
   const [shiftDetails, setShiftDetails] = useState(null);
+  const baseSalary = watch("base_salary");
+  const dailyWorkingHours = watch("daily_working_hours");
 
   // Get Shift Details
   const getShiftDetails = async (id) => {
@@ -23,6 +26,13 @@ export const SalaryDetailsAddForm = ({
 
       if (response.success) {
         setShiftDetails(response?.data[0]);
+        setValue("daily_working_hours", response?.data[0].shift_duration);
+        setValue("weekly_hours", response?.data[0].shift_duration * 5);
+        setValue(
+          "total_monthly_hours",
+          response?.data[0].working_hours_per_month
+        );
+        calculateSalaries(baseSalary, response.data[0].shift_duration);
       } else {
         toast.error(response.message);
       }
@@ -31,19 +41,54 @@ export const SalaryDetailsAddForm = ({
     }
   };
 
+  // Calculate Salaries
+  const calculateSalaries = (baseSalary, shiftDuration) => {
+    const base = parseFloat(baseSalary);
+    const hours = parseFloat(shiftDuration);
+
+    if (!isNaN(base) && !isNaN(hours) && hours > 0) {
+      const salaryPerDay = base / 30;
+      const salaryPerHour = salaryPerDay / hours;
+      setValue("salary_per_day", salaryPerDay.toFixed(2));
+      setValue("salary_per_hour", salaryPerHour.toFixed(2));
+    } else {
+      setValue("salary_per_day", "");
+      setValue("salary_per_hour", "");
+    }
+  };
+
+  // Handle base salary change
+  const handleBaseSalaryChange = (e) => {
+    const value = e.target.value;
+    setValue("base_salary", value);
+    calculateSalaries(value, dailyWorkingHours);
+  };
+
+  useEffect(() => {
+    calculateSalaries(baseSalary, dailyWorkingHours);
+  }, [baseSalary, dailyWorkingHours, setValue]);
+
+  // Getting Shift Details on selecting Shift
   useEffect(() => {
     if (selectedShift) {
       getShiftDetails(selectedShift);
     }
   }, [selectedShift]);
 
+  // clear auto patch fields on changing the selecting shift type
   useEffect(() => {
-    if (selectedShift === undefined) {
+    if (selectedShift) {
+      getShiftDetails(selectedShift);
+    } else {
+      // Clear shift-related fields when no shift is selected
+      setShiftDetails(null);
       setValue("daily_working_hours", "");
+      setValue("weekly_hours", "");
+      setValue("total_monthly_hours", "");
+      setValue("base_salary", "");
+      calculateSalaries(baseSalary, null);
     }
   }, [selectedShift]);
-
-  console.log("Shift Details=====>", shiftDetails);
 
   return (
     <>
@@ -99,6 +144,7 @@ export const SalaryDetailsAddForm = ({
                 <input
                   type="number"
                   id="base_salary"
+                  onChange={handleBaseSalaryChange}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter base salary..."
                   {...register("base_salary")}
@@ -115,7 +161,7 @@ export const SalaryDetailsAddForm = ({
                 <input
                   type="number"
                   id="daily_working_hours"
-                  value={shiftDetails?.shift_duration}
+                  readOnly
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter daily working hours..."
                   {...register("daily_working_hours")}
@@ -132,6 +178,7 @@ export const SalaryDetailsAddForm = ({
                 <input
                   type="number"
                   id="salary_per_day"
+                  readOnly
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter salary per day..."
                   {...register("salary_per_day")}
@@ -148,6 +195,7 @@ export const SalaryDetailsAddForm = ({
                 <input
                   type="number"
                   id="salary_per_hour"
+                  readOnly
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter salary per hour..."
                   {...register("salary_per_hour")}
@@ -164,7 +212,7 @@ export const SalaryDetailsAddForm = ({
                 <input
                   type="number"
                   id="total_monthly_hours"
-                  value={shiftDetails?.working_hours_per_month}
+                  readOnly
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter total monthly hours..."
                   {...register("total_monthly_hours")}
@@ -181,6 +229,7 @@ export const SalaryDetailsAddForm = ({
                 <input
                   type="number"
                   id="weekly_hours"
+                  readOnly
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter weekly hours..."
                   {...register("weekly_hours")}

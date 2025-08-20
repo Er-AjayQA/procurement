@@ -270,7 +270,6 @@ module.exports.createUser = async (req, res) => {
         total_monthly_hours,
         weekly_hours,
         allowances,
-        salary_revision_details,
       } = req.body;
 
       // Find user details need to update
@@ -314,22 +313,6 @@ module.exports.createUser = async (req, res) => {
                 user_id: findUser.id,
                 allowance_id: allowance.allowance_id,
                 amount: allowance.amount,
-              })),
-              { transaction }
-            );
-          }
-
-          // Adding the Salary Revision
-          if (salary_revision_details && salary_revision_details.length > 0) {
-            await DB.tbl_user_salary_revision.bulkCreate(
-              salary_revision_details.map((revision) => ({
-                user_id: findUser.id,
-                year: revision.year,
-                month: revision.month,
-                new_salary: revision.new_salary,
-                old_salary: revision.old_salary,
-                revision_percent: revision.revision_percent,
-                remark: revision.remark,
               })),
               { transaction }
             );
