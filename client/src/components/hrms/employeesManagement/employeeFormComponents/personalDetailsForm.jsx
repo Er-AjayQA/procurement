@@ -56,8 +56,6 @@ export const EmployeePersonalDetailsForm = () => {
   });
 
   // Watch Input Fields
-  const selectedPresentCountry = watch("present_country_id");
-  const selectedPresentState = watch("present_state_id");
   const selectedPermanentCountry = watch("permanent_country_id");
   const selectedPermanentState = watch("permanent_state_id");
   const selectedPersonalState = watch("personal_state_id");
@@ -76,12 +74,7 @@ export const EmployeePersonalDetailsForm = () => {
     updateId,
     handleTabClick,
   } = useEmployeeContext();
-  const [presentStateOptions, setPresentStateOptions] = useState([]);
-  const [presentCityOptions, setPresentCityOptions] = useState([]);
-  const [permanentStateOptions, setPermanentStateOptions] = useState([]);
-  const [permanentCityOptions, setPermanentCityOptions] = useState([]);
-  const [personalStateOptions, setPersonalStateOptions] = useState([]);
-  const [personalCityOptions, setPersonalCityOptions] = useState([]);
+
   const [nationalityOptions, setNationalityOptions] = useState([]);
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState(null);
   const [familyDetails, setFamilyDetails] = useState([]);
@@ -107,23 +100,23 @@ export const EmployeePersonalDetailsForm = () => {
   };
 
   // Get All Present State Options
-  const getAllPresentStatesOptions = async (presentCountryId) => {
+  const getAllPresentStatesOptions = async (id, state) => {
     try {
-      if (!presentCountryId) {
-        setPresentStateOptions([]);
+      if (!id) {
+        state([]);
         return;
       }
       const response = await getAllStates({
         limit: 500000,
         page: "",
         filter: {
-          country_id: presentCountryId,
+          country_id: id,
           name: "",
         },
       });
 
       if (response.success) {
-        setPresentStateOptions(
+        state(
           response.data.map((data) => ({
             value: data?.id,
             label: data?.name,
@@ -133,33 +126,30 @@ export const EmployeePersonalDetailsForm = () => {
         throw new Error(response.message);
       }
     } catch (error) {
-      setPresentStateOptions([]);
+      state([]);
       toast.error(error.message || "Failed to load states");
     }
   };
 
   // Get All Present Cities Options
-  const getAllPresentCitiesOptions = async (
-    presentCountryId,
-    presentStateId
-  ) => {
+  const getAllPresentCitiesOptions = async (countryId, stateId, state) => {
     try {
-      if (!presentCountryId || !presentStateId) {
-        setPresentCityOptions([]);
+      if (!countryId || !stateId) {
+        state([]);
         return;
       }
       const response = await getAllCities({
         limit: 500000,
         page: "",
         filter: {
-          state_id: presentStateId,
-          country_id: presentCountryId,
+          state_id: stateId,
+          country_id: countryId,
           name: "",
         },
       });
 
       if (response.success) {
-        setPresentCityOptions(
+        state(
           response.data.map((data) => ({
             value: data?.id,
             label: data?.name,
@@ -169,29 +159,29 @@ export const EmployeePersonalDetailsForm = () => {
         throw new Error(response.message);
       }
     } catch (error) {
-      setPresentCityOptions([]);
+      state([]);
       toast.error(error.message || "Failed to load Cities");
     }
   };
 
   // Get All Permanent State Options
-  const getAllPermanentStatesOptions = async (permanentCountryId) => {
+  const getAllPermanentStatesOptions = async (countryId, state) => {
     try {
-      if (!permanentCountryId) {
-        setPermanentStateOptions([]);
+      if (!countryId) {
+        state([]);
         return;
       }
       const response = await getAllStates({
         limit: 500000,
         page: "",
         filter: {
-          country_id: permanentCountryId,
+          country_id: countryId,
           name: "",
         },
       });
 
       if (response.success) {
-        setPermanentStateOptions(
+        state(
           response.data.map((data) => ({
             value: data?.id,
             label: data?.name,
@@ -201,33 +191,30 @@ export const EmployeePersonalDetailsForm = () => {
         throw new Error(response.message);
       }
     } catch (error) {
-      setPermanentStateOptions([]);
+      state([]);
       toast.error(error.message || "Failed to load states");
     }
   };
 
   // Get All Permanent Cities Options
-  const getAllPermanentCitiesOptions = async (
-    permanentCountryId,
-    permanentStateId
-  ) => {
+  const getAllPermanentCitiesOptions = async (countryId, stateId, state) => {
     try {
-      if (!permanentCountryId || !permanentStateId) {
-        setPermanentCityOptions([]);
+      if (!countryId || !stateId) {
+        state([]);
         return;
       }
       const response = await getAllCities({
         limit: 500000,
         page: "",
         filter: {
-          state_id: permanentStateId,
-          country_id: permanentCountryId,
+          state_id: stateId,
+          country_id: countryId,
           name: "",
         },
       });
 
       if (response.success) {
-        setPermanentCityOptions(
+        state(
           response.data.map((data) => ({
             value: data?.id,
             label: data?.name,
@@ -237,7 +224,7 @@ export const EmployeePersonalDetailsForm = () => {
         throw new Error(response.message);
       }
     } catch (error) {
-      setPermanentCityOptions([]);
+      state([]);
       toast.error(error.message || "Failed to load Cities");
     }
   };
@@ -260,67 +247,6 @@ export const EmployeePersonalDetailsForm = () => {
     } catch (error) {
       setNationalityOptions([]);
       toast.error(error.message || "Failed to load Nationalities");
-    }
-  };
-
-  // Get All Personal State Options
-  const getAllPersonalStatesOptions = async () => {
-    try {
-      const response = await getAllStates({
-        limit: 5000000,
-        page: "",
-        filter: {
-          country_id: "",
-          name: "",
-        },
-      });
-
-      if (response.success) {
-        setPersonalStateOptions(
-          response.data.map((data) => ({
-            value: data?.id,
-            label: data?.name,
-          }))
-        );
-      } else {
-        throw new Error(response.message);
-      }
-    } catch (error) {
-      setPersonalStateOptions([]);
-      toast.error(error.message || "Failed to load states");
-    }
-  };
-
-  // Get All Personal City Options
-  const getAllPersonalCityOptions = async (permanentStateId) => {
-    try {
-      if (!permanentStateId) {
-        setPermanentCityOptions([]);
-        return;
-      }
-      const response = await getAllCities({
-        limit: 500000,
-        page: "",
-        filter: {
-          state_id: permanentStateId,
-          country_id: "",
-          name: "",
-        },
-      });
-
-      if (response.success) {
-        setPersonalCityOptions(
-          response.data.map((data) => ({
-            value: data?.id,
-            label: data?.name,
-          }))
-        );
-      } else {
-        throw new Error(response.message);
-      }
-    } catch (error) {
-      setPersonalCityOptions([]);
-      toast.error(error.message || "Failed to load Cities");
     }
   };
 
@@ -447,69 +373,10 @@ export const EmployeePersonalDetailsForm = () => {
     }
   };
 
-  // Get Present State on Present Country Change
-  useEffect(() => {
-    if (selectedPresentCountry) {
-      getAllPresentStatesOptions(selectedPresentCountry);
-    } else {
-      setPresentStateOptions([]);
-      setPresentCityOptions([]);
-      setValue("present_state_id", "");
-      setValue("present_city_id", "");
-    }
-  }, [selectedPresentCountry]);
-
-  // Get Present City on Present Country & City Change
-  useEffect(() => {
-    if (selectedPresentCountry && selectedPresentState) {
-      getAllPresentCitiesOptions(selectedPresentCountry, selectedPresentState);
-    } else {
-      setPresentCityOptions([]);
-    }
-  }, [selectedPresentCountry, selectedPresentState]);
-
-  // Get Permanent State on Permanent Country Change
-  useEffect(() => {
-    if (selectedPermanentCountry) {
-      getAllPermanentStatesOptions(selectedPermanentCountry);
-    } else {
-      setPermanentStateOptions([]);
-      setPermanentCityOptions([]);
-      setValue("permanent_state_id", "");
-      setValue("permanent_city_id", "");
-    }
-  }, [selectedPermanentCountry]);
-
-  // Get Permanent City on Permanent Country & City Change
-  useEffect(() => {
-    if (selectedPermanentCountry && selectedPermanentState) {
-      getAllPermanentCitiesOptions(
-        selectedPermanentCountry,
-        selectedPermanentState
-      );
-    } else {
-      setPermanentCityOptions([]);
-    }
-  }, [selectedPermanentCountry, selectedPermanentState]);
-
   // Get All Nationalities on Page Load
   useEffect(() => {
     getAllNationalityOptions();
   }, []);
-
-  // Get All Personal States on Page Load
-  useEffect(() => {
-    getAllPersonalStatesOptions();
-  }, []);
-
-  // Get All Personal Cities on Page Load
-  useEffect(() => {
-    if (selectedPersonalState) {
-      getAllPersonalCityOptions(selectedPersonalState);
-    } else {
-      setPersonalCityOptions([]);
-    }
-  }, [selectedPersonalState]);
 
   return (
     <>
@@ -519,14 +386,13 @@ export const EmployeePersonalDetailsForm = () => {
           <PresentAddressForm
             control={control}
             errors={errors}
-            countryListOptions={countryListOptions}
-            findSelectedOption={findSelectedOption}
-            setPresentStateOptions={setPresentStateOptions}
-            setPresentCityOptions={setPresentCityOptions}
-            presentStateOptions={presentStateOptions}
-            presentCityOptions={presentCityOptions}
             setValue={setValue}
             register={register}
+            watch={watch}
+            countryListOptions={countryListOptions}
+            findSelectedOption={findSelectedOption}
+            getAllPresentStatesOptions={getAllPresentStatesOptions}
+            getAllPresentCitiesOptions={getAllPresentCitiesOptions}
             formSelectStyles={formSelectStyles}
           />
 
@@ -536,12 +402,11 @@ export const EmployeePersonalDetailsForm = () => {
             setValue={setValue}
             register={register}
             errors={errors}
+            watch={watch}
             countryListOptions={countryListOptions}
             findSelectedOption={findSelectedOption}
-            setPermanentStateOptions={setPermanentStateOptions}
-            setPermanentCityOptions={setPermanentCityOptions}
-            permanentStateOptions={permanentStateOptions}
-            permanentCityOptions={permanentCityOptions}
+            getAllPermanentStatesOptions={getAllPermanentStatesOptions}
+            getAllPermanentCitiesOptions={getAllPermanentCitiesOptions}
             formSelectStyles={formSelectStyles}
           />
 
@@ -551,12 +416,10 @@ export const EmployeePersonalDetailsForm = () => {
             setValue={setValue}
             register={register}
             errors={errors}
+            watch={watch}
             formSelectStyles={formSelectStyles}
             nationalityOptions={nationalityOptions}
             findSelectedOption={findSelectedOption}
-            personalStateOptions={personalStateOptions}
-            setPersonalCityOptions={setPersonalCityOptions}
-            personalCityOptions={personalCityOptions}
             bloodOptions={bloodOptions}
             maritalStatusOptions={maritalStatusOptions}
             setSelectedMaritalStatus={setSelectedMaritalStatus}

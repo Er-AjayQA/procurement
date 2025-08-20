@@ -65,17 +65,17 @@ export const EmployeeSalaryDetails = () => {
                     data?.allowance_details.map((allowance, i) => {
                       return (
                         <div
-                          key={allowance.id}
+                          key={allowance?.id}
                           className="grid grid-cols-3 border-b border-b-gray-200 py-2 last:border-none"
                         >
                           <div className="text-xs flex items-center">
                             {i + 1}
                           </div>
                           <div className="text-xs flex items-center">
-                            {allowance.ALLOWANCE_MASTER.name}
+                            {allowance?.ALLOWANCE_MASTER.name}
                           </div>
                           <div className="text-xs flex items-center">
-                            {allowance.amount}
+                            {allowance?.amount}
                           </div>
                         </div>
                       );

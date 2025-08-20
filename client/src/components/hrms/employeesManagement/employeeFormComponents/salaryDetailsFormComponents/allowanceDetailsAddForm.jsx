@@ -56,11 +56,6 @@ export const AllowanceDetailsAddItem = ({
               );
             })}
           </select>
-          {errors.allowance_id && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.allowance_id.message}
-            </p>
-          )}
         </div>
 
         <div className="col-span-4 flex flex-col gap-3 px-3 py-3">
@@ -68,15 +63,13 @@ export const AllowanceDetailsAddItem = ({
             <input
               type="number"
               id="amount"
+              name="amount"
+              value={allowance.amount}
+              onChange={(e) => onChange(index, "amount", e.target.value)}
+              required
               className={`w-full rounded-md border py-2 px-3 border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-xs`}
               placeholder="Enter amount..."
-              {...register("amount", { required: "Amount is required!" })}
             />
-            {errors.amount && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.amount.message}
-              </p>
-            )}
           </div>
         </div>
 
