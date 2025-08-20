@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import Select from "react-select";
+import { getShiftById } from "../../../../../services/master_services/service";
+import { toast } from "react-toastify";
 
 export const SalaryDetailsAddForm = ({
   control,
@@ -10,6 +13,38 @@ export const SalaryDetailsAddForm = ({
   findSelectedOption,
   formSelectStyles,
 }) => {
+  const [selectedShift, setSelectedShift] = useState(null);
+  const [shiftDetails, setShiftDetails] = useState(null);
+
+  // Get Shift Details
+  const getShiftDetails = async (id) => {
+    try {
+      const response = await getShiftById(id);
+
+      if (response.success) {
+        setShiftDetails(response?.data[0]);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      setShiftDetails(null);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedShift) {
+      getShiftDetails(selectedShift);
+    }
+  }, [selectedShift]);
+
+  useEffect(() => {
+    if (selectedShift === undefined) {
+      setValue("daily_working_hours", "");
+    }
+  }, [selectedShift]);
+
+  console.log("Shift Details=====>", shiftDetails);
+
   return (
     <>
       {/* Salary Details */}
@@ -36,6 +71,7 @@ export const SalaryDetailsAddForm = ({
                       value={findSelectedOption(shiftOptions, field.value)}
                       onChange={(selected) => {
                         field.onChange(selected?.value || "");
+                        setSelectedShift(selected?.value);
                       }}
                       placeholder="Select shift..."
                       isClearable
@@ -79,6 +115,7 @@ export const SalaryDetailsAddForm = ({
                 <input
                   type="number"
                   id="daily_working_hours"
+                  value={shiftDetails?.shift_duration}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter daily working hours..."
                   {...register("daily_working_hours")}
@@ -127,6 +164,7 @@ export const SalaryDetailsAddForm = ({
                 <input
                   type="number"
                   id="total_monthly_hours"
+                  value={shiftDetails?.working_hours_per_month}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter total monthly hours..."
                   {...register("total_monthly_hours")}
