@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Controller } from "react-hook-form";
 import Select from "react-select";
 import {
@@ -6,6 +6,7 @@ import {
   getAllStates,
 } from "../../../../../services/master_services/service";
 import { toast } from "react-toastify";
+import { useEmployeeContext } from "../../../../../contextApis/useHrmsContextFile";
 
 export const PersonalDataForm = ({
   control,
@@ -23,8 +24,11 @@ export const PersonalDataForm = ({
   datesValidationsError,
   setDatesValidationsError,
 }) => {
+  const { data, updateId } = useEmployeeContext();
   const [personalStateOptions, setPersonalStateOptions] = useState([]);
   const [personalCityOptions, setPersonalCityOptions] = useState([]);
+  const [isDataInitialized, setIsDataInitialized] = useState(false);
+  const isInitialMount = useRef(true);
 
   // Watch the present country and state values
   const selectedPersonalState = watch("personal_state_id");
@@ -34,7 +38,7 @@ export const PersonalDataForm = ({
   const selectedPassportExpiryDate = watch("passport_exp_date");
 
   // Get All Personal State Options
-  const getAllPersonalStatesOptions = async () => {
+  const getAllPersonalStatesOptions = useCallback(async () => {
     try {
       const response = await getAllStates({
         limit: 50000000,
@@ -59,10 +63,10 @@ export const PersonalDataForm = ({
       setPersonalStateOptions([]);
       toast.error(error.message || "Failed to load states");
     }
-  };
+  }, []);
 
   // Get All Personal City Options
-  const getAllPersonalCityOptions = async (stateId) => {
+  const getAllPersonalCityOptions = useCallback(async (stateId) => {
     try {
       if (!stateId) {
         setPersonalCityOptions([]);
@@ -92,28 +96,93 @@ export const PersonalDataForm = ({
       setPersonalCityOptions([]);
       toast.error(error.message || "Failed to load Cities");
     }
-  };
-
-  // Get All Personal States on Page Load
-  useEffect(() => {
-    getAllPersonalStatesOptions();
   }, []);
 
-  // Get All Personal Cities on Page Load
+  // Get All Personal States on Page Load - Run only once
+  useEffect(() => {
+    if (isInitialMount.current) {
+      getAllPersonalStatesOptions();
+      isInitialMount.current = false;
+    }
+  }, []); // Empty dependency array to run only once
+
+  // Get All Personal Cities when state changes
   useEffect(() => {
     if (selectedPersonalState) {
       getAllPersonalCityOptions(selectedPersonalState);
     }
-  }, [selectedPersonalState]);
+  }, [selectedPersonalState, getAllPersonalCityOptions]);
 
+  // Reset city options when state is cleared
   useEffect(() => {
-    if (selectedPersonalState === undefined) {
+    if (selectedPersonalState === undefined || selectedPersonalState === null) {
       setValue("personal_city_id", null);
       setPersonalCityOptions([]);
     }
   }, [selectedPersonalState, setValue]);
 
-  // handling the dates validation
+  // Updating fields when in update mode - RUNS ONLY ONCE
+  useEffect(() => {
+    if (updateId && data && !isDataInitialized) {
+      const setUpdateDefaultData = async () => {
+        // Batch all setValue calls to minimize re-renders
+        const updates = {
+          id_number: data?.id_number || "",
+          id_issue_date: data?.id_issue_date || "",
+          id_exp_date: data?.id_exp_date || "",
+          dire_number: data?.dire_number || "",
+          driving_license: data?.driving_license || "",
+          blood_group: data?.blood_group || "",
+          marital_status: data?.marital_status || "",
+          passport_number: data?.passport_number || "",
+          passport_issue_date: data?.passport_issue_date || "",
+          passport_exp_date: data?.passport_exp_date || "",
+          tax_number: data?.tax_number || "",
+        };
+
+        Object.entries(updates).forEach(([key, value]) => {
+          setValue(key, value);
+        });
+
+        if (data?.marital_status === "Married") {
+          setSelectedMaritalStatus(data.marital_status);
+          setValue("spouse_name", data?.spouse_name || "");
+        }
+
+        if (nationalityOptions && data?.nationality) {
+          setValue("nationality", data?.nationality);
+        }
+
+        if (data?.personal_state_id) {
+          setValue("personal_state_id", data.personal_state_id);
+
+          // Load cities after a short delay to ensure states are loaded
+          setTimeout(() => {
+            getAllPersonalCityOptions(data.personal_state_id).then(() => {
+              if (data?.personal_city_id) {
+                setValue("personal_city_id", data.personal_city_id);
+              }
+              setIsDataInitialized(true);
+            });
+          }, 100);
+        } else {
+          setIsDataInitialized(true);
+        }
+      };
+
+      setUpdateDefaultData();
+    }
+  }, [
+    updateId,
+    data,
+    isDataInitialized,
+    setValue,
+    setSelectedMaritalStatus,
+    nationalityOptions,
+    getAllPersonalCityOptions,
+  ]);
+
+  // Date validation effects
   useEffect(() => {
     if (selectedIdIssueDate && selectedIdExpiryDate) {
       const idIssue = new Date(selectedIdIssueDate);
@@ -126,9 +195,8 @@ export const PersonalDataForm = ({
         setDatesValidationsError((prev) => ({ ...prev, idDatesError: false }));
       }
     }
-  }, [selectedIdIssueDate, selectedIdExpiryDate]);
+  }, [selectedIdIssueDate, selectedIdExpiryDate, setDatesValidationsError]);
 
-  // handling the dates validation
   useEffect(() => {
     if (selectedPassportIssueDate && selectedPassportExpiryDate) {
       const passportIssue = new Date(selectedPassportIssueDate);
@@ -149,7 +217,11 @@ export const PersonalDataForm = ({
         }));
       }
     }
-  }, [selectedPassportIssueDate, selectedPassportExpiryDate]);
+  }, [
+    selectedPassportIssueDate,
+    selectedPassportExpiryDate,
+    setDatesValidationsError,
+  ]);
 
   return (
     <>
