@@ -383,6 +383,13 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("probation_end_date", value === "" ? null : value);
         },
       },
+      notice_period_days: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("notice_period_days", value === "" ? null : value);
+        },
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

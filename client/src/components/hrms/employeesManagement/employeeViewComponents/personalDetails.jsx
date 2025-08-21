@@ -164,24 +164,24 @@ export const EmployeePersonalDetails = () => {
                   data?.family_details.map((family, i) => {
                     return (
                       <div
-                        key={family.id}
+                        key={family?.id}
                         className="grid grid-cols-7 border-b border-b-gray-200 py-2 last:border-none"
                       >
                         <div className="text-xs flex items-center">{i + 1}</div>
                         <div className="text-xs flex items-center">
-                          {family.member_name}
+                          {family?.member_name}
                         </div>
                         <div className="text-xs flex items-center">
-                          {family.dob}
+                          {family?.dob}
                         </div>
                         <div className="text-xs flex items-center">
-                          {family.relation_type}
+                          {family?.relation_type}
                         </div>
                         <div className="text-xs flex items-center">
-                          {family.contact_number}
+                          {family?.contact_number}
                         </div>
                         <div className="text-xs flex items-center">
-                          {family.remark}
+                          {family?.remark}
                         </div>
                         <div className="text-xs flex items-center justify-center">
                           {family?.selected_as_emergency ? (
@@ -221,7 +221,7 @@ export const EmployeePersonalDetails = () => {
                 <div className="text-xs font-bold">To Date</div>
                 <div className="text-xs font-bold">Last Drawn Salary</div>
                 <div className="text-xs font-bold">Reason of Leaving</div>
-                <div className="text-xs font-bold">Location</div>
+                <div className="text-xs font-bold text-center">Location</div>
               </div>
 
               <div>
@@ -229,27 +229,27 @@ export const EmployeePersonalDetails = () => {
                   data?.previous_employer_details.map((company, i) => {
                     return (
                       <div
-                        key={company.id}
+                        key={company?.id}
                         className="grid grid-cols-7 border-b border-b-gray-200 py-2 last:border-none"
                       >
                         <div className="text-xs flex items-center">{i + 1}</div>
                         <div className="text-xs flex items-center">
-                          {company.company_name}
+                          {company?.company_name}
                         </div>
                         <div className="text-xs flex items-center">
-                          {company.from_date}
+                          {company?.from_date}
                         </div>
                         <div className="text-xs flex items-center">
-                          {company.to_date}
+                          {company?.to_date}
                         </div>
                         <div className="text-xs flex items-center">
-                          {company.last_drawn_salary}
+                          {company?.last_drawn_salary}
                         </div>
                         <div className="text-xs flex items-center">
-                          {company.reason_of_leaving}
+                          {company?.reason_of_leaving}
                         </div>
-                        <div className="text-xs flex items-center">
-                          {company.location}
+                        <div className="text-xs flex items-center justify-center">
+                          {company?.location}
                         </div>
                       </div>
                     );

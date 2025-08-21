@@ -23,7 +23,9 @@ export const EmployeeSalaryDetails = () => {
               <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Daily Working Hrs</label>
                 <p className="text-[.7rem]">
-                  {data?.daily_working_hours || "N/A"}
+                  {data?.daily_working_hours
+                    ? `${data?.daily_working_hours} Hrs`
+                    : "N/A"}
                 </p>
               </div>
               <div className="flex flex-col gap-2 justify-center">
@@ -37,12 +39,16 @@ export const EmployeeSalaryDetails = () => {
               <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Total Monthly Hours</label>
                 <p className="text-[.7rem]">
-                  {data?.total_monthly_hours || "N/A"}
+                  {data?.total_monthly_hours
+                    ? `${data?.total_monthly_hours} Hrs`
+                    : "N/A"}
                 </p>
               </div>
               <div className="flex flex-col gap-2 justify-center">
                 <label className="text-[.8rem]">Weekly Hours</label>
-                <p className="text-[.7rem]">{data?.weekly_hours || "N/A"}</p>
+                <p className="text-[.7rem]">
+                  {data?.weekly_hours ? `${data?.weekly_hours} Hrs` : "N/A"}
+                </p>
               </div>
             </div>
           </div>

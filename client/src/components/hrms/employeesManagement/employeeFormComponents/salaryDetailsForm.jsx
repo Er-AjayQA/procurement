@@ -47,6 +47,7 @@ export const EmployeeSalaryDetailsForm = () => {
   } = useEmployeeContext();
 
   const [allowanceDetails, setAllowanceDetails] = useState([]);
+  const [baseSalaryError, setBaseSalaryError] = useState(false);
 
   // Helper function to find selected option
   const findSelectedOption = (options, value) => {
@@ -77,6 +78,12 @@ export const EmployeeSalaryDetailsForm = () => {
   const onSubmit = async (data, e) => {
     try {
       e.preventDefault();
+
+      if (data?.base_salary < 0) {
+        toast.error("Base salary can't be less than 0.");
+        setBaseSalaryError(true);
+        return;
+      }
 
       const payload = {
         tab_type: tabType,
@@ -123,6 +130,8 @@ export const EmployeeSalaryDetailsForm = () => {
             findSelectedOption={findSelectedOption}
             setValue={setValue}
             register={register}
+            baseSalaryError={baseSalaryError}
+            setBaseSalaryError={setBaseSalaryError}
             formSelectStyles={formSelectStyles}
           />
 
