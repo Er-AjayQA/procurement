@@ -48,6 +48,7 @@ export const EmployeeSalaryDetailsForm = () => {
 
   const [allowanceDetails, setAllowanceDetails] = useState([]);
   const [baseSalaryError, setBaseSalaryError] = useState(false);
+  const [allowanceAmountError, setAllowanceAmountError] = useState({});
 
   // Helper function to find selected option
   const findSelectedOption = (options, value) => {
@@ -58,20 +59,43 @@ export const EmployeeSalaryDetailsForm = () => {
   const handleAddAllowance = () => {
     setAllowanceDetails([
       ...allowanceDetails,
-      { allowance_id: "", amount: "" },
+      { allowance_id: "", amount: "", id: Date.now() + Math.random() },
     ]);
   };
 
-  const handleAllowanceChange = (index, field, value) => {
-    const updated = [...allowanceDetails];
+  const handleAllowanceChange = (id, field, value) => {
+    const updated = allowanceDetails.map((item) => {
+      if (item.id === id) {
+        if (field === "amount") {
+          if (value < 0) {
+            toast.error("Amount can't be smaller than 0!");
+            setAllowanceAmountError((prev) => ({ ...prev, [id]: true }));
+            return { ...item, [field]: value };
+          } else {
+            setAllowanceAmountError((prev) => {
+              const newErrors = { ...prev };
+              delete newErrors[id];
+              return newErrors;
+            });
+          }
+        }
+        return { ...item, [field]: value };
+      }
+      return item;
+    });
 
-    updated[index][field] = value;
     setAllowanceDetails(updated);
   };
 
-  const handleRemoveAllowance = (index) => {
-    const updated = allowanceDetails.filter((_, i) => i !== index);
+  const handleRemoveAllowance = (id) => {
+    const updated = allowanceDetails.filter((item) => item.id !== id);
     setAllowanceDetails(updated);
+
+    setAllowanceAmountError((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[id];
+      return newErrors;
+    });
   };
 
   // Handle Form Submission
@@ -167,10 +191,11 @@ export const EmployeeSalaryDetailsForm = () => {
                 </div>
                 {allowanceDetails.map((allowance, index) => (
                   <AllowanceDetailsAddItem
-                    key={index}
+                    key={allowance.id}
                     allowanceDetails={allowanceDetails}
                     allowance={allowance}
                     index={index}
+                    allowanceAmountError={allowanceAmountError}
                     onChange={handleAllowanceChange}
                     onRemove={handleRemoveAllowance}
                   />

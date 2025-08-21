@@ -64,17 +64,22 @@ export const SalaryDetailsAddForm = ({
   const handleBaseSalaryChange = (e) => {
     const value = e.target.value;
     setValue("base_salary", value);
+
+    if (value < 0) {
+      setBaseSalaryError(true);
+    } else {
+      setBaseSalaryError(false);
+    }
     calculateSalaries(value, dailyWorkingHours);
   };
 
   useEffect(() => {
     if (baseSalary && baseSalary < 0) {
-      toast.error("Base salary can't be less than 0.");
       setBaseSalaryError(true);
+      toast.error("Base salary can't be less than 0.");
+    } else {
+      setBaseSalaryError(false);
     }
-
-    setBaseSalaryError(false);
-
     calculateSalaries(baseSalary, dailyWorkingHours);
   }, [baseSalary, dailyWorkingHours, setValue]);
 

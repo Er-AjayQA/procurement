@@ -143,23 +143,59 @@ export const EmployeeBasicDetailsForm = () => {
   useEffect(() => {
     if (updateId && data) {
       reset({
-        title: data.title || "",
-        name: data.name || "",
-        code: data.code || "",
-        contact_no: data.contact_no || "",
-        alt_code: data.alt_code || "",
-        alt_contact_no: data.alt_contact_no || "",
-        dob: data.dob || "",
-        gender: data.gender || "",
-        personal_email: data.personal_email || "",
-        official_email: data.official_email || "",
-        reporting_manager_id: data.reporting_manager_id || "",
-        role_id: data.role_id || "",
-        emp_type_id: data.emp_type_id || "",
-        designation_id: data.designation_id || "",
-        dep_id: data.dep_id || "",
-        area_id: data.area_id || "",
+        title: data?.title || "",
+        name: data?.name || "",
+        contact_no: data?.contact_no || "",
+        alt_contact_no: data?.alt_contact_no || "",
+        dob: data?.dob || "",
+        gender: data?.gender || "",
+        personal_email: data?.personal_email || "",
+        official_email: data?.official_email || "",
+        reporting_manager_id: data?.reporting_manager_id || "",
+        role_id: data?.role_id || "",
+        emp_type_id: data?.emp_type_id || "",
+        designation_id: data?.designation_id || "",
+        dep_id: data?.dep_id || "",
+        area_id: data?.area_id || "",
+        branch_id: data?.branch_id || "",
       });
+
+      const setUpdateDefaultData = () => {
+        if (data?.title) {
+          const option = titleOptions?.find(
+            (item) => item.value === data.title
+          );
+
+          if (option) {
+            setValue("title", option.value);
+          }
+        }
+
+        if (data?.contact_no) {
+          const [code, contact] = data.contact_no.split("-");
+
+          const option = countryCodeOptions?.find(
+            (item) => item.value == parseInt(code)
+          );
+
+          if (option) {
+            setValue("code", option.value);
+          }
+        }
+
+        if (data?.alt_contact_no) {
+          const [code, contact] = data.alt_contact_no.split("-");
+
+          const option = countryCodeOptions?.find(
+            (item) => item.value == parseInt(code)
+          );
+
+          if (option) {
+            setValue("alt_code", option.value);
+          }
+        }
+      };
+      setUpdateDefaultData();
     } else {
       reset({
         title: "",
@@ -479,6 +515,7 @@ export const EmployeeBasicDetailsForm = () => {
                 <input
                   type="date"
                   id="dob"
+                  max={new Date().toISOString().split("T")[0]} // This disables future dates
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Date of birth..."
                   {...register("dob", {

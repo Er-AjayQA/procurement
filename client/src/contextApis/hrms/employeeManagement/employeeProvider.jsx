@@ -230,6 +230,7 @@ export const EmployeeProvider = ({ children }) => {
       if (response.data.success) {
         setData(response.data.data[0]);
       } else {
+        toast.error(response.message);
         throw new Error(response.message);
       }
     } catch (error) {
@@ -505,12 +506,11 @@ export const EmployeeProvider = ({ children }) => {
     }
   }, [deleteId]);
 
-  // Get Role list
-  useEffect(() => {
-    getAllRolesList();
-  }, [updateId]);
+  // // Get Role list
+  // useEffect(() => {}, [updateId]);
 
   useEffect(() => {
+    getAllRolesList();
     getAllCountryOptions();
     getAllCountryCodesOptions();
     getAllDepartmentOptions();
@@ -521,7 +521,7 @@ export const EmployeeProvider = ({ children }) => {
     getAllAllowancesOptions();
     getAllBanksList();
     getAllContractTypesList();
-  }, []);
+  }, [updateId]);
 
   const styledComponent = {
     control: (base) => ({

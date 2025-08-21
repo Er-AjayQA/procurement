@@ -3,16 +3,17 @@ import { MdDelete } from "react-icons/md";
 import { useEmployeeContext } from "../../../../../contextApis/useHrmsContextFile";
 
 export const AllowanceDetailsAddItem = ({
-  key,
   allowance,
   index,
   onChange,
   onRemove,
   allowanceDetails,
+  allowanceAmountError,
 }) => {
   const { allowancesOptions, formSelectStyles } = useEmployeeContext();
 
   const {
+    key,
     register,
     handleSubmit,
     control,
@@ -20,12 +21,6 @@ export const AllowanceDetailsAddItem = ({
     reset,
     formState: { errors },
   } = useForm();
-
-  // Helper function to find selected option
-  const findSelectedOption = (options, value) => {
-    if (!options || value === undefined || value === null) return null;
-    return options.find((opt) => opt.value === value);
-  };
 
   return (
     <>
@@ -39,8 +34,10 @@ export const AllowanceDetailsAddItem = ({
         <div className="col-span-3 space-y-2 px-3 py-3">
           <select
             name="allowance_id"
-            value={allowance.allowance_id}
-            onChange={(e) => onChange(index, "allowance_id", e.target.value)}
+            value={allowance?.allowance_id}
+            onChange={(e) =>
+              onChange(allowance?.id, "allowance_id", e.target.value)
+            }
             className="w-full rounded-lg text-xs hover:border-blue-500 py-2 px-3 border border-gray-300"
             required
           >
@@ -65,9 +62,15 @@ export const AllowanceDetailsAddItem = ({
               id="amount"
               name="amount"
               value={allowance.amount}
-              onChange={(e) => onChange(index, "amount", e.target.value)}
+              onChange={(e) =>
+                onChange(allowance?.id, "amount", e.target.value)
+              }
               required
-              className={`w-full rounded-md border py-2 px-3 border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 text-xs`}
+              className={`w-full rounded-md border py-2 px-3 border-gray-300  text-xs ${
+                allowanceAmountError[allowance.id]
+                  ? "border-red-500 focus-within:border-red-500 hover:border-red-600"
+                  : ""
+              }`}
               placeholder="Enter amount..."
             />
           </div>
@@ -76,7 +79,7 @@ export const AllowanceDetailsAddItem = ({
         <div className="flex justify-center items-center basis-[20%] p-3">
           <button
             type="button"
-            onClick={() => onRemove(index)}
+            onClick={() => onRemove(allowance?.id)}
             className="text-gray-500 hover:text-red-500 transition-colors"
           >
             <MdDelete className="text-xl" />
