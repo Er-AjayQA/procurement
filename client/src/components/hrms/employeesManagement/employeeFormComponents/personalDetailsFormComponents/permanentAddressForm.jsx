@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import Select from "react-select";
+import { useEmployeeContext } from "../../../../../contextApis/useHrmsContextFile";
 
 export const PermanentAddressForm = ({
   control,
   setValue,
   register,
+  reset,
   watch,
   countryListOptions,
   findSelectedOption,
@@ -13,12 +15,70 @@ export const PermanentAddressForm = ({
   getAllPermanentCitiesOptions,
   formSelectStyles,
 }) => {
+  const { data, updateId } = useEmployeeContext();
   const [permanentStateOptions, setPermanentStateOptions] = useState([]);
   const [permanentCityOptions, setPermanentCityOptions] = useState([]);
+  const [isDataInitialized, setIsDataInitialized] = useState(false);
 
   // Watch the present country and state values
   const selectedPermanentCountry = watch("permanent_country_id");
   const selectedPermanentState = watch("permanent_state_id");
+
+  // Updating fields when in update mode
+  useEffect(() => {
+    if (updateId && data && !isDataInitialized) {
+      const setUpdateDefaultData = async () => {
+        setValue("permanent_address", data?.permanent_address || "");
+
+        if (data?.permanent_country_id) {
+          const countryOption = countryListOptions?.find(
+            (item) => item.value == data.permanent_country_id
+          );
+
+          if (countryOption) {
+            setValue("permanent_country_id", countryOption.value);
+
+            await getAllPermanentStatesOptions(
+              data?.permanent_country_id,
+              setPermanentStateOptions
+            );
+
+            setTimeout(() => {
+              if (data?.permanent_state_id) {
+                const stateOption = permanentStateOptions?.find(
+                  (item) => item.value == data.permanent_state_id
+                );
+
+                if (stateOption) {
+                  setValue("permanent_state_id", stateOption.value);
+
+                  getAllPermanentCitiesOptions(
+                    data?.permanent_country_id,
+                    data?.permanent_state_id,
+                    setPermanentCityOptions
+                  );
+
+                  setTimeout(() => {
+                    if (data?.permanent_city_id) {
+                      const cityOption = permanentCityOptions?.find(
+                        (item) => item.value == data.permanent_city_id
+                      );
+
+                      if (cityOption) {
+                        setValue("permanent_city_id", cityOption.value);
+                      }
+                    }
+                  }, 3000);
+                }
+              }
+            }, 3000);
+          }
+        }
+        setIsDataInitialized(true);
+      };
+      setUpdateDefaultData();
+    }
+  }, [updateId, data, countryListOptions, isDataInitialized]);
 
   // Get Permanent State on Permanent Country Change
   useEffect(() => {
@@ -33,7 +93,7 @@ export const PermanentAddressForm = ({
       setValue("permanent_state_id", null);
       setValue("permanent_city_id", null);
     }
-  }, [selectedPermanentCountry]);
+  }, [selectedPermanentCountry, updateId]);
 
   // Get Permanent City on Permanent Country & City Change
   useEffect(() => {
@@ -46,7 +106,7 @@ export const PermanentAddressForm = ({
     } else {
       setPermanentCityOptions([]);
     }
-  }, [selectedPermanentCountry, selectedPermanentState]);
+  }, [selectedPermanentCountry, selectedPermanentState, updateId]);
 
   useEffect(() => {
     if (selectedPermanentCountry === undefined) {
@@ -55,14 +115,14 @@ export const PermanentAddressForm = ({
       setPermanentStateOptions([]);
       setPermanentCityOptions([]);
     }
-  }, [selectedPermanentCountry, setValue]);
+  }, [selectedPermanentCountry, setValue, updateId]);
 
   useEffect(() => {
     if (selectedPermanentState === undefined) {
       setValue("permanent_city_id", null);
       setPermanentCityOptions([]);
     }
-  }, [selectedPermanentState, setValue]);
+  }, [selectedPermanentState, setValue, updateId]);
 
   return (
     <>
