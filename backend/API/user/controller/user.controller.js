@@ -356,9 +356,9 @@ module.exports.createUser = async (req, res) => {
         });
       } else {
         try {
-          if (account_number !== re_account_number) {
-            return res.status(200).send({
-              success: true,
+          if (parseInt(account_number) !== parseInt(re_account_number)) {
+            return res.status(400).send({
+              success: false,
               message: "Account_No. & Re_Account_no. Should be Same!",
             });
           } else {
@@ -398,8 +398,12 @@ module.exports.createUser = async (req, res) => {
 
     // ADD CONTRACT DETAILS TAB DATA
     if (data.tab_type === "contract_details") {
-      const { contract_type_id, start_working_date, probation_end_date } =
-        req.body;
+      const {
+        contract_type_id,
+        start_working_date,
+        probation_end_date,
+        notice_period_days,
+      } = req.body;
 
       //  Check if user exist
       const findUser = await DB.tbl_user_master.findOne({
@@ -421,6 +425,7 @@ module.exports.createUser = async (req, res) => {
               contract_type_id,
               start_working_date,
               probation_end_date,
+              notice_period_days,
             },
             { where: { id: findUser.id }, transaction }
           );

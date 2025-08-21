@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import {
   getAllAllowance,
+  getAllBank,
   getAllBranches,
+  getAllContractType,
   getAllCountries,
   getAllDepartments,
   getAllDesignations,
@@ -45,9 +47,11 @@ export const EmployeeProvider = ({ children }) => {
   const [designationOptions, setDesignationOptions] = useState([]);
   const [employeeTypeOptions, setEmployeeTypeOptions] = useState([]);
   const [areaOptions, setAreaOptions] = useState([]);
+  const [bankOptions, setBankOptions] = useState([]);
   const [branchOptions, setBranchOptions] = useState([]);
   const [shiftOptions, setShiftOptions] = useState([]);
   const [allowancesOptions, setAllowancesOptions] = useState([]);
+  const [contractTypesOptions, setContractTypesOptions] = useState([]);
   const [bloodOptions, setBloodOptions] = useState([
     { value: "A+", label: "A+" },
     { value: "A-", label: "A-" },
@@ -87,6 +91,58 @@ export const EmployeeProvider = ({ children }) => {
       }
     } catch (error) {
       setRolesList(null);
+    }
+  };
+
+  // Get All Banks List
+  const getAllBanksList = async () => {
+    try {
+      const response = await getAllBank({
+        limit: 500,
+        page,
+        filter: {
+          name: "",
+        },
+      });
+
+      if (response.success) {
+        setBankOptions(
+          response.data.map((data) => ({
+            value: `${data?.id}`,
+            label: `${data?.name}`,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setBankOptions(null);
+    }
+  };
+
+  // Get All Contract Types List
+  const getAllContractTypesList = async () => {
+    try {
+      const response = await getAllContractType({
+        limit: 500,
+        page,
+        filter: {
+          name: "",
+        },
+      });
+
+      if (response.success) {
+        setContractTypesOptions(
+          response.data.map((data) => ({
+            value: `${data?.id}`,
+            label: `${data?.name}`,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setContractTypesOptions(null);
     }
   };
 
@@ -219,7 +275,7 @@ export const EmployeeProvider = ({ children }) => {
     setData(null);
     setUpdateId(null);
     setViewId(null);
-    setRolesList(null);
+    setCreatedUserId(null);
   };
 
   // Handle User Delete Functionality
@@ -463,6 +519,8 @@ export const EmployeeProvider = ({ children }) => {
     getAllBranchOptions();
     getAllShiftsOptions();
     getAllAllowancesOptions();
+    getAllBanksList();
+    getAllContractTypesList();
   }, []);
 
   const styledComponent = {
@@ -582,6 +640,8 @@ export const EmployeeProvider = ({ children }) => {
     allowancesOptions,
     bloodOptions,
     maritalStatusOptions,
+    bankOptions,
+    contractTypesOptions,
     createdUserId,
     getAllData,
     getDataById,

@@ -13,9 +13,12 @@ export const SalaryDetailsAddForm = ({
   shiftOptions,
   findSelectedOption,
   formSelectStyles,
+  baseSalaryError,
+  setBaseSalaryError,
 }) => {
   const [selectedShift, setSelectedShift] = useState(null);
   const [shiftDetails, setShiftDetails] = useState(null);
+
   const baseSalary = watch("base_salary");
   const dailyWorkingHours = watch("daily_working_hours");
 
@@ -65,6 +68,13 @@ export const SalaryDetailsAddForm = ({
   };
 
   useEffect(() => {
+    if (baseSalary && baseSalary < 0) {
+      toast.error("Base salary can't be less than 0.");
+      setBaseSalaryError(true);
+    }
+
+    setBaseSalaryError(false);
+
     calculateSalaries(baseSalary, dailyWorkingHours);
   }, [baseSalary, dailyWorkingHours, setValue]);
 
@@ -109,6 +119,7 @@ export const SalaryDetailsAddForm = ({
                 <Controller
                   name="shift_id"
                   control={control}
+                  rules={{ required: "Shift type is required!" }}
                   render={({ field }) => (
                     <Select
                       {...field}
@@ -132,6 +143,11 @@ export const SalaryDetailsAddForm = ({
                     />
                   )}
                 />
+                {errors.shift_id && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.shift_id.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -145,10 +161,19 @@ export const SalaryDetailsAddForm = ({
                   type="number"
                   id="base_salary"
                   onChange={handleBaseSalaryChange}
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  className={`rounded-lg text-[.8rem] hover:border-borders-inputHover ${
+                    baseSalaryError ? "border-red-500 hover:border-red-600" : ""
+                  }`}
                   placeholder="Enter base salary..."
-                  {...register("base_salary")}
+                  {...register("base_salary", {
+                    required: "Base salary is required!",
+                  })}
                 />
+                {errors.base_salary && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.base_salary.message}
+                  </p>
+                )}
               </div>
             </div>
 
