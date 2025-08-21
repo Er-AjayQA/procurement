@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useEmployeeContext } from "../../../../contextApis/useHrmsContextFile";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   getAllCities,
@@ -98,13 +98,13 @@ export const EmployeePersonalDetailsForm = () => {
   });
 
   // Helper function to find selected option
-  const findSelectedOption = (options, value) => {
+  const findSelectedOption = useCallback((options, value) => {
     if (!options || value === undefined || value === null) return null;
     return options.find((opt) => opt.value === value);
-  };
+  }, []);
 
   // Get All Present State Options
-  const getAllPresentStatesOptions = async (id, state) => {
+  const getAllPresentStatesOptions = useCallback(async (id, state) => {
     try {
       if (!id) {
         state([]);
@@ -133,43 +133,46 @@ export const EmployeePersonalDetailsForm = () => {
       state([]);
       toast.error(error.message || "Failed to load states");
     }
-  };
+  }, []);
 
   // Get All Present Cities Options
-  const getAllPresentCitiesOptions = async (countryId, stateId, state) => {
-    try {
-      if (!countryId || !stateId) {
-        state([]);
-        return;
-      }
-      const response = await getAllCities({
-        limit: 500000,
-        page: "",
-        filter: {
-          state_id: stateId,
-          country_id: countryId,
-          name: "",
-        },
-      });
+  const getAllPresentCitiesOptions = useCallback(
+    async (countryId, stateId, state) => {
+      try {
+        if (!countryId || !stateId) {
+          state([]);
+          return;
+        }
+        const response = await getAllCities({
+          limit: 500000,
+          page: "",
+          filter: {
+            state_id: stateId,
+            country_id: countryId,
+            name: "",
+          },
+        });
 
-      if (response.success) {
-        state(
-          response.data.map((data) => ({
-            value: data?.id,
-            label: data?.name,
-          }))
-        );
-      } else {
-        throw new Error(response.message);
+        if (response.success) {
+          state(
+            response.data.map((data) => ({
+              value: data?.id,
+              label: data?.name,
+            }))
+          );
+        } else {
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        state([]);
+        toast.error(error.message || "Failed to load Cities");
       }
-    } catch (error) {
-      state([]);
-      toast.error(error.message || "Failed to load Cities");
-    }
-  };
+    },
+    []
+  );
 
   // Get All Permanent State Options
-  const getAllPermanentStatesOptions = async (countryId, state) => {
+  const getAllPermanentStatesOptions = useCallback(async (countryId, state) => {
     try {
       if (!countryId) {
         state([]);
@@ -198,43 +201,46 @@ export const EmployeePersonalDetailsForm = () => {
       state([]);
       toast.error(error.message || "Failed to load states");
     }
-  };
+  }, []);
 
   // Get All Permanent Cities Options
-  const getAllPermanentCitiesOptions = async (countryId, stateId, state) => {
-    try {
-      if (!countryId || !stateId) {
-        state([]);
-        return;
-      }
-      const response = await getAllCities({
-        limit: 500000,
-        page: "",
-        filter: {
-          state_id: stateId,
-          country_id: countryId,
-          name: "",
-        },
-      });
+  const getAllPermanentCitiesOptions = useCallback(
+    async (countryId, stateId, state) => {
+      try {
+        if (!countryId || !stateId) {
+          state([]);
+          return;
+        }
+        const response = await getAllCities({
+          limit: 500000,
+          page: "",
+          filter: {
+            state_id: stateId,
+            country_id: countryId,
+            name: "",
+          },
+        });
 
-      if (response.success) {
-        state(
-          response.data.map((data) => ({
-            value: data?.id,
-            label: data?.name,
-          }))
-        );
-      } else {
-        throw new Error(response.message);
+        if (response.success) {
+          state(
+            response.data.map((data) => ({
+              value: data?.id,
+              label: data?.name,
+            }))
+          );
+        } else {
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        state([]);
+        toast.error(error.message || "Failed to load Cities");
       }
-    } catch (error) {
-      state([]);
-      toast.error(error.message || "Failed to load Cities");
-    }
-  };
+    },
+    []
+  );
 
   // Get All Nationality Options
-  const getAllNationalityOptions = async () => {
+  const getAllNationalityOptions = useCallback(async () => {
     try {
       const response = await getAllNationalities();
 
@@ -252,74 +258,103 @@ export const EmployeePersonalDetailsForm = () => {
       setNationalityOptions([]);
       toast.error(error.message || "Failed to load Nationalities");
     }
-  };
+  }, []);
+
+  // Updating fields when in update mode
+  useEffect(() => {
+    if (updateId && data) {
+      const setUpdateDefaultData = async () => {
+        if (data?.family_details) {
+          setFamilyDetails(data.family_details);
+        }
+
+        if (data?.previous_employer_details) {
+          setPreviousEmployerDetails(data?.previous_employer_details);
+        }
+      };
+
+      setUpdateDefaultData();
+    }
+  }, [updateId]);
 
   // Handle Add Family Details
-  const handleAddFamilyDetails = (familyData) => {
+  const handleAddFamilyDetails = useCallback((familyData) => {
     setFamilyDetails([...familyDetails, familyData]);
     setFamilyFormVisible(false);
-  };
+  }, []);
 
   // Handle Family View Data
-  const handleFamilyViewData = (index) => {
-    const viewData = familyDetails[index];
-    setFamilyViewData(viewData);
-  };
+  const handleFamilyViewData = useCallback(
+    (index) => {
+      const viewData = familyDetails[index];
+      setFamilyViewData(viewData);
+    },
+    [familyDetails]
+  );
 
   // Handle Family Member Remove
-  const handleFamilyDetailsRemove = (index) => {
+  const handleFamilyDetailsRemove = useCallback((index) => {
     if (window.confirm("Are you sure you want to remove this family member?")) {
       const updatedData = familyDetails.filter((item, i) => i !== index);
       setFamilyDetails(updatedData);
     }
-  };
+  }, []);
 
   // Handle Family Member Edit
-  const handleFamilyDetailsEdit = (updatedData, index) => {
+  const handleFamilyDetailsEdit = useCallback((updatedData, index) => {
     setFamilyDetails((prev) =>
       prev.map((item, i) => (i === index ? updatedData : item))
     );
-  };
+  }, []);
 
   // Handle Add Previous Employer Details
-  const handleAddPreviousEmployerDetails = (previousEmployerData) => {
-    if (previousEmployerEditData) {
-      const updated = previousEmployerDetails.map((item, i) =>
-        i === previousEmployerEditData.index ? previousEmployerData : item
-      );
-      setPreviousEmployerDetails(updated);
-    } else {
-      setPreviousEmployerDetails([
-        ...previousEmployerDetails,
-        previousEmployerData,
-      ]);
-    }
-    setPreviousEmployerFormVisible(false);
-    setPreviousEmployerEditData(null);
-  };
+  const handleAddPreviousEmployerDetails = useCallback(
+    (previousEmployerData) => {
+      if (previousEmployerEditData) {
+        const updated = previousEmployerDetails.map((item, i) =>
+          i === previousEmployerEditData.index ? previousEmployerData : item
+        );
+        setPreviousEmployerDetails(updated);
+      } else {
+        setPreviousEmployerDetails([
+          ...previousEmployerDetails,
+          previousEmployerData,
+        ]);
+      }
+      setPreviousEmployerFormVisible(false);
+      setPreviousEmployerEditData(null);
+    },
+    [previousEmployerEditData]
+  );
 
   // Handle Previous Employer View Data
-  const handlePreviousEmployerViewData = (index) => {
-    const viewData = previousEmployerDetails[index];
-    setPreviousEmployerViewData(viewData);
-  };
+  const handlePreviousEmployerViewData = useCallback(
+    (index) => {
+      const viewData = previousEmployerDetails[index];
+      setPreviousEmployerViewData(viewData);
+    },
+    [previousEmployerDetails]
+  );
 
   // Handle Previous Employer Remove
-  const handlePreviousEmployerDetailsRemove = (index) => {
+  const handlePreviousEmployerDetailsRemove = useCallback((index) => {
     if (window.confirm("Are you sure you want to remove this details?")) {
       const updatedData = previousEmployerDetails.filter(
         (item, i) => i !== index
       );
       setPreviousEmployerDetails(updatedData);
     }
-  };
+  }, []);
 
   // Handle Previous Employer Edit
-  const handlePreviousEmployerDetailsEdit = (updatedData, index) => {
-    setPreviousEmployerDetails((prev) =>
-      prev.map((item, i) => (i === index ? updatedData : item))
-    );
-  };
+  const handlePreviousEmployerDetailsEdit = useCallback(
+    (updatedData, index) => {
+      setPreviousEmployerDetails((prev) =>
+        prev.map((item, i) => (i === index ? updatedData : item))
+      );
+    },
+    []
+  );
 
   /// Handle Form Submission
   const onSubmit = async (data, e) => {
@@ -390,7 +425,7 @@ export const EmployeePersonalDetailsForm = () => {
   // Get All Nationalities on Page Load
   useEffect(() => {
     getAllNationalityOptions();
-  }, []);
+  }, [getAllNationalityOptions]);
 
   return (
     <>

@@ -19,6 +19,7 @@ export const PresentAddressForm = ({
   const { data, updateId } = useEmployeeContext();
   const [presentStateOptions, setPresentStateOptions] = useState([]);
   const [presentCityOptions, setPresentCityOptions] = useState([]);
+  const [isDataInitialized, setIsDataInitialized] = useState(false);
 
   // Watch the present country and state values
   const selectedPresentCountry = watch("present_country_id");
@@ -26,45 +27,52 @@ export const PresentAddressForm = ({
 
   // Updating fields when in update mode
   useEffect(() => {
-    if (updateId && data) {
-      reset({
-        present_address: data?.present_address || "",
-      });
-
+    if (updateId && data && !isDataInitialized) {
       const setUpdateDefaultData = async () => {
+        // Set address field
+        setValue("present_address", data?.present_address || "");
+
+        // Set country if available
         if (data?.present_country_id) {
-          const option = countryListOptions?.find(
-            (item) => item.value === data.present_country_id
+          setValue("present_country_id", data.present_country_id);
+
+          // Load states for this country
+          await getAllPresentStatesOptions(
+            data.present_country_id,
+            setPresentStateOptions
           );
 
-          if (option) {
-            setValue("present_country_id", option.value);
-          }
-        }
+          // Wait for states to load before setting state value
+          setTimeout(async () => {
+            if (data?.present_state_id) {
+              setValue("present_state_id", data.present_state_id);
 
-        if (data?.present_state_id) {
-          const option = presentStateOptions?.find(
-            (item) => item.value === data.present_state_id
-          );
+              // Load cities for this state
+              await getAllPresentCitiesOptions(
+                data.present_country_id,
+                data.present_state_id,
+                setPresentCityOptions
+              );
 
-          if (option) {
-            setValue("present_state_id", option.value);
-          }
-        }
-
-        if (data?.present_city_id) {
-          const option = presentCityOptions?.find(
-            (item) => item.value === data.present_city_id
-          );
-
-          if (option) {
-            setValue("present_city_id", option.value);
-          }
+              // Wait for cities to load before setting city value
+              setTimeout(() => {
+                if (data?.present_city_id) {
+                  setValue("present_city_id", data.present_city_id);
+                }
+                setIsDataInitialized(true);
+              }, 300);
+            } else {
+              setIsDataInitialized(true);
+            }
+          }, 300);
+        } else {
+          setIsDataInitialized(true);
         }
       };
+
       setUpdateDefaultData();
     }
-  }, [updateId, data]);
+  }, [updateId, data, countryListOptions, isDataInitialized]);
 
   // Get Present State on Present Country Change
   useEffect(() => {
@@ -79,7 +87,7 @@ export const PresentAddressForm = ({
       setValue("present_state_id", null);
       setValue("present_city_id", null);
     }
-  }, [selectedPresentCountry, updateId]);
+  }, [selectedPresentCountry]);
 
   // Get Present City on Present Country & City Change
   useEffect(() => {
@@ -92,7 +100,7 @@ export const PresentAddressForm = ({
     } else {
       setPresentCityOptions([]);
     }
-  }, [selectedPresentCountry, selectedPresentState, updateId]);
+  }, [selectedPresentCountry, selectedPresentState]);
 
   useEffect(() => {
     if (selectedPresentCountry === undefined) {
@@ -101,14 +109,14 @@ export const PresentAddressForm = ({
       setPresentStateOptions([]);
       setPresentCityOptions([]);
     }
-  }, [selectedPresentCountry, setValue, updateId]);
+  }, [selectedPresentCountry, setValue]);
 
   useEffect(() => {
     if (selectedPresentState === undefined) {
       setValue("present_city_id", null);
       setPresentCityOptions([]);
     }
-  }, [selectedPresentState, setValue, updateId]);
+  }, [selectedPresentState, setValue]);
 
   return (
     <>

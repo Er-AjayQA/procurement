@@ -28,54 +28,47 @@ export const PermanentAddressForm = ({
   useEffect(() => {
     if (updateId && data && !isDataInitialized) {
       const setUpdateDefaultData = async () => {
+        // Set address field
         setValue("permanent_address", data?.permanent_address || "");
 
+        // Set country if available
         if (data?.permanent_country_id) {
-          const countryOption = countryListOptions?.find(
-            (item) => item.value == data.permanent_country_id
+          setValue("permanent_country_id", data.permanent_country_id);
+
+          // Load states for this country
+          await getAllPermanentStatesOptions(
+            data.permanent_country_id,
+            setPermanentStateOptions
           );
 
-          if (countryOption) {
-            setValue("permanent_country_id", countryOption.value);
+          // Wait for states to load before setting state value
+          setTimeout(async () => {
+            if (data?.permanent_state_id) {
+              setValue("permanent_state_id", data.permanent_state_id);
 
-            await getAllPermanentStatesOptions(
-              data?.permanent_country_id,
-              setPermanentStateOptions
-            );
+              // Load cities for this state
+              await getAllPermanentCitiesOptions(
+                data.permanent_country_id,
+                data.permanent_state_id,
+                setPermanentCityOptions
+              );
 
-            setTimeout(() => {
-              if (data?.permanent_state_id) {
-                const stateOption = permanentStateOptions?.find(
-                  (item) => item.value == data.permanent_state_id
-                );
-
-                if (stateOption) {
-                  setValue("permanent_state_id", stateOption.value);
-
-                  getAllPermanentCitiesOptions(
-                    data?.permanent_country_id,
-                    data?.permanent_state_id,
-                    setPermanentCityOptions
-                  );
-
-                  setTimeout(() => {
-                    if (data?.permanent_city_id) {
-                      const cityOption = permanentCityOptions?.find(
-                        (item) => item.value == data.permanent_city_id
-                      );
-
-                      if (cityOption) {
-                        setValue("permanent_city_id", cityOption.value);
-                      }
-                    }
-                  }, 3000);
+              // Wait for cities to load before setting city value
+              setTimeout(() => {
+                if (data?.permanent_city_id) {
+                  setValue("permanent_city_id", data.permanent_city_id);
                 }
-              }
-            }, 3000);
-          }
+                setIsDataInitialized(true);
+              }, 300);
+            } else {
+              setIsDataInitialized(true);
+            }
+          }, 300);
+        } else {
+          setIsDataInitialized(true);
         }
-        setIsDataInitialized(true);
       };
+
       setUpdateDefaultData();
     }
   }, [updateId, data, countryListOptions, isDataInitialized]);
@@ -93,7 +86,7 @@ export const PermanentAddressForm = ({
       setValue("permanent_state_id", null);
       setValue("permanent_city_id", null);
     }
-  }, [selectedPermanentCountry, updateId]);
+  }, [selectedPermanentCountry]);
 
   // Get Permanent City on Permanent Country & City Change
   useEffect(() => {
@@ -106,7 +99,7 @@ export const PermanentAddressForm = ({
     } else {
       setPermanentCityOptions([]);
     }
-  }, [selectedPermanentCountry, selectedPermanentState, updateId]);
+  }, [selectedPermanentCountry, selectedPermanentState]);
 
   useEffect(() => {
     if (selectedPermanentCountry === undefined) {
@@ -115,14 +108,14 @@ export const PermanentAddressForm = ({
       setPermanentStateOptions([]);
       setPermanentCityOptions([]);
     }
-  }, [selectedPermanentCountry, setValue, updateId]);
+  }, [selectedPermanentCountry, setValue]);
 
   useEffect(() => {
     if (selectedPermanentState === undefined) {
       setValue("permanent_city_id", null);
       setPermanentCityOptions([]);
     }
-  }, [selectedPermanentState, setValue, updateId]);
+  }, [selectedPermanentState, setValue]);
 
   return (
     <>
