@@ -20,12 +20,18 @@ export const PersonalDataForm = ({
   maritalStatusOptions,
   setSelectedMaritalStatus,
   selectedMaritalStatus,
+  datesValidationsError,
+  setDatesValidationsError,
 }) => {
   const [personalStateOptions, setPersonalStateOptions] = useState([]);
   const [personalCityOptions, setPersonalCityOptions] = useState([]);
 
   // Watch the present country and state values
   const selectedPersonalState = watch("personal_state_id");
+  const selectedIdIssueDate = watch("id_issue_date");
+  const selectedIdExpiryDate = watch("id_exp_date");
+  const selectedPassportIssueDate = watch("passport_issue_date");
+  const selectedPassportExpiryDate = watch("passport_exp_date");
 
   // Get All Personal State Options
   const getAllPersonalStatesOptions = async () => {
@@ -106,6 +112,44 @@ export const PersonalDataForm = ({
       setPersonalCityOptions([]);
     }
   }, [selectedPersonalState, setValue]);
+
+  // handling the dates validation
+  useEffect(() => {
+    if (selectedIdIssueDate && selectedIdExpiryDate) {
+      const idIssue = new Date(selectedIdIssueDate);
+      const idExpiry = new Date(selectedIdExpiryDate);
+
+      if (idIssue > idExpiry) {
+        setDatesValidationsError((prev) => ({ ...prev, idDatesError: true }));
+        toast.error("ID Issue Date must be smaller than ID Expiry Date!");
+      } else {
+        setDatesValidationsError((prev) => ({ ...prev, idDatesError: false }));
+      }
+    }
+  }, [selectedIdIssueDate, selectedIdExpiryDate]);
+
+  // handling the dates validation
+  useEffect(() => {
+    if (selectedPassportIssueDate && selectedPassportExpiryDate) {
+      const passportIssue = new Date(selectedPassportIssueDate);
+      const passportExpiry = new Date(selectedPassportExpiryDate);
+
+      if (passportIssue > passportExpiry) {
+        setDatesValidationsError((prev) => ({
+          ...prev,
+          passportDatesError: true,
+        }));
+        toast.error(
+          "Passport Issue Date must be smaller than Passport Expiry Date!"
+        );
+      } else {
+        setDatesValidationsError((prev) => ({
+          ...prev,
+          passportDatesError: false,
+        }));
+      }
+    }
+  }, [selectedPassportIssueDate, selectedPassportExpiryDate]);
 
   return (
     <>
@@ -259,7 +303,11 @@ export const PersonalDataForm = ({
                 <input
                   type="date"
                   id="id_issue_date"
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  className={`rounded-lg text-[.8rem] hover:border-borders-inputHover ${
+                    datesValidationsError?.idDatesError
+                      ? "border-red-500 hover:border-red-600"
+                      : ""
+                  }`}
                   placeholder="Enter id issue number..."
                   {...register("id_issue_date", {
                     required: "Id Issue date is required!",
@@ -282,7 +330,12 @@ export const PersonalDataForm = ({
                 <input
                   type="date"
                   id="id_exp_date"
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  min={selectedIdIssueDate || ""}
+                  className={`rounded-lg text-[.8rem] hover:border-borders-inputHover ${
+                    datesValidationsError?.idDatesError
+                      ? "border-red-500 hover:border-red-600"
+                      : ""
+                  }`}
                   placeholder="Enter id expiry number..."
                   {...register("id_exp_date", {
                     required: "Id expiry date is required!",
@@ -360,7 +413,11 @@ export const PersonalDataForm = ({
                 <input
                   type="date"
                   id="passport_issue_date"
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  className={`rounded-lg text-[.8rem] hover:border-borders-inputHover ${
+                    datesValidationsError?.passportDatesError
+                      ? "border-red-500 hover:border-red-600"
+                      : ""
+                  }`}
                   placeholder="Enter passport issue date..."
                   {...register("passport_issue_date", {
                     required: "Passport issue date is required!",
@@ -383,7 +440,12 @@ export const PersonalDataForm = ({
                 <input
                   type="date"
                   id="passport_exp_date"
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                  min={selectedPassportIssueDate || ""}
+                  className={`rounded-lg text-[.8rem] hover:border-borders-inputHover ${
+                    datesValidationsError?.passportDatesError
+                      ? "border-red-500 hover:border-red-600"
+                      : ""
+                  }`}
                   placeholder="Enter passport expiry date..."
                   {...register("passport_exp_date", {
                     required: "Passport expiry date is required!",

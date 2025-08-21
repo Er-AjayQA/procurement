@@ -92,6 +92,10 @@ export const EmployeePersonalDetailsForm = () => {
   const [previousEmployerEditData, setPreviousEmployerEditData] =
     useState(null);
   const [updateIndex, setUpdateIndex] = useState(null);
+  const [datesValidationsError, setDatesValidationsError] = useState({
+    idDatesError: false,
+    passportDatesError: false,
+  });
 
   // Helper function to find selected option
   const findSelectedOption = (options, value) => {
@@ -322,6 +326,18 @@ export const EmployeePersonalDetailsForm = () => {
     try {
       e.preventDefault();
 
+      if (datesValidationsError.idDatesError) {
+        toast.error("ID Issue Date must be smaller than ID Expiry Date!");
+        return;
+      }
+
+      if (datesValidationsError.passportDatesError) {
+        toast.error(
+          "Passport Issue Date must be smaller than Passport Expiry Date!"
+        );
+        return;
+      }
+
       const payload = {
         tab_type: tabType,
         user_id: createdUserId,
@@ -351,8 +367,6 @@ export const EmployeePersonalDetailsForm = () => {
         family_details: familyDetails,
         previous_employer_details: previousEmployerDetails,
       };
-
-      console.log("Personal Details Data...:", payload);
 
       let response;
 
@@ -424,6 +438,8 @@ export const EmployeePersonalDetailsForm = () => {
             maritalStatusOptions={maritalStatusOptions}
             setSelectedMaritalStatus={setSelectedMaritalStatus}
             selectedMaritalStatus={selectedMaritalStatus}
+            datesValidationsError={datesValidationsError}
+            setDatesValidationsError={setDatesValidationsError}
           />
 
           {/* Family Details */}

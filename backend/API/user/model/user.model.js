@@ -14,6 +14,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      title: {
+        type: Sequelize.ENUM("Mr.", "Miss.", "Mrs."),
+        allowNull: false,
+      },
       name: {
         type: Sequelize.STRING,
         allowNull: true,
