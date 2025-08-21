@@ -402,6 +402,7 @@ export const EmployeePersonalDetailsForm = () => {
             errors={errors}
             setValue={setValue}
             register={register}
+            reset={reset}
             watch={watch}
             countryListOptions={countryListOptions}
             findSelectedOption={findSelectedOption}
@@ -415,6 +416,7 @@ export const EmployeePersonalDetailsForm = () => {
             control={control}
             setValue={setValue}
             register={register}
+            reset={reset}
             errors={errors}
             watch={watch}
             countryListOptions={countryListOptions}
@@ -429,6 +431,7 @@ export const EmployeePersonalDetailsForm = () => {
             control={control}
             setValue={setValue}
             register={register}
+            reset={reset}
             errors={errors}
             watch={watch}
             formSelectStyles={formSelectStyles}

@@ -20,6 +20,7 @@ module.exports.createUser = async (req, res) => {
     // ADD BASIC DETAILS TAB DATA
     if (data.tab_type === "basic_details") {
       let {
+        title,
         name,
         contact_no,
         alt_contact_no,
@@ -87,6 +88,7 @@ module.exports.createUser = async (req, res) => {
             const newUser = await DB.tbl_user_master.create(
               {
                 emp_code: code,
+                title,
                 name,
                 userImage: data.userImage,
                 contact_no,

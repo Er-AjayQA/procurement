@@ -656,6 +656,7 @@ export const EmployeeProvider = ({ children }) => {
     setData,
     setCreatedUserId,
     setViewVisibility,
+    setContractTypesOptions,
     setComponentType,
     setAreaOptions,
     handleActiveInactive,

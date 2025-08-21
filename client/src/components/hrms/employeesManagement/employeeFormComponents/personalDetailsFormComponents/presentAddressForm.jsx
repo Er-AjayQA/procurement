@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import Select from "react-select";
+import { useEmployeeContext } from "../../../../../contextApis/useHrmsContextFile";
 
 export const PresentAddressForm = ({
   control,
   errors,
   setValue,
   register,
+  reset,
   watch,
   getAllPresentStatesOptions,
   getAllPresentCitiesOptions,
@@ -14,12 +16,55 @@ export const PresentAddressForm = ({
   findSelectedOption,
   formSelectStyles,
 }) => {
+  const { data, updateId } = useEmployeeContext();
   const [presentStateOptions, setPresentStateOptions] = useState([]);
   const [presentCityOptions, setPresentCityOptions] = useState([]);
 
   // Watch the present country and state values
   const selectedPresentCountry = watch("present_country_id");
   const selectedPresentState = watch("present_state_id");
+
+  // Updating fields when in update mode
+  useEffect(() => {
+    if (updateId && data) {
+      reset({
+        present_address: data?.present_address || "",
+      });
+
+      const setUpdateDefaultData = async () => {
+        if (data?.present_country_id) {
+          const option = countryListOptions?.find(
+            (item) => item.value === data.present_country_id
+          );
+
+          if (option) {
+            setValue("present_country_id", option.value);
+          }
+        }
+
+        if (data?.present_state_id) {
+          const option = presentStateOptions?.find(
+            (item) => item.value === data.present_state_id
+          );
+
+          if (option) {
+            setValue("present_state_id", option.value);
+          }
+        }
+
+        if (data?.present_city_id) {
+          const option = presentCityOptions?.find(
+            (item) => item.value === data.present_city_id
+          );
+
+          if (option) {
+            setValue("present_city_id", option.value);
+          }
+        }
+      };
+      setUpdateDefaultData();
+    }
+  }, [updateId, data]);
 
   // Get Present State on Present Country Change
   useEffect(() => {
@@ -34,7 +79,7 @@ export const PresentAddressForm = ({
       setValue("present_state_id", null);
       setValue("present_city_id", null);
     }
-  }, [selectedPresentCountry]);
+  }, [selectedPresentCountry, updateId]);
 
   // Get Present City on Present Country & City Change
   useEffect(() => {
@@ -47,7 +92,7 @@ export const PresentAddressForm = ({
     } else {
       setPresentCityOptions([]);
     }
-  }, [selectedPresentCountry, selectedPresentState]);
+  }, [selectedPresentCountry, selectedPresentState, updateId]);
 
   useEffect(() => {
     if (selectedPresentCountry === undefined) {
@@ -56,14 +101,14 @@ export const PresentAddressForm = ({
       setPresentStateOptions([]);
       setPresentCityOptions([]);
     }
-  }, [selectedPresentCountry, setValue]);
+  }, [selectedPresentCountry, setValue, updateId]);
 
   useEffect(() => {
     if (selectedPresentState === undefined) {
       setValue("present_city_id", null);
       setPresentCityOptions([]);
     }
-  }, [selectedPresentState, setValue]);
+  }, [selectedPresentState, setValue, updateId]);
 
   return (
     <>

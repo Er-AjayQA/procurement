@@ -194,6 +194,16 @@ export const EmployeeBasicDetailsForm = () => {
             setValue("alt_code", option.value);
           }
         }
+
+        if (data?.role_id) {
+          const option = rolesList?.find(
+            (item) => item.value == parseInt(data.role_id)
+          );
+
+          if (option) {
+            setValue("role_id", option.value);
+          }
+        }
       };
       setUpdateDefaultData();
     } else {
@@ -223,6 +233,7 @@ export const EmployeeBasicDetailsForm = () => {
     try {
       const payload = {
         tab_type: tabType,
+        title: formData.title,
         name: `${formData.title} ${formData.name}`,
         contact_no: `${formData.code}-${formData.contact_no}`,
         alt_contact_no: `${formData.alt_code}-${formData.alt_contact_no}`,
