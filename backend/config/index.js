@@ -312,6 +312,20 @@ db.tbl_transfer_type_master =
     Sequelize
   );
 
+// Transfer Reason Master Table
+db.tbl_transfer_reason_master =
+  require("../API/configurationMasters/transferReason_master/model/transferReason_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Employee Transfer  Master Table
+db.tbl_employee_transfer =
+  require("../API/hrms/employeeTransfer/model/transfer.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
@@ -913,6 +927,110 @@ db.tbl_role_master.hasMany(db.tbl_rbac_assign_module_master, {
 });
 db.tbl_rbac_assign_module_master.belongsTo(db.tbl_role_master, {
   foreignKey: "role_id",
+});
+
+// Relation B/W Employee Master and Employee Transfer Tables (Requested for User ID)
+db.tbl_user_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "requested_for_user_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_user_master, {
+  foreignKey: "requested_for_user_id",
+});
+
+// Relation B/W Role Master and Employee Transfer Tables (From Role)
+db.tbl_role_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "from_role_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_role_master, {
+  foreignKey: "from_role_id",
+});
+
+// Relation B/W Role Master and Employee Transfer Tables (To Role)
+db.tbl_role_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "to_role_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_role_master, {
+  foreignKey: "to_role_id",
+});
+
+// Relation B/W Department Master and Employee Transfer Tables (From Department)
+db.tbl_department_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "from_dept_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_department_master, {
+  foreignKey: "from_dept_id",
+});
+
+// Relation B/W Department Master and Employee Transfer Tables (To Department)
+db.tbl_department_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "to_dept_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_department_master, {
+  foreignKey: "to_dept_id",
+});
+
+// Relation B/W Designation Master and Employee Transfer Tables (From Designation)
+db.tbl_designation_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "from_desig_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_designation_master, {
+  foreignKey: "from_desig_id",
+});
+
+// Relation B/W Designation Master and Employee Transfer Tables (To Designation)
+db.tbl_designation_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "to_desig_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_designation_master, {
+  foreignKey: "to_desig_id",
+});
+
+// Relation B/W Branch Master and Employee Transfer Tables (From Branch)
+db.tbl_branch_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "from_branch_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_branch_master, {
+  foreignKey: "from_branch_id",
+});
+
+// Relation B/W Branch Master and Employee Transfer Tables (To Branch)
+db.tbl_branch_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "to_branch_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_branch_master, {
+  foreignKey: "to_branch_id",
+});
+
+// Relation B/W Transfer Type and Employee Transfer Tables
+db.tbl_transfer_type_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "transfer_type_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_transfer_type_master, {
+  foreignKey: "transfer_type_id",
+});
+
+// Relation B/W Transfer Reason and Employee Transfer Tables
+db.tbl_transfer_reason_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "transfer_reason_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_transfer_reason_master, {
+  foreignKey: "transfer_reason_id",
+});
+
+// Relation B/W User Master and Employee Transfer Tables (Requested By User ID)
+db.tbl_user_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "requested_by_user_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_user_master, {
+  foreignKey: "requested_by_user_id",
+});
+
+// Relation B/W User Master and Employee Transfer Tables (For Reported To User)
+db.tbl_user_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "report_to_user_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_user_master, {
+  foreignKey: "report_to_user_id",
 });
 // ========== EXPORTS ========== //
 module.exports = db;
