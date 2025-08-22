@@ -21,6 +21,7 @@ import { MasterServiceCategoryPage } from "../pages/Masters/serviceCategoryMaste
 import { MasterServicePage } from "../pages/Masters/serviceMaster";
 import { MasterShiftPage } from "../pages/Masters/shiftMaster";
 import { MasterStatePage } from "../pages/Masters/stateMaster";
+import { MasterTransferReasonPage } from "../pages/Masters/transferReasonMaster";
 import { MasterTransferTypePage } from "../pages/Masters/transferTypeMaster";
 import { MasterUomPage } from "../pages/Masters/uomMaster";
 import { WorkflowPage } from "../pages/Masters/workflowPage";
@@ -64,6 +65,7 @@ export const moduleComponents = {
     "bank-master": MasterBankPage,
     "workflow-master": WorkflowPage,
     "course-category-master": MasterCourseCategoryPage,
-    "transfer-type": MasterTransferTypePage,
+    "transfer-type-master": MasterTransferTypePage,
+    "transfer-reason-master": MasterTransferReasonPage,
   },
 };

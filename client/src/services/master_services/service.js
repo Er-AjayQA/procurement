@@ -1330,3 +1330,80 @@ export const deleteTransferType = async (id) => {
   });
   return response.data;
 };
+
+// **************************** TRANSFER REASON MASTER **************************** //
+// Create Transfer Reason Master
+export const createTransferReason = async (formData) => {
+  const response = await axiosInstance.post("create-transferReason", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Transfer Reason
+export const updateTransferReason = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-transferReason/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateTransferReasonStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-transferReason-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get Master Transfer Reason by ID
+export const getTransferReasonById = async (id) => {
+  const response = await axiosInstance.post(
+    `get-transferReason-details/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Master Transfer Reason List
+export const getAllTransferReason = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-transferReason-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Transfer Reason Master
+export const deleteTransferReason = async (id) => {
+  const response = await axiosInstance.put(`delete-transferReason/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

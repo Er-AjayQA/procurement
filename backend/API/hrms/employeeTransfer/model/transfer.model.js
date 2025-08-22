@@ -8,7 +8,13 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
+
+      // Current Details
       emp_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      reporting_manager: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -23,6 +29,25 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("reason", value === "" ? null : value);
         },
       },
+      new_salary: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("new_salary", value === "" ? null : value);
+        },
+      },
+
+      approval_status: {
+        type: Sequelize.ENUM(
+          "DRAFT",
+          "PENDING",
+          "APPROVED",
+          "REJECTED",
+          "COMPLETED"
+        ),
+        defaultValue: "DRAFT",
+      },
+
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

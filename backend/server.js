@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_transfer_type_master
+// db.tbl_employee_transfer
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -53,6 +53,7 @@ const lmsRoute = require("./API/lms/router/lms_course.router");
 const rbacRoute = require("./API/rbac_management/router/rbac.router");
 const notificationRoute = require("./API/notificationsManagement/router/notification.router");
 const transferTypeRoute = require("./API/configurationMasters/transferType_master/router/transferType_master.router");
+const transferReasonRoute = require("./API/configurationMasters/transferReason_master/router/transferReason_master.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -91,6 +92,7 @@ app.use("/api/v1/procurement", lmsRoute);
 app.use("/api/v1/procurement", rbacRoute);
 app.use("/api/v1/procurement", notificationRoute);
 app.use("/api/v1/procurement", transferTypeRoute);
+app.use("/api/v1/procurement", transferReasonRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {
