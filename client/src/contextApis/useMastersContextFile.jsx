@@ -17,6 +17,7 @@ import { StateMasterContext } from "./masters/stateMaster/stateMasterContext";
 import { BranchMasterContext } from "./masters/branchMaster/branchMasterContext";
 import { CityMasterContext } from "./masters/cityMaster/cityMasterContext";
 import { CourseCategoryMasterContext } from "./masters/courseCategoryMaster/courseCategoryMasterContext";
+import { TransferTypeMasterContext } from "./masters/transferTypeMaster/transferTypeMasterContext";
 
 // Use Designation Master Context
 export const useDesignationMasterContext = () => {
@@ -207,6 +208,17 @@ export const useCourseCategoryMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useCourseCategoryMasterContext must be used within a CourseCategoryMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Transfer Type Master Context
+export const useTransferTypeMasterContext = () => {
+  const context = useContext(TransferTypeMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useTransferTypeMasterContext must be used within a TransferTypeMasterProvider"
     );
   }
   return context;

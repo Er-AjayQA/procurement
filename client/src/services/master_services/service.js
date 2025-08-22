@@ -1259,3 +1259,74 @@ export const deleteCourseCategory = async (id) => {
   });
   return response.data;
 };
+
+// **************************** TRANSFER TYPE MASTER **************************** //
+// Create Transfer Type Master
+export const createTransferType = async (formData) => {
+  const response = await axiosInstance.post("create-transferType", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Transfer Type
+export const updateTransferType = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-transferType/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateTransferTypeStatus = async (id) => {
+  const response = await axiosInstance.put(`update-transferType-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get Master Transfer Type by ID
+export const getTransferTypeById = async (id) => {
+  const response = await axiosInstance.post(`get-transferType-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Master Transfer Type List
+export const getAllTransferType = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-transferType-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Transfer Type Master
+export const deleteTransferType = async (id) => {
+  const response = await axiosInstance.put(`delete-transferType/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

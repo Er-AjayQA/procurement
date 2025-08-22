@@ -1,0 +1,38 @@
+module.exports = (sequelize, Sequelize) => {
+  const tbl_employee_transfer = sequelize.define(
+    "EMPLOYEE_TRANSFER",
+    {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      emp_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      transfer_date: {
+        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        allowNull: false,
+      },
+      detailed_reason: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("reason", value === "" ? null : value);
+        },
+      },
+      isDeleted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      status: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
+      },
+    },
+    { freezeTableName: true }
+  );
+  return tbl_employee_transfer;
+};
