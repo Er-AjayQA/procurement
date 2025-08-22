@@ -43,11 +43,18 @@ export const AllowanceDetailsAddItem = ({
           >
             <option value="">Select type</option>
             {allowancesOptions?.map((item) => {
-              const checkAlreadySelected = allowanceDetails.find(
-                (data) => data.allowance_id === item.value
+              // Allow current selection, but disable if already selected by other items
+              const isSelectedByOther = allowanceDetails.some(
+                (data) =>
+                  data.allowance_id === item.value && data.id !== allowance.id // Exclude current item
               );
+
               return (
-                <option value={item.value} disabled={checkAlreadySelected}>
+                <option
+                  value={item.value}
+                  disabled={isSelectedByOther}
+                  key={item.value}
+                >
                   {item.label}
                 </option>
               );

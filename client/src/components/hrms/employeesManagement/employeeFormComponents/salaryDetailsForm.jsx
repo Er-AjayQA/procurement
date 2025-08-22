@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useEmployeeContext } from "../../../../contextApis/useHrmsContextFile";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { IoMdAdd } from "react-icons/io";
 import {
@@ -38,6 +38,7 @@ export const EmployeeSalaryDetailsForm = () => {
     getAllData,
     tabType,
     shiftOptions,
+    getAllShiftsOptions,
     formSelectStyles,
     handleComponentView,
     createdUserId,
@@ -55,6 +56,41 @@ export const EmployeeSalaryDetailsForm = () => {
     if (!options || value === undefined || value === null) return null;
     return options.find((opt) => opt.value === value);
   };
+
+  // Updating fields when in update mode
+  useEffect(() => {
+    if (updateId && data && shiftOptions.length > 0) {
+      const setUpdateDefaultData = async () => {
+        setValue("base_salary", data?.base_salary);
+        setValue("daily_working_hours", data?.daily_working_hours);
+        setValue("salary_per_day", data?.salary_per_day);
+        setValue("salary_per_hour", data?.salary_per_hour);
+        setValue("total_monthly_hours", data?.total_monthly_hours);
+        setValue("weekly_hours", data?.weekly_hours);
+      };
+
+      if (data?.shift_id) {
+        const shiftOption = shiftOptions?.find(
+          (item) => item.value == data?.shift_id
+        );
+
+        if (shiftOption) {
+          setValue("shift_id", shiftOption.value);
+        }
+      }
+
+      if (data?.allowance_details.length > 0) {
+        const allowanceData = data?.allowance_details.map((item) => ({
+          allowance_id: item?.ALLOWANCE_MASTER.id,
+          amount: item?.amount,
+          id: item?.uniqueCode || Date.now() + Math.random(),
+        }));
+
+        setAllowanceDetails(allowanceData);
+      }
+      setUpdateDefaultData();
+    }
+  }, [updateId, data, setValue]);
 
   const handleAddAllowance = () => {
     setAllowanceDetails([
@@ -111,7 +147,6 @@ export const EmployeeSalaryDetailsForm = () => {
 
       const payload = {
         tab_type: tabType,
-        user_id: createdUserId,
         shift_id: data?.shift_id,
         base_salary: data?.base_salary,
         daily_working_hours: data?.daily_working_hours,
@@ -127,6 +162,7 @@ export const EmployeeSalaryDetailsForm = () => {
       if (updateId) {
         response = await updateEmployee(updateId, payload);
       } else {
+        payload.user_id = createdUserId;
         response = await createEmployee(payload);
       }
       if (response.success) {
