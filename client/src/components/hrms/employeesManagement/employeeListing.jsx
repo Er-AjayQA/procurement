@@ -173,7 +173,7 @@ export const EmployeeListing = ({ componentType }) => {
                       {i + 1}.
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.name || "N/A"}
+                      {list?.title} {list?.name}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list?.role_name || "N/A"}
@@ -184,7 +184,7 @@ export const EmployeeListing = ({ componentType }) => {
                       </span>
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.contact_no || "N/A"}
+                      {list?.contact_code}-{list?.contact_no}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem] justify-center">
                       {list.status ? (

@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
+      uniqueCode: {
+        type: Sequelize.STRING,
+      },
       amount: {
         type: Sequelize.STRING,
       },

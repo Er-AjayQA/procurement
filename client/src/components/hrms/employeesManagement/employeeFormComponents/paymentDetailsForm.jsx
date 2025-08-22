@@ -45,35 +45,36 @@ export const EmployeePaymentDetailsForm = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [accountNumberError, setAccountNumberError] = useState(false);
+  const [isBankOptionsLoaded, setIsBankOptionsLoaded] = useState(false);
   const accountNumber = watch("account_number");
   const reAccountNumber = watch("re_account_number");
 
   // Set form values when in update mode
   useEffect(() => {
-    if (updateId && data) {
-      reset({
-        bank_id: data?.bank_id || "",
-        account_holder_name: data?.account_holder_name || "",
-        bank_address: data?.bank_address || "",
-        account_number: data?.account_number || "",
-        re_account_number: data?.re_account_number || "",
-        nuit_number: data?.nuit_number || "",
-        inss_number: data?.inss_number || "",
-        nib_number: data?.nib_number || "",
-      });
-    } else {
-      reset({
-        bank_id: "",
-        account_holder_name: "",
-        bank_address: "",
-        account_number: "",
-        re_account_number: "",
-        nuit_number: "",
-        inss_number: "",
-        nib_number: "",
-      });
+    if (updateId && data && bankOptions.length > 0) {
+      const setUpdateDefaultData = async () => {
+        setValue("account_holder_name", data?.account_holder_name);
+        setValue("bank_address", data?.bank_address);
+        setValue("account_number", data?.account_number);
+        setValue("re_account_number", data?.re_account_number);
+        setValue("nuit_number", data?.nuit_number);
+        setValue("inss_number", data?.inss_number);
+        setValue("nib_number", data?.nib_number);
+
+        setIsBankOptionsLoaded(true);
+      };
+
+      const bankOption = bankOptions?.find(
+        (item) => item.value == data?.bank_id
+      );
+
+      if (bankOption) {
+        setValue("bank_id", bankOption.value);
+      }
+
+      setUpdateDefaultData();
     }
-  }, [updateId, data, reset]);
+  }, [updateId, data, setValue, bankOptions]);
 
   // Handle Form Submit
   const onSubmit = async (formData) => {
@@ -88,7 +89,6 @@ export const EmployeePaymentDetailsForm = () => {
 
       const payload = {
         tab_type: tabType,
-        user_id: createdUserId,
         bank_id: formData?.bank_id,
         account_holder_name: formData?.account_holder_name,
         bank_address: formData?.bank_address,
@@ -103,6 +103,7 @@ export const EmployeePaymentDetailsForm = () => {
       if (updateId) {
         response = await updateEmployee(updateId, payload);
       } else {
+        payload.user_id = createdUserId;
         response = await createEmployee(payload);
       }
       if (response.success) {
@@ -169,6 +170,7 @@ export const EmployeePaymentDetailsForm = () => {
                       className="react-select-container"
                       classNamePrefix="react-select"
                       styles={formSelectStyles}
+                      isLoading={!isBankOptionsLoaded && updateId}
                     />
                   )}
                 />

@@ -16,7 +16,9 @@ export const EmployeeBasicDetails = () => {
             </div>
             <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Name</label>
-              <p className="text-[.7rem]">{data?.name || "N/A"}</p>
+              <p className="text-[.7rem]">
+                {data?.title} {data?.name}
+              </p>
             </div>
             <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">DOB</label>
@@ -28,11 +30,17 @@ export const EmployeeBasicDetails = () => {
             </div>
             <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Contact Number</label>
-              <p className="text-[.7rem]">{data?.contact_no || "N/A"}</p>
+              <p className="text-[.7rem]">
+                {data?.contact_code}-{data?.contact_no}
+              </p>
             </div>
             <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Alt Contact Number</label>
-              <p className="text-[.7rem]">{data?.alt_contact_no || "N/A"}</p>
+              <p className="text-[.7rem]">
+                {data?.alt_contact_no
+                  ? `${data?.alt_contact_code}-${data?.alt_contact_no}`
+                  : "N/A"}
+              </p>
             </div>
             <div className="flex flex-col gap-2 justify-center">
               <label className="text-[.8rem]">Personal Email</label>

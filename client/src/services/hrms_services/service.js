@@ -12,8 +12,8 @@ export const createEmployee = async (formData) => {
 };
 
 // Update Employee
-export const updateEmployee = async (id) => {
-  const response = await axiosInstance.put(`update-user/${id}`, {
+export const updateEmployee = async (id, formData) => {
+  const response = await axiosInstance.put(`update-user/${id}`, formData, {
     headers: {
       "Content-Type": "application/json",
     },

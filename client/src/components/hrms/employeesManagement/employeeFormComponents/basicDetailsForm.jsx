@@ -141,26 +141,31 @@ export const EmployeeBasicDetailsForm = () => {
 
   // Set form values when in update mode
   useEffect(() => {
-    if (updateId && data) {
-      reset({
-        title: data?.title || "",
-        name: data?.name || "",
-        contact_no: data?.contact_no || "",
-        alt_contact_no: data?.alt_contact_no || "",
-        dob: data?.dob || "",
-        gender: data?.gender || "",
-        personal_email: data?.personal_email || "",
-        official_email: data?.official_email || "",
-        reporting_manager_id: data?.reporting_manager_id || "",
-        role_id: data?.role_id || "",
-        emp_type_id: data?.emp_type_id || "",
-        designation_id: data?.designation_id || "",
-        dep_id: data?.dep_id || "",
-        area_id: data?.area_id || "",
-        branch_id: data?.branch_id || "",
-      });
-
+    if (
+      updateId &&
+      data &&
+      countryCodeOptions.length > 0 &&
+      branchOptions.length > 0
+    ) {
       const setUpdateDefaultData = () => {
+        setValue("title", data?.title);
+        setValue("name", data?.name);
+        setValue("contact_code", data?.contact_code);
+        setValue("contact_no", data?.contact_no);
+        setValue("alt_contact_code", data?.alt_contact_code);
+        setValue("alt_contact_no", data?.alt_contact_no);
+        setValue("dob", data?.dob);
+        setValue("gender", data?.gender);
+        setValue("personal_email", data?.personal_email);
+        setValue("official_email", data?.official_email);
+        setValue("reporting_manager_id", data?.reporting_manager_id);
+        setValue("role_id", data?.role_id);
+        setValue("emp_type_id", data?.emp_type_id);
+        setValue("designation_id", data?.designation_id);
+        setValue("dep_id", data?.dep_id);
+        setValue("area_id", data?.area_id);
+        setValue("branch_id", data?.branch_id);
+
         if (data?.title) {
           const option = titleOptions?.find(
             (item) => item.value === data.title
@@ -171,27 +176,23 @@ export const EmployeeBasicDetailsForm = () => {
           }
         }
 
-        if (data?.contact_no) {
-          const [code, contact] = data.contact_no.split("-");
-
+        if (data?.contact_code) {
           const option = countryCodeOptions?.find(
-            (item) => item.value == parseInt(code)
+            (item) => item.value == data.contact_code
           );
 
           if (option) {
-            setValue("code", option.value);
+            setValue("contact_code", option.value);
           }
         }
 
-        if (data?.alt_contact_no) {
-          const [code, contact] = data.alt_contact_no.split("-");
-
+        if (data?.alt_contact_code) {
           const option = countryCodeOptions?.find(
-            (item) => item.value == parseInt(code)
+            (item) => item.value == data?.alt_contact_code
           );
 
           if (option) {
-            setValue("alt_code", option.value);
+            setValue("alt_contact_code", option.value);
           }
         }
 
@@ -204,29 +205,20 @@ export const EmployeeBasicDetailsForm = () => {
             setValue("role_id", option.value);
           }
         }
+
+        if (data?.branch_id) {
+          const branchOption = branchOptions?.find(
+            (item) => item.value == data?.branch_id
+          );
+
+          if (branchOption) {
+            setValue("branch_id", branchOption.value);
+          }
+        }
       };
       setUpdateDefaultData();
-    } else {
-      reset({
-        title: "",
-        name: "",
-        code: "",
-        contact_no: "",
-        alt_code: "",
-        alt_contact_no: "",
-        dob: "",
-        gender: "",
-        personal_email: "",
-        official_email: "",
-        reporting_manager_id: "",
-        role_id: "",
-        emp_type_id: "",
-        designation_id: "",
-        dep_id: "",
-        area_id: "",
-      });
     }
-  }, [updateId, data, reset]);
+  }, [updateId, data, setValue]);
 
   // Handle Form Submit
   const onSubmit = async (formData) => {
@@ -234,9 +226,11 @@ export const EmployeeBasicDetailsForm = () => {
       const payload = {
         tab_type: tabType,
         title: formData.title,
-        name: `${formData.title} ${formData.name}`,
-        contact_no: `${formData.code}-${formData.contact_no}`,
-        alt_contact_no: `${formData.alt_code}-${formData.alt_contact_no}`,
+        name: formData.name,
+        contact_code: formData.code,
+        contact_no: formData.contact_no,
+        alt_contact_code: formData.alt_code,
+        alt_contact_no: formData.alt_contact_no,
         dob: formData.dob,
         gender: formData.gender,
         personal_email: formData.personal_email,
@@ -252,7 +246,6 @@ export const EmployeeBasicDetailsForm = () => {
       console.log("Basic Details Data.....:", payload);
 
       let response;
-      // Uncomment and use your actual API call
       if (updateId) {
         response = await updateEmployee(updateId, payload);
       } else {
@@ -413,12 +406,12 @@ export const EmployeeBasicDetailsForm = () => {
               {/* Contact Number */}
               <div className="col-span-4 flex flex-col gap-3">
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="code" className="text-sm">
+                  <label htmlFor="contact_code" className="text-sm">
                     Contact No.
                   </label>
                   <div className="flex">
                     <Controller
-                      name="code"
+                      name="contact_code"
                       control={control}
                       rules={{ required: "Country code is required" }}
                       render={({ field }) => (
@@ -475,12 +468,12 @@ export const EmployeeBasicDetailsForm = () => {
               {/* Alt Contact Number */}
               <div className="col-span-4 flex flex-col gap-3">
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="alt_code" className="text-sm">
+                  <label htmlFor="alt_contact_code" className="text-sm">
                     Alt. Contact No.
                   </label>
                   <div className="flex">
                     <Controller
-                      name="alt_code"
+                      name="alt_contact_code"
                       control={control}
                       render={({ field }) => (
                         <Select

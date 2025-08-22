@@ -375,7 +375,6 @@ export const EmployeePersonalDetailsForm = () => {
 
       const payload = {
         tab_type: tabType,
-        user_id: createdUserId,
         present_country_id: data?.present_country_id,
         present_state_id: data?.present_state_id,
         present_city_id: data?.present_city_id,
@@ -408,6 +407,7 @@ export const EmployeePersonalDetailsForm = () => {
       if (updateId) {
         response = await updateEmployee(updateId, payload);
       } else {
+        payload.user_id = createdUserId;
         response = await createEmployee(payload);
       }
       if (response.success) {

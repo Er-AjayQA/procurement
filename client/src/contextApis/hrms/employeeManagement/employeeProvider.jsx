@@ -496,7 +496,7 @@ export const EmployeeProvider = ({ children }) => {
       const id = updateId || viewId;
       getDataById(id);
     }
-  }, [updateId, viewId]);
+  }, [updateId, viewId, tabType]);
 
   // For Delete operations
   useEffect(() => {
@@ -505,9 +505,6 @@ export const EmployeeProvider = ({ children }) => {
       handleDelete(id);
     }
   }, [deleteId]);
-
-  // // Get Role list
-  // useEffect(() => {}, [updateId]);
 
   useEffect(() => {
     getAllRolesList();
@@ -610,24 +607,25 @@ export const EmployeeProvider = ({ children }) => {
 
   const contextValue = {
     listing,
+    viewModules,
+    viewVisibility,
     formVisibility,
     formType,
     data,
-    updateId,
     filter,
     limit,
     totalPages,
     page,
     isLoading,
     viewId,
-    viewVisibility,
-    componentType,
-    viewModules,
-    rolesList,
-    styledComponent,
+    updateId,
+    createdUserId,
     deleteId,
     tabType,
+    componentType,
     formSelectStyles,
+    styledComponent,
+    rolesList,
     countryCodeOptions,
     countryListOptions,
     reportingManagerOptions,
@@ -642,13 +640,9 @@ export const EmployeeProvider = ({ children }) => {
     maritalStatusOptions,
     bankOptions,
     contractTypesOptions,
-    createdUserId,
     getAllData,
     getDataById,
-    handleFormVisibility,
-    handleTabClick,
-    handleLimitChange,
-    handleChangeFilter,
+    getAllShiftsOptions,
     setUpdateId,
     setDeleteId,
     setPage,
@@ -657,8 +651,22 @@ export const EmployeeProvider = ({ children }) => {
     setCreatedUserId,
     setViewVisibility,
     setContractTypesOptions,
-    setComponentType,
+    setCountryCodeOptions,
+    setCountryListOptions,
+    setReportingManagerOptions,
+    setShiftOptions,
+    setDepartmentOptions,
+    setDesignationOptions,
+    setEmployeeTypeOptions,
     setAreaOptions,
+    setBranchOptions,
+    setAllowancesOptions,
+    setBankOptions,
+    setComponentType,
+    handleFormVisibility,
+    handleTabClick,
+    handleLimitChange,
+    handleChangeFilter,
     handleActiveInactive,
     handleViewVisibility,
     handleComponentView,

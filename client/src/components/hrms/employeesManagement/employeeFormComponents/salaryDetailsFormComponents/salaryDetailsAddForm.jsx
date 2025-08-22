@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Controller } from "react-hook-form";
 import Select from "react-select";
 import { getShiftById } from "../../../../../services/master_services/service";
 import { toast } from "react-toastify";
+import { useEmployeeContext } from "../../../../../contextApis/useHrmsContextFile";
 
 export const SalaryDetailsAddForm = ({
   control,
@@ -16,36 +17,63 @@ export const SalaryDetailsAddForm = ({
   baseSalaryError,
   setBaseSalaryError,
 }) => {
-  const [selectedShift, setSelectedShift] = useState(null);
+  const { data, updateId, getAllShiftsOptions } = useEmployeeContext();
+
   const [shiftDetails, setShiftDetails] = useState(null);
+  const [isShiftInitialized, setIsShiftInitialized] = useState(false);
 
   const baseSalary = watch("base_salary");
+  const selectedShift = watch("shift_id");
   const dailyWorkingHours = watch("daily_working_hours");
 
-  // Get Shift Details
-  const getShiftDetails = async (id) => {
-    try {
-      const response = await getShiftById(id);
+  // Updating fields when in update mode
+  useEffect(() => {
+    if (updateId && data && !isShiftInitialized) {
+      const setUpdateDefaultData = async () => {
+        setValue("base_salary", data?.base_salary);
+        setValue("daily_working_hours", data?.daily_working_hours);
+        setValue("salary_per_day", data?.salary_per_day);
+        setValue("salary_per_hour", data?.salary_per_hour);
+        setValue("total_monthly_hours", data?.total_monthly_hours);
+        setValue("weekly_hours", data?.weekly_hours);
 
-      if (response.success) {
-        setShiftDetails(response?.data[0]);
-        setValue("daily_working_hours", response?.data[0].shift_duration);
-        setValue("weekly_hours", response?.data[0].shift_duration * 5);
-        setValue(
-          "total_monthly_hours",
-          response?.data[0].working_hours_per_month
-        );
-        calculateSalaries(baseSalary, response.data[0].shift_duration);
-      } else {
-        toast.error(response.message);
-      }
-    } catch (error) {
-      setShiftDetails(null);
+        if (data?.shift_id) {
+          // Get shift details
+          getShiftDetails(data.shift_id);
+        }
+      };
+
+      setUpdateDefaultData();
     }
-  };
+  }, [updateId, data, setValue, isShiftInitialized]);
+
+  // Get Shift Details
+  const getShiftDetails = useCallback(
+    async (id) => {
+      try {
+        const response = await getShiftById(id);
+
+        if (response.success) {
+          setShiftDetails(response?.data[0]);
+          setValue("daily_working_hours", response?.data[0].shift_duration);
+          setValue("weekly_hours", response?.data[0].shift_duration * 5);
+          setValue(
+            "total_monthly_hours",
+            response?.data[0].working_hours_per_month
+          );
+          calculateSalaries(baseSalary, response.data[0].shift_duration);
+        } else {
+          toast.error(response.message);
+        }
+      } catch (error) {
+        setShiftDetails(null);
+      }
+    },
+    [baseSalary]
+  );
 
   // Calculate Salaries
-  const calculateSalaries = (baseSalary, shiftDuration) => {
+  const calculateSalaries = useCallback((baseSalary, shiftDuration) => {
     const base = parseFloat(baseSalary);
     const hours = parseFloat(shiftDuration);
 
@@ -58,20 +86,23 @@ export const SalaryDetailsAddForm = ({
       setValue("salary_per_day", "");
       setValue("salary_per_hour", "");
     }
-  };
+  }, []);
 
   // Handle base salary change
-  const handleBaseSalaryChange = (e) => {
-    const value = e.target.value;
-    setValue("base_salary", value);
+  const handleBaseSalaryChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setValue("base_salary", value);
 
-    if (value < 0) {
-      setBaseSalaryError(true);
-    } else {
-      setBaseSalaryError(false);
-    }
-    calculateSalaries(value, dailyWorkingHours);
-  };
+      if (value < 0) {
+        setBaseSalaryError(true);
+      } else {
+        setBaseSalaryError(false);
+      }
+      calculateSalaries(value, dailyWorkingHours);
+    },
+    [dailyWorkingHours]
+  );
 
   useEffect(() => {
     if (baseSalary && baseSalary < 0) {
@@ -81,7 +112,7 @@ export const SalaryDetailsAddForm = ({
       setBaseSalaryError(false);
     }
     calculateSalaries(baseSalary, dailyWorkingHours);
-  }, [baseSalary, dailyWorkingHours, setValue]);
+  }, [baseSalary, dailyWorkingHours]);
 
   // Getting Shift Details on selecting Shift
   useEffect(() => {
@@ -132,7 +163,6 @@ export const SalaryDetailsAddForm = ({
                       value={findSelectedOption(shiftOptions, field.value)}
                       onChange={(selected) => {
                         field.onChange(selected?.value || "");
-                        setSelectedShift(selected?.value);
                       }}
                       placeholder="Select shift..."
                       isClearable

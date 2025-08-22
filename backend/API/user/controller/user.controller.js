@@ -121,7 +121,7 @@ module.exports.createUser = async (req, res) => {
 
             return res.status(200).send({
               success: true,
-              status: "User Created Successfully!",
+              message: "User Basic Details Created Successfully!",
               data: newUser?.id,
             });
           } catch (error) {
@@ -314,6 +314,7 @@ module.exports.createUser = async (req, res) => {
               allowances.map((allowance) => ({
                 user_id: findUser.id,
                 allowance_id: allowance.allowance_id,
+                uniqueCode: allowance.id,
                 amount: allowance.amount,
               })),
               { transaction }
@@ -454,6 +455,8 @@ module.exports.updateUser = async (req, res) => {
   try {
     const data = req.body;
 
+    console.log("Payload Data Backend===>", data);
+
     const isUserExist = await DB.tbl_user_master.findOne({
       where: { id: req.params.id, isDeleted: false },
     });
@@ -468,14 +471,48 @@ module.exports.updateUser = async (req, res) => {
         const transaction = await DB.sequelize.transaction();
 
         try {
-          let data = req.body;
+          let {
+            title,
+            name,
+            contact_no,
+            alt_contact_no,
+            dob,
+            gender,
+            personal_email,
+            official_email,
+            reporting_manager_id,
+            dep_id,
+            area_id,
+            designation_id,
+            emp_type_id,
+            branch_id,
+            role_id,
+            userImage,
+          } = req.body;
 
           if (req.file) {
-            data.userImage = req.file.path || isUserExist.userImage;
+            userImage = req.file.path || isUserExist.userImage;
           }
 
           const updateUser = await DB.tbl_user_master.update(
-            data,
+            {
+              title,
+              name,
+              userImage,
+              contact_no,
+              alt_contact_no,
+              dob,
+              gender,
+              personal_email,
+              official_email,
+              reporting_manager_id,
+              dep_id,
+              area_id,
+              designation_id,
+              emp_type_id,
+              role_id,
+              branch_id,
+            },
             { where: { id: isUserExist.id } },
             { transaction }
           );
@@ -492,7 +529,7 @@ module.exports.updateUser = async (req, res) => {
 
           return res.status(200).send({
             success: true,
-            status: "Basic Details Updated Successfully!",
+            message: "Basic Details Updated Successfully!",
             data: updateUser,
           });
         } catch (error) {
@@ -503,15 +540,68 @@ module.exports.updateUser = async (req, res) => {
 
       // ADD PERSONAL DETAILS TAB DATA
       if (data.tab_type === "personal_details") {
-        let data = req.body;
+        let {
+          present_country_id,
+          present_state_id,
+          present_city_id,
+          present_address,
+          permanent_country_id,
+          permanent_state_id,
+          permanent_city_id,
+          permanent_address,
+          nationality,
+          personal_state_id,
+          personal_city_id,
+          dire_number,
+          driving_license,
+          blood_group,
+          id_number,
+          id_issue_date,
+          id_exp_date,
+          passport_number,
+          passport_issue_date,
+          passport_exp_date,
+          tax_number,
+          marital_status,
+          spouse_name,
+          family_details,
+          previous_employer_details,
+        } = req.body;
 
         const transaction = await DB.sequelize.transaction();
         try {
           // Adding the Personal Details
-          await DB.tbl_user_master.update(data, {
-            where: { id: isUserExist.id },
-            transaction,
-          });
+          await DB.tbl_user_master.update(
+            {
+              present_country_id,
+              present_state_id,
+              present_city_id,
+              present_address,
+              permanent_country_id,
+              permanent_state_id,
+              permanent_city_id,
+              permanent_address,
+              nationality,
+              personal_state_id,
+              personal_city_id,
+              dire_number,
+              driving_license,
+              blood_group,
+              id_number,
+              id_issue_date,
+              id_exp_date,
+              passport_number,
+              passport_issue_date,
+              passport_exp_date,
+              tax_number,
+              marital_status,
+              spouse_name,
+            },
+            {
+              where: { id: isUserExist.id },
+              transaction,
+            }
+          );
 
           // Deleting Existing Family Details Before Adding New One
           await DB.tbl_user_family_detail.destroy({
@@ -520,9 +610,9 @@ module.exports.updateUser = async (req, res) => {
           });
 
           // Adding the User Family Details
-          if (data.family_details && data.family_details.length > 0) {
+          if (family_details && family_details.length > 0) {
             await DB.tbl_user_family_detail.bulkCreate(
-              data.family_details.map((family) => ({
+              family_details.map((family) => ({
                 user_id: isUserExist.id,
                 member_name: family.member_name,
                 dob: family.dob,
@@ -543,11 +633,11 @@ module.exports.updateUser = async (req, res) => {
 
           // Adding the User Previous Employer Details
           if (
-            data.previous_employer_details &&
-            data.previous_employer_details.length > 0
+            previous_employer_details &&
+            previous_employer_details.length > 0
           ) {
             await DB.tbl_user_previous_employer_detail.bulkCreate(
-              data.previous_employer_details.map((previous_employer) => ({
+              previous_employer_details.map((previous_employer) => ({
                 user_id: isUserExist.id,
                 company_name: previous_employer.company_name,
                 from_date: previous_employer.from_date,
@@ -580,10 +670,18 @@ module.exports.updateUser = async (req, res) => {
 
         try {
           // Adding Salary Basic Details
-          await DB.tbl_user_master.update(data, {
-            where: { id: isUserExist.id },
-            transaction,
-          });
+          await DB.tbl_user_master.update(
+            {
+              shift_id: data?.shift_id,
+              base_salary: data?.base_salary,
+              daily_working_hours: data?.daily_working_hours,
+              salary_per_day: data?.salary_per_day,
+              salary_per_hour: data?.salary_per_hour,
+              total_monthly_hours: data?.total_monthly_hours,
+              weekly_hours: data?.weekly_hours,
+            },
+            { where: { id: isUserExist.id }, transaction }
+          );
 
           // Deleting User Allowance if any exist
           await DB.tbl_userAllowance_master.destroy({
@@ -592,37 +690,13 @@ module.exports.updateUser = async (req, res) => {
           });
 
           // Adding the User Allowance
-          if (data.allowances && data.allowances.length > 0) {
+          if (data?.allowances && data.allowances.length > 0) {
             await DB.tbl_userAllowance_master.bulkCreate(
-              data.allowances.map((allowance) => ({
+              data?.allowances.map((allowance) => ({
                 user_id: isUserExist.id,
+                uniqueCode: allowance.id,
                 allowance_id: allowance.allowance_id,
                 amount: allowance.amount,
-              })),
-              { transaction }
-            );
-          }
-
-          // Deleting Salary Revision if any exist
-          await DB.tbl_user_salary_revision.destroy({
-            where: { user_id: isUserExist.id },
-            transaction,
-          });
-
-          // Adding the Salary Revision
-          if (
-            data.salary_revision_details &&
-            data.salary_revision_details.length > 0
-          ) {
-            await DB.tbl_user_salary_revision.bulkCreate(
-              data.salary_revision_details.map((revision) => ({
-                user_id: isUserExist.id,
-                year: revision.year,
-                month: revision.month,
-                new_salary: revision.new_salary,
-                old_salary: revision.old_salary,
-                revision_percent: revision.revision_percent,
-                remark: revision.remark,
               })),
               { transaction }
             );
@@ -642,8 +716,16 @@ module.exports.updateUser = async (req, res) => {
 
       // ADD PAYMENT DETAILS TAB DATA
       if (data.tab_type === "payment_details") {
-        let data = req.body;
-
+        let {
+          bank_id,
+          account_holder_name,
+          bank_address,
+          account_number,
+          re_account_number,
+          nuit_number,
+          inss_number,
+          nib_number,
+        } = req.body;
         try {
           if (data.account_number !== data.re_account_number) {
             return res.status(200).send({
@@ -654,10 +736,22 @@ module.exports.updateUser = async (req, res) => {
             const transaction = await DB.sequelize.transaction();
 
             // Adding the Payment Details
-            await DB.tbl_user_master.update(data, {
-              where: { id: isUserExist.id },
-              transaction,
-            });
+            await DB.tbl_user_master.update(
+              {
+                bank_id,
+                account_holder_name,
+                bank_address,
+                account_number,
+                re_account_number,
+                nuit_number,
+                inss_number,
+                nib_number,
+              },
+              {
+                where: { id: isUserExist.id },
+                transaction,
+              }
+            );
             await transaction.commit();
             return res.status(200).send({
               success: true,
@@ -677,16 +771,29 @@ module.exports.updateUser = async (req, res) => {
 
       // ADD CONTRACT DETAILS TAB DATA
       if (data.tab_type === "contract_details") {
-        const data = req.body;
+        const {
+          contract_type_id,
+          start_working_date,
+          probation_end_date,
+          notice_period_days,
+        } = req.body;
 
         const transaction = await DB.sequelize.transaction();
 
         try {
           // Update the user contract details
-          await DB.tbl_user_master.update(data, {
-            where: { id: isUserExist.id },
-            transaction,
-          });
+          await DB.tbl_user_master.update(
+            {
+              contract_type_id,
+              start_working_date,
+              probation_end_date,
+              notice_period_days,
+            },
+            {
+              where: { id: isUserExist.id },
+              transaction,
+            }
+          );
 
           await transaction.commit();
           return res.status(200).send({
@@ -756,12 +863,12 @@ module.exports.getUserDetails = async (req, res) => {
     } else {
       // Getting Allowance Details
       const allowances = await DB.tbl_userAllowance_master.findAll({
-        attributes: ["id", "amount", "allowance_id"],
+        attributes: ["id", "amount", "allowance_id", "uniqueCode"],
         where: { user_id: getAllData[0].id, isDeleted: false },
         include: [
           {
             model: DB.tbl_allowance_master,
-            attributes: ["name", "is_taxable"],
+            attributes: ["id", "name", "is_taxable"],
             where: { isDeleted: false },
           },
         ],

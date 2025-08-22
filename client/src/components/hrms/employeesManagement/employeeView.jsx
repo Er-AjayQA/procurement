@@ -42,7 +42,10 @@ export const EmployeeView = () => {
             <div>
               <button
                 className="bg-red-600 py-1 px-5 rounded-lg text-white hover:bg-red-700 text-sm font-bold"
-                onClick={() => handleComponentView("listing")}
+                onClick={() => {
+                  handleComponentView("listing");
+                  handleTabClick("basic_details");
+                }}
               >
                 Back
               </button>

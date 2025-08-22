@@ -59,22 +59,25 @@ export const EmployeeContractDetailsForm = () => {
 
   // Set form values when in update mode
   useEffect(() => {
-    if (updateId && data) {
-      reset({
-        contract_type_id: data?.contract_type_id || "",
-        start_working_date: data?.start_working_date || "",
-        probation_end_date: data?.probation_end_date || "",
-        notice_period_days: data?.notice_period_days || "",
-      });
-    } else {
-      reset({
-        contract_type_id: "",
-        start_working_date: "",
-        probation_end_date: "",
-        notice_period_days: "",
-      });
+    if (updateId && data && contractTypesOptions.length > 0) {
+      const setUpdateDefaultData = async () => {
+        setValue("bank_address", data?.bank_address);
+        setValue("start_working_date", data?.start_working_date);
+        setValue("probation_end_date", data?.probation_end_date);
+        setValue("notice_period_days", data?.notice_period_days);
+      };
+
+      const contractOption = contractTypesOptions?.find(
+        (item) => item.value == data?.contract_type_id
+      );
+
+      if (contractOption) {
+        setValue("contract_type_id", contractOption.value);
+      }
+
+      setUpdateDefaultData();
     }
-  }, [updateId, data, reset]);
+  }, [updateId, data, setValue, contractTypesOptions]);
 
   // Handle Form Submit
   const onSubmit = async (formData) => {
@@ -91,7 +94,6 @@ export const EmployeeContractDetailsForm = () => {
 
       const payload = {
         tab_type: tabType,
-        user_id: createdUserId,
         contract_type_id: formData?.contract_type_id,
         start_working_date: formData?.start_working_date,
         probation_end_date: formData?.probation_end_date,
@@ -102,6 +104,7 @@ export const EmployeeContractDetailsForm = () => {
       if (updateId) {
         response = await updateEmployee(updateId, payload);
       } else {
+        payload.user_id = createdUserId;
         response = await createEmployee(payload);
       }
       if (response.success) {

@@ -30,6 +30,10 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("userImage", value === "" ? null : value);
         },
       },
+      contact_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       contact_no: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -40,6 +44,14 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: null,
         set(value) {
           this.setDataValue("alt_contact_no", value === "" ? null : value);
+        },
+      },
+      alt_contact_code: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        defaultValue: null,
+        set(value) {
+          this.setDataValue("alt_contact_code", value === "" ? null : value);
         },
       },
       dob: {
