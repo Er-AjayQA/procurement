@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { EmployeeContext } from "./hrms/employeeManagement/employeeContext";
+import { EmployeeTransferContext } from "./hrms/employeeTransfer/transferContext";
 
 // Use Employee Context
 export const useEmployeeContext = () => {
@@ -7,6 +8,17 @@ export const useEmployeeContext = () => {
   if (context === undefined) {
     throw new Error(
       "useEmployeeContext must be used within a EmployeeProvider"
+    );
+  }
+  return context;
+};
+
+// Use Employee Transfer Context
+export const useEmployeeTransferContext = () => {
+  const context = useContext(EmployeeTransferContext);
+  if (context === undefined) {
+    throw new Error(
+      "useEmployeeTransferContext must be used within a EmployeeTransferProvider"
     );
   }
   return context;

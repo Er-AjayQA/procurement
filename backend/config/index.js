@@ -305,6 +305,13 @@ db.tbl_notification_master =
     Sequelize
   );
 
+// Transfer Type Master Table
+db.tbl_transfer_type_master =
+  require("../API/configurationMasters/transferType_master/model/transferType_master.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
