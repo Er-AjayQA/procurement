@@ -1,0 +1,174 @@
+import { Controller, useForm } from "react-hook-form";
+import Select from "react-select";
+import { useEmployeeTransferContext } from "../../../../contextApis/useHrmsContextFile";
+import { useEffect, useState } from "react";
+import { getEmployeeDetails } from "../../../../services/employeeDetails_services/services";
+
+export const TransferSourceDetailsForm = ({
+  control,
+  register,
+  setValue,
+  watch,
+  findSelectedOption,
+}) => {
+  const {
+    data,
+    formSelectStyles,
+    updateId,
+    userOptions,
+    handleTabClick,
+    tabType,
+    handleComponentView,
+  } = useEmployeeTransferContext();
+
+  const selectedUser = watch("requested_for_user_id");
+  const [userDetail, setUserDetail] = useState(null);
+
+  // Get User Detail
+  const getUserDetail = async (id) => {
+    try {
+      const response = await getEmployeeDetails(id);
+
+      if (response.data.success) {
+        setUserDetail(response.data.data[0]);
+        setValue("from_role_id", response.data.data[0].role_id);
+        setValue("from_dept_id", response.data.data[0].dep_id);
+        setValue("from_desig_id", response.data.data[0].designation_id);
+        setValue("from_branch_id", response.data.data[0].branch_id);
+
+        setValue("from_role_name", response.data.data[0].role_name);
+        setValue("from_dept_name", response.data.data[0].department_name);
+        setValue("from_desig_name", response.data.data[0].designation_name);
+        setValue("from_branch_name", response.data.data[0].branch_name);
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setUserDetail(null);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedUser) {
+      getUserDetail(selectedUser);
+    }
+  }, [selectedUser]);
+
+  return (
+    <div className="shadow-lg rounded-md">
+      <div className="bg-gray-100 py-2 px-1 rounded-t-md">
+        <h3 className="text-black text-xs font-bold">Source Details</h3>
+      </div>
+      <div className="flex py-5 px-3 flex-col gap-5">
+        {/* Row-1 */}
+        <div className="grid grid-cols-12 gap-5">
+          {/* User Name */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="requested_for_user_id" className="text-sm">
+                Employee Name
+              </label>
+              <Controller
+                name="requested_for_user_id"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={userOptions || []}
+                    value={findSelectedOption(userOptions, field.value)}
+                    onChange={(selected) => {
+                      field.onChange(selected?.value || "");
+                    }}
+                    placeholder="Select employee..."
+                    isClearable
+                    isSearchable
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={{
+                      ...formSelectStyles,
+                      width: "120px",
+                      borderTopRightRadius: "0",
+                      borderBottomRightRadius: "0",
+                    }}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Employee Role */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="from_role_id" className="text-sm">
+                Current Role
+              </label>
+              <input
+                type="text"
+                id="from_role_id"
+                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="current role..."
+                {...register("from_role_id")}
+                value={userDetail?.role_name || ""}
+                readOnly
+              />
+            </div>
+          </div>
+
+          {/* Employee Department */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="from_dept_id" className="text-sm">
+                Current Department
+              </label>
+              <input
+                type="text"
+                id="from_dept_id"
+                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="current department..."
+                {...register("from_dept_id")}
+                value={userDetail?.department_name || ""}
+                readOnly
+              />
+            </div>
+          </div>
+
+          {/* Employee Designation */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="from_desig_id" className="text-sm">
+                Current Designation
+              </label>
+              <input
+                type="text"
+                id="from_desig_id"
+                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="current designation..."
+                {...register("from_desig_id")}
+                value={userDetail?.designation_name || ""}
+                readOnly
+              />
+            </div>
+          </div>
+
+          {/* Employee Branch */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="from_branch_id" className="text-sm">
+                Current Branch
+              </label>
+              <input
+                type="text"
+                id="from_branch_id"
+                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="current branch..."
+                {...register("from_branch_id")}
+                value={userDetail?.branch_name || ""}
+                readOnly
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

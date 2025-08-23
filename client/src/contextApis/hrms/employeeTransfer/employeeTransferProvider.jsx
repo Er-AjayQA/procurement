@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import {
   getAllBranches,
   getAllDepartments,
+  getAllDesignations,
+  getAllTransferReason,
+  getAllTransferType,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { EmployeeTransferContext } from "./employeeTransferContext";
@@ -10,6 +13,7 @@ import {
   getAllTransfer,
   getTransferById,
 } from "../../../services/hrms_services/service";
+import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 
 export const EmployeeTransferProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
@@ -39,9 +43,12 @@ export const EmployeeTransferProvider = ({ children }) => {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [userOptions, setUserOptions] = useState([]);
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [designationOptions, setDesignationOptions] = useState([]);
   const [branchOptions, setBranchOptions] = useState([]);
+  const [transferTypeOptions, setTransferTypeOptions] = useState([]);
+  const [transferReasonOptions, setTransferReasonOptions] = useState([]);
 
   // Get All Listing Data
   const getAllData = async () => {
@@ -161,6 +168,85 @@ export const EmployeeTransferProvider = ({ children }) => {
     setCurrentTab(tabType.value);
   };
 
+  // Get All Transfer Type List
+  const getAllTransferTypeOptions = async () => {
+    try {
+      const response = await getAllTransferType({
+        limit: 5000,
+        page: "",
+        filter: {
+          transfer_type: "",
+        },
+      });
+
+      if (response.success) {
+        setTransferTypeOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.transfer_type,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setTransferTypeOptions(null);
+    }
+  };
+
+  // Get All Transfer Reason List
+  const getAllTransferReasonOptions = async () => {
+    try {
+      const response = await getAllTransferReason({
+        limit: 5000,
+        page: "",
+        filter: {
+          reason_type: "",
+        },
+      });
+
+      if (response.success) {
+        setTransferReasonOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.reason_type,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setTransferReasonOptions(null);
+    }
+  };
+
+  // Get All Users List
+  const getAllUsersOptions = async () => {
+    try {
+      const response = await getAllEmployeeDetails({
+        limit: "",
+        page: "",
+        filter: {
+          role_id: 1,
+          user_id: "",
+        },
+      });
+
+      if (response.success) {
+        setUserOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setUserOptions(null);
+    }
+  };
+
   // Get All Department List
   const getAllDepartmentOptions = async () => {
     try {
@@ -182,6 +268,30 @@ export const EmployeeTransferProvider = ({ children }) => {
       }
     } catch (error) {
       setDepartmentOptions(null);
+    }
+  };
+
+  // Get All Designation List
+  const getAllDesignationOptions = async () => {
+    try {
+      const response = await getAllDesignations({
+        limit: 500,
+        page: "",
+        filter: "",
+      });
+
+      if (response.success) {
+        setDesignationOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setDesignationOptions(null);
     }
   };
 
@@ -217,6 +327,15 @@ export const EmployeeTransferProvider = ({ children }) => {
   useEffect(() => {
     getAllData();
   }, [limit, page, filter, updateId, deleteId, tabType]);
+
+  useEffect(() => {
+    getAllDepartmentOptions();
+    getAllDesignationOptions();
+    getAllBranchOptions();
+    getAllUsersOptions();
+    getAllTransferTypeOptions();
+    getAllTransferReasonOptions();
+  }, []);
 
   // For update operations
   useEffect(() => {
@@ -361,7 +480,10 @@ export const EmployeeTransferProvider = ({ children }) => {
     rolesOptions,
     departmentOptions,
     designationOptions,
+    userOptions,
     branchOptions,
+    transferTypeOptions,
+    transferReasonOptions,
     getAllData,
     getDataById,
     setUpdateId,
