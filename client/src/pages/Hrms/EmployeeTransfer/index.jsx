@@ -1,5 +1,5 @@
-import { EmployeeTransferPage } from "../../../components/hrms/employeeTransfer/transferPage";
-import { EmployeeTransferProvider } from "../../../contextApis/hrms/employeeTransfer/transferProvider";
+import { EmployeeTransferPage } from "../../../components/hrms/employeeTransfer/employeeTransferPage";
+import { EmployeeTransferProvider } from "../../../contextApis/hrms/employeeTransfer/employeeTransferProvider";
 
 export const MainEmployeeTransferPage = () => {
   return (

@@ -1,24 +1,17 @@
 // ========== REQUIRE STATEMENTS ========== //
 const express = require("express");
 const router = express.Router();
-const AllowanceController = require("../controller/transfer.controller");
+const TransferController = require("../controller/transfer.controller");
 
 // ========== ROUTES ========== //
-router.post("/create-allowance", AllowanceController.createAllowance);
-router.put("/update-allowance/:id", AllowanceController.updateAllowance);
+router.post("/create-transfer", TransferController.createTransfer);
+router.put("/update-transfer/:id", TransferController.updateTransfer);
+router.post("/get-transfer-details/:id", TransferController.getTransferDetails);
 router.post(
-  "/get-allowance-details/:id",
-  AllowanceController.getAllowanceDetails
+  "/get-all-transfer-details",
+  TransferController.getAllTransferDetails
 );
-router.post(
-  "/get-all-allowance-details",
-  AllowanceController.getAllAllowanceDetails
-);
-router.put(
-  "/update-allowance-status/:id",
-  AllowanceController.updateAllowanceStatus
-);
-router.put("/delete-allowance/:id", AllowanceController.deleteAllowance);
+router.put("/delete-transfer/:id", TransferController.deleteTransfer);
 
 // ========== EXPORT ========== //
 module.exports = router;

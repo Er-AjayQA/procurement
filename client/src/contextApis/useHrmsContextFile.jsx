@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { EmployeeContext } from "./hrms/employeeManagement/employeeContext";
-import { EmployeeTransferContext } from "./hrms/employeeTransfer/transferContext";
+import { EmployeeTransferContext } from "./hrms/employeeTransfer/employeeTransferContext";
 
 // Use Employee Context
 export const useEmployeeContext = () => {
