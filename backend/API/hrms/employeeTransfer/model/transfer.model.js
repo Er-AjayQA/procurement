@@ -10,14 +10,6 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       // Current Details
-      emp_name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      reporting_manager: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       transfer_date: {
         type: Sequelize.DATEONLY("YYYY-MM-DD"),
         allowNull: false,
@@ -29,6 +21,8 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("reason", value === "" ? null : value);
         },
       },
+
+      // Destination Details
       new_salary: {
         type: Sequelize.INTEGER,
         allowNull: true,
@@ -45,7 +39,7 @@ module.exports = (sequelize, Sequelize) => {
           "REJECTED",
           "COMPLETED"
         ),
-        defaultValue: "DRAFT",
+        defaultValue: "PENDING",
       },
 
       isDeleted: {
