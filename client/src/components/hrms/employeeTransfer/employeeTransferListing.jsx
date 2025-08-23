@@ -40,9 +40,6 @@ export const EmployeeTransferListing = ({ componentType }) => {
     { name: "Completed", value: "Completed" },
   ]);
 
-  console.log("Current Tab", currentTab);
-  console.log("Tab Type", tabType);
-
   return (
     <>
       <div className="flex justify-between items-center pt-3 pb-10">

@@ -1,26 +1,59 @@
 import { useState } from "react";
 import { useEmployeeTransferContext } from "../../../contextApis/useHrmsContextFile";
+import { useForm } from "react-hook-form";
+import { TransferSourceDetailsForm } from "./employeeTransferFormComponents/transferSourceDetailsForm";
+import {
+  createTransfer,
+  updateTransfer,
+} from "../../../services/hrms_services/service";
+import { toast } from "react-toastify";
+import { TransferDestinationDetailsForm } from "./employeeTransferFormComponents/transferDestinationDetailsForm";
+import { TransferDetailsForm } from "./employeeTransferFormComponents/transferDetailsForm";
 
 export const EmployeeTransferForm = () => {
-  const { data, handleTabClick, tabType, handleComponentView } =
-    useEmployeeTransferContext();
+  const {
+    data,
+    updateId,
+    userOptions,
+    handleTabClick,
+    tabType,
+    getAllData,
+    handleComponentView,
+  } = useEmployeeTransferContext();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    control,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      requested_for_user_id: "",
+      from_role_id: "",
+      from_dept_id: "",
+      from_desig_id: "",
+      from_branch_id: "",
+      transfer_type_id: "",
+      transfer_reason_id: "",
+      transfer_date: "",
+      detailed_reason: "",
+      report_to_user_id: "",
+      to_role_id: "",
+      to_dept_id: "",
+      to_desig_id: "",
+      to_branch_id: "",
+      new_salary: "",
+      requested_by_user_id: "",
+    },
+  });
 
   /// Handle Form Submission
   const onSubmit = async (data, e) => {
     try {
       e.preventDefault();
-
-      if (datesValidationsError.idDatesError) {
-        toast.error("ID Issue Date must be smaller than ID Expiry Date!");
-        return;
-      }
-
-      if (datesValidationsError.passportDatesError) {
-        toast.error(
-          "Passport Issue Date must be smaller than Passport Expiry Date!"
-        );
-        return;
-      }
 
       const payload = {
         tab_type: tabType,
@@ -47,17 +80,14 @@ export const EmployeeTransferForm = () => {
         tax_number: data?.tax_number,
         marital_status: data?.marital_status,
         spouse_name: data?.spouse_name,
-        family_details: familyDetails,
-        previous_employer_details: previousEmployerDetails,
       };
 
       let response;
 
       if (updateId) {
-        response = await updateEmployee(updateId, payload);
+        response = await updateTransfer(updateId, payload);
       } else {
-        payload.user_id = createdUserId;
-        response = await createEmployee(payload);
+        response = await createTransfer(payload);
       }
       if (response.success) {
         toast.success(response.message);
@@ -71,88 +101,82 @@ export const EmployeeTransferForm = () => {
     }
   };
 
+  // Helper function to find selected option
+  const findSelectedOption = (options, value) => {
+    if (!options || value === undefined || value === null) return null;
+    return options.find((opt) => opt.value === value);
+  };
+
   return (
     <>
       <div className="flex flex-col">
-        {/* Employee Details Form */}
-        <div className="py-5">
-          <div className="flex flex-col gap-5">
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-5"
-            >
-              {/* Present Address */}
-              <PresentAddressForm
-                control={control}
-                errors={errors}
-                setValue={setValue}
-                register={register}
-                reset={reset}
-                watch={watch}
-                countryListOptions={countryListOptions}
-                findSelectedOption={findSelectedOption}
-                getAllPresentStatesOptions={getAllPresentStatesOptions}
-                getAllPresentCitiesOptions={getAllPresentCitiesOptions}
-                formSelectStyles={formSelectStyles}
-              />
+        <div className="shadow-lg rounded-md h-[80vh] overflow-auto">
+          <div className="bg-button-hover py-2 px-1 rounded-t-md">
+            <h3 className="text-white text-xs">Raise Transfer Request</h3>
+          </div>
 
-              {/* Permanent Address */}
-              <PermanentAddressForm
-                control={control}
-                setValue={setValue}
-                register={register}
-                reset={reset}
-                errors={errors}
-                watch={watch}
-                countryListOptions={countryListOptions}
-                findSelectedOption={findSelectedOption}
-                getAllPermanentStatesOptions={getAllPermanentStatesOptions}
-                getAllPermanentCitiesOptions={getAllPermanentCitiesOptions}
-                formSelectStyles={formSelectStyles}
-              />
+          <div className="p-5">
+            <div className="flex flex-col gap-5">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-10"
+              >
+                {/* Source Details */}
+                <TransferSourceDetailsForm
+                  control={control}
+                  errors={errors}
+                  setValue={setValue}
+                  register={register}
+                  reset={reset}
+                  watch={watch}
+                  findSelectedOption={findSelectedOption}
+                />
 
-              {/* Personal Details */}
-              <PersonalDataForm
-                control={control}
-                setValue={setValue}
-                register={register}
-                reset={reset}
-                errors={errors}
-                watch={watch}
-                formSelectStyles={formSelectStyles}
-                nationalityOptions={nationalityOptions}
-                findSelectedOption={findSelectedOption}
-                bloodOptions={bloodOptions}
-                maritalStatusOptions={maritalStatusOptions}
-                setSelectedMaritalStatus={setSelectedMaritalStatus}
-                selectedMaritalStatus={selectedMaritalStatus}
-                datesValidationsError={datesValidationsError}
-                setDatesValidationsError={setDatesValidationsError}
-              />
+                {/* Transfer Details */}
+                <TransferDetailsForm
+                  control={control}
+                  errors={errors}
+                  setValue={setValue}
+                  register={register}
+                  reset={reset}
+                  watch={watch}
+                  findSelectedOption={findSelectedOption}
+                />
 
-              {/* Submit Button */}
-              <div className="flex items-center justify-end">
-                <div className="flex items-center justify-center gap-5">
-                  <button
-                    type="submit"
-                    className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
-                    onClick={() => {
-                      handleComponentView("listing");
-                      setCreatedUserId(null);
-                      handleTabClick("basic_details");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-button-color hover:bg-button-hover text-white text-sm py-2 px-4 rounded-lg"
-                  >
-                    {updateId ? "Update & Next" : "Save & Next"}
-                  </button>
+                {/* Destination Details */}
+                <TransferDestinationDetailsForm
+                  control={control}
+                  errors={errors}
+                  setValue={setValue}
+                  register={register}
+                  reset={reset}
+                  watch={watch}
+                  findSelectedOption={findSelectedOption}
+                />
+
+                {/* Submit Button */}
+                <div className="flex items-center justify-end">
+                  <div className="flex items-center justify-center gap-5">
+                    <button
+                      type="submit"
+                      className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
+                      onClick={() => {
+                        handleComponentView("listing");
+                        handleTabClick("basic_details");
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="bg-button-color hover:bg-button-hover text-white text-sm py-2 px-4 rounded-lg"
+                    >
+                      {updateId ? "Update" : "Save"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       </div>
