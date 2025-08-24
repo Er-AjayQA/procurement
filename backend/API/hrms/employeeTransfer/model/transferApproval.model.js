@@ -8,8 +8,8 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      approval_type: {
-        type: Sequelize.ENUM("CURRENT_MANAGER", "NEW_MANAGER", "HR", "FINANCE"),
+      approval_level: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       approver_status: {
@@ -21,13 +21,6 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
         set(value) {
           this.setDataValue("comments", value === "" ? null : value);
-        },
-      },
-      acted_at: {
-        type: Sequelize.DATE,
-        allowNull: true,
-        set(value) {
-          this.setDataValue("acted_at", value === "" ? null : value);
         },
       },
       isDeleted: {

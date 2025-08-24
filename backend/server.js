@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_employee_transfer
+// db.tbl_employee_transfer_approval
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -44,8 +44,8 @@ const stateUploadRoute = require("./API/configurationMasters/states/router/state
 const cityUploadRoute = require("./API/configurationMasters/city_master/router/city.router");
 const bankRoute = require("./API/configurationMasters/bank_master/router/bank_master.router");
 const shiftRoute = require("./API/configurationMasters/shift_master/router/shift.router");
-const workflowTypeRoute = require("./API/configurationMasters/workflow/router/workflowType.router");
-const workflowRoute = require("./API/configurationMasters/workflow/router/workflow.router");
+const workflowTypeRoute = require("./API/workflowManagement/router/workflowType.router");
+const workflowRoute = require("./API/workflowManagement/router/workflow.router");
 const budgetRoute = require("./API/budgetManagement/router/budget.router");
 const vendorRoute = require("./API/vendorManagement/router/vendor.router");
 const courseCategoryRoute = require("./API/configurationMasters/courseCategory_master/router/courseCategory.router");

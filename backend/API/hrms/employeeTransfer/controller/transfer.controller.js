@@ -24,10 +24,16 @@ module.exports.createTransfer = async (req, res) => {
       const newData = await DB.tbl_employee_transfer.create(data);
 
       // Creating Approval Details
-      const approvalData = await DB.tbl_employee_transfer_approval.create({
-        approval_type: "CURRENT_MANAGER",
-        approver_id: newData?.current_report_to_user_id,
-      });
+      if (data.approvers_list && data.approvers_list.length > 0) {
+        await DB.tbl_employee_transfer_approval.bulkCreate(
+          data.approvers_list.map((approver, index) => ({
+            transfer_id: newData?.id,
+            approval_level: `${index + 1}`,
+            approver_id: approver,
+            approver_status: "PENDING",
+          }))
+        );
+      }
 
       return res.status(200).send({
         success: true,
@@ -250,7 +256,7 @@ module.exports.getAllTransferDetails = async (req, res) => {
     const totalRecords = totalResult[0].total;
     const totalPages = Math.ceil(totalRecords / limit);
 
-    const getAllData = await DB.sequelize.query(query, {
+    let getAllData = await DB.sequelize.query(query, {
       replacements: {
         requested_for_user_id: `${filter.requested_for_user_id}`,
         user_id: `${filter.user_id}`,
@@ -268,14 +274,37 @@ module.exports.getAllTransferDetails = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Transfer requests not found!" });
     } else {
+      const dataWithWorkflow = await Promise.all(
+        getAllData.map(async (data) => {
+          const transferDetails = { ...data };
+
+          try {
+            const getWorkflowData =
+              await DB.tbl_employee_transfer_approval.findAll({
+                where: { transfer_id: data.id, isDeleted: false },
+              });
+
+            transferDetails.workflow_Details = getWorkflowData;
+          } catch (error) {
+            console.error(
+              `Error fetching workflow for transfer ${data.id}:`,
+              error
+            );
+            transferDetails.workflow_Details = [];
+            transferDetails.workflow_error = error.message;
+          }
+
+          return transferDetails;
+        })
+      );
       return res.status(200).send({
         success: true,
         message: "Get all transfers list!",
-        data: getAllData,
+        data: dataWithWorkflow,
         pagination: {
           currentPage: page,
           itemsPerPage: limit,
-          totalItems: getAllData.length,
+          totalItems: dataWithWorkflow.length,
           totalPages: totalPages,
         },
       });
