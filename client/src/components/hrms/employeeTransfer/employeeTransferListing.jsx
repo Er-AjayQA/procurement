@@ -35,12 +35,10 @@ export const EmployeeTransferListing = ({ componentType }) => {
   } = useEmployeeTransferContext();
   const [selectedRole, setSelectedRole] = useState(null);
   const [tabList, setTabList] = useState([
-    { name: "Drafted", value: "drafted_requests" },
     { name: "My Requests", value: "my_requests" },
     { name: "Pending for Approval", value: "pending_for_approval" },
     { name: "Approved by Me", value: "approved_by_me" },
     { name: "Rejected by Me", value: "rejected_by_me" },
-    { name: "Completed", value: "Completed" },
   ]);
 
   return (
@@ -174,7 +172,7 @@ export const EmployeeTransferListing = ({ componentType }) => {
                       {list?.requested_for_user_name}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.requested_for_user_code || "N/A"}
+                      {list?.emp_code || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem] overflow-hidden">
                       <span className="text-[.8rem] overflow-x-auto scrollbar-hide">
@@ -192,14 +190,6 @@ export const EmployeeTransferListing = ({ componentType }) => {
                       {list?.approval_status}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
-                      {list?.approval_status === "DRAFT" && (
-                        <SendLinkIcon
-                          onClick={() => {
-                            handleSendForApproval(list?.id);
-                          }}
-                        />
-                      )}
-
                       <ViewIcon
                         onClick={() => {
                           handleComponentView("view");

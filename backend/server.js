@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_employee_transfer_approval
+// db.tbl_employee_transfer
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");

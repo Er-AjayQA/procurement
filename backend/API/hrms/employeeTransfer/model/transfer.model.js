@@ -10,6 +10,10 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       // Current Details
+      emp_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       applicable_from_date: {
         type: Sequelize.DATEONLY("YYYY-MM-DD"),
         allowNull: false,
@@ -39,14 +43,8 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       approval_status: {
-        type: Sequelize.ENUM(
-          "DRAFT",
-          "PENDING_APPROVAL",
-          "APPROVED",
-          "REJECTED",
-          "COMPLETED"
-        ),
-        defaultValue: "DRAFT",
+        type: Sequelize.ENUM("PENDING", "APPROVED", "REJECTED", "COMPLETED"),
+        defaultValue: "PENDING",
       },
 
       isDeleted: {

@@ -64,6 +64,7 @@ export const EmployeeTransferForm = () => {
 
       const payload = {
         requested_for_user_id: data?.requested_for_user_id,
+        emp_code: data?.emp_code,
         from_role_id: data?.from_role_id,
         from_dept_id: data?.from_dept_id,
         from_desig_id: data?.from_desig_id,
@@ -81,7 +82,7 @@ export const EmployeeTransferForm = () => {
         to_branch_id: data?.to_branch_id,
         new_salary: data?.new_salary,
         requested_by_user_id: userDetails?.id,
-        approval_status: "DRAFT",
+        approval_status: "PENDING",
       };
 
       let response;

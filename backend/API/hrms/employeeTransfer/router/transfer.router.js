@@ -16,10 +16,9 @@ router.post(
   TransferController.getAllTransferPendingByUserDetails
 );
 router.put("/delete-transfer/:id", TransferController.deleteTransfer);
-
-router.put(
-  "/transfer-send-for-approval/:id",
-  TransferController.sendForApprovalTransfer
+router.post(
+  "/approval-for-transfer/:id",
+  TransferController.approvalForTransfer
 );
 
 // ========== EXPORT ========== //
