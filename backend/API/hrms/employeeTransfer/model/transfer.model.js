@@ -10,15 +10,22 @@ module.exports = (sequelize, Sequelize) => {
       },
 
       // Current Details
-      transfer_date: {
+      applicable_from_date: {
         type: Sequelize.DATEONLY("YYYY-MM-DD"),
         allowNull: false,
+      },
+      applicable_to_date: {
+        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        allowNull: true,
+        set(value) {
+          this.setDataValue("applicable_to_date", value === "" ? null : value);
+        },
       },
       detailed_reason: {
         type: Sequelize.TEXT,
         allowNull: true,
         set(value) {
-          this.setDataValue("reason", value === "" ? null : value);
+          this.setDataValue("detailed_reason", value === "" ? null : value);
         },
       },
 
@@ -34,12 +41,12 @@ module.exports = (sequelize, Sequelize) => {
       approval_status: {
         type: Sequelize.ENUM(
           "DRAFT",
-          "PENDING",
+          "PENDING_APPROVAL",
           "APPROVED",
           "REJECTED",
           "COMPLETED"
         ),
-        defaultValue: "PENDING",
+        defaultValue: "DRAFT",
       },
 
       isDeleted: {

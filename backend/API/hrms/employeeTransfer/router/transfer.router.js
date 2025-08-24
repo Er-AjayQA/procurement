@@ -8,10 +8,19 @@ router.post("/create-transfer", TransferController.createTransfer);
 router.put("/update-transfer/:id", TransferController.updateTransfer);
 router.post("/get-transfer-details/:id", TransferController.getTransferDetails);
 router.post(
-  "/get-all-transfer-details",
+  "/get-all-transfer-details/:id",
   TransferController.getAllTransferDetails
 );
+router.post(
+  "/get-all-transfer-pending-user-details/:id",
+  TransferController.getAllTransferPendingByUserDetails
+);
 router.put("/delete-transfer/:id", TransferController.deleteTransfer);
+
+router.put(
+  "/transfer-send-for-approval/:id",
+  TransferController.sendForApprovalTransfer
+);
 
 // ========== EXPORT ========== //
 module.exports = router;

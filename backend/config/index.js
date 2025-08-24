@@ -326,6 +326,13 @@ db.tbl_employee_transfer =
     Sequelize
   );
 
+// Employee Transfer Approval Master Table
+db.tbl_employee_transfer_approval =
+  require("../API/hrms/employeeTransfer/model/transferApproval.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
@@ -1025,12 +1032,36 @@ db.tbl_employee_transfer.belongsTo(db.tbl_user_master, {
   foreignKey: "requested_by_user_id",
 });
 
+// Relation B/W User Master and Employee Transfer Tables (For Current Reported To User)
+db.tbl_user_master.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "current_report_to_user_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_user_master, {
+  foreignKey: "current_report_to_user_id",
+});
+
 // Relation B/W User Master and Employee Transfer Tables (For Reported To User)
 db.tbl_user_master.hasMany(db.tbl_employee_transfer, {
   foreignKey: "report_to_user_id",
 });
 db.tbl_employee_transfer.belongsTo(db.tbl_user_master, {
   foreignKey: "report_to_user_id",
+});
+
+// Relation B/W Transfer Approval and Employee Transfer Tables (For Reported To User)
+db.tbl_employee_transfer.hasMany(db.tbl_employee_transfer_approval, {
+  foreignKey: "transfer_id",
+});
+db.tbl_employee_transfer_approval.belongsTo(db.tbl_employee_transfer, {
+  foreignKey: "transfer_id",
+});
+
+// Relation B/W User Master and Employee Transfer Tables (For Reported To User)
+db.tbl_user_master.hasMany(db.tbl_employee_transfer_approval, {
+  foreignKey: "approver_id",
+});
+db.tbl_employee_transfer_approval.belongsTo(db.tbl_user_master, {
+  foreignKey: "approver_id",
 });
 // ========== EXPORTS ========== //
 module.exports = db;

@@ -3,6 +3,7 @@ import {
   getAllBranches,
   getAllDepartments,
   getAllDesignations,
+  getAllRoles,
   getAllTransferReason,
   getAllTransferType,
 } from "../../../services/master_services/service";
@@ -11,14 +12,18 @@ import { EmployeeTransferContext } from "./employeeTransferContext";
 import {
   deleteTransfer,
   getAllTransfer,
+  getAllTransferApprovalByUser,
   getTransferById,
+  sendTransferForApproval,
 } from "../../../services/hrms_services/service";
 import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
+import { useSelector } from "react-redux";
 
 export const EmployeeTransferProvider = ({ children }) => {
+  const { userDetails } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
+  const [approvalByMeListing, setApprovalByMeListing] = useState(null);
   const [data, setData] = useState(null);
-  const [rolesOptions, setRolesOptions] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
   const [viewModules, setViewModules] = useState(null);
@@ -32,29 +37,97 @@ export const EmployeeTransferProvider = ({ children }) => {
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [createdUserId, setCreatedUserId] = useState(null);
   const [filter, setFilter] = useState({
     requested_for_user_id: "",
     from_dept_id: "",
     from_branch_id: "",
-    approval_status: "PENDING",
   });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [rolesOptions, setRolesOptions] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [designationOptions, setDesignationOptions] = useState([]);
   const [branchOptions, setBranchOptions] = useState([]);
   const [transferTypeOptions, setTransferTypeOptions] = useState([]);
   const [transferReasonOptions, setTransferReasonOptions] = useState([]);
+  const [sendForApprovalId, setSendForApprovalId] = useState(null);
+
+  // Create the final filter based on tab type
+  const getFinalFilter = () => {
+    if (tabType.value === "pending_for_approval") {
+      const { approval_status, ...filterWithoutApprovalStatus } = filter;
+      return {
+        ...filterWithoutApprovalStatus,
+        approver_status: "PENDING",
+      };
+    } else if (tabType.value === "drafted_requests") {
+      const { approver_status, ...filterWithoutApprovalStatus } = filter;
+      return {
+        ...filterWithoutApprovalStatus,
+        approval_status: "DRAFT",
+      };
+    } else if (tabType.value === "my_requests") {
+      const { approver_status, ...filterWithoutApprovalStatus } = filter;
+      return {
+        ...filterWithoutApprovalStatus,
+        approval_status: "PENDING_APPROVAL",
+      };
+    } else if (tabType.value === "approved_by_me") {
+      const { approval_status, ...filterWithoutApprovalStatus } = filter;
+      return {
+        ...filterWithoutApprovalStatus,
+        approver_status: "APPROVED",
+      };
+    } else if (tabType.value === "rejected_by_me") {
+      const { approval_status, ...filterWithoutApprovalStatus } = filter;
+      return {
+        ...filterWithoutApprovalStatus,
+        approver_status: "REJECTED",
+      };
+    } else if (tabType.value === "Completed") {
+      const { approver_status, ...filterWithoutApproverStatus } = filter;
+      return {
+        ...filterWithoutApproverStatus,
+        approval_status: "COMPLETED",
+      };
+    }
+  };
 
   // Get All Listing Data
-  const getAllData = async () => {
+  const getAllData = async (id) => {
     try {
       setIsLoading(true);
-      const data = await getAllTransfer({ limit, page, filter });
+      const filter = getFinalFilter();
+      const data = await getAllTransfer(id, { limit, page, filter });
+
+      if (data.success) {
+        setListing(data.data);
+        setTotalPages(data.pagination.totalPages);
+      } else {
+        setListing(null);
+        setTotalPages(null);
+      }
+    } catch (error) {
+      setListing(null);
+      setTotalPages(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Get All Pending Approval Listing Data
+  const getAllPendingForApprovalData = async (id) => {
+    try {
+      setIsLoading(true);
+      const filter = getFinalFilter();
+      const data = await getAllTransferApprovalByUser(id, {
+        limit,
+        page,
+        filter,
+      });
 
       if (data.success) {
         setListing(data.data);
@@ -75,8 +148,8 @@ export const EmployeeTransferProvider = ({ children }) => {
   const getDataById = async (id) => {
     try {
       const response = await getTransferById(id);
-      if (response.data.success) {
-        setData(response.data.data[0]);
+      if (response.success) {
+        setData(response.data[0]);
       } else {
         toast.error(response.message);
         throw new Error(response.message);
@@ -124,7 +197,6 @@ export const EmployeeTransferProvider = ({ children }) => {
     setData(null);
     setUpdateId(null);
     setViewId(null);
-    setCreatedUserId(null);
   };
 
   // Handle User Delete Functionality
@@ -166,6 +238,27 @@ export const EmployeeTransferProvider = ({ children }) => {
   const handleTabClick = (tabType) => {
     setTabType(tabType);
     setCurrentTab(tabType.value);
+  };
+
+  // Handle Send For Approval Scenario
+  const handleSendForApproval = (id) => {
+    setSendForApprovalId(id);
+  };
+
+  // Send For Approval API Integration
+  const sendRequestForApproval = async (id) => {
+    try {
+      const response = await sendTransferForApproval(id);
+
+      if (response.success) {
+        setSendForApprovalId(null);
+        toast.success(response.message);
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setSendForApprovalId(null);
+    }
   };
 
   // Get All Transfer Type List
@@ -227,7 +320,7 @@ export const EmployeeTransferProvider = ({ children }) => {
         limit: "",
         page: "",
         filter: {
-          role_id: 1,
+          role_id: "",
           user_id: "",
         },
       });
@@ -244,6 +337,30 @@ export const EmployeeTransferProvider = ({ children }) => {
       }
     } catch (error) {
       setUserOptions(null);
+    }
+  };
+
+  // Get All Roles List
+  const getAllRolesOptions = async () => {
+    try {
+      const response = await getAllRoles({
+        limit: "",
+        page: "",
+        filter: "",
+      });
+
+      if (response.success) {
+        setRolesOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setRolesOptions(null);
     }
   };
 
@@ -325,10 +442,30 @@ export const EmployeeTransferProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter, updateId, deleteId, tabType]);
+    if (tabType.value === "pending_for_approval") {
+      getAllPendingForApprovalData(userDetails?.id);
+    } else if (tabType.value === "drafted_requests") {
+      getAllData(userDetails?.id);
+    } else if (tabType.value === "my_requests") {
+      getAllData(userDetails?.id);
+    } else if (tabType.value === "approved_by_me") {
+      getAllPendingForApprovalData(userDetails?.id);
+    } else if (tabType.value === "rejected_by_me") {
+      getAllPendingForApprovalData(userDetails?.id);
+    } else if (tabType.value === "Completed") {
+      getAllData(userDetails?.id);
+    }
+  }, [limit, page, filter, updateId, deleteId, tabType, sendForApprovalId]);
+
+  // Handle Automatic Call for Send for Approval API
+  useEffect(() => {
+    if (sendForApprovalId) {
+      sendRequestForApproval(sendForApprovalId);
+    }
+  }, [sendForApprovalId]);
 
   useEffect(() => {
+    getAllRolesOptions();
     getAllDepartmentOptions();
     getAllDesignationOptions();
     getAllBranchOptions();
@@ -352,24 +489,6 @@ export const EmployeeTransferProvider = ({ children }) => {
       handleDelete(id);
     }
   }, [deleteId]);
-
-  useEffect(() => {
-    if (tabType.value === "my_requests") {
-      setFilter((prev) => ({ ...prev, approval_status: "" }));
-    }
-    if (tabType.value === "drafted_requests") {
-      setFilter((prev) => ({ ...prev, approval_status: "DRAFT" }));
-    }
-    if (tabType.value === "approved_by_me") {
-      setFilter((prev) => ({ ...prev, approval_status: "APPROVED" }));
-    }
-    if (tabType.value === "rejected_by_me") {
-      setFilter((prev) => ({ ...prev, approval_status: "REJECTED" }));
-    }
-    if (tabType.value === "Completed") {
-      setFilter((prev) => ({ ...prev, approval_status: "COMPLETED" }));
-    }
-  }, [tabType]);
 
   const styledComponent = {
     control: (base) => ({
@@ -458,6 +577,7 @@ export const EmployeeTransferProvider = ({ children }) => {
 
   const contextValue = {
     listing,
+    approvalByMeListing,
     viewModules,
     viewVisibility,
     formVisibility,
@@ -470,7 +590,6 @@ export const EmployeeTransferProvider = ({ children }) => {
     isLoading,
     viewId,
     updateId,
-    createdUserId,
     deleteId,
     tabType,
     currentTab,
@@ -491,7 +610,6 @@ export const EmployeeTransferProvider = ({ children }) => {
     setPage,
     setViewId,
     setData,
-    setCreatedUserId,
     setViewVisibility,
     setDepartmentOptions,
     setDesignationOptions,
@@ -504,6 +622,7 @@ export const EmployeeTransferProvider = ({ children }) => {
     handleViewVisibility,
     handleComponentView,
     handleComponentClose,
+    handleSendForApproval,
   };
 
   return (

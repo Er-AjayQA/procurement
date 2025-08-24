@@ -10,6 +10,7 @@ export const TransferSourceDetailsForm = ({
   setValue,
   watch,
   findSelectedOption,
+  selectedUser,
 }) => {
   const {
     data,
@@ -21,7 +22,6 @@ export const TransferSourceDetailsForm = ({
     handleComponentView,
   } = useEmployeeTransferContext();
 
-  const selectedUser = watch("requested_for_user_id");
   const [userDetail, setUserDetail] = useState(null);
 
   // Get User Detail
@@ -35,11 +35,19 @@ export const TransferSourceDetailsForm = ({
         setValue("from_dept_id", response.data.data[0].dep_id);
         setValue("from_desig_id", response.data.data[0].designation_id);
         setValue("from_branch_id", response.data.data[0].branch_id);
+        setValue(
+          "current_report_to_user_id",
+          response.data.data[0].reporting_manager_id
+        );
 
         setValue("from_role_name", response.data.data[0].role_name);
         setValue("from_dept_name", response.data.data[0].department_name);
         setValue("from_desig_name", response.data.data[0].designation_name);
         setValue("from_branch_name", response.data.data[0].branch_name);
+        setValue(
+          "current_report_to_user_name",
+          response.data.data[0].reporting_manager
+        );
       } else {
         throw new Error(response.message);
       }
@@ -51,13 +59,20 @@ export const TransferSourceDetailsForm = ({
   useEffect(() => {
     if (selectedUser) {
       getUserDetail(selectedUser);
+    } else {
+      setUserDetail(null);
+      setValue("from_role_id", "");
+      setValue("from_dept_id", "");
+      setValue("from_desig_id", "");
+      setValue("from_branch_id", "");
+      setValue("current_report_to_user_id", "");
     }
   }, [selectedUser]);
 
   return (
     <div className="shadow-lg rounded-md">
       <div className="bg-gray-100 py-2 px-1 rounded-t-md">
-        <h3 className="text-black text-xs font-bold">Source Details</h3>
+        <h3 className="text-black text-xs font-bold">Current Details</h3>
       </div>
       <div className="flex py-5 px-3 flex-col gap-5">
         {/* Row-1 */}
@@ -145,6 +160,24 @@ export const TransferSourceDetailsForm = ({
                 placeholder="current designation..."
                 {...register("from_desig_id")}
                 value={userDetail?.designation_name || ""}
+                readOnly
+              />
+            </div>
+          </div>
+
+          {/* Current Reporting Manager */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="current_report_to_user_name" className="text-sm">
+                Current Reporting Manager
+              </label>
+              <input
+                type="text"
+                id="current_report_to_user_name"
+                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="current reporting manager..."
+                {...register("current_report_to_user_name")}
+                value={userDetail?.reporting_manager || ""}
                 readOnly
               />
             </div>

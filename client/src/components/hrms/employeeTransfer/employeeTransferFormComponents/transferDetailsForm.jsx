@@ -115,15 +115,15 @@ export const TransferDetailsForm = ({
           {/*  Applicable Date */}
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
-              <label htmlFor="transfer_date" className="text-sm">
+              <label htmlFor="applicable_from_date" className="text-sm">
                 Applicable From Date
               </label>
               <input
                 type="date"
-                id="transfer_date"
+                id="applicable_from_date"
                 className={`rounded-lg text-[.8rem] hover:border-borders-inputHover `}
                 placeholder="Applicable from..."
-                {...register("transfer_date")}
+                {...register("applicable_from_date")}
               />
             </div>
           </div>
@@ -134,15 +134,15 @@ export const TransferDetailsForm = ({
             {/*  Applicable To */}
             <div className="col-span-4 flex flex-col gap-3">
               <div className="flex flex-col gap-2">
-                <label htmlFor="transfer_to" className="text-sm">
+                <label htmlFor="applicable_to_date" className="text-sm">
                   Applicable To Date
                 </label>
                 <input
                   type="date"
-                  id="transfer_to"
+                  id="applicable_to_date"
                   className={`rounded-lg text-[.8rem] hover:border-borders-inputHover `}
                   placeholder="Applicable to..."
-                  {...register("transfer_to")}
+                  {...register("applicable_to_date")}
                 />
               </div>
             </div>

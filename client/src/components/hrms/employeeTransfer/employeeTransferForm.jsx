@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useEmployeeTransferContext } from "../../../contextApis/useHrmsContextFile";
 import { useForm } from "react-hook-form";
 import { TransferSourceDetailsForm } from "./employeeTransferFormComponents/transferSourceDetailsForm";
@@ -9,12 +9,12 @@ import {
 import { toast } from "react-toastify";
 import { TransferDestinationDetailsForm } from "./employeeTransferFormComponents/transferDestinationDetailsForm";
 import { TransferDetailsForm } from "./employeeTransferFormComponents/transferDetailsForm";
+import { useSelector } from "react-redux";
 
 export const EmployeeTransferForm = () => {
   const {
     data,
     updateId,
-    userOptions,
     handleTabClick,
     tabType,
     getAllData,
@@ -36,9 +36,11 @@ export const EmployeeTransferForm = () => {
       from_dept_id: "",
       from_desig_id: "",
       from_branch_id: "",
+      current_report_to_user_id: "",
       transfer_type_id: "",
       transfer_reason_id: "",
-      transfer_date: "",
+      applicable_from_date: "",
+      applicable_to_date: "",
       detailed_reason: "",
       report_to_user_id: "",
       to_role_id: "",
@@ -50,36 +52,36 @@ export const EmployeeTransferForm = () => {
     },
   });
 
+  const { userDetails } = useSelector((state) => state.auth);
+  const [requestedUserDetails, setRequestedUserDetails] = useState(null);
+
+  const selectedUser = watch("requested_for_user_id");
+
   /// Handle Form Submission
   const onSubmit = async (data, e) => {
     try {
       e.preventDefault();
 
       const payload = {
-        tab_type: tabType,
-        present_country_id: data?.present_country_id,
-        present_state_id: data?.present_state_id,
-        present_city_id: data?.present_city_id,
-        present_address: data?.present_address,
-        permanent_country_id: data?.permanent_country_id,
-        permanent_state_id: data?.permanent_state_id,
-        permanent_city_id: data?.permanent_city_id,
-        permanent_address: data?.permanent_address,
-        nationality: data?.nationality,
-        personal_state_id: data?.personal_state_id,
-        personal_city_id: data?.personal_city_id,
-        dire_number: data?.dire_number,
-        driving_license: data?.driving_license,
-        blood_group: data?.blood_group,
-        id_number: data?.id_number,
-        id_issue_date: data?.id_issue_date,
-        id_exp_date: data?.id_exp_date,
-        passport_number: data?.passport_number,
-        passport_issue_date: data?.passport_issue_date,
-        passport_exp_date: data?.passport_exp_date,
-        tax_number: data?.tax_number,
-        marital_status: data?.marital_status,
-        spouse_name: data?.spouse_name,
+        requested_for_user_id: data?.requested_for_user_id,
+        from_role_id: data?.from_role_id,
+        from_dept_id: data?.from_dept_id,
+        from_desig_id: data?.from_desig_id,
+        from_branch_id: data?.from_branch_id,
+        current_report_to_user_id: data?.current_report_to_user_id,
+        transfer_type_id: data?.transfer_type_id,
+        transfer_reason_id: data?.transfer_reason_id,
+        applicable_from_date: data?.applicable_from_date,
+        applicable_to_date: data?.applicable_to_date,
+        detailed_reason: data?.detailed_reason,
+        report_to_user_id: data?.report_to_user_id,
+        to_role_id: data?.to_role_id,
+        to_dept_id: data?.to_dept_id,
+        to_desig_id: data?.to_desig_id,
+        to_branch_id: data?.to_branch_id,
+        new_salary: data?.new_salary,
+        requested_by_user_id: userDetails?.id,
+        approval_status: "DRAFT",
       };
 
       let response;
@@ -91,7 +93,8 @@ export const EmployeeTransferForm = () => {
       }
       if (response.success) {
         toast.success(response.message);
-        handleTabClick("salary_details");
+        handleTabClick("my_requests");
+        handleComponentView("listing");
         getAllData();
       } else {
         toast.error(response.message || "Operation failed");
@@ -129,6 +132,7 @@ export const EmployeeTransferForm = () => {
                   register={register}
                   reset={reset}
                   watch={watch}
+                  selectedUser={selectedUser}
                   findSelectedOption={findSelectedOption}
                 />
 
@@ -140,6 +144,7 @@ export const EmployeeTransferForm = () => {
                   register={register}
                   reset={reset}
                   watch={watch}
+                  selectedUser={selectedUser}
                   findSelectedOption={findSelectedOption}
                 />
 
@@ -151,6 +156,7 @@ export const EmployeeTransferForm = () => {
                   register={register}
                   reset={reset}
                   watch={watch}
+                  selectedUser={selectedUser}
                   findSelectedOption={findSelectedOption}
                 />
 
