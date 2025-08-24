@@ -14,7 +14,6 @@ import {
   getAllTransfer,
   getAllTransferApprovalByUser,
   getTransferById,
-  sendTransferForApproval,
 } from "../../../services/hrms_services/service";
 import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 import { useSelector } from "react-redux";

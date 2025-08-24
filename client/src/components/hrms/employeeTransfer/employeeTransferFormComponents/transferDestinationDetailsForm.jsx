@@ -217,6 +217,48 @@ export const TransferDestinationDetailsForm = ({
               />
             </div>
           </div>
+
+          {/* Select Approvers */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="approvers_list" className="text-sm">
+                Approver
+              </label>
+              <Controller
+                name="approvers_list"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={userOptions || []}
+                    value={
+                      userOptions?.filter((option) =>
+                        field.value?.includes(option.value)
+                      ) || []
+                    }
+                    onChange={(selected) => {
+                      const selectedValues = selected
+                        ? selected.map((option) => option.value)
+                        : [];
+                      field.onChange(selectedValues);
+                    }}
+                    placeholder="Select approvers..."
+                    isMulti
+                    isClearable
+                    isSearchable
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={{
+                      ...formSelectStyles,
+                      width: "120px",
+                      borderTopRightRadius: "0",
+                      borderBottomRightRadius: "0",
+                    }}
+                  />
+                )}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

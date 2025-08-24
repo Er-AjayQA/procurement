@@ -1,6 +1,5 @@
 // ========== REQUIRE STATEMENTS ========== //
-const DB = require("../../../../config/index");
-const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
+const DB = require("../../../config/index");
 
 // ========== CREATE WORKFLOW CONTROLLER ========== //
 module.exports.createWorkflow = async (req, res) => {

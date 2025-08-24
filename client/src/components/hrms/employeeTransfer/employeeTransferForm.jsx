@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useEmployeeTransferContext } from "../../../contextApis/useHrmsContextFile";
 import { useForm } from "react-hook-form";
 import { TransferSourceDetailsForm } from "./employeeTransferFormComponents/transferSourceDetailsForm";
@@ -12,14 +11,8 @@ import { TransferDetailsForm } from "./employeeTransferFormComponents/transferDe
 import { useSelector } from "react-redux";
 
 export const EmployeeTransferForm = () => {
-  const {
-    data,
-    updateId,
-    handleTabClick,
-    tabType,
-    getAllData,
-    handleComponentView,
-  } = useEmployeeTransferContext();
+  const { data, updateId, handleTabClick, getAllData, handleComponentView } =
+    useEmployeeTransferContext();
 
   const {
     register,
@@ -32,6 +25,7 @@ export const EmployeeTransferForm = () => {
   } = useForm({
     defaultValues: {
       requested_for_user_id: "",
+      emp_code: "",
       from_role_id: "",
       from_dept_id: "",
       from_desig_id: "",
@@ -49,12 +43,11 @@ export const EmployeeTransferForm = () => {
       to_branch_id: "",
       new_salary: "",
       requested_by_user_id: "",
+      approvers_list: [],
     },
   });
 
   const { userDetails } = useSelector((state) => state.auth);
-  const [requestedUserDetails, setRequestedUserDetails] = useState(null);
-
   const selectedUser = watch("requested_for_user_id");
 
   /// Handle Form Submission
@@ -83,6 +76,7 @@ export const EmployeeTransferForm = () => {
         new_salary: data?.new_salary,
         requested_by_user_id: userDetails?.id,
         approval_status: "PENDING",
+        approvers_list: data?.approvers_list,
       };
 
       let response;
@@ -114,7 +108,7 @@ export const EmployeeTransferForm = () => {
   return (
     <>
       <div className="flex flex-col">
-        <div className="shadow-lg rounded-md h-[80vh] overflow-auto">
+        <div className="shadow-lg rounded-md h-[80vh] overflow-auto scrollbar-hide">
           <div className="bg-button-hover py-2 px-1 rounded-t-md">
             <h3 className="text-white text-xs">Raise Transfer Request</h3>
           </div>
@@ -169,7 +163,7 @@ export const EmployeeTransferForm = () => {
                       className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
                       onClick={() => {
                         handleComponentView("listing");
-                        handleTabClick("basic_details");
+                        handleTabClick("my_requests");
                       }}
                     >
                       Cancel

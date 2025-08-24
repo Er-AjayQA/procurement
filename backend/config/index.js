@@ -186,21 +186,21 @@ db.tbl_user_salary_revision =
 
 // Workflow Type Master Table
 db.tbl_workflow_type_master =
-  require("../API/configurationMasters/workflow/model/workflowType.model")(
+  require("../API/workflowManagement/model/workflowType.model")(
     sequelize,
     Sequelize
   );
 
 // Workflow Table
 db.tbl_workflow_master =
-  require("../API/configurationMasters/workflow/model/workflow.model")(
+  require("../API/workflowManagement/model/workflow.model")(
     sequelize,
     Sequelize
   );
 
 // Workflow Employee Mapping Table
 db.tbl_workflowEmployeeMapping_master =
-  require("../API/configurationMasters/workflow/model/workflowEmployeeMapping.model")(
+  require("../API/workflowManagement/model/workflowEmployeeMapping.model")(
     sequelize,
     Sequelize
   );

@@ -1,5 +1,5 @@
 // ========== REQUIRE STATEMENTS ========== //
-const DB = require("../../../../config/index");
+const DB = require("../../../config/index");
 
 // ========== CREATE WORKFLOW CONTROLLER ========== //
 module.exports.createWorkflowType = async (req, res) => {
