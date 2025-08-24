@@ -66,9 +66,9 @@ export const getTransferById = async (id) => {
 };
 
 // Get All Employee Transfer List
-export const getAllTransfer = async (formData) => {
+export const getAllTransfer = async (id, formData) => {
   const response = await axiosInstance.post(
-    "get-all-transfer-details",
+    `get-all-transfer-details/${id}`,
     formData,
     {
       headers: {
@@ -82,6 +82,30 @@ export const getAllTransfer = async (formData) => {
 // Delete Employee Transfer
 export const deleteTransfer = async (id) => {
   const response = await axiosInstance.put(`delete-transfer/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Get All Employee Approval Pending Transfer by User List
+export const getAllTransferApprovalByUser = async (id, formData) => {
+  const response = await axiosInstance.post(
+    `get-all-transfer-pending-user-details/${id}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Send Transfer request For Approval Service
+export const sendTransferForApproval = async (id) => {
+  const response = await axiosInstance.put(`transfer-send-for-approval/${id}`, {
     headers: {
       "Content-Type": "application/json",
     },

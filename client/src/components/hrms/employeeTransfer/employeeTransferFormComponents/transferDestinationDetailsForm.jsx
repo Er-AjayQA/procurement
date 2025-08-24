@@ -8,6 +8,7 @@ export const TransferDestinationDetailsForm = ({
   setValue,
   watch,
   findSelectedOption,
+  selectedUser,
 }) => {
   const {
     updateId,
@@ -23,8 +24,6 @@ export const TransferDestinationDetailsForm = ({
     branchOptions,
   } = useEmployeeTransferContext();
 
-  const selectedUser = watch("requested_for_user_id");
-
   return (
     <div className="shadow-lg rounded-md">
       <div className="bg-gray-100 py-2 px-1 rounded-t-md">
@@ -33,6 +32,40 @@ export const TransferDestinationDetailsForm = ({
       <div className="flex py-5 px-3 flex-col gap-5">
         {/* Row-1 */}
         <div className="grid grid-cols-12 gap-5">
+          {/* Destination Branch */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="to_branch_id" className="text-sm">
+                Branch
+              </label>
+              <Controller
+                name="to_branch_id"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    options={branchOptions || []}
+                    value={findSelectedOption(branchOptions, field.value)}
+                    onChange={(selected) => {
+                      field.onChange(selected?.value || "");
+                    }}
+                    placeholder="Select branch..."
+                    isClearable
+                    isSearchable
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={{
+                      ...formSelectStyles,
+                      width: "120px",
+                      borderTopRightRadius: "0",
+                      borderBottomRightRadius: "0",
+                    }}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
           {/* User Name */}
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
@@ -71,7 +104,7 @@ export const TransferDestinationDetailsForm = ({
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="to_role_id" className="text-sm">
-                New Role
+                Role
               </label>
               <Controller
                 name="to_role_id"
@@ -105,7 +138,7 @@ export const TransferDestinationDetailsForm = ({
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="to_desig_id" className="text-sm">
-                New Designation
+                Designation
               </label>
               <Controller
                 name="to_desig_id"
@@ -139,7 +172,7 @@ export const TransferDestinationDetailsForm = ({
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="to_dept_id" className="text-sm">
-                New Department
+                Department
               </label>
               <Controller
                 name="to_dept_id"
@@ -169,45 +202,11 @@ export const TransferDestinationDetailsForm = ({
             </div>
           </div>
 
-          {/* Destination Branch */}
-          <div className="col-span-4 flex flex-col gap-3">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="to_branch_id" className="text-sm">
-                New Branch
-              </label>
-              <Controller
-                name="to_branch_id"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    options={branchOptions || []}
-                    value={findSelectedOption(branchOptions, field.value)}
-                    onChange={(selected) => {
-                      field.onChange(selected?.value || "");
-                    }}
-                    placeholder="Select branch..."
-                    isClearable
-                    isSearchable
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    styles={{
-                      ...formSelectStyles,
-                      width: "120px",
-                      borderTopRightRadius: "0",
-                      borderBottomRightRadius: "0",
-                    }}
-                  />
-                )}
-              />
-            </div>
-          </div>
-
           {/*  New Salary */}
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="new_salary" className="text-sm">
-                New Salary
+                Proposed Salary
               </label>
               <input
                 type="number"

@@ -8,6 +8,7 @@ import { ViewIcon } from "../../UI/viewIconUi";
 import { EditIcon } from "../../UI/editIconUi";
 import { DeleteIcon } from "../../UI/deleteIcon";
 import { useEmployeeTransferContext } from "../../../contextApis/useHrmsContextFile";
+import { SendLinkIcon } from "../../UI/sendLinkIconUi";
 
 export const EmployeeTransferListing = ({ componentType }) => {
   const {
@@ -30,13 +31,15 @@ export const EmployeeTransferListing = ({ componentType }) => {
     handleComponentClose,
     handleComponentView,
     handleTabClick,
+    handleSendForApproval,
   } = useEmployeeTransferContext();
   const [selectedRole, setSelectedRole] = useState(null);
   const [tabList, setTabList] = useState([
+    { name: "Drafted", value: "drafted_requests" },
     { name: "My Requests", value: "my_requests" },
+    { name: "Pending for Approval", value: "pending_for_approval" },
     { name: "Approved by Me", value: "approved_by_me" },
     { name: "Rejected by Me", value: "rejected_by_me" },
-    { name: "Drafted", value: "drafted_requests" },
     { name: "Completed", value: "Completed" },
   ]);
 
@@ -131,6 +134,7 @@ export const EmployeeTransferListing = ({ componentType }) => {
           ))}
         </ul>
       </div>
+
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
           <h3 className="text-white text-xs font-bold">
@@ -188,6 +192,14 @@ export const EmployeeTransferListing = ({ componentType }) => {
                       {list?.approval_status}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
+                      {list?.approval_status === "DRAFT" && (
+                        <SendLinkIcon
+                          onClick={() => {
+                            handleSendForApproval(list?.id);
+                          }}
+                        />
+                      )}
+
                       <ViewIcon
                         onClick={() => {
                           handleComponentView("view");
