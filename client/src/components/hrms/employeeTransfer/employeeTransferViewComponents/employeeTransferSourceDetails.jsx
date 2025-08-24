@@ -17,9 +17,7 @@ export const EmployeeTransferSourceDetails = () => {
           </div>
           <div className="flex flex-col gap-2 justify-center">
             <label className="text-[.8rem]">Employee Code</label>
-            <p className="text-[.7rem]">
-              {data?.requested_for_user_code || "N/A"}
-            </p>
+            <p className="text-[.7rem]">{data?.emp_code || "N/A"}</p>
           </div>
           <div className="flex flex-col gap-2 justify-center">
             <label className="text-[.8rem]">Role</label>

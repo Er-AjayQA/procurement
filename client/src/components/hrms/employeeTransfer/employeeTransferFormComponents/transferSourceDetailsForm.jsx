@@ -31,6 +31,7 @@ export const TransferSourceDetailsForm = ({
 
       if (response.data.success) {
         setUserDetail(response.data.data[0]);
+        setValue("emp_code", response.data.data[0].emp_code);
         setValue("from_role_id", response.data.data[0].role_id);
         setValue("from_dept_id", response.data.data[0].dep_id);
         setValue("from_desig_id", response.data.data[0].designation_id);
@@ -111,11 +112,29 @@ export const TransferSourceDetailsForm = ({
             </div>
           </div>
 
+          {/* Employee Code */}
+          <div className="col-span-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="emp_code" className="text-sm">
+                Employee Code
+              </label>
+              <input
+                type="text"
+                id="emp_code"
+                className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
+                placeholder="Employee code..."
+                {...register("emp_code")}
+                value={userDetail?.emp_code || ""}
+                readOnly
+              />
+            </div>
+          </div>
+
           {/* Employee Role */}
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="from_role_id" className="text-sm">
-                Current Role
+                Role
               </label>
               <input
                 type="text"
@@ -133,7 +152,7 @@ export const TransferSourceDetailsForm = ({
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="from_dept_id" className="text-sm">
-                Current Department
+                Department
               </label>
               <input
                 type="text"
@@ -151,7 +170,7 @@ export const TransferSourceDetailsForm = ({
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="from_desig_id" className="text-sm">
-                Current Designation
+                Designation
               </label>
               <input
                 type="text"
@@ -169,7 +188,7 @@ export const TransferSourceDetailsForm = ({
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="current_report_to_user_name" className="text-sm">
-                Current Reporting Manager
+                Reporting Manager
               </label>
               <input
                 type="text"
@@ -187,7 +206,7 @@ export const TransferSourceDetailsForm = ({
           <div className="col-span-4 flex flex-col gap-3">
             <div className="flex flex-col gap-2">
               <label htmlFor="from_branch_id" className="text-sm">
-                Current Branch
+                Branch
               </label>
               <input
                 type="text"

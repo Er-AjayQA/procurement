@@ -102,13 +102,3 @@ export const getAllTransferApprovalByUser = async (id, formData) => {
   );
   return response.data;
 };
-
-// Send Transfer request For Approval Service
-export const sendTransferForApproval = async (id) => {
-  const response = await axiosInstance.put(`transfer-send-for-approval/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return response.data;
-};

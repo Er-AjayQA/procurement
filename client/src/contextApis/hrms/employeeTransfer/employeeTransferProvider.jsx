@@ -38,6 +38,7 @@ export const EmployeeTransferProvider = ({ children }) => {
   const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState({
+    user_id: "",
     requested_for_user_id: "",
     from_dept_id: "",
     from_branch_id: "",
@@ -53,27 +54,20 @@ export const EmployeeTransferProvider = ({ children }) => {
   const [branchOptions, setBranchOptions] = useState([]);
   const [transferTypeOptions, setTransferTypeOptions] = useState([]);
   const [transferReasonOptions, setTransferReasonOptions] = useState([]);
-  const [sendForApprovalId, setSendForApprovalId] = useState(null);
 
   // Create the final filter based on tab type
   const getFinalFilter = () => {
-    if (tabType.value === "pending_for_approval") {
+    if (tabType.value === "my_requests") {
+      const { approver_status, ...filterWithoutApprovalStatus } = filter;
+      return {
+        ...filterWithoutApprovalStatus,
+        approval_status: "",
+      };
+    } else if (tabType.value === "pending_for_approval") {
       const { approval_status, ...filterWithoutApprovalStatus } = filter;
       return {
         ...filterWithoutApprovalStatus,
         approver_status: "PENDING",
-      };
-    } else if (tabType.value === "drafted_requests") {
-      const { approver_status, ...filterWithoutApprovalStatus } = filter;
-      return {
-        ...filterWithoutApprovalStatus,
-        approval_status: "DRAFT",
-      };
-    } else if (tabType.value === "my_requests") {
-      const { approver_status, ...filterWithoutApprovalStatus } = filter;
-      return {
-        ...filterWithoutApprovalStatus,
-        approval_status: "PENDING_APPROVAL",
       };
     } else if (tabType.value === "approved_by_me") {
       const { approval_status, ...filterWithoutApprovalStatus } = filter;
@@ -86,12 +80,6 @@ export const EmployeeTransferProvider = ({ children }) => {
       return {
         ...filterWithoutApprovalStatus,
         approver_status: "REJECTED",
-      };
-    } else if (tabType.value === "Completed") {
-      const { approver_status, ...filterWithoutApproverStatus } = filter;
-      return {
-        ...filterWithoutApproverStatus,
-        approval_status: "COMPLETED",
       };
     }
   };
@@ -238,27 +226,6 @@ export const EmployeeTransferProvider = ({ children }) => {
   const handleTabClick = (tabType) => {
     setTabType(tabType);
     setCurrentTab(tabType.value);
-  };
-
-  // Handle Send For Approval Scenario
-  const handleSendForApproval = (id) => {
-    setSendForApprovalId(id);
-  };
-
-  // Send For Approval API Integration
-  const sendRequestForApproval = async (id) => {
-    try {
-      const response = await sendTransferForApproval(id);
-
-      if (response.success) {
-        setSendForApprovalId(null);
-        toast.success(response.message);
-      } else {
-        throw new Error(response.message);
-      }
-    } catch (error) {
-      setSendForApprovalId(null);
-    }
   };
 
   // Get All Transfer Type List
@@ -442,27 +409,16 @@ export const EmployeeTransferProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    if (tabType.value === "pending_for_approval") {
+    if (tabType.value === "my_requests") {
+      getAllData(userDetails?.id);
+    } else if (tabType.value === "pending_for_approval") {
       getAllPendingForApprovalData(userDetails?.id);
-    } else if (tabType.value === "drafted_requests") {
-      getAllData(userDetails?.id);
-    } else if (tabType.value === "my_requests") {
-      getAllData(userDetails?.id);
     } else if (tabType.value === "approved_by_me") {
       getAllPendingForApprovalData(userDetails?.id);
     } else if (tabType.value === "rejected_by_me") {
       getAllPendingForApprovalData(userDetails?.id);
-    } else if (tabType.value === "Completed") {
-      getAllData(userDetails?.id);
     }
-  }, [limit, page, filter, updateId, deleteId, tabType, sendForApprovalId]);
-
-  // Handle Automatic Call for Send for Approval API
-  useEffect(() => {
-    if (sendForApprovalId) {
-      sendRequestForApproval(sendForApprovalId);
-    }
-  }, [sendForApprovalId]);
+  }, [limit, page, filter, updateId, deleteId, tabType]);
 
   useEffect(() => {
     getAllRolesOptions();
@@ -489,6 +445,10 @@ export const EmployeeTransferProvider = ({ children }) => {
       handleDelete(id);
     }
   }, [deleteId]);
+
+  useEffect(() => {
+    setFilter((prev) => ({ ...prev, user_id: userDetails?.id }));
+  }, [userDetails]);
 
   const styledComponent = {
     control: (base) => ({
@@ -622,7 +582,6 @@ export const EmployeeTransferProvider = ({ children }) => {
     handleViewVisibility,
     handleComponentView,
     handleComponentClose,
-    handleSendForApproval,
   };
 
   return (

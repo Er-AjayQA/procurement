@@ -27,7 +27,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.DATE,
         allowNull: true,
         set(value) {
-          this.setDataValue("comments", value === "" ? null : value);
+          this.setDataValue("acted_at", value === "" ? null : value);
         },
       },
       isDeleted: {
