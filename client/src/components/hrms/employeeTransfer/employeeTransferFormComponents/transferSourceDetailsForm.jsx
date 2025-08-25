@@ -100,6 +100,7 @@ export const TransferSourceDetailsForm = ({
                     isSearchable
                     className="react-select-container"
                     classNamePrefix="react-select"
+                    isDisabled={tabType.value === "pending_for_approval"}
                     styles={{
                       ...formSelectStyles,
                       width: "120px",

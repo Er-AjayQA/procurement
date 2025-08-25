@@ -150,7 +150,9 @@ export const EmployeeTransferListing = ({ componentType }) => {
             <div className="text-[.8rem] font-bold p-2">From Branch</div>
             <div className="text-[.8rem] font-bold p-2">To Branch</div>
             <div className="text-[.8rem] font-bold p-2 text-center">
-              Approval Status
+              {tabType.value === "my_requests"
+                ? "Approval Status"
+                : "Approver Status"}
             </div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
@@ -159,6 +161,9 @@ export const EmployeeTransferListing = ({ componentType }) => {
               <SkeltonUi />
             ) : listing?.length > 0 ? (
               listing?.map((list, i) => {
+                const allApproverApproved = list?.workflow_Details.every(
+                  (data) => data?.approver_status === "PENDING"
+                );
                 return (
                   <div
                     key={list?.id}
@@ -187,7 +192,9 @@ export const EmployeeTransferListing = ({ componentType }) => {
                       {list?.to_branch}
                     </div>
                     <div className="flex items-center justify-center p-2 text-[.8rem]">
-                      {list?.approval_status}
+                      {tabType.value === "my_requests"
+                        ? list?.approval_status
+                        : list?.approver_status}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
                       <ViewIcon
@@ -197,13 +204,26 @@ export const EmployeeTransferListing = ({ componentType }) => {
                           setViewId(list?.id);
                         }}
                       />
-                      <EditIcon
-                        onClick={() => {
-                          handleComponentView("form");
-                          setUpdateId(list?.id);
-                        }}
-                      />
-                      <DeleteIcon onClick={() => setDeleteId(list?.id)} />
+
+                      {(tabType.value === "my_requests" &&
+                        allApproverApproved) ||
+                      tabType.value === "pending_for_approval" ? (
+                        <EditIcon
+                          onClick={() => {
+                            handleComponentView("form");
+                            setUpdateId(list?.id);
+                          }}
+                        />
+                      ) : (
+                        ""
+                      )}
+
+                      {tabType.value === "my_requests" &&
+                      allApproverApproved ? (
+                        <DeleteIcon onClick={() => setDeleteId(list?.id)} />
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </div>
                 );
