@@ -20,11 +20,11 @@ router.post(
 );
 router.post(
   "/get-all-transfer-approved-by-user/:id",
-  TransferController.getAllTransferPendingByUserDetails
+  TransferController.getAllTransferApprovedByUser
 );
 router.post(
   "/get-all-transfer-rejected-by-user/:id",
-  TransferController.getAllTransferPendingByUserDetails
+  TransferController.getAllTransferRejectedByUser
 );
 router.put("/delete-transfer/:id", TransferController.deleteTransfer);
 router.post(
