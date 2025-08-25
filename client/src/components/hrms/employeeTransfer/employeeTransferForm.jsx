@@ -20,8 +20,19 @@ export const EmployeeTransferForm = () => {
     updateId,
     handleTabClick,
     getAllData,
+    currentTab,
     handleComponentView,
+    handleFormClose,
+    tabList,
+    setTabList,
+    refreshData,
   } = useEmployeeTransferContext();
+
+  const handleCancel = () => {
+    reset(); // Reset the form
+    handleFormClose(); // Close the form
+    handleComponentView("listing"); // Go back to listing
+  };
 
   const {
     register,
@@ -89,70 +100,93 @@ export const EmployeeTransferForm = () => {
     }
   }, [updateId, data, setValue]);
 
-  /// Handle Form Submission
-  const onSubmit = async (data, e) => {
+  // Handle Form Submission
+  const onSubmit = async (formData, e) => {
     try {
       e.preventDefault();
+      let response;
+
+      // Approval Action
+      if (updateId && currentTab === "pending_for_approval") {
+        const approvalPayload = {
+          user_id: userDetails?.id,
+          comments: formData?.comments,
+          approver_status: formData?.approver_status,
+          acted_on: new Date().toISOString(),
+        };
+
+        response = await approvalForTransfer(updateId, approvalPayload);
+        if (response.success) {
+          toast.success(response.message);
+
+          if (typeof refreshData === "function") {
+            refreshData();
+          }
+
+          setTimeout(() => {
+            if (formData?.approver_status === "APPROVED") {
+              handleTabClick({
+                name: "Approved by Me",
+                value: "approved_by_me",
+              });
+            } else if (formData?.approver_status === "REJECTED") {
+              handleTabClick({
+                name: "Rejected by Me",
+                value: "rejected_by_me",
+              });
+            }
+            handleComponentView("listing");
+          }, 300);
+
+          return;
+        } else {
+          toast.error(response.message || "Approval action failed");
+          return;
+        }
+      }
 
       const payload = {
-        requested_for_user_id: data?.requested_for_user_id,
-        emp_code: data?.emp_code,
-        from_role_id: data?.from_role_id,
-        from_dept_id: data?.from_dept_id,
-        from_desig_id: data?.from_desig_id,
-        from_branch_id: data?.from_branch_id,
-        current_report_to_user_id: data?.current_report_to_user_id,
-        transfer_type_id: data?.transfer_type_id,
-        transfer_reason_id: data?.transfer_reason_id,
-        applicable_from_date: data?.applicable_from_date,
-        applicable_to_date: data?.applicable_to_date,
-        detailed_reason: data?.detailed_reason,
-        report_to_user_id: data?.report_to_user_id,
-        to_role_id: data?.to_role_id,
-        to_dept_id: data?.to_dept_id,
-        to_desig_id: data?.to_desig_id,
-        to_branch_id: data?.to_branch_id,
-        new_salary: data?.new_salary,
+        requested_for_user_id: formData?.requested_for_user_id,
+        emp_code: formData?.emp_code,
+        from_role_id: formData?.from_role_id,
+        from_dept_id: formData?.from_dept_id,
+        from_desig_id: formData?.from_desig_id,
+        from_branch_id: formData?.from_branch_id,
+        current_report_to_user_id: formData?.current_report_to_user_id,
+        transfer_type_id: formData?.transfer_type_id,
+        transfer_reason_id: formData?.transfer_reason_id,
+        applicable_from_date: formData?.applicable_from_date,
+        applicable_to_date: formData?.applicable_to_date,
+        detailed_reason: formData?.detailed_reason,
+        report_to_user_id: formData?.report_to_user_id,
+        to_role_id: formData?.to_role_id,
+        to_dept_id: formData?.to_dept_id,
+        to_desig_id: formData?.to_desig_id,
+        to_branch_id: formData?.to_branch_id,
+        new_salary: formData?.new_salary,
         requested_by_user_id: userDetails?.id,
         approval_status: "PENDING",
-        approvers_list: data?.approvers_list,
+        approvers_list: formData?.approvers_list,
       };
 
-      let response;
-      if (updateId && tabType.value === "pending_for_approval") {
-        payload.user_id = userDetails?.id;
-        payload.comments = data?.comments;
-        payload.approver_status = data?.approver_status;
-
-        response = await approvalForTransfer(updateId, payload);
-      } else if (updateId) {
+      if (updateId) {
         response = await updateTransfer(updateId, payload);
       } else {
         response = await createTransfer(payload);
       }
+
       if (response.success) {
         toast.success(response.message);
-
-        if (tabType === "my_requests") {
-          handleTabClick("my_requests");
+        if (typeof refreshData === "function") {
+          refreshData();
         }
 
-        if (
-          tabType === "pending_for_approval" &&
-          data?.approver_status === "APPROVED"
-        ) {
-          handleTabClick("approved_by_me");
-        }
-
-        if (
-          tabType === "pending_for_approval" &&
-          data?.approver_status === "REJECTED"
-        ) {
-          handleTabClick("rejected_by_me");
-        }
-
-        handleComponentView("listing");
-        getAllData();
+        setTimeout(() => {
+          handleComponentView("listing");
+          if (currentTab !== "my_requests") {
+            handleTabClick({ name: "My Requests", value: "my_requests" });
+          }
+        }, 300);
       } else {
         toast.error(response.message || "Operation failed");
       }
@@ -236,8 +270,9 @@ export const EmployeeTransferForm = () => {
                 <div className="flex items-center justify-end">
                   <div className="flex items-center justify-center gap-5">
                     <button
-                      type="submit"
+                      type="button"
                       className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
+                      onClick={handleCancel}
                     >
                       Cancel
                     </button>

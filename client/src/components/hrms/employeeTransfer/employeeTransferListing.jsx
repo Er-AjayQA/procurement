@@ -32,15 +32,12 @@ export const EmployeeTransferListing = ({ componentType }) => {
     handleComponentClose,
     handleComponentView,
     handleTabClick,
+    tabList,
+    setTabList,
   } = useEmployeeTransferContext();
   const { userDetails } = useSelector((state) => state.auth);
   const [selectedRole, setSelectedRole] = useState(null);
-  const [tabList, setTabList] = useState([
-    { name: "My Requests", value: "my_requests" },
-    { name: "Pending for Approval", value: "pending_for_approval" },
-    { name: "Approved by Me", value: "approved_by_me" },
-    { name: "Rejected by Me", value: "rejected_by_me" },
-  ]);
+
   const [showApproverPopup, setShowApproverPopup] = useState(false);
 
   return (
@@ -109,7 +106,7 @@ export const EmployeeTransferListing = ({ componentType }) => {
             onClick={() => {
               handleComponentView("listing");
               handleComponentClose();
-              getAllData();
+              handleTabClick("my_requests");
             }}
           >
             <AddButton text="Back" />
@@ -152,7 +149,7 @@ export const EmployeeTransferListing = ({ componentType }) => {
             <div className="text-[.8rem] font-bold p-2">From Branch</div>
             <div className="text-[.8rem] font-bold p-2">To Branch</div>
             <div className="text-[.8rem] font-bold p-2 text-center">
-              {tabType.value === "my_requests"
+              {currentTab === "my_requests"
                 ? "Approval Status"
                 : "Approver Status"}
             </div>
@@ -213,14 +210,14 @@ export const EmployeeTransferListing = ({ componentType }) => {
                     </div>
                     <div
                       className={`flex items-center justify-center p-2 text-[.8rem] text-xs font-bold ${
-                        tabType.value === "my_requests" ? "cursor-pointer" : ""
+                        currentTab === "my_requests" ? "cursor-pointer" : ""
                       } ${
-                        tabType.value === "my_requests"
+                        currentTab === "my_requests"
                           ? myListStatusColor
                           : otherStatusColor
                       }`}
                       onClick={
-                        tabType.value === "my_requests"
+                        currentTab === "my_requests"
                           ? () => {
                               setViewId(list?.id);
                               setShowApproverPopup(true);
@@ -228,7 +225,7 @@ export const EmployeeTransferListing = ({ componentType }) => {
                           : ""
                       }
                     >
-                      {tabType.value === "my_requests"
+                      {currentTab === "my_requests"
                         ? list?.approval_status
                         : list?.approver_status}
                     </div>
@@ -236,14 +233,12 @@ export const EmployeeTransferListing = ({ componentType }) => {
                       <ViewIcon
                         onClick={() => {
                           handleComponentView("view");
-                          handleTabClick("basic_details");
                           setViewId(list?.id);
                         }}
                       />
 
-                      {(tabType.value === "my_requests" &&
-                        allApproverApproved) ||
-                      tabType.value === "pending_for_approval" ? (
+                      {(currentTab === "my_requests" && allApproverApproved) ||
+                      currentTab === "pending_for_approval" ? (
                         <EditIcon
                           onClick={() => {
                             handleComponentView("form");
@@ -254,8 +249,7 @@ export const EmployeeTransferListing = ({ componentType }) => {
                         ""
                       )}
 
-                      {tabType.value === "my_requests" &&
-                      allApproverApproved ? (
+                      {currentTab === "my_requests" && allApproverApproved ? (
                         <DeleteIcon onClick={() => setDeleteId(list?.id)} />
                       ) : (
                         ""

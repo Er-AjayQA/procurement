@@ -249,16 +249,6 @@ module.exports.getAllTransferDetails = async (req, res) => {
       query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
     }
 
-    // if (filter.user_id) {
-    //   countQuery += ` AND ET.requested_by_user_id LIKE :user_id`;
-    //   query += ` AND ET.requested_by_user_id LIKE :user_id`;
-    // }
-
-    if (filter.from_dept_id) {
-      countQuery += ` AND ET.from_dept_id LIKE :from_dept_id`;
-      query += ` AND ET.from_dept_id LIKE :from_dept_id`;
-    }
-
     if (filter.from_branch_id) {
       countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
       query += ` AND ET.from_branch_id LIKE :from_branch_id`;
@@ -271,8 +261,6 @@ module.exports.getAllTransferDetails = async (req, res) => {
     const totalResult = await DB.sequelize.query(countQuery, {
       replacements: {
         requested_for_user_id: `${filter.requested_for_user_id}`,
-        // user_id: `${filter.user_id}`,
-        from_dept_id: `${filter.from_dept_id}`,
         from_branch_id: `${filter.from_branch_id}`,
       },
       type: DB.sequelize.QueryTypes.SELECT,
@@ -283,8 +271,6 @@ module.exports.getAllTransferDetails = async (req, res) => {
     let getAllData = await DB.sequelize.query(query, {
       replacements: {
         requested_for_user_id: `${filter.requested_for_user_id}`,
-        // user_id: `${filter.user_id}`,
-        from_dept_id: `${filter.from_dept_id}`,
         from_branch_id: `${filter.from_branch_id}`,
         limit,
         offset,
@@ -387,7 +373,9 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
         SELECT COUNT(*) as total 
         FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA 
         INNER JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
-        WHERE ETA.approver_status="PENDING" ETA.isDeleted = false AND ETA.approver_id = :id`;
+        WHERE ETA.isDeleted = false 
+        AND ETA.approver_id = :id
+        AND ET.approval_status != 'REJECTED'`;
 
     let query = `
       SELECT 
@@ -431,7 +419,26 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
     LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
     LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
     LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ETA.approver_id = :id AND ETA.approver_status='PENDING' AND ETA.isDeleted = false`;
+    WHERE ETA.approver_id = :id 
+    AND ETA.isDeleted = false
+    AND ET.approval_status != 'REJECTED'`;
+
+    // Additional check to exclude transfers with any previous rejection
+    query += ` AND NOT EXISTS (
+      SELECT 1 FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA_REJECTED
+      WHERE ETA_REJECTED.transfer_id = ET.id
+      AND ETA_REJECTED.approver_status = 'REJECTED'
+      AND ETA_REJECTED.isDeleted = false
+      AND ETA_REJECTED.approval_level < ETA.approval_level
+    )`;
+
+    countQuery += ` AND NOT EXISTS (
+      SELECT 1 FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA_REJECTED
+      WHERE ETA_REJECTED.transfer_id = ET.id
+      AND ETA_REJECTED.approver_status = 'REJECTED'
+      AND ETA_REJECTED.isDeleted = false
+      AND ETA_REJECTED.approval_level < ETA.approval_level
+    )`;
 
     query += ` AND ETA.approval_level = (
       SELECT MIN(ETA2.approval_level) 
@@ -449,24 +456,6 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
       AND ETA2.isDeleted = false
     )`;
 
-    if (filter && filter.requested_for_user_id) {
-      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-    }
-
-    if (filter && filter.from_branch_id) {
-      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
-      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
-    }
-
-    if (filter && filter.approval_status) {
-      countQuery += ` AND ETA.approval_status LIKE :approval_status`;
-      query += ` AND ETA.approval_status LIKE :approval_status`;
-    }
-
-    query += ` ORDER BY ETA.createdAt DESC`;
-    query += ` LIMIT :limit OFFSET :offset`;
-
     // Prepare replacements object
     const replacements = {
       id: `${id}`,
@@ -474,18 +463,26 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
       offset,
     };
 
-    // Add filter replacements if they exist
-    if (filter) {
-      if (filter.requested_for_user_id) {
-        replacements.requested_for_user_id = `%${filter.requested_for_user_id}%`;
-      }
-      if (filter.from_branch_id) {
-        replacements.from_branch_id = `%${filter.from_branch_id}%`;
-      }
-      if (filter.approval_status) {
-        replacements.approval_status = `%${filter.approval_status}%`;
-      }
+    if (filter && filter.requested_for_user_id) {
+      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+      replacements.requested_for_user_id = filter.requested_for_user_id;
     }
+
+    if (filter && filter.from_branch_id) {
+      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
+      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
+      replacements.from_branch_id = filter.from_branch_id;
+    }
+
+    if (filter && filter.approver_status) {
+      countQuery += ` AND ETA.approver_status LIKE :approver_status`;
+      query += ` AND ETA.approver_status LIKE :approver_status`;
+      replacements.approver_status = filter.approver_status;
+    }
+
+    query += ` ORDER BY ETA.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
 
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
@@ -543,7 +540,7 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
         pagination: {
           currentPage: page,
           itemsPerPage: limit,
-          totalItems: totalRecords, // Use totalRecords instead of dataWithWorkflow.length
+          totalItems: totalRecords,
           totalPages: totalPages,
         },
       });
@@ -612,24 +609,6 @@ module.exports.getAllTransferApprovedByUser = async (req, res) => {
     LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
     WHERE ETA.approver_id = :id AND ETA.isDeleted = false`;
 
-    if (filter && filter.requested_for_user_id) {
-      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-    }
-
-    if (filter && filter.from_branch_id) {
-      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
-      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
-    }
-
-    if (filter && filter.approver_status) {
-      countQuery += ` AND ETA.approver_status LIKE :approver_status`;
-      query += ` AND ETA.approver_status LIKE :approver_status`;
-    }
-
-    query += ` ORDER BY ETA.createdAt DESC`;
-    query += ` LIMIT :limit OFFSET :offset`;
-
     // Prepare replacements object
     const replacements = {
       id: `${id}`,
@@ -637,18 +616,26 @@ module.exports.getAllTransferApprovedByUser = async (req, res) => {
       offset,
     };
 
-    // Add filter replacements if they exist
-    if (filter) {
-      if (filter.requested_for_user_id) {
-        replacements.requested_for_user_id = `%${filter.requested_for_user_id}%`;
-      }
-      if (filter.from_branch_id) {
-        replacements.from_branch_id = `%${filter.from_branch_id}%`;
-      }
-      if (filter.approver_status) {
-        replacements.approver_status = `%${filter.approver_status}%`;
-      }
+    if (filter && filter.requested_for_user_id) {
+      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+      replacements.requested_for_user_id = filter.requested_for_user_id;
     }
+
+    if (filter && filter.from_branch_id) {
+      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
+      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
+      replacements.from_branch_id = filter.from_branch_id;
+    }
+
+    if (filter && filter.approver_status) {
+      countQuery += ` AND ETA.approver_status LIKE :approver_status`;
+      query += ` AND ETA.approver_status LIKE :approver_status`;
+      replacements.approver_status = filter.approver_status;
+    }
+
+    query += ` ORDER BY ETA.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
 
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
@@ -775,24 +762,6 @@ module.exports.getAllTransferRejectedByUser = async (req, res) => {
     LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
     WHERE ETA.approver_id = :id AND ETA.isDeleted = false`;
 
-    if (filter && filter.requested_for_user_id) {
-      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-    }
-
-    if (filter && filter.from_branch_id) {
-      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
-      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
-    }
-
-    if (filter && filter.approval_status) {
-      countQuery += ` AND ETA.approval_status LIKE :approval_status`;
-      query += ` AND ETA.approval_status LIKE :approval_status`;
-    }
-
-    query += ` ORDER BY ETA.createdAt DESC`;
-    query += ` LIMIT :limit OFFSET :offset`;
-
     // Prepare replacements object
     const replacements = {
       id: `${id}`,
@@ -800,18 +769,26 @@ module.exports.getAllTransferRejectedByUser = async (req, res) => {
       offset,
     };
 
-    // Add filter replacements if they exist
-    if (filter) {
-      if (filter.requested_for_user_id) {
-        replacements.requested_for_user_id = `%${filter.requested_for_user_id}%`;
-      }
-      if (filter.from_branch_id) {
-        replacements.from_branch_id = `%${filter.from_branch_id}%`;
-      }
-      if (filter.approval_status) {
-        replacements.approval_status = `%${filter.approval_status}%`;
-      }
+    if (filter && filter.requested_for_user_id) {
+      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+      replacements.requested_for_user_id = filter.requested_for_user_id;
     }
+
+    if (filter && filter.from_branch_id) {
+      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
+      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
+      replacements.from_branch_id = filter.from_branch_id;
+    }
+
+    if (filter && filter.approver_status) {
+      countQuery += ` AND ETA.approver_status LIKE :approver_status`;
+      query += ` AND ETA.approver_status LIKE :approver_status`;
+      replacements.approver_status = filter.approver_status;
+    }
+
+    query += ` ORDER BY ETA.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
 
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
@@ -912,10 +889,10 @@ module.exports.approvalForTransfer = async (req, res) => {
           {
             approver_status: data?.approver_status,
             comments: data?.comments,
-            acted_on: new Date(),
+            acted_on: data?.acted_on || new Date(),
           },
           {
-            where: { id },
+            where: { id: isDataExist?.id },
           }
         );
 
@@ -937,7 +914,7 @@ module.exports.approvalForTransfer = async (req, res) => {
             {
               approver_status: data?.approver_status,
               comments: data?.comments,
-              acted_at: new Date(),
+              acted_on: data?.acted_on || new Date(),
             },
             { where: { id: isDataExist?.id } }
           );
@@ -951,7 +928,7 @@ module.exports.approvalForTransfer = async (req, res) => {
             {
               approver_status: data?.approver_status,
               comments: data?.comments,
-              acted_at: new Date(),
+              acted_on: data?.acted_on || new Date(),
             },
             { where: { id: isDataExist?.id } }
           );
