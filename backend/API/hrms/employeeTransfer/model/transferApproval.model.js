@@ -23,6 +23,13 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("comments", value === "" ? null : value);
         },
       },
+      acted_on: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("acted_on", value === "" ? null : value);
+        },
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

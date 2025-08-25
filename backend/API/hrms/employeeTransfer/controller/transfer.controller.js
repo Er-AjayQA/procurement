@@ -147,10 +147,34 @@ module.exports.getTransferDetails = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Allowance Not Found!" });
     } else {
+      const getDataWithWorkflow = await Promise.all(
+        getAllData?.map(async (data) => {
+          const transferDetail = { ...data };
+
+          try {
+            const getWorkflowData =
+              await DB.tbl_employee_transfer_approval.findAll({
+                where: { transfer_id: data?.id },
+              });
+
+            transferDetail.workflow_detail = getWorkflowData;
+          } catch (error) {
+            console.error(
+              `Error fetching workflow for transfer ${data.id}:`,
+              error
+            );
+            transferDetail.workflow_Details = [];
+            transferDetail.workflow_error = error.message;
+          }
+
+          return transferDetail;
+        })
+      );
+
       return res.status(200).send({
         success: true,
         message: "Get transfer details successfully!",
-        data: getAllData,
+        data: getDataWithWorkflow,
       });
     }
   } catch (error) {
@@ -219,10 +243,10 @@ module.exports.getAllTransferDetails = async (req, res) => {
       query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
     }
 
-    if (filter.user_id) {
-      countQuery += ` AND ET.requested_by_user_id LIKE :user_id`;
-      query += ` AND ET.requested_by_user_id LIKE :user_id`;
-    }
+    // if (filter.user_id) {
+    //   countQuery += ` AND ET.requested_by_user_id LIKE :user_id`;
+    //   query += ` AND ET.requested_by_user_id LIKE :user_id`;
+    // }
 
     if (filter.from_dept_id) {
       countQuery += ` AND ET.from_dept_id LIKE :from_dept_id`;
@@ -246,7 +270,7 @@ module.exports.getAllTransferDetails = async (req, res) => {
     const totalResult = await DB.sequelize.query(countQuery, {
       replacements: {
         requested_for_user_id: `${filter.requested_for_user_id}`,
-        user_id: `${filter.user_id}`,
+        // user_id: `${filter.user_id}`,
         from_dept_id: `${filter.from_dept_id}`,
         from_branch_id: `${filter.from_branch_id}`,
         approval_status: `${filter.approval_status}`,
@@ -259,7 +283,7 @@ module.exports.getAllTransferDetails = async (req, res) => {
     let getAllData = await DB.sequelize.query(query, {
       replacements: {
         requested_for_user_id: `${filter.requested_for_user_id}`,
-        user_id: `${filter.user_id}`,
+        // user_id: `${filter.user_id}`,
         from_dept_id: `${filter.from_dept_id}`,
         from_branch_id: `${filter.from_branch_id}`,
         approval_status: `${filter.approval_status}`,
@@ -465,14 +489,38 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Transfer requests not found!" });
     } else {
+      const dataWithWorkflow = await Promise.all(
+        getAllData.map(async (data) => {
+          const transferDetails = { ...data };
+
+          try {
+            const getWorkflowData =
+              await DB.tbl_employee_transfer_approval.findAll({
+                where: { transfer_id: data.id, isDeleted: false },
+              });
+
+            transferDetails.workflow_Details = getWorkflowData;
+          } catch (error) {
+            console.error(
+              `Error fetching workflow for transfer ${data.id}:`,
+              error
+            );
+            transferDetails.workflow_Details = [];
+            transferDetails.workflow_error = error.message;
+          }
+
+          return transferDetails;
+        })
+      );
+
       return res.status(200).send({
         success: true,
         message: "Get all transfers list!",
-        data: getAllData,
+        data: dataWithWorkflow,
         pagination: {
           currentPage: page,
           itemsPerPage: limit,
-          totalItems: getAllData.length,
+          totalItems: dataWithWorkflow.length,
           totalPages: totalPages,
         },
       });
@@ -491,8 +539,9 @@ module.exports.approvalForTransfer = async (req, res) => {
     // Check if Data already exist
     const isDataExist = await DB.tbl_employee_transfer_approval.findOne({
       where: {
-        id,
+        transfer_id: id,
         approver_status: "PENDING",
+        approver_id: data?.user_id,
         isDeleted: false,
       },
     });
@@ -502,6 +551,13 @@ module.exports.approvalForTransfer = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Transfer details not found!" });
     } else {
+      // Get Total Number of Workflow Levels
+      const totalWorkflowLevels = await DB.tbl_employee_transfer_approval.count(
+        {
+          where: { transfer_id: isDataExist?.transfer_id },
+        }
+      );
+
       if (data?.approver_status === "REJECTED") {
         await DB.tbl_employee_transfer_approval.update(
           {
@@ -527,12 +583,36 @@ module.exports.approvalForTransfer = async (req, res) => {
       }
 
       if (data?.approver_status === "APPROVED") {
-        return res.status(200).send({
-          success: true,
-          message: "Transfer request updated successfully!",
-          data: updateData,
-        });
+        if (isDataExist.approval_level === totalWorkflowLevels) {
+          await DB.tbl_employee_transfer_approval.update(
+            {
+              approver_status: data?.approver_status,
+              comments: data?.comments,
+              acted_at: new Date(),
+            },
+            { where: { id: isDataExist?.id } }
+          );
+
+          await DB.tbl_employee_transfer.update(
+            { approval_status: data?.approver_status },
+            { where: { id: isDataExist?.transfer_id } }
+          );
+        } else {
+          await DB.tbl_employee_transfer_approval.update(
+            {
+              approver_status: data?.approver_status,
+              comments: data?.comments,
+              acted_at: new Date(),
+            },
+            { where: { id: isDataExist?.id } }
+          );
+        }
       }
+
+      return res.status(200).send({
+        success: true,
+        message: "Status changed successfully!",
+      });
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });

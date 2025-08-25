@@ -102,3 +102,17 @@ export const getAllTransferApprovalByUser = async (id, formData) => {
   );
   return response.data;
 };
+
+// Approval for Transfer Actions
+export const approvalForTransfer = async (id, formData) => {
+  const response = await axiosInstance.post(
+    `approval-for-transfer/${id}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};

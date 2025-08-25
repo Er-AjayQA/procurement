@@ -63,6 +63,7 @@ export const TransferDetailsForm = ({
                     isSearchable
                     className="react-select-container"
                     classNamePrefix="react-select"
+                    isDisabled={tabType.value === "pending_for_approval"}
                     styles={{
                       ...formSelectStyles,
                       width: "120px",
@@ -100,6 +101,7 @@ export const TransferDetailsForm = ({
                     isSearchable
                     className="react-select-container"
                     classNamePrefix="react-select"
+                    isDisabled={tabType.value === "pending_for_approval"}
                     styles={{
                       ...formSelectStyles,
                       width: "120px",
@@ -123,6 +125,7 @@ export const TransferDetailsForm = ({
                 id="applicable_from_date"
                 className={`rounded-lg text-[.8rem] hover:border-borders-inputHover `}
                 placeholder="Applicable from..."
+                readOnly={tabType.value === "pending_for_approval"}
                 {...register("applicable_from_date")}
               />
             </div>
@@ -142,6 +145,7 @@ export const TransferDetailsForm = ({
                   id="applicable_to_date"
                   className={`rounded-lg text-[.8rem] hover:border-borders-inputHover `}
                   placeholder="Applicable to..."
+                  readOnly={tabType.value === "pending_for_approval"}
                   {...register("applicable_to_date")}
                 />
               </div>
@@ -160,6 +164,7 @@ export const TransferDetailsForm = ({
               id="detailed_reason"
               className={`rounded-lg text-[.8rem] hover:border-borders-inputHover `}
               placeholder="Type transfer details..."
+              readOnly={tabType.value === "pending_for_approval"}
               {...register("detailed_reason")}
             />
           </div>
