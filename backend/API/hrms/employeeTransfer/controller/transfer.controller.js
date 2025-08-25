@@ -145,7 +145,7 @@ module.exports.getTransferDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Allowance Not Found!" });
+        .send({ success: false, message: "Transfer Request Not Found!" });
     } else {
       const getDataWithWorkflow = await Promise.all(
         getAllData?.map(async (data) => {
@@ -155,6 +155,12 @@ module.exports.getTransferDetails = async (req, res) => {
             const getWorkflowData =
               await DB.tbl_employee_transfer_approval.findAll({
                 where: { transfer_id: data?.id },
+                include: [
+                  {
+                    model: DB.tbl_user_master,
+                    attributes: ["id", "title", "name", "emp_code"],
+                  },
+                ],
               });
 
             transferDetail.workflow_detail = getWorkflowData;
@@ -258,11 +264,6 @@ module.exports.getAllTransferDetails = async (req, res) => {
       query += ` AND ET.from_branch_id LIKE :from_branch_id`;
     }
 
-    if (filter.approval_status) {
-      countQuery += ` AND ET.approval_status LIKE :approval_status`;
-      query += ` AND ET.approval_status LIKE :approval_status`;
-    }
-
     query += ` ORDER BY ET.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;
 
@@ -273,7 +274,6 @@ module.exports.getAllTransferDetails = async (req, res) => {
         // user_id: `${filter.user_id}`,
         from_dept_id: `${filter.from_dept_id}`,
         from_branch_id: `${filter.from_branch_id}`,
-        approval_status: `${filter.approval_status}`,
       },
       type: DB.sequelize.QueryTypes.SELECT,
     });
@@ -286,7 +286,6 @@ module.exports.getAllTransferDetails = async (req, res) => {
         // user_id: `${filter.user_id}`,
         from_dept_id: `${filter.from_dept_id}`,
         from_branch_id: `${filter.from_branch_id}`,
-        approval_status: `${filter.approval_status}`,
         limit,
         offset,
       },
@@ -306,6 +305,12 @@ module.exports.getAllTransferDetails = async (req, res) => {
             const getWorkflowData =
               await DB.tbl_employee_transfer_approval.findAll({
                 where: { transfer_id: data.id, isDeleted: false },
+                include: [
+                  {
+                    model: DB.tbl_user_master,
+                    attributes: ["id", "title", "name", "emp_code"],
+                  },
+                ],
               });
 
             transferDetails.workflow_Details = getWorkflowData;
@@ -381,7 +386,8 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
     let countQuery = `
         SELECT COUNT(*) as total 
         FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA 
-        WHERE ETA.isDeleted = false`;
+        INNER JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
+        WHERE ETA.approver_status="PENDING" ETA.isDeleted = false AND ETA.approver_id = :id`;
 
     let query = `
       SELECT 
@@ -410,7 +416,7 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
         CRUM.title as current_reporting_manager_title,
         CRUM.name as current_reporting_manager
     FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA
-    LEFT JOIN EMPLOYEE_TRANSFER AS ET ON ET.id=ETA.transfer_id
+    LEFT JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
     LEFT JOIN ROLE_MASTER AS FRM ON FRM.id = ET.from_role_id
     LEFT JOIN ROLE_MASTER AS TRM ON TRM.id = ET.to_role_id
     LEFT JOIN DEPARTMENT_MASTER AS FDM ON FDM.id = ET.from_dept_id
@@ -425,62 +431,72 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
     LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
     LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
     LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ETA.approver_id=:id AND ETA.isDeleted = false`;
+    WHERE ETA.approver_id = :id AND ETA.approver_status='PENDING' AND ETA.isDeleted = false`;
 
-    if (filter.requested_for_user_id) {
+    query += ` AND ETA.approval_level = (
+      SELECT MIN(ETA2.approval_level) 
+      FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA2 
+      WHERE ETA2.transfer_id = ET.id 
+      AND ETA2.approver_status = 'PENDING'
+      AND ETA2.isDeleted = false
+    )`;
+
+    countQuery += ` AND ETA.approval_level = (
+      SELECT MIN(ETA2.approval_level) 
+      FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA2 
+      WHERE ETA2.transfer_id = ET.id 
+      AND ETA2.approver_status = 'PENDING'
+      AND ETA2.isDeleted = false
+    )`;
+
+    if (filter && filter.requested_for_user_id) {
       countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
       query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
     }
 
-    if (filter.from_dept_id) {
-      countQuery += ` AND ET.from_dept_id LIKE :from_dept_id`;
-      query += ` AND ET.from_dept_id LIKE :from_dept_id`;
-    }
-
-    if (filter.user_id) {
-      countQuery += ` AND ETA.approver_id LIKE :user_id`;
-      query += ` AND ETA.approver_id LIKE :user_id`;
-    }
-
-    if (filter.from_branch_id) {
+    if (filter && filter.from_branch_id) {
       countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
       query += ` AND ET.from_branch_id LIKE :from_branch_id`;
     }
 
-    if (filter.approver_status) {
-      countQuery += ` AND ETA.approver_status LIKE :approver_status`;
-      query += ` AND ETA.approver_status LIKE :approver_status`;
+    if (filter && filter.approval_status) {
+      countQuery += ` AND ETA.approval_status LIKE :approval_status`;
+      query += ` AND ETA.approval_status LIKE :approval_status`;
     }
 
     query += ` ORDER BY ETA.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;
 
+    // Prepare replacements object
+    const replacements = {
+      id: `${id}`,
+      limit,
+      offset,
+    };
+
+    // Add filter replacements if they exist
+    if (filter) {
+      if (filter.requested_for_user_id) {
+        replacements.requested_for_user_id = `%${filter.requested_for_user_id}%`;
+      }
+      if (filter.from_branch_id) {
+        replacements.from_branch_id = `%${filter.from_branch_id}%`;
+      }
+      if (filter.approval_status) {
+        replacements.approval_status = `%${filter.approval_status}%`;
+      }
+    }
+
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
-      replacements: {
-        id: `${id}`,
-        requested_for_user_id: `${filter.requested_for_user_id}`,
-        user_id: `${filter.user_id}`,
-        from_dept_id: `${filter.from_dept_id}`,
-        from_branch_id: `${filter.from_branch_id}`,
-        approver_status: `${filter.approver_status}`,
-      },
+      replacements,
       type: DB.sequelize.QueryTypes.SELECT,
     });
     const totalRecords = totalResult[0].total;
     const totalPages = Math.ceil(totalRecords / limit);
 
     const getAllData = await DB.sequelize.query(query, {
-      replacements: {
-        id: `${id}`,
-        requested_for_user_id: `${filter.requested_for_user_id}`,
-        from_dept_id: `${filter.from_dept_id}`,
-        user_id: `${filter.user_id}`,
-        from_branch_id: `${filter.from_branch_id}`,
-        approver_status: `${filter.approver_status}`,
-        limit,
-        offset,
-      },
+      replacements,
       type: DB.sequelize.QueryTypes.SELECT,
     });
 
@@ -497,6 +513,13 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
             const getWorkflowData =
               await DB.tbl_employee_transfer_approval.findAll({
                 where: { transfer_id: data.id, isDeleted: false },
+                include: [
+                  {
+                    model: DB.tbl_user_master,
+                    attributes: ["id", "title", "name", "emp_code"],
+                  },
+                ],
+                order: [["approval_level", "ASC"]], // Order by approval level
               });
 
             transferDetails.workflow_Details = getWorkflowData;
@@ -520,7 +543,333 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
         pagination: {
           currentPage: page,
           itemsPerPage: limit,
-          totalItems: dataWithWorkflow.length,
+          totalItems: totalRecords, // Use totalRecords instead of dataWithWorkflow.length
+          totalPages: totalPages,
+        },
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== GET ALL TRANSFER APPROVED BY USER DETAILS CONTROLLER ========== //
+module.exports.getAllTransferApprovedByUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
+
+    let countQuery = `
+        SELECT COUNT(*) as total 
+        FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA 
+        INNER JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
+        WHERE ETA.isDeleted = false AND ETA.approver_id = :id`;
+
+    let query = `
+      SELECT 
+        ETA.*, 
+        ET.*,
+        FRM.name as from_role, 
+        TRM.name as to_role, 
+        FDM.name as from_department, 
+        TDM.name as to_department,
+        FDEM.name as from_designation, 
+        TDEM.name as to_designation, 
+        FBM.name as from_branch, 
+        TBM.name as to_branch,
+        TT.transfer_type, 
+        TR.reason_type, 
+        UM.id as request_by_user_id,
+        UM.title as request_by_user_title, 
+        UM.name as requested_by_user, 
+        RUM.id as report_to_manager_id,
+        RUM.title as report_to_manager_title,
+        RUM.name as report_to_manager, 
+        RQUM.id as requested_for_user_id,
+        RQUM.title as requested_for_user_title, 
+        RQUM.name as requested_for_user_name,
+        CRUM.id as current_reporting_manager_id,
+        CRUM.title as current_reporting_manager_title,
+        CRUM.name as current_reporting_manager
+    FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA
+    LEFT JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
+    LEFT JOIN ROLE_MASTER AS FRM ON FRM.id = ET.from_role_id
+    LEFT JOIN ROLE_MASTER AS TRM ON TRM.id = ET.to_role_id
+    LEFT JOIN DEPARTMENT_MASTER AS FDM ON FDM.id = ET.from_dept_id
+    LEFT JOIN DEPARTMENT_MASTER AS TDM ON TDM.id = ET.to_dept_id
+    LEFT JOIN DESIGNATION_MASTER AS FDEM ON FDEM.id = ET.from_desig_id
+    LEFT JOIN DESIGNATION_MASTER AS TDEM ON TDEM.id = ET.to_desig_id
+    LEFT JOIN BRANCH_MASTER AS FBM ON FBM.id = ET.from_branch_id
+    LEFT JOIN BRANCH_MASTER AS TBM ON TBM.id = ET.to_branch_id
+    LEFT JOIN TRANSFER_TYPE_MASTER AS TT ON TT.id = ET.transfer_type_id
+    LEFT JOIN TRANSFER_REASON_MASTER AS TR ON TR.id = ET.transfer_reason_id
+    LEFT JOIN USER_MASTER AS RQUM ON RQUM.id = ET.requested_for_user_id
+    LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
+    LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
+    LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
+    WHERE ETA.approver_id = :id AND ETA.isDeleted = false`;
+
+    if (filter && filter.requested_for_user_id) {
+      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+    }
+
+    if (filter && filter.from_branch_id) {
+      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
+      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
+    }
+
+    if (filter && filter.approver_status) {
+      countQuery += ` AND ETA.approver_status LIKE :approver_status`;
+      query += ` AND ETA.approver_status LIKE :approver_status`;
+    }
+
+    query += ` ORDER BY ETA.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
+
+    // Prepare replacements object
+    const replacements = {
+      id: `${id}`,
+      limit,
+      offset,
+    };
+
+    // Add filter replacements if they exist
+    if (filter) {
+      if (filter.requested_for_user_id) {
+        replacements.requested_for_user_id = `%${filter.requested_for_user_id}%`;
+      }
+      if (filter.from_branch_id) {
+        replacements.from_branch_id = `%${filter.from_branch_id}%`;
+      }
+      if (filter.approver_status) {
+        replacements.approver_status = `%${filter.approver_status}%`;
+      }
+    }
+
+    // Get total count
+    const totalResult = await DB.sequelize.query(countQuery, {
+      replacements,
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.sequelize.query(query, {
+      replacements,
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Transfer requests not found!" });
+    } else {
+      const dataWithWorkflow = await Promise.all(
+        getAllData.map(async (data) => {
+          const transferDetails = { ...data };
+
+          try {
+            const getWorkflowData =
+              await DB.tbl_employee_transfer_approval.findAll({
+                where: { transfer_id: data.id, isDeleted: false },
+                include: [
+                  {
+                    model: DB.tbl_user_master,
+                    attributes: ["id", "title", "name", "emp_code"],
+                  },
+                ],
+                order: [["approval_level", "ASC"]], // Order by approval level
+              });
+
+            transferDetails.workflow_Details = getWorkflowData;
+          } catch (error) {
+            console.error(
+              `Error fetching workflow for transfer ${data.id}:`,
+              error
+            );
+            transferDetails.workflow_Details = [];
+            transferDetails.workflow_error = error.message;
+          }
+
+          return transferDetails;
+        })
+      );
+
+      return res.status(200).send({
+        success: true,
+        message: "Get all transfers list!",
+        data: dataWithWorkflow,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: totalRecords, // Use totalRecords instead of dataWithWorkflow.length
+          totalPages: totalPages,
+        },
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+// ========== GET ALL TRANSFER REJECTED BY USER DETAILS CONTROLLER ========== //
+module.exports.getAllTransferRejectedByUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const limit = parseInt(req.body.limit) || 10;
+    const page = parseInt(req.body.page) || 1;
+    const offset = (page - 1) * limit;
+    const filter = req.body.filter || null;
+
+    let countQuery = `
+        SELECT COUNT(*) as total 
+        FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA 
+        INNER JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
+        WHERE ETA.isDeleted = false AND ETA.approver_id = :id`;
+
+    let query = `
+      SELECT 
+        ETA.*, 
+        ET.*,
+        FRM.name as from_role, 
+        TRM.name as to_role, 
+        FDM.name as from_department, 
+        TDM.name as to_department,
+        FDEM.name as from_designation, 
+        TDEM.name as to_designation, 
+        FBM.name as from_branch, 
+        TBM.name as to_branch,
+        TT.transfer_type, 
+        TR.reason_type, 
+        UM.id as request_by_user_id,
+        UM.title as request_by_user_title, 
+        UM.name as requested_by_user, 
+        RUM.id as report_to_manager_id,
+        RUM.title as report_to_manager_title,
+        RUM.name as report_to_manager, 
+        RQUM.id as requested_for_user_id,
+        RQUM.title as requested_for_user_title, 
+        RQUM.name as requested_for_user_name,
+        CRUM.id as current_reporting_manager_id,
+        CRUM.title as current_reporting_manager_title,
+        CRUM.name as current_reporting_manager
+    FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA
+    LEFT JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
+    LEFT JOIN ROLE_MASTER AS FRM ON FRM.id = ET.from_role_id
+    LEFT JOIN ROLE_MASTER AS TRM ON TRM.id = ET.to_role_id
+    LEFT JOIN DEPARTMENT_MASTER AS FDM ON FDM.id = ET.from_dept_id
+    LEFT JOIN DEPARTMENT_MASTER AS TDM ON TDM.id = ET.to_dept_id
+    LEFT JOIN DESIGNATION_MASTER AS FDEM ON FDEM.id = ET.from_desig_id
+    LEFT JOIN DESIGNATION_MASTER AS TDEM ON TDEM.id = ET.to_desig_id
+    LEFT JOIN BRANCH_MASTER AS FBM ON FBM.id = ET.from_branch_id
+    LEFT JOIN BRANCH_MASTER AS TBM ON TBM.id = ET.to_branch_id
+    LEFT JOIN TRANSFER_TYPE_MASTER AS TT ON TT.id = ET.transfer_type_id
+    LEFT JOIN TRANSFER_REASON_MASTER AS TR ON TR.id = ET.transfer_reason_id
+    LEFT JOIN USER_MASTER AS RQUM ON RQUM.id = ET.requested_for_user_id
+    LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
+    LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
+    LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
+    WHERE ETA.approver_id = :id AND ETA.isDeleted = false`;
+
+    if (filter && filter.requested_for_user_id) {
+      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+    }
+
+    if (filter && filter.from_branch_id) {
+      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
+      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
+    }
+
+    if (filter && filter.approval_status) {
+      countQuery += ` AND ETA.approval_status LIKE :approval_status`;
+      query += ` AND ETA.approval_status LIKE :approval_status`;
+    }
+
+    query += ` ORDER BY ETA.createdAt DESC`;
+    query += ` LIMIT :limit OFFSET :offset`;
+
+    // Prepare replacements object
+    const replacements = {
+      id: `${id}`,
+      limit,
+      offset,
+    };
+
+    // Add filter replacements if they exist
+    if (filter) {
+      if (filter.requested_for_user_id) {
+        replacements.requested_for_user_id = `%${filter.requested_for_user_id}%`;
+      }
+      if (filter.from_branch_id) {
+        replacements.from_branch_id = `%${filter.from_branch_id}%`;
+      }
+      if (filter.approval_status) {
+        replacements.approval_status = `%${filter.approval_status}%`;
+      }
+    }
+
+    // Get total count
+    const totalResult = await DB.sequelize.query(countQuery, {
+      replacements,
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+    const totalRecords = totalResult[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    const getAllData = await DB.sequelize.query(query, {
+      replacements,
+      type: DB.sequelize.QueryTypes.SELECT,
+    });
+
+    if (getAllData.length < 1) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Transfer requests not found!" });
+    } else {
+      const dataWithWorkflow = await Promise.all(
+        getAllData.map(async (data) => {
+          const transferDetails = { ...data };
+
+          try {
+            const getWorkflowData =
+              await DB.tbl_employee_transfer_approval.findAll({
+                where: { transfer_id: data.id, isDeleted: false },
+                include: [
+                  {
+                    model: DB.tbl_user_master,
+                    attributes: ["id", "title", "name", "emp_code"],
+                  },
+                ],
+                order: [["approval_level", "ASC"]], // Order by approval level
+              });
+
+            transferDetails.workflow_Details = getWorkflowData;
+          } catch (error) {
+            console.error(
+              `Error fetching workflow for transfer ${data.id}:`,
+              error
+            );
+            transferDetails.workflow_Details = [];
+            transferDetails.workflow_error = error.message;
+          }
+
+          return transferDetails;
+        })
+      );
+
+      return res.status(200).send({
+        success: true,
+        message: "Get all transfers list!",
+        data: dataWithWorkflow,
+        pagination: {
+          currentPage: page,
+          itemsPerPage: limit,
+          totalItems: totalRecords, // Use totalRecords instead of dataWithWorkflow.length
           totalPages: totalPages,
         },
       });
@@ -563,7 +912,7 @@ module.exports.approvalForTransfer = async (req, res) => {
           {
             approver_status: data?.approver_status,
             comments: data?.comments,
-            acted_at: new Date(),
+            acted_on: new Date(),
           },
           {
             where: { id },

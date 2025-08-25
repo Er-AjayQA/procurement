@@ -3,12 +3,13 @@ import Select from "react-select";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
 import { AddButton } from "../../UI/addButtonUi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ViewIcon } from "../../UI/viewIconUi";
 import { EditIcon } from "../../UI/editIconUi";
 import { DeleteIcon } from "../../UI/deleteIcon";
 import { useEmployeeTransferContext } from "../../../contextApis/useHrmsContextFile";
-import { SendLinkIcon } from "../../UI/sendLinkIconUi";
+import { ApproversPopup } from "./approversPopup";
+import { useSelector } from "react-redux";
 
 export const EmployeeTransferListing = ({ componentType }) => {
   const {
@@ -31,8 +32,8 @@ export const EmployeeTransferListing = ({ componentType }) => {
     handleComponentClose,
     handleComponentView,
     handleTabClick,
-    handleSendForApproval,
   } = useEmployeeTransferContext();
+  const { userDetails } = useSelector((state) => state.auth);
   const [selectedRole, setSelectedRole] = useState(null);
   const [tabList, setTabList] = useState([
     { name: "My Requests", value: "my_requests" },
@@ -40,6 +41,7 @@ export const EmployeeTransferListing = ({ componentType }) => {
     { name: "Approved by Me", value: "approved_by_me" },
     { name: "Rejected by Me", value: "rejected_by_me" },
   ]);
+  const [showApproverPopup, setShowApproverPopup] = useState(false);
 
   return (
     <>
@@ -142,7 +144,7 @@ export const EmployeeTransferListing = ({ componentType }) => {
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="grid grid-cols-8 border-b border-gray-300 gap-2">
+          <div className="grid grid-cols-8 border-b border-gray-300 gap-2 bg-gray-200">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
             <div className="text-[.8rem] font-bold p-2">Requested For</div>
             <div className="text-[.8rem] font-bold p-2">Employee Code</div>
@@ -161,13 +163,31 @@ export const EmployeeTransferListing = ({ componentType }) => {
               <SkeltonUi />
             ) : listing?.length > 0 ? (
               listing?.map((list, i) => {
+                const myListStatusColor =
+                  list?.approval_status === "APPROVED"
+                    ? "text-green-600"
+                    : list?.approval_status === "REJECTED"
+                    ? "text-red-600"
+                    : list?.approval_status === "PENDING"
+                    ? "text-yellow-600"
+                    : "text-gray-600";
+
+                const otherStatusColor =
+                  list?.approver_status === "APPROVED"
+                    ? "text-green-600"
+                    : list?.approver_status === "REJECTED"
+                    ? "text-red-600"
+                    : list?.approver_status === "PENDING"
+                    ? "text-yellow-600"
+                    : "text-gray-600";
+
                 const allApproverApproved = list?.workflow_Details.every(
                   (data) => data?.approver_status === "PENDING"
                 );
                 return (
                   <div
                     key={list?.id}
-                    className="grid grid-cols-8 border-b border-gray-200 last:border-none gap-2"
+                    className="grid grid-cols-8 border-b border-gray-200 last:border-none gap-2 hover:bg-gray-100"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
@@ -191,7 +211,23 @@ export const EmployeeTransferListing = ({ componentType }) => {
                     <div className="flex items-center p-2 text-[.8rem]">
                       {list?.to_branch}
                     </div>
-                    <div className="flex items-center justify-center p-2 text-[.8rem]">
+                    <div
+                      className={`flex items-center justify-center p-2 text-[.8rem] text-xs font-bold ${
+                        tabType.value === "my_requests" ? "cursor-pointer" : ""
+                      } ${
+                        tabType.value === "my_requests"
+                          ? myListStatusColor
+                          : otherStatusColor
+                      }`}
+                      onClick={
+                        tabType.value === "my_requests"
+                          ? () => {
+                              setViewId(list?.id);
+                              setShowApproverPopup(true);
+                            }
+                          : ""
+                      }
+                    >
                       {tabType.value === "my_requests"
                         ? list?.approval_status
                         : list?.approver_status}
@@ -237,6 +273,14 @@ export const EmployeeTransferListing = ({ componentType }) => {
             )}
           </div>
         </div>
+
+        {/* Display Approver Popup */}
+        {showApproverPopup && (
+          <ApproversPopup
+            showApproverPopup={showApproverPopup}
+            setShowApproverPopup={setShowApproverPopup}
+          />
+        )}
 
         {/* Pagination */}
         <div className="bg-button-hover h-12 py-2 px-1 rounded-b-md">
