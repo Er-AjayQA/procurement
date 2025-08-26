@@ -8,19 +8,11 @@ export const TransferSourceDetailsForm = ({
   control,
   register,
   setValue,
-  watch,
   findSelectedOption,
   selectedUser,
 }) => {
-  const {
-    data,
-    formSelectStyles,
-    updateId,
-    userOptions,
-    handleTabClick,
-    tabType,
-    handleComponentView,
-  } = useEmployeeTransferContext();
+  const { formSelectStyles, userOptions, tabType } =
+    useEmployeeTransferContext();
 
   const [userDetail, setUserDetail] = useState(null);
 

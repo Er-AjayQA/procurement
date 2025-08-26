@@ -4,25 +4,40 @@ import { EmployeeTransferDetails } from "./employeeTransferViewComponents/employ
 import { EmployeeTransferSourceDetails } from "./employeeTransferViewComponents/employeeTransferSourceDetails";
 
 export const EmployeeTransferView = () => {
-  const { data, handleTabClick, handleComponentView } =
-    useEmployeeTransferContext();
+  const { handleFormClose, handleComponentView } = useEmployeeTransferContext();
+
+  const handleCancel = () => {
+    handleFormClose();
+    handleComponentView("listing");
+  };
 
   return (
     <>
       <div className="flex flex-col">
-        {/* Employee Transfer Source Details Sections */}
-        <div className="py-5">
-          <EmployeeTransferSourceDetails />
+        <div className="flex justify-end items-center py-3 border-b border-gray-400">
+          <button
+            className="py-2 px-4 bg-red-600 rounded-md text-white text-sm hover:bg-red-700 transition-all duration=[.3s]"
+            onClick={handleCancel}
+          >
+            Back
+          </button>
         </div>
 
-        {/* Employee Transfer Details Sections */}
-        <div className="py-5">
-          <EmployeeTransferDetails />
-        </div>
+        <div className="shadow-lg rounded-md h-[80vh] overflow-auto scrollbar-hide">
+          {/* Employee Transfer Source Details Sections */}
+          <div className="py-5">
+            <EmployeeTransferSourceDetails />
+          </div>
 
-        {/* Employee Transfer Destination Details Sections */}
-        <div className="py-5">
-          <EmployeeTransferDestinationDetails />
+          {/* Employee Transfer Details Sections */}
+          <div className="py-5">
+            <EmployeeTransferDetails />
+          </div>
+
+          {/* Employee Transfer Destination Details Sections */}
+          <div className="py-5">
+            <EmployeeTransferDestinationDetails />
+          </div>
         </div>
       </div>
     </>

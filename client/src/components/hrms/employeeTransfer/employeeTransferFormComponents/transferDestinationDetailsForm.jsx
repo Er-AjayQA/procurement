@@ -5,17 +5,10 @@ import { useEmployeeTransferContext } from "../../../../contextApis/useHrmsConte
 export const TransferDestinationDetailsForm = ({
   control,
   register,
-  setValue,
-  watch,
   findSelectedOption,
-  selectedUser,
 }) => {
   const {
-    updateId,
-    data,
     formSelectStyles,
-    handleComponentView,
-    handleTabClick,
     tabType,
     userOptions,
     rolesOptions,
@@ -238,16 +231,9 @@ export const TransferDestinationDetailsForm = ({
                     <Select
                       {...field}
                       options={userOptions || []}
-                      value={
-                        userOptions?.filter((option) =>
-                          field.value?.includes(option.value)
-                        ) || []
-                      }
+                      value={field.value}
                       onChange={(selected) => {
-                        const selectedValues = selected
-                          ? selected.map((option) => option.value)
-                          : [];
-                        field.onChange(selectedValues);
+                        field.onChange(selected);
                       }}
                       placeholder="Select approvers..."
                       isMulti

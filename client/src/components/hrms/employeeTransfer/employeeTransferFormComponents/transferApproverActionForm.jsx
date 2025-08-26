@@ -6,11 +6,9 @@ import { useState } from "react";
 export const TransferApproverActionForm = ({
   control,
   register,
-  setValue,
-  watch,
   findSelectedOption,
 }) => {
-  const { updateId, data, formSelectStyles } = useEmployeeTransferContext();
+  const { formSelectStyles } = useEmployeeTransferContext();
 
   const [approverStatusOptions, setApproverStatusOptions] = useState([
     {

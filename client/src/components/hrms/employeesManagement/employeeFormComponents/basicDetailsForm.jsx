@@ -243,8 +243,6 @@ export const EmployeeBasicDetailsForm = () => {
         area_id: formData.area_id,
       };
 
-      console.log("Basic Details Data.....:", payload);
-
       let response;
       if (updateId) {
         response = await updateEmployee(updateId, payload);

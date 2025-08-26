@@ -3,13 +3,12 @@ import Select from "react-select";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
 import { AddButton } from "../../UI/addButtonUi";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ViewIcon } from "../../UI/viewIconUi";
 import { EditIcon } from "../../UI/editIconUi";
 import { DeleteIcon } from "../../UI/deleteIcon";
 import { useEmployeeTransferContext } from "../../../contextApis/useHrmsContextFile";
 import { ApproversPopup } from "./approversPopup";
-import { useSelector } from "react-redux";
 
 export const EmployeeTransferListing = ({ componentType }) => {
   const {
@@ -19,7 +18,6 @@ export const EmployeeTransferListing = ({ componentType }) => {
     tabType,
     currentTab,
     page,
-    getAllData,
     totalPages,
     setPage,
     rolesList,
@@ -29,13 +27,10 @@ export const EmployeeTransferListing = ({ componentType }) => {
     styledComponent,
     handleLimitChange,
     handleChangeFilter,
-    handleComponentClose,
     handleComponentView,
     handleTabClick,
     tabList,
-    setTabList,
   } = useEmployeeTransferContext();
-  const { userDetails } = useSelector((state) => state.auth);
   const [selectedRole, setSelectedRole] = useState(null);
 
   const [showApproverPopup, setShowApproverPopup] = useState(false);
@@ -97,20 +92,12 @@ export const EmployeeTransferListing = ({ componentType }) => {
             />
           </div>
         </div>
-        {componentType === "listing" ? (
+        {componentType === "listing" && currentTab === "my_requests" ? (
           <div onClick={() => handleComponentView("form")}>
             <AddButton text="Generate Transfer Request" />
           </div>
         ) : (
-          <div
-            onClick={() => {
-              handleComponentView("listing");
-              handleComponentClose();
-              handleTabClick("my_requests");
-            }}
-          >
-            <AddButton text="Back" />
-          </div>
+          ""
         )}
       </div>
       {/* Employee Tabs */}

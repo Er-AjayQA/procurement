@@ -19,20 +19,13 @@ export const EmployeeTransferForm = () => {
     tabType,
     updateId,
     handleTabClick,
-    getAllData,
     currentTab,
     handleComponentView,
     handleFormClose,
-    tabList,
-    setTabList,
+    setUpdateId,
+    setData,
     refreshData,
   } = useEmployeeTransferContext();
-
-  const handleCancel = () => {
-    reset(); // Reset the form
-    handleFormClose(); // Close the form
-    handleComponentView("listing"); // Go back to listing
-  };
 
   const {
     register,
@@ -70,6 +63,39 @@ export const EmployeeTransferForm = () => {
   const { userDetails } = useSelector((state) => state.auth);
   const selectedUser = watch("requested_for_user_id");
 
+  const handleCancel = () => {
+    resetForm();
+    handleFormClose();
+    handleComponentView("listing");
+    setData(null);
+    setUpdateId(null);
+  };
+
+  const resetForm = () => {
+    reset({
+      requested_for_user_id: "",
+      emp_code: "",
+      from_role_id: "",
+      from_dept_id: "",
+      from_desig_id: "",
+      from_branch_id: "",
+      current_report_to_user_id: "",
+      transfer_type_id: "",
+      transfer_reason_id: "",
+      applicable_from_date: "",
+      applicable_to_date: "",
+      detailed_reason: "",
+      report_to_user_id: "",
+      to_role_id: "",
+      to_dept_id: "",
+      to_desig_id: "",
+      to_branch_id: "",
+      new_salary: "",
+      requested_by_user_id: "",
+      approvers_list: [],
+    });
+  };
+
   // Set form values when in update mode
   useEffect(() => {
     if (updateId && data) {
@@ -94,7 +120,17 @@ export const EmployeeTransferForm = () => {
         setValue("new_salary", data?.new_salary);
         setValue("requested_by_user_id", data?.requested_by_user_id);
         setValue("approval_status", "PENDING");
-        setValue("approvers_list", data?.approvers_list);
+
+        if (data?.workflow_detail && Array.isArray(data.workflow_detail)) {
+          // If approvers_list contains objects with value property (react-select format)
+          const approversOptions = data.workflow_detail.map((item) => ({
+            value: item?.approver_id,
+            label: item?.USER_MASTER?.name,
+          }));
+          setValue("approvers_list", approversOptions);
+        } else {
+          setValue("approvers_list", []);
+        }
       };
       setUpdateDefaultData();
     }
@@ -204,7 +240,16 @@ export const EmployeeTransferForm = () => {
   return (
     <>
       <div className="flex flex-col">
-        <div className="shadow-lg rounded-md h-[80vh] overflow-auto scrollbar-hide">
+        <div className="flex justify-end items-center py-3  border-b border-gray-400">
+          <button
+            className="py-2 px-4 bg-red-600 rounded-md text-white text-sm hover:bg-red-700 transition-all duration=[.3s]"
+            onClick={handleCancel}
+          >
+            Back
+          </button>
+        </div>
+
+        <div className="shadow-lg rounded-md h-[80vh] overflow-auto scrollbar-hide py-5">
           <div className="bg-button-hover py-2 px-1 rounded-t-md">
             <h3 className="text-white text-xs">Raise Transfer Request</h3>
           </div>
@@ -222,7 +267,6 @@ export const EmployeeTransferForm = () => {
                   setValue={setValue}
                   register={register}
                   reset={reset}
-                  watch={watch}
                   selectedUser={selectedUser}
                   findSelectedOption={findSelectedOption}
                 />
@@ -231,7 +275,6 @@ export const EmployeeTransferForm = () => {
                 <TransferDetailsForm
                   control={control}
                   errors={errors}
-                  setValue={setValue}
                   register={register}
                   reset={reset}
                   watch={watch}
@@ -243,11 +286,8 @@ export const EmployeeTransferForm = () => {
                 <TransferDestinationDetailsForm
                   control={control}
                   errors={errors}
-                  setValue={setValue}
                   register={register}
                   reset={reset}
-                  watch={watch}
-                  selectedUser={selectedUser}
                   findSelectedOption={findSelectedOption}
                 />
 
@@ -256,10 +296,8 @@ export const EmployeeTransferForm = () => {
                   <TransferApproverActionForm
                     control={control}
                     errors={errors}
-                    setValue={setValue}
                     register={register}
                     reset={reset}
-                    watch={watch}
                     findSelectedOption={findSelectedOption}
                   />
                 ) : (
