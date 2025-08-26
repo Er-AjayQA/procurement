@@ -6,16 +6,11 @@ import { useEffect, useState } from "react";
 export const TransferDetailsForm = ({
   control,
   register,
-  setValue,
   watch,
   findSelectedOption,
 }) => {
   const {
-    updateId,
-    data,
     formSelectStyles,
-    handleComponentView,
-    handleTabClick,
     tabType,
     transferTypeOptions,
     transferReasonOptions,

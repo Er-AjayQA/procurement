@@ -12,8 +12,6 @@ export const AllowanceMasterForm = ({ onClose }) => {
   const { formVisibility, formType, getAllData, updateId, data } =
     useAllowanceMasterContext();
 
-  console.log(data);
-
   const {
     register,
     handleSubmit,
