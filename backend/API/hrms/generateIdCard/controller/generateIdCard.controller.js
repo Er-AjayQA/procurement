@@ -4,43 +4,62 @@ const DB = require("../../../../config/index");
 // ========== CREATE ID CARD CONTROLLER ========== //
 module.exports.createIdCard = async (req, res) => {
   try {
-    const data = req.body;
+    const { id } = req.params;
 
     // Check if Data already exist
-    const isAlreadyExist = await DB.tbl_generate_id_card.findOne({
+    const isUserExist = await DB.tbl_user_master.findOne({
       where: {
-        user_id: data?.user_id,
+        id,
         isDeleted: false,
       },
     });
 
-    if (isAlreadyExist) {
+    if (!isUserExist) {
       return res
-        .status(400)
-        .send({ success: false, message: "ID Card Already Generated!" });
+        .status(404)
+        .send({ success: false, message: "User Not Exist!" });
     } else {
+      const checkIfIdGenerated = await DB.tbl_generate_id_card.findOne({
+        where: { user_id: id },
+      });
+
+      if (checkIfIdGenerated) {
+        return res.status(409).send({
+          success: false,
+          message: "ID Card Already Exist!",
+        });
+      }
+
       const query = `
-          SELECT U.*
+          SELECT U.*, B.name as branch_name, D.name as designation_name
           FROM USER_MASTER AS U
           LEFT JOIN BRANCH_MASTER AS B ON B.id=U.branch_id
           LEFT JOIN DESIGNATION_MASTER AS D ON D.id=U.designation_id
-          WHERE U.id=${data?.user_id} AND U.isDeleted=false`;
+          WHERE U.id=${id} AND U.isDeleted=false`;
 
       const getAllData = await DB.sequelize.query(query, {
         type: DB.sequelize.QueryTypes.SELECT,
       });
 
-      if (getAllData.length < 1) {
-        return res.status(404).send({
-          success: false,
-          message: "No Such User Found!",
-        });
-      }
-
       const newData = await DB.tbl_generate_id_card.create({
+        user_id: id,
+        image: getAllData[0]?.userImage,
+        emp_id: getAllData[0]?.emp_code,
         name: `${getAllData[0]?.title} ${getAllData[0]?.name}`,
-        user_id: getAllData[0]?.id,
+        designation: getAllData[0]?.designation_name,
+        branch: getAllData[0]?.branch_name,
+        contact_no: `${getAllData[0]?.contact_code}-${getAllData[0]?.contact_no}`,
+        dob: getAllData[0]?.dob,
+        email: getAllData[0]?.official_email,
+        join_date: getAllData[0]?.start_working_date,
+        address: getAllData[0]?.permanent_address,
       });
+
+      await DB.tbl_user_master.update(
+        { isIDgenerated: true, card_id: newData?.id },
+        { where: { id } }
+      );
+
       return res.status(201).send({
         success: true,
         message: "ID Card Generated Successfully!",
@@ -54,47 +73,60 @@ module.exports.createIdCard = async (req, res) => {
 // ========== UPDATE ID CARD CONTROLLER ========== //
 module.exports.updateIdCard = async (req, res) => {
   try {
-    const data = req.body;
     const { id } = req.params;
 
     // Check if Data already exist
-    const isDataExist = await DB.tbl_generate_id_card.findOne({
+    const isUserExist = await DB.tbl_user_master.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isDataExist) {
+    if (!isUserExist) {
       return res
-        .status(400)
-        .send({ success: false, message: "No Such ID Card Found!" });
+        .status(404)
+        .send({ success: false, message: "User Not Exist!" });
     } else {
+      const checkIfIdExist = await DB.tbl_generate_id_card.findOne({
+        where: { user_id: id },
+      });
+
+      if (!checkIfIdExist) {
+        return res.status(404).send({
+          success: false,
+          message: "ID Card Not Exist!",
+        });
+      }
+
       const query = `
-          SELECT U.*
+          SELECT U.*, B.name as branch_name, D.name as designation_name
           FROM USER_MASTER AS U
           LEFT JOIN BRANCH_MASTER AS B ON B.id=U.branch_id
           LEFT JOIN DESIGNATION_MASTER AS D ON D.id=U.designation_id
-          WHERE U.id=${data?.user_id} AND U.isDeleted=false`;
+          WHERE U.id=${id} AND U.isDeleted=false`;
 
       const getAllData = await DB.sequelize.query(query, {
         type: DB.sequelize.QueryTypes.SELECT,
       });
 
-      if (getAllData.length < 1) {
-        return res.status(404).send({
-          success: false,
-          message: "No Such User Found!",
-        });
-      }
-
-      const updateData = await isDataExist.update(
+      await DB.tbl_generate_id_card.update(
         {
+          user_id: id,
+          image: getAllData[0]?.userImage,
+          emp_id: getAllData[0]?.emp_code,
           name: `${getAllData[0]?.title} ${getAllData[0]?.name}`,
-          user_id: getAllData[0]?.id,
+          designation: getAllData[0]?.designation_name,
+          branch: getAllData[0]?.branch_name,
+          contact_no: `${getAllData[0]?.contact_code}-${getAllData[0]?.contact_no}`,
+          dob: getAllData[0]?.dob,
+          email: getAllData[0]?.official_email,
+          join_date: getAllData[0]?.start_working_date,
+          address: getAllData[0]?.permanent_address,
         },
-        { where: { id: isDataExist?.id } }
+        { where: { id: checkIfIdExist?.id, user_id: id } }
       );
+
       return res.status(201).send({
         success: true,
         message: "ID Card Updated Successfully!",
@@ -111,10 +143,10 @@ module.exports.getIdCardDetails = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-    SELECT G.*, U.*
-    FROM GENERATE_ID_CARD AS G
-    LEFT JOIN USER_MASTER AS U ON U.id=G.user_id
-    WHERE G.id=${id} AND G.isDeleted=false`;
+    SELECT
+        G.*
+       FROM GENERATE_ID_CARD AS G
+       WHERE G.id=${id} AND G.isDeleted = false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -129,53 +161,6 @@ module.exports.getIdCardDetails = async (req, res) => {
         success: true,
         message: "Get ID Card Details Successfully!",
         data: getAllData,
-      });
-    }
-  } catch (error) {
-    res.status(500).send({ success: false, message: error.message });
-  }
-};
-
-// ========== GET ALL ID CARD DETAILS CONTROLLER ========== //
-module.exports.getAllIdCardDetails = async (req, res) => {
-  try {
-    const limit = parseInt(req.body.limit) || 10;
-    const page = parseInt(req.body.page) || 1;
-    const offset = (page - 1) * limit;
-    const filter = req.body.filter || null;
-
-    const whereClause = { isDeleted: false };
-
-    const totalRecords = await DB.tbl_generate_id_card.count({ whereClause });
-    const totalPages = Math.ceil(totalRecords / limit);
-
-    const getAllData = await DB.tbl_generate_id_card.findAll({
-      include: [
-        {
-          model: DB.tbl_user_master,
-        },
-      ],
-      where: whereClause,
-      limit: limit,
-      offset: offset,
-      order: [["createdAt", "DESC"]],
-    });
-
-    if (!getAllData || getAllData.length === 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: "No ID Cards Found!" });
-    } else {
-      return res.status(200).send({
-        success: true,
-        message: "Get All ID Cards List!",
-        data: getAllData,
-        pagination: {
-          currentPage: page,
-          itemsPerPage: limit,
-          totalItems: getAllData.length,
-          totalPages: totalPages,
-        },
       });
     }
   } catch (error) {
@@ -229,12 +214,15 @@ module.exports.deleteIdCard = async (req, res) => {
 
     if (!isDataExist) {
       return res
-        .status(400)
-        .send({ success: false, message: "No Such ID Card Found!" });
+        .status(404)
+        .send({ success: false, message: "ID Card Not Found!" });
     } else {
-      await isDataExist.update({
-        isDeleted: true,
-      });
+      await DB.tbl_generate_id_card.destroy({ where: { id } });
+
+      await DB.tbl_user_master.update(
+        { isIDgenerated: false, card_id: null },
+        { where: { card_id: id } }
+      );
       return res.status(200).send({
         success: true,
         message: "ID Card Removed Successfully!",
