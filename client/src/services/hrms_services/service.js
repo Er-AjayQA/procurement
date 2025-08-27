@@ -147,3 +147,82 @@ export const approvalForTransfer = async (id, formData) => {
   );
   return response.data;
 };
+
+// **************************** EMPLOYEE ID CARD MANAGEMENT **************************** //
+// Create ID Card
+export const createIdCard = async (formData) => {
+  const response = await axiosInstance.post(
+    "create-employee-id-card",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Update ID Card
+export const updateIdCard = async (id, formData) => {
+  const response = await axiosInstance.put(
+    `update-employee-id-card/${id}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Update Status
+export const updateIdCardStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-employee-id-card-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get ID Card by ID
+export const getIdCardById = async (id) => {
+  const response = await axiosInstance.post(
+    `get-employee-id-card-details/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All ID Card List
+export const getAllIdCard = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-employee-id-card-details",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete ID Card
+export const deleteIdCard = async (id) => {
+  const response = await axiosInstance.put(`delete-employee-id-card/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

@@ -420,6 +420,14 @@ db.tbl_user_master.belongsTo(db.tbl_area_master, {
   foreignKey: "area_id",
 });
 
+// Relation B/W ID Card and User Tables
+db.tbl_generate_id_card.hasMany(db.tbl_user_master, {
+  foreignKey: "card_id",
+});
+db.tbl_user_master.belongsTo(db.tbl_generate_id_card, {
+  foreignKey: "card_id",
+});
+
 // Relation B/W Allowance Master and User Allowance Master Tables
 db.tbl_allowance_master.hasMany(db.tbl_userAllowance_master, {
   foreignKey: "allowance_id",

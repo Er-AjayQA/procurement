@@ -406,6 +406,10 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue("notice_period_days", value === "" ? null : value);
         },
       },
+      isIDgenerated: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

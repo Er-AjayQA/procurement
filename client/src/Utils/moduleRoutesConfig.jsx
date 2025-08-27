@@ -2,6 +2,7 @@ import { AttendanceCalendarPage } from "../pages/EmployeeSelfService/attendanceC
 import { EmployeeDetailPage } from "../pages/EmployeeSelfService/employeeDetails";
 import { MainEmployeePage } from "../pages/Hrms/EmployeeManagement";
 import { MainEmployeeTransferPage } from "../pages/Hrms/EmployeeTransfer";
+import { MainEmployeeIdCardPage } from "../pages/Hrms/IdCardManagement";
 import { CourseAssessmentReportPage } from "../pages/LearningManagement/CourseAssessmentReport";
 import { CoursesPage } from "../pages/LearningManagement/courses";
 import { MasterAllowancePage } from "../pages/Masters/allowanceMaster";
@@ -32,6 +33,7 @@ export const moduleComponents = {
   hrms: {
     "employee-management": MainEmployeePage,
     "employee-transfer": MainEmployeeTransferPage,
+    "employee-id-card-management": MainEmployeeIdCardPage,
   },
   "employee-self-service": {
     "employee-details": EmployeeDetailPage,
