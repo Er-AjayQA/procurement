@@ -150,16 +150,12 @@ export const approvalForTransfer = async (id, formData) => {
 
 // **************************** EMPLOYEE ID CARD MANAGEMENT **************************** //
 // Create ID Card
-export const createIdCard = async (formData) => {
-  const response = await axiosInstance.post(
-    "create-employee-id-card",
-    formData,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+export const createIdCard = async (id) => {
+  const response = await axiosInstance.post(`create-employee-id-card/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
 

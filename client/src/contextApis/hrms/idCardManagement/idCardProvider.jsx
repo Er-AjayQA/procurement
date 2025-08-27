@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { EmployeeIdCardContext } from "./idCardContext";
 import {
+  createIdCard,
   deleteIdCard,
   getIdCardById,
 } from "../../../services/hrms_services/service";
@@ -11,6 +12,7 @@ export const EmployeeIdCardProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [viewVisibility, setViewVisibility] = useState(false);
   const [data, setData] = useState(null);
+  const [generateId, setGenerateId] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState({ name: "" });
@@ -48,9 +50,28 @@ export const EmployeeIdCardProvider = ({ children }) => {
         setData(response.data[0]);
       } else {
         toast.error(response.message);
+        setData(null);
       }
     } catch (error) {
       setData(null);
+    }
+  };
+
+  // Generate ID Card
+  const generateEmployeeIdCard = async (id) => {
+    try {
+      const response = await createIdCard(id);
+
+      if (response.success) {
+        toast.success(response.message);
+        getAllData();
+        setGenerateId(null);
+      } else {
+        toast.error(response.message);
+        setGenerateId(null);
+      }
+    } catch (error) {
+      setGenerateId(null);
     }
   };
 
@@ -118,6 +139,13 @@ export const EmployeeIdCardProvider = ({ children }) => {
     }
   }, [deleteId]);
 
+  // Generating ID Card when having generate ID
+  useEffect(() => {
+    if (generateId) {
+      generateEmployeeIdCard(generateId);
+    }
+  }, [generateId]);
+
   const styledComponent = {
     control: (base) => ({
       ...base,
@@ -175,6 +203,7 @@ export const EmployeeIdCardProvider = ({ children }) => {
     setDeleteId,
     setPage,
     setViewId,
+    setGenerateId,
     handleViewVisibility,
   };
 
