@@ -17,6 +17,7 @@ export const EmployeeIdCardListing = () => {
     totalPages,
     setPage,
     setViewId,
+    setGenerateId,
     handleViewVisibility,
   } = useEmployeeIdCardContext();
 
@@ -80,7 +81,7 @@ export const EmployeeIdCardListing = () => {
                           className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                           onClick={() => {
                             handleViewVisibility("open");
-                            setViewId(list.id);
+                            setViewId(list?.id);
                           }}
                         >
                           <FaEye className="hover:fill-white" />
@@ -95,8 +96,7 @@ export const EmployeeIdCardListing = () => {
                         <div
                           className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                           onClick={() => {
-                            handleFormVisibility("open", "update");
-                            setUpdateId(list.id);
+                            setGenerateId(list?.id);
                           }}
                         >
                           <RiAiGenerate className="hover:fill-white" />
@@ -106,7 +106,7 @@ export const EmployeeIdCardListing = () => {
                       {list?.isIDgenerated ? (
                         <div
                           className="p-1 hover:bg-red-600 rounded-lg cursor-pointer"
-                          onClick={() => setDeleteId(list.id)}
+                          onClick={() => setDeleteId(list?.id)}
                         >
                           <MdDelete className="hover:fill-white" />
                         </div>

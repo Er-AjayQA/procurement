@@ -52,6 +52,7 @@ module.exports.createIdCard = async (req, res) => {
         dob: getAllData[0]?.dob,
         email: getAllData[0]?.official_email,
         join_date: getAllData[0]?.start_working_date,
+        blood_group: getAllData[0]?.blood_group,
         address: getAllData[0]?.permanent_address,
       });
 
@@ -146,7 +147,7 @@ module.exports.getIdCardDetails = async (req, res) => {
     SELECT
         G.*
        FROM GENERATE_ID_CARD AS G
-       WHERE G.id=${id} AND G.isDeleted = false`;
+       WHERE G.user_id=${id} AND G.isDeleted = false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -207,7 +208,7 @@ module.exports.deleteIdCard = async (req, res) => {
     // Check if Data already exist
     const isDataExist = await DB.tbl_generate_id_card.findOne({
       where: {
-        id,
+        user_id: id,
         isDeleted: false,
       },
     });
@@ -217,11 +218,11 @@ module.exports.deleteIdCard = async (req, res) => {
         .status(404)
         .send({ success: false, message: "ID Card Not Found!" });
     } else {
-      await DB.tbl_generate_id_card.destroy({ where: { id } });
+      await DB.tbl_generate_id_card.destroy({ where: { id: isDataExist?.id } });
 
       await DB.tbl_user_master.update(
         { isIDgenerated: false, card_id: null },
-        { where: { card_id: id } }
+        { where: { id } }
       );
       return res.status(200).send({
         success: true,

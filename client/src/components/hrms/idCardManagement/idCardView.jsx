@@ -3,6 +3,8 @@ import { useEmployeeIdCardContext } from "../../../contextApis/useHrmsContextFil
 export const EmployeeIdCardView = ({ onClose }) => {
   const { viewVisibility, data } = useEmployeeIdCardContext();
 
+  console.log(data);
+
   return (
     <>
       <div className="shadow-lg rounded-md border border-gray-300  flex flex-col">
@@ -15,9 +17,9 @@ export const EmployeeIdCardView = ({ onClose }) => {
         {/* List Form */}
         <div className="p-3 h-[100vh] grid grid-cols-12 gap-5">
           {/* Front */}
-          <div className="col-span-6 shadow-md p-5 pt-0 w-[70%] mx-auto border border-gray-400 rounded-md flex flex-col gap-10">
+          <div className="col-span-6 shadow-md w-[70%] mx-auto border border-gray-400 rounded-md flex flex-col gap-10">
             {/* User Basic Info */}
-            <div className="h-[300px] w-[90%] mx-auto bg-black rounded-b-[10%] flex flex-col gap-3 py-5">
+            <div className="h-[300px] w-[90%] mx-auto bg-black rounded-b-[50px] flex flex-col gap-3 py-5 px-5">
               {/* Company Name */}
               <div className="flex justify-center items-center">
                 <p className="text-white">Company Name</p>
@@ -26,163 +28,137 @@ export const EmployeeIdCardView = ({ onClose }) => {
               {/* Image */}
               <div className="w-[150px] h-[150px] overflow-hidden rounded-[50%] p-2 bg-white mx-auto flex items-center justify-center">
                 <div className="w-[130px] h-[130px] overflow-hidden rounded-[50%]">
-                  <img src="/Images/dummy_userProfile.png" alt="user-image" />
+                  <img
+                    src={`${
+                      data?.userImage
+                        ? data?.userImage
+                        : "/Images/dummy_userProfile.png"
+                    }`}
+                    alt="user-image"
+                  />
                 </div>
               </div>
 
               {/* Employee Name */}
               <div>
-                <p className="text-center text-white">Employee Name</p>
+                <p className="text-center text-xl font-bold text-white">
+                  {data?.name}
+                </p>
               </div>
 
               {/* Employee Designation */}
               <div>
-                <p className="text-center text-white">Employee Designation</p>
+                <p className="text-center text-xs text-white">
+                  {data?.designation.toUpperCase()}
+                </p>
               </div>
             </div>
 
             {/* User Profile Information */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 px-5">
               <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>ID Number</p>
+                <div className="col-span-4 text-left ps-5">
+                  <p className="text-sm font-bold">Emp Code</p>
                 </div>
                 <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>129378</p>
+                <div className="col-span-7">
+                  <p className="text-xs">{data?.emp_id}</p>
                 </div>
               </div>
               <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>D.O.B</p>
+                <div className="col-span-4 text-left ps-5">
+                  <p className="text-sm font-bold">D.O.B</p>
                 </div>
                 <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>26-Aug-1993</p>
+                <div className="col-span-7">
+                  <p className="text-xs">{data?.dob}</p>
                 </div>
               </div>
               <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>Blood Group</p>
+                <div className="col-span-4 text-left ps-5">
+                  <p className="text-sm font-bold">Blood Gp.</p>
                 </div>
                 <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>O +ve</p>
+                <div className="col-span-7">
+                  <p className="text-xs">{data?.blood_group}</p>
                 </div>
               </div>
               <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>Mobile No.</p>
+                <div className="col-span-4 text-left ps-5">
+                  <p className="text-sm font-bold">Mobile No.</p>
                 </div>
                 <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>+91-8957489367</p>
+                <div className="col-span-7">
+                  <p className="text-xs">{data?.contact_no}</p>
                 </div>
               </div>
               <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>Email</p>
+                <div className="col-span-4 text-left ps-5">
+                  <p className="text-sm font-bold">Email</p>
                 </div>
                 <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>dummy@gmail.com</p>
+                <div className="col-span-7">
+                  <p className="text-xs">{data?.email}</p>
                 </div>
               </div>
               <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>Address</p>
+                <div className="col-span-4 text-left ps-5">
+                  <p className="text-sm font-bold">Address</p>
                 </div>
                 <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>C-12, Janakpuri, New Delhi, 110059</p>
+                <div className="col-span-7">
+                  <p className="text-xs">{data?.address}</p>
                 </div>
               </div>
             </div>
 
             {/* OR/Bar Code */}
+
+            {/* Border Bottom */}
+            <div className="w-full h-[30px] mt-auto bg-rose-300"></div>
           </div>
 
           {/* Back */}
-          <div className="col-span-6 shadow-md p-5 pt-0 w-[70%] mx-auto border border-gray-400 rounded-md flex flex-col gap-10">
-            {/* User Basic Info */}
-            <div className="h-[300px] w-[90%] mx-auto bg-black rounded-b-[10%] flex flex-col gap-3 py-5">
+          <div className="col-span-6 shadow-md w-[70%] mx-auto border border-gray-400 rounded-md flex flex-col gap-10">
+            {/* Header */}
+            <div className="h-[150px] w-[90%] mx-auto bg-rose-300 rounded-b-[50px] flex flex-col gap-3 py-5">
               {/* Company Name */}
               <div className="flex justify-center items-center">
-                <p className="text-white">Company Name</p>
+                <p className="text-white text-2xl font-bold">Company Name</p>
               </div>
 
-              {/* Image */}
-              <div className="w-[150px] h-[150px] overflow-hidden rounded-[50%] p-2 bg-white mx-auto flex items-center justify-center">
-                <div className="w-[130px] h-[130px] overflow-hidden rounded-[50%]">
-                  <img src="/Images/dummy_userProfile.png" alt="user-image" />
+              {/* Emp Code */}
+              <div className="flex items-center justify-center gap-5 w-[70%] mx-auto py-2 px-1 bg-yellow-700 rounded-[50px]">
+                <div className=" text-left">
+                  <p className="text-sm text-white font-bold">Emp Code</p>
                 </div>
-              </div>
-
-              {/* Employee Name */}
-              <div>
-                <p className="text-center text-white">Employee Name</p>
-              </div>
-
-              {/* Employee Designation */}
-              <div>
-                <p className="text-center text-white">Employee Designation</p>
+                <div className="text-white">:</div>
+                <div className="">
+                  <p className="text-xs text-white">{data?.emp_id}</p>
+                </div>
               </div>
             </div>
 
             {/* User Profile Information */}
-            <div className="flex flex-col gap-2">
-              <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>ID Number</p>
+            <div className="flex flex-col justify-center gap-2 px-5">
+              <div className="grid grid-cols-12 gap-5 w-[80%] mx-auto">
+                <div className="col-span-5 ps-5 text-left">
+                  <p className="text-sm font-bold">Join Date</p>
                 </div>
                 <div className="col-span-1">:</div>
                 <div className="col-span-6">
-                  <p>129378</p>
+                  <p className="text-xs">
+                    {data?.join_date.replaceAll("-", "/")}
+                  </p>
                 </div>
               </div>
-              <div className="grid grid-cols-12 gap-5">
+              <div className="grid grid-cols-12 gap-5 w-[80%] mx-auto">
                 <div className="col-span-5 text-left ps-5">
-                  <p>D.O.B</p>
+                  <p className="text-sm font-bold">Expire Date</p>
                 </div>
                 <div className="col-span-1">:</div>
                 <div className="col-span-6">
-                  <p>26-Aug-1993</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>Blood Group</p>
-                </div>
-                <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>O +ve</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>Mobile No.</p>
-                </div>
-                <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>+91-8957489367</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>Email</p>
-                </div>
-                <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>dummy@gmail.com</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-5 text-left ps-5">
-                  <p>Address</p>
-                </div>
-                <div className="col-span-1">:</div>
-                <div className="col-span-6">
-                  <p>C-12, Janakpuri, New Delhi, 110059</p>
+                  <p className="text-xs">{data?.dob.replaceAll("-", "/")}</p>
                 </div>
               </div>
             </div>
