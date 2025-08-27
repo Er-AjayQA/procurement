@@ -333,6 +333,13 @@ db.tbl_employee_transfer_approval =
     Sequelize
   );
 
+// Generate ID Card Table
+db.tbl_generate_id_card =
+  require("../API/hrms/generateIdCard/model/generateIdCard.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
@@ -1063,5 +1070,14 @@ db.tbl_user_master.hasMany(db.tbl_employee_transfer_approval, {
 db.tbl_employee_transfer_approval.belongsTo(db.tbl_user_master, {
   foreignKey: "approver_id",
 });
+
+// Relation B/W User Master and Employee ID Table
+db.tbl_user_master.hasMany(db.tbl_generate_id_card, {
+  foreignKey: "user_id",
+});
+db.tbl_generate_id_card.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
+});
+
 // ========== EXPORTS ========== //
 module.exports = db;

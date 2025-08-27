@@ -29,7 +29,7 @@ module.exports.createTransfer = async (req, res) => {
           data.approvers_list.map((approver, index) => ({
             transfer_id: newData?.id,
             approval_level: `${index + 1}`,
-            approver_id: approver,
+            approver_id: approver?.value,
             approver_status: "PENDING",
           }))
         );
@@ -348,7 +348,12 @@ module.exports.deleteTransfer = async (req, res) => {
         .send({ success: false, message: "Transfer details not found!" });
     } else {
       await isDataExist.update({
+        approval_status: "REJECTED",
         isDeleted: true,
+      });
+
+      await DB.tbl_employee_transfer_approval.destroy({
+        where: { transfer_id: isDataExist?.id },
       });
       return res.status(200).send({
         success: true,

@@ -24,6 +24,8 @@ export const EmployeeTransferListing = ({ componentType }) => {
     setViewId,
     setUpdateId,
     setDeleteId,
+    userOptions,
+    branchOptions,
     styledComponent,
     handleLimitChange,
     handleChangeFilter,
@@ -31,7 +33,8 @@ export const EmployeeTransferListing = ({ componentType }) => {
     handleTabClick,
     tabList,
   } = useEmployeeTransferContext();
-  const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
   const [showApproverPopup, setShowApproverPopup] = useState(false);
 
@@ -65,25 +68,34 @@ export const EmployeeTransferListing = ({ componentType }) => {
           </div>
           {/* Sorting Element End */}
           <div className="flex items-center gap-5">
-            <input
-              type="search"
-              name="name"
-              value={filter.name}
-              placeholder="Search here.."
-              className="py-1 px-2 rounded-md text-sm border-borders-light"
-              onChange={(e) => handleChangeFilter("input", e)}
-            />
             <Select
-              value={selectedRole}
+              value={selectedBranch}
               onChange={(selectedOption) => {
-                setSelectedRole(selectedOption);
+                setSelectedBranch(selectedOption);
                 handleChangeFilter("dropdown", {
-                  field: "role_id",
+                  field: "from_branch_id",
                   value: selectedOption ? selectedOption.value : "",
                 });
               }}
-              options={rolesList}
-              placeholder="Search by role..."
+              options={branchOptions}
+              placeholder="Search by from branch..."
+              isClearable
+              isSearchable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={styledComponent}
+            />
+            <Select
+              value={selectedUser}
+              onChange={(selectedOption) => {
+                setSelectedUser(selectedOption);
+                handleChangeFilter("dropdown", {
+                  field: "requested_for_user_id",
+                  value: selectedOption ? selectedOption.value : "",
+                });
+              }}
+              options={userOptions}
+              placeholder="Search by user..."
               isClearable
               isSearchable
               className="react-select-container"
@@ -237,7 +249,15 @@ export const EmployeeTransferListing = ({ componentType }) => {
                       )}
 
                       {currentTab === "my_requests" && allApproverApproved ? (
-                        <DeleteIcon onClick={() => setDeleteId(list?.id)} />
+                        <DeleteIcon
+                          onClick={() => {
+                            setDeleteId(list?.id);
+                            handleTabClick({
+                              name: "My Requests",
+                              value: "my_requests",
+                            });
+                          }}
+                        />
                       ) : (
                         ""
                       )}
