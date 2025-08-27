@@ -9,9 +9,7 @@ import { getAllEmployeeDetails } from "../../../services/employeeDetails_service
 
 export const EmployeeIdCardProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
-  const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
-  const [formType, setFormType] = useState("Add");
   const [data, setData] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
@@ -68,22 +66,6 @@ export const EmployeeIdCardProvider = ({ children }) => {
       }
     } catch (error) {
       setDeleteId(null);
-    }
-  };
-
-  // Handle Form Visibility
-  const handleFormVisibility = (visibility, formType) => {
-    if (visibility === "open") {
-      if (formType === "add") {
-        setFormType("Add");
-        setData(null);
-      } else if (formType === "update") {
-        setFormType("Update");
-      }
-      setFormVisibility(true);
-    } else if (visibility === "close") {
-      setFormVisibility(false);
-      setData(null);
     }
   };
 
@@ -176,8 +158,6 @@ export const EmployeeIdCardProvider = ({ children }) => {
 
   const contextValue = {
     listing,
-    formVisibility,
-    formType,
     data,
     deleteId,
     filter,
@@ -190,7 +170,6 @@ export const EmployeeIdCardProvider = ({ children }) => {
     getAllData,
     getDataById,
     deleteData,
-    handleFormVisibility,
     handleLimitChange,
     handleChangeFilter,
     setDeleteId,
