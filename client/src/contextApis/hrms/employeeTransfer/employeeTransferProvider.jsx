@@ -261,6 +261,7 @@ export const EmployeeTransferProvider = ({ children }) => {
 
       if (response.success) {
         toast.success(response.message);
+        setDeleteId(null);
       } else {
         toast.error(response.message);
       }
@@ -509,7 +510,15 @@ export const EmployeeTransferProvider = ({ children }) => {
     } else if (currentTab === "rejected_by_me") {
       getAllRequestsRejectedByMeData(userDetails?.id);
     }
-  }, [limit, page, filter, refreshTrigger, currentTab, userDetails?.id]);
+  }, [
+    limit,
+    page,
+    filter,
+    refreshTrigger,
+    currentTab,
+    userDetails?.id,
+    deleteId,
+  ]);
 
   useEffect(() => {
     getAllRolesOptions();

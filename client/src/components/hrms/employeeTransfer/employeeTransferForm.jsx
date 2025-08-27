@@ -205,6 +205,8 @@ export const EmployeeTransferForm = () => {
         approvers_list: formData?.approvers_list,
       };
 
+      console.log("Approvers List...", formData?.approvers_list);
+
       if (updateId) {
         response = await updateTransfer(updateId, payload);
       } else {
@@ -240,7 +242,12 @@ export const EmployeeTransferForm = () => {
   return (
     <>
       <div className="flex flex-col">
-        <div className="flex justify-end items-center py-3  border-b border-gray-400">
+        <div className="flex justify-between items-center py-3  border-b border-gray-400">
+          <div>
+            <p className="text-sm font-bold">
+              {updateId ? "Update" : "Create"} Transfer Request
+            </p>
+          </div>
           <button
             className="py-2 px-4 bg-red-600 rounded-md text-white text-sm hover:bg-red-700 transition-all duration=[.3s]"
             onClick={handleCancel}
