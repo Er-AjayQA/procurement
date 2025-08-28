@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_ticket_category_master
+// db.tbl_ticket_management
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -57,6 +57,7 @@ const transferReasonRoute = require("./API/configurationMasters/transferReason_m
 const transferRoute = require("./API/hrms/employeeTransfer/router/transfer.router");
 const idCardRoute = require("./API/hrms/generateIdCard/router/generateIdCard.router");
 const ticketCategoryRoute = require("./API/configurationMasters/ticket_category_master/router/ticket_category.router");
+const ticketRoute = require("./API/ticketManagement/router/ticket.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -99,6 +100,7 @@ app.use("/api/v1/procurement", transferReasonRoute);
 app.use("/api/v1/procurement", transferRoute);
 app.use("/api/v1/procurement", idCardRoute);
 app.use("/api/v1/procurement", ticketCategoryRoute);
+app.use("/api/v1/procurement", ticketRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {
