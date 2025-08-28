@@ -25,35 +25,59 @@ module.exports = (sequelize, Sequelize) => {
       },
       designation: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("designation", value === "" ? null : value);
+        },
       },
       branch: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("branch", value === "" ? null : value);
+        },
       },
       contact_no: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("contact_no", value === "" ? null : value);
+        },
       },
       dob: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("dob", value === "" ? null : value);
+        },
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("email", value === "" ? null : value);
+        },
       },
       join_date: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("join_date", value === "" ? null : value);
+        },
       },
       blood_group: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("blood_group", value === "" ? null : value);
+        },
       },
       address: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("address", value === "" ? null : value);
+        },
       },
       signature: {
         type: Sequelize.STRING,
