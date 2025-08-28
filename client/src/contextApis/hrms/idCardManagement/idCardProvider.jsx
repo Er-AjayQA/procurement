@@ -6,12 +6,16 @@ import {
   deleteIdCard,
   getIdCardById,
 } from "../../../services/hrms_services/service";
-import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
+import {
+  getAllEmployeeDetails,
+  getEmployeeDetails,
+} from "../../../services/employeeDetails_services/services";
 
 export const EmployeeIdCardProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
   const [viewVisibility, setViewVisibility] = useState(false);
   const [data, setData] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [generateId, setGenerateId] = useState(null);
   const [viewId, setViewId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
@@ -54,6 +58,21 @@ export const EmployeeIdCardProvider = ({ children }) => {
       }
     } catch (error) {
       setData(null);
+    }
+  };
+
+  // Get User Data By Id
+  const getUserDataById = async (id) => {
+    try {
+      const response = await getEmployeeDetails(id);
+      if (response.data.success) {
+        setUserData(response.data.data[0]);
+      } else {
+        toast.error(response.data.message);
+        setUserData(null);
+      }
+    } catch (error) {
+      setUserData(null);
     }
   };
 
@@ -129,6 +148,7 @@ export const EmployeeIdCardProvider = ({ children }) => {
     if (viewId) {
       let id = viewId;
       getDataById(id);
+      getUserDataById(id);
     }
   }, [viewId]);
 
@@ -195,6 +215,7 @@ export const EmployeeIdCardProvider = ({ children }) => {
     isLoading,
     styledComponent,
     viewVisibility,
+    userData,
     getAllData,
     getDataById,
     deleteData,

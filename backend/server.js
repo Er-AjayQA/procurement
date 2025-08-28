@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_user_master
+// db.tbl_generate_id_card
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
