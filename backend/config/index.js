@@ -340,6 +340,13 @@ db.tbl_generate_id_card =
     Sequelize
   );
 
+// Ticket Category Table
+db.tbl_ticket_category_master =
+  require("../API/configurationMasters/ticket_category_master/model/ticket_category.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(

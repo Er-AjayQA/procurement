@@ -1,7 +1,6 @@
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
-import { MdOutlineClose, MdDelete } from "react-icons/md";
-import { IoMdAdd } from "react-icons/io";
+import { MdOutlineClose } from "react-icons/md";
 import {
   createService,
   getAllServiceCategory,
