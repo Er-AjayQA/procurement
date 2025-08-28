@@ -5,6 +5,7 @@ import {
   createIdCard,
   deleteIdCard,
   getIdCardById,
+  updateIdCard,
 } from "../../../services/hrms_services/service";
 import {
   getAllEmployeeDetails,
@@ -18,6 +19,7 @@ export const EmployeeIdCardProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [generateId, setGenerateId] = useState(null);
   const [viewId, setViewId] = useState(null);
+  const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState({ name: "" });
   const [limit, setLimit] = useState(10);
@@ -109,6 +111,22 @@ export const EmployeeIdCardProvider = ({ children }) => {
     }
   };
 
+  // Update ID Card
+  const updateEmployeeIdCard = async (id) => {
+    try {
+      const response = await updateIdCard(id);
+      if (response.success) {
+        toast(response.message);
+        getAllData();
+        setUpdateId(null);
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      setUpdateId(null);
+    }
+  };
+
   // Handle View Visibility
   const handleViewVisibility = (type) => {
     if (type === "open") {
@@ -142,6 +160,14 @@ export const EmployeeIdCardProvider = ({ children }) => {
   useEffect(() => {
     getAllData();
   }, [limit, page, filter]);
+
+  // For View operations
+  useEffect(() => {
+    if (updateId) {
+      let id = updateId;
+      updateEmployeeIdCard(id);
+    }
+  }, [updateId]);
 
   // For View operations
   useEffect(() => {
@@ -224,6 +250,7 @@ export const EmployeeIdCardProvider = ({ children }) => {
     setDeleteId,
     setPage,
     setViewId,
+    setUpdateId,
     setGenerateId,
     handleViewVisibility,
   };

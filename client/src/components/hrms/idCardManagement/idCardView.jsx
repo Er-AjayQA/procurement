@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from "react";
 export const EmployeeIdCardView = ({ onClose }) => {
   const { viewVisibility, userData, handleViewVisibility, data } =
     useEmployeeIdCardContext();
-  const [employeeData, setEmployeeData] = useState({});
+  const [qrStringData, setQrStringData] = useState({});
+  const [emergencyContact, setEmergencyContact] = useState(null);
 
   const printRef = useRef();
 
@@ -30,10 +31,25 @@ export const EmployeeIdCardView = ({ onClose }) => {
 
   useEffect(() => {
     if ((data, userData)) {
-      setEmployeeData({
+      const newEmployeeData = {
+        emp_id: userData?.id,
         employee_name: `${userData?.title} ${userData?.name}`,
         employee_code: userData?.emp_code,
-      });
+        contact_number: `${userData?.contact_code}-${userData?.contact_no}`,
+        permanent_address: userData?.permanent_address,
+      };
+
+      setQrStringData(JSON.stringify(newEmployeeData));
+    }
+  }, [userData, data]);
+
+  useEffect(() => {
+    if (userData) {
+      const getEmergencyContact = userData?.family_details?.find((item) =>
+        item?.selected_as_emergency ? item?.contact_number : null
+      );
+
+      setEmergencyContact(getEmergencyContact);
     }
   }, [userData, data]);
 
@@ -153,6 +169,17 @@ export const EmployeeIdCardView = ({ onClose }) => {
                     </div>
                     <div className="grid grid-cols-12 gap-5">
                       <div className="col-span-4 text-left ps-5">
+                        <p className="text-xs font-bold">Emergency Contact</p>
+                      </div>
+                      <div className="col-span-1">:</div>
+                      <div className="col-span-7">
+                        <p className="text-xs">
+                          {userData ? emergencyContact?.contact_number : "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-12 gap-5">
+                      <div className="col-span-4 text-left ps-5">
                         <p className="text-xs font-bold">Email</p>
                       </div>
                       <div className="col-span-1">:</div>
@@ -171,8 +198,6 @@ export const EmployeeIdCardView = ({ onClose }) => {
                     </div>
                   </div>
 
-                  {/* OR/Bar Code */}
-
                   {/* Border Bottom */}
                   <div className="w-full h-[20px] mt-auto bg-rose-300 rounded-b-xl"></div>
                 </div>
@@ -181,20 +206,9 @@ export const EmployeeIdCardView = ({ onClose }) => {
                 <div className="col-span-6 shadow-lg hover:shadow-2xl w-[60%] mx-auto border border-gray-200 rounded-xl flex flex-col gap-3">
                   {/* Points */}
                   <div className="px-5 py-5">
-                    <ol className="flex flex-col gap-1">
-                      <li className="text-xs">
-                        Lorem Ipsum is simply dummy text of the printing and
-                        typesetting industry.
-                      </li>
-                      <li className="text-xs">
-                        Lorem Ipsum is simply dummy text of the printing and
-                        typesetting industry.
-                      </li>
-                      <li className="text-xs">
-                        Lorem Ipsum is simply dummy text of the printing and
-                        typesetting industry.
-                      </li>
-                    </ol>
+                    <p className="font-bold text-2xl text-center">
+                      Company Name
+                    </p>
                   </div>
 
                   {/* User Profile Information */}
@@ -227,7 +241,7 @@ export const EmployeeIdCardView = ({ onClose }) => {
                   <div className="bg-gradient-to-r from-violet-900 to-violet-700 relative mt-5 flex flex-col justify-end py-2">
                     {/* OR Code */}
                     <div className="mx-auto w-[100px] h-[100px] border border-[5px] border-gray-200 translate-y-[-20%] flex justify-center items-center">
-                      <QRCode value={employeeData} size={80} />
+                      <QRCode value={qrStringData} size={80} />
                     </div>
 
                     {/* Office Address */}
@@ -250,7 +264,7 @@ export const EmployeeIdCardView = ({ onClose }) => {
                     <div className="w-[100px] h-[80px] object-contain overflow-hidden border-b border-b-[2px] border-b-black">
                       <img src="/Images/dummy_sig.jpg" alt="hr-signature" />
                     </div>
-                    <p>HR Signature</p>
+                    <p>Authorized By</p>
                   </div>
 
                   {/* Border Bottom */}
