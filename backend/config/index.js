@@ -347,6 +347,20 @@ db.tbl_ticket_category_master =
     Sequelize
   );
 
+// Ticket Management Table
+db.tbl_ticket_management =
+  require("../API//ticketManagement/model/ticketManagement.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Ticket Allocation Table
+db.tbl_ticket_allocation =
+  require("../API//ticketManagement/model/ticketAllocation.model")(
+    sequelize,
+    Sequelize
+  );
+
 // // Purchase Request Table
 // db.tbl_purchase_request =
 //   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
@@ -1092,6 +1106,47 @@ db.tbl_user_master.hasMany(db.tbl_generate_id_card, {
 });
 db.tbl_generate_id_card.belongsTo(db.tbl_user_master, {
   foreignKey: "user_id",
+});
+
+// ========================================== TICKET MANAGEMENT ========================================== //
+// Relation B/W User Master and Ticket Management Tables
+db.tbl_user_master.hasMany(db.tbl_ticket_management, {
+  foreignKey: "created_by_user_id",
+});
+db.tbl_ticket_management.belongsTo(db.tbl_user_master, {
+  foreignKey: "created_by_user_id",
+});
+
+// Relation B/W Department Master and Ticket Management Tables
+db.tbl_department_master.hasMany(db.tbl_ticket_management, {
+  foreignKey: "created_for_dept_id",
+});
+db.tbl_ticket_management.belongsTo(db.tbl_department_master, {
+  foreignKey: "created_for_dept_id",
+});
+
+// Relation B/W Ticket Category Master and Ticket Management Tables
+db.tbl_ticket_category_master.hasMany(db.tbl_ticket_management, {
+  foreignKey: "ticket_category_id",
+});
+db.tbl_ticket_management.belongsTo(db.tbl_ticket_category_master, {
+  foreignKey: "ticket_category_id",
+});
+
+// Relation B/W Ticket Management and Ticket Allocation Tables
+db.tbl_ticket_management.hasMany(db.tbl_ticket_allocation, {
+  foreignKey: "ticket_id",
+});
+db.tbl_ticket_allocation.belongsTo(db.tbl_ticket_management, {
+  foreignKey: "ticket_id",
+});
+
+// Relation B/W User Master and Ticket Allocation Tables
+db.tbl_user_master.hasMany(db.tbl_ticket_allocation, {
+  foreignKey: "allocated_to_user_id",
+});
+db.tbl_ticket_allocation.belongsTo(db.tbl_user_master, {
+  foreignKey: "allocated_to_user_id",
 });
 
 // ========== EXPORTS ========== //
