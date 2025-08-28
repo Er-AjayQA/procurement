@@ -1407,3 +1407,84 @@ export const deleteTransferReason = async (id) => {
   });
   return response.data;
 };
+
+// **************************** TICKET CATEGORY MASTER **************************** //
+// Create Ticket Category Master
+export const createTicketCategory = async (formData) => {
+  const response = await axiosInstance.post(
+    "create-ticket-category",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Update Ticket Category
+export const updateTicketCategory = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-ticket-category/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateTicketCategoryStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-ticket-category-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get Master Ticket Category by ID
+export const getTicketCategoryById = async (id) => {
+  const response = await axiosInstance.post(
+    `get-ticket-category-details/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Master Ticket Category List
+export const getAllTicketCategory = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-ticket-categories",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Ticket Category Master
+export const deleteTicketCategory = async (id) => {
+  const response = await axiosInstance.put(`delete-ticket-category/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

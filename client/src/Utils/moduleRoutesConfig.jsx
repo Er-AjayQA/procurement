@@ -22,6 +22,7 @@ import { MasterServiceCategoryPage } from "../pages/Masters/serviceCategoryMaste
 import { MasterServicePage } from "../pages/Masters/serviceMaster";
 import { MasterShiftPage } from "../pages/Masters/shiftMaster";
 import { MasterStatePage } from "../pages/Masters/stateMaster";
+import { MasterTicketCategoryPage } from "../pages/Masters/ticketCategoryMaster";
 import { MasterTransferReasonPage } from "../pages/Masters/transferReasonMaster";
 import { MasterTransferTypePage } from "../pages/Masters/transferTypeMaster";
 import { MasterUomPage } from "../pages/Masters/uomMaster";
@@ -69,5 +70,6 @@ export const moduleComponents = {
     "course-category-master": MasterCourseCategoryPage,
     "transfer-type-master": MasterTransferTypePage,
     "transfer-reason-master": MasterTransferReasonPage,
+    "ticket-category-master": MasterTicketCategoryPage,
   },
 };
