@@ -53,35 +53,9 @@ export const EmployeeIdCardPage = () => {
                     type="search"
                     name="name"
                     value={filter.name}
-                    placeholder="Search here.."
+                    placeholder="Search employee.."
                     className="py-1 px-2 rounded-md text-sm border-borders-light"
                     onChange={(e) => handleChangeFilter("input", e)}
-                  />
-
-                  <Select
-                    value={filter.value}
-                    onChange={(selectedOption) => {
-                      handleChangeFilter("dropdown", {
-                        field: "is_taxable",
-                        value: selectedOption ? selectedOption.value : "",
-                      });
-                    }}
-                    options={[
-                      {
-                        value: 1,
-                        label: "Taxable",
-                      },
-                      {
-                        value: 0,
-                        label: "Non-Taxable",
-                      },
-                    ]}
-                    placeholder="Tax status..."
-                    isClearable
-                    isSearchable
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    styles={styledComponent}
                   />
                 </div>
               </div>

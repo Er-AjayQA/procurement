@@ -1,5 +1,10 @@
 import { MdDelete } from "react-icons/md";
-import { FaAngleDoubleLeft, FaAngleDoubleRight, FaEye } from "react-icons/fa";
+import {
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
+  FaEye,
+  FaEdit,
+} from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
 import { RiAiGenerate } from "react-icons/ri";
@@ -78,7 +83,7 @@ export const EmployeeIdCardListing = () => {
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
                       {list?.isIDgenerated ? (
                         <div
-                          className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                          className="p-1 hover:bg-blue-600 rounded-lg cursor-pointer"
                           onClick={() => {
                             handleViewVisibility("open");
                             setViewId(list?.id);
@@ -91,7 +96,15 @@ export const EmployeeIdCardListing = () => {
                       )}
 
                       {list?.isIDgenerated ? (
-                        ""
+                        <div
+                          className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
+                          onClick={() => {
+                            setUpdateId(list?.id);
+                          }}
+                          title="Update Id Card"
+                        >
+                          <FaEdit className="hover:fill-white" />
+                        </div>
                       ) : (
                         <div
                           className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"

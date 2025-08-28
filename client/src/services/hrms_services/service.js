@@ -160,16 +160,12 @@ export const createIdCard = async (id) => {
 };
 
 // Update ID Card
-export const updateIdCard = async (id, formData) => {
-  const response = await axiosInstance.put(
-    `update-employee-id-card/${id}`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+export const updateIdCard = async (id) => {
+  const response = await axiosInstance.put(`update-employee-id-card/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
 
