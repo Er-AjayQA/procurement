@@ -84,6 +84,47 @@ module.exports.updateTicket = async (req, res) => {
   }
 };
 
+// ========== ALLOCATE TICKET CONTROLLER ========== //
+module.exports.escalateTicket = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+
+    // Check if Data exist
+    const isAlreadyExist = await DB.tbl_ticket_management.findOne({
+      where: {
+        id,
+        isDeleted: false,
+      },
+    });
+
+    if (!isAlreadyExist) {
+      return res.status(404).send({
+        success: false,
+        message: "Ticket not found!",
+      });
+    } else {
+      const newData = await DB.tbl_ticket_allocation.create({
+        approver_status: "PENDING",
+        allocated_to_user_id: data?.approver_id,
+        ticket_id: id,
+      });
+
+      await DB.tbl_ticket_management.update(
+        { ticket_status: "ESCALATED" },
+        { where: { id } }
+      );
+
+      return res.status(201).send({
+        success: true,
+        message: "Ticket escalated successfully!",
+      });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
 // ========== GET TICKET DETAILS CONTROLLER ========== //
 module.exports.getTicketDetails = async (req, res) => {
   try {
@@ -181,7 +222,6 @@ module.exports.getTicketDetails = async (req, res) => {
 // ========== GET ALL TICKET DETAILS CONTROLLER ========== //
 module.exports.getAllTicketDetails = async (req, res) => {
   try {
-    const { id } = req.params;
     const limit = parseInt(req.body.limit) || 10;
     const page = parseInt(req.body.page) || 1;
     const offset = (page - 1) * limit;
@@ -189,69 +229,43 @@ module.exports.getAllTicketDetails = async (req, res) => {
 
     let countQuery = `
         SELECT COUNT(*) as total 
-        FROM EMPLOYEE_TRANSFER AS ET 
-        WHERE ET.requested_by_user_id =${id} AND ET.isDeleted = false`;
+        FROM TICKET_MANAGEMENT AS TM
+        WHERE TM.isDeleted = false`;
 
     let query = `
       SELECT 
-        ET.*, 
-        FRM.name as from_role, 
-        TRM.name as to_role, 
-        FDM.name as from_department, 
-        TDM.name as to_department,
-        FDEM.name as from_designation, 
-        TDEM.name as to_designation, 
-        FBM.name as from_branch, 
-        TBM.name as to_branch,
-        TT.transfer_type, 
-        TR.reason_type, 
-        UM.id as request_by_user_id,
-        UM.title as request_by_user_title, 
-        UM.name as requested_by_user, 
-        RUM.id as report_to_manager_id,
-        RUM.title as report_to_manager_title,
-        RUM.name as report_to_manager, 
-        RQUM.id as requested_for_user_id,
-        RQUM.title as requested_for_user_title, 
-        RQUM.name as requested_for_user_name,
-        CRUM.id as current_reporting_manager_id,
-        CRUM.title as current_reporting_manager_title,
-        CRUM.name as current_reporting_manager
-    FROM EMPLOYEE_TRANSFER AS ET
-    LEFT JOIN ROLE_MASTER AS FRM ON FRM.id = ET.from_role_id
-    LEFT JOIN ROLE_MASTER AS TRM ON TRM.id = ET.to_role_id
-    LEFT JOIN DEPARTMENT_MASTER AS FDM ON FDM.id = ET.from_dept_id
-    LEFT JOIN DEPARTMENT_MASTER AS TDM ON TDM.id = ET.to_dept_id
-    LEFT JOIN DESIGNATION_MASTER AS FDEM ON FDEM.id = ET.from_desig_id
-    LEFT JOIN DESIGNATION_MASTER AS TDEM ON TDEM.id = ET.to_desig_id
-    LEFT JOIN BRANCH_MASTER AS FBM ON FBM.id = ET.from_branch_id
-    LEFT JOIN BRANCH_MASTER AS TBM ON TBM.id = ET.to_branch_id
-    LEFT JOIN TRANSFER_TYPE_MASTER AS TT ON TT.id = ET.transfer_type_id
-    LEFT JOIN TRANSFER_REASON_MASTER AS TR ON TR.id = ET.transfer_reason_id
-    LEFT JOIN USER_MASTER AS RQUM ON RQUM.id = ET.requested_for_user_id
-    LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
-    LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
-    LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ET.requested_by_user_id=${id} AND ET.isDeleted = false`;
+        TM.*, TCM.*, UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName,
+        DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
+    FROM TICKET_MANAGEMENT AS TM
+    LEFT JOIN USER_MASTER AS UM ON UM.id=TM.created_by_user_id
+    LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
+    LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
+    WHERE TM.isDeleted = false`;
 
-    if (filter.requested_for_user_id) {
-      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+    if (filter.created_by_user_id) {
+      countQuery += ` AND TM.created_by_user_id LIKE :created_by_user_id`;
+      query += ` AND TM.created_by_user_id LIKE :created_by_user_id`;
     }
 
-    if (filter.from_branch_id) {
-      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
-      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
+    if (filter.created_for_dept_id) {
+      countQuery += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
+      query += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
     }
 
-    query += ` ORDER BY ET.createdAt DESC`;
+    if (filter.ticket_category_id) {
+      countQuery += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
+      query += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
+    }
+
+    query += ` ORDER BY TM.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;
 
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
       replacements: {
-        requested_for_user_id: `${filter.requested_for_user_id}`,
-        from_branch_id: `${filter.from_branch_id}`,
+        created_by_user_id: `${filter.created_by_user_id}`,
+        created_for_dept_id: `${filter.created_for_dept_id}`,
+        ticket_category_id: `${filter.ticket_category_id}`,
       },
       type: DB.sequelize.QueryTypes.SELECT,
     });
@@ -260,8 +274,9 @@ module.exports.getAllTicketDetails = async (req, res) => {
 
     let getAllData = await DB.sequelize.query(query, {
       replacements: {
-        requested_for_user_id: `${filter.requested_for_user_id}`,
-        from_branch_id: `${filter.from_branch_id}`,
+        created_by_user_id: `${filter.created_by_user_id}`,
+        created_for_dept_id: `${filter.created_for_dept_id}`,
+        ticket_category_id: `${filter.ticket_category_id}`,
         limit,
         offset,
       },
@@ -271,45 +286,16 @@ module.exports.getAllTicketDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Transfer requests not found!" });
+        .send({ success: false, message: "Tickets not found!" });
     } else {
-      const dataWithWorkflow = await Promise.all(
-        getAllData.map(async (data) => {
-          const transferDetails = { ...data };
-
-          try {
-            const getWorkflowData =
-              await DB.tbl_employee_transfer_approval.findAll({
-                where: { transfer_id: data.id, isDeleted: false },
-                include: [
-                  {
-                    model: DB.tbl_user_master,
-                    attributes: ["id", "title", "name", "emp_code"],
-                  },
-                ],
-              });
-
-            transferDetails.workflow_Details = getWorkflowData;
-          } catch (error) {
-            console.error(
-              `Error fetching workflow for transfer ${data.id}:`,
-              error
-            );
-            transferDetails.workflow_Details = [];
-            transferDetails.workflow_error = error.message;
-          }
-
-          return transferDetails;
-        })
-      );
       return res.status(200).send({
         success: true,
-        message: "Get all transfers list!",
-        data: dataWithWorkflow,
+        message: "Get all tickets list!",
+        data: getAllData,
         pagination: {
           currentPage: page,
           itemsPerPage: limit,
-          totalItems: dataWithWorkflow.length,
+          totalItems: getAllData.length,
           totalPages: totalPages,
         },
       });
@@ -330,69 +316,37 @@ module.exports.getAllTicketsGeneratedByUserDetails = async (req, res) => {
 
     let countQuery = `
         SELECT COUNT(*) as total 
-        FROM EMPLOYEE_TRANSFER AS ET 
-        WHERE ET.requested_by_user_id =${id} AND ET.isDeleted = false`;
+        FROM TICKET_MANAGEMENT AS TM
+        WHERE TM.created_by_user_id =${id} AND TM.isDeleted = false`;
 
     let query = `
       SELECT 
-        ET.*, 
-        FRM.name as from_role, 
-        TRM.name as to_role, 
-        FDM.name as from_department, 
-        TDM.name as to_department,
-        FDEM.name as from_designation, 
-        TDEM.name as to_designation, 
-        FBM.name as from_branch, 
-        TBM.name as to_branch,
-        TT.transfer_type, 
-        TR.reason_type, 
-        UM.id as request_by_user_id,
-        UM.title as request_by_user_title, 
-        UM.name as requested_by_user, 
-        RUM.id as report_to_manager_id,
-        RUM.title as report_to_manager_title,
-        RUM.name as report_to_manager, 
-        RQUM.id as requested_for_user_id,
-        RQUM.title as requested_for_user_title, 
-        RQUM.name as requested_for_user_name,
-        CRUM.id as current_reporting_manager_id,
-        CRUM.title as current_reporting_manager_title,
-        CRUM.name as current_reporting_manager
-    FROM EMPLOYEE_TRANSFER AS ET
-    LEFT JOIN ROLE_MASTER AS FRM ON FRM.id = ET.from_role_id
-    LEFT JOIN ROLE_MASTER AS TRM ON TRM.id = ET.to_role_id
-    LEFT JOIN DEPARTMENT_MASTER AS FDM ON FDM.id = ET.from_dept_id
-    LEFT JOIN DEPARTMENT_MASTER AS TDM ON TDM.id = ET.to_dept_id
-    LEFT JOIN DESIGNATION_MASTER AS FDEM ON FDEM.id = ET.from_desig_id
-    LEFT JOIN DESIGNATION_MASTER AS TDEM ON TDEM.id = ET.to_desig_id
-    LEFT JOIN BRANCH_MASTER AS FBM ON FBM.id = ET.from_branch_id
-    LEFT JOIN BRANCH_MASTER AS TBM ON TBM.id = ET.to_branch_id
-    LEFT JOIN TRANSFER_TYPE_MASTER AS TT ON TT.id = ET.transfer_type_id
-    LEFT JOIN TRANSFER_REASON_MASTER AS TR ON TR.id = ET.transfer_reason_id
-    LEFT JOIN USER_MASTER AS RQUM ON RQUM.id = ET.requested_for_user_id
-    LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
-    LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
-    LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ET.requested_by_user_id=${id} AND ET.isDeleted = false`;
+        TM.*, TCM.*, UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName,
+        DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
+    FROM TICKET_MANAGEMENT AS TM
+    LEFT JOIN USER_MASTER AS UM ON UM.id=TM.created_by_user_id
+    LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
+    LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
+    WHERE TM.created_by_user_id=${id} AND TM.isDeleted = false`;
 
-    if (filter.requested_for_user_id) {
-      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
+    if (filter.created_for_dept_id) {
+      countQuery += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
+      query += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
     }
 
-    if (filter.from_branch_id) {
-      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
-      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
+    if (filter.ticket_category_id) {
+      countQuery += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
+      query += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
     }
 
-    query += ` ORDER BY ET.createdAt DESC`;
+    query += ` ORDER BY TM.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;
 
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
       replacements: {
-        requested_for_user_id: `${filter.requested_for_user_id}`,
-        from_branch_id: `${filter.from_branch_id}`,
+        created_for_dept_id: `${filter.created_for_dept_id}`,
+        ticket_category_id: `${filter.ticket_category_id}`,
       },
       type: DB.sequelize.QueryTypes.SELECT,
     });
@@ -401,8 +355,8 @@ module.exports.getAllTicketsGeneratedByUserDetails = async (req, res) => {
 
     let getAllData = await DB.sequelize.query(query, {
       replacements: {
-        requested_for_user_id: `${filter.requested_for_user_id}`,
-        from_branch_id: `${filter.from_branch_id}`,
+        created_for_dept_id: `${filter.created_for_dept_id}`,
+        ticket_category_id: `${filter.ticket_category_id}`,
         limit,
         offset,
       },
@@ -412,45 +366,16 @@ module.exports.getAllTicketsGeneratedByUserDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Transfer requests not found!" });
+        .send({ success: false, message: "Tickets not found!" });
     } else {
-      const dataWithWorkflow = await Promise.all(
-        getAllData.map(async (data) => {
-          const transferDetails = { ...data };
-
-          try {
-            const getWorkflowData =
-              await DB.tbl_employee_transfer_approval.findAll({
-                where: { transfer_id: data.id, isDeleted: false },
-                include: [
-                  {
-                    model: DB.tbl_user_master,
-                    attributes: ["id", "title", "name", "emp_code"],
-                  },
-                ],
-              });
-
-            transferDetails.workflow_Details = getWorkflowData;
-          } catch (error) {
-            console.error(
-              `Error fetching workflow for transfer ${data.id}:`,
-              error
-            );
-            transferDetails.workflow_Details = [];
-            transferDetails.workflow_error = error.message;
-          }
-
-          return transferDetails;
-        })
-      );
       return res.status(200).send({
         success: true,
-        message: "Get all transfers list!",
-        data: dataWithWorkflow,
+        message: "Get all tickets list!",
+        data: getAllData,
         pagination: {
           currentPage: page,
           itemsPerPage: limit,
-          totalItems: dataWithWorkflow.length,
+          totalItems: getAllData.length,
           totalPages: totalPages,
         },
       });
@@ -507,90 +432,20 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
 
     let countQuery = `
         SELECT COUNT(*) as total 
-        FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA 
-        INNER JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
-        WHERE ETA.isDeleted = false 
-        AND ETA.approver_id = :id
-        AND ET.approval_status != 'REJECTED'`;
+        FROM TICKET_ALLOCATION AS TA
+        WHERE TA.allocated_to_user_id= :id AND TA.isDeleted = false`;
 
     let query = `
       SELECT 
-        ETA.*, 
-        ET.*,
-        FRM.name as from_role, 
-        TRM.name as to_role, 
-        FDM.name as from_department, 
-        TDM.name as to_department,
-        FDEM.name as from_designation, 
-        TDEM.name as to_designation, 
-        FBM.name as from_branch, 
-        TBM.name as to_branch,
-        TT.transfer_type, 
-        TR.reason_type, 
-        UM.id as request_by_user_id,
-        UM.title as request_by_user_title, 
-        UM.name as requested_by_user, 
-        RUM.id as report_to_manager_id,
-        RUM.title as report_to_manager_title,
-        RUM.name as report_to_manager, 
-        RQUM.id as requested_for_user_id,
-        RQUM.title as requested_for_user_title, 
-        RQUM.name as requested_for_user_name,
-        CRUM.id as current_reporting_manager_id,
-        CRUM.title as current_reporting_manager_title,
-        CRUM.name as current_reporting_manager
-    FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA
-    LEFT JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
-    LEFT JOIN ROLE_MASTER AS FRM ON FRM.id = ET.from_role_id
-    LEFT JOIN ROLE_MASTER AS TRM ON TRM.id = ET.to_role_id
-    LEFT JOIN DEPARTMENT_MASTER AS FDM ON FDM.id = ET.from_dept_id
-    LEFT JOIN DEPARTMENT_MASTER AS TDM ON TDM.id = ET.to_dept_id
-    LEFT JOIN DESIGNATION_MASTER AS FDEM ON FDEM.id = ET.from_desig_id
-    LEFT JOIN DESIGNATION_MASTER AS TDEM ON TDEM.id = ET.to_desig_id
-    LEFT JOIN BRANCH_MASTER AS FBM ON FBM.id = ET.from_branch_id
-    LEFT JOIN BRANCH_MASTER AS TBM ON TBM.id = ET.to_branch_id
-    LEFT JOIN TRANSFER_TYPE_MASTER AS TT ON TT.id = ET.transfer_type_id
-    LEFT JOIN TRANSFER_REASON_MASTER AS TR ON TR.id = ET.transfer_reason_id
-    LEFT JOIN USER_MASTER AS RQUM ON RQUM.id = ET.requested_for_user_id
-    LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
-    LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
-    LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ETA.approver_id = :id 
-    AND ETA.isDeleted = false
-    AND ET.approval_status != 'REJECTED'`;
-
-    // Additional check to exclude transfers with any previous rejection
-    query += ` AND NOT EXISTS (
-      SELECT 1 FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA_REJECTED
-      WHERE ETA_REJECTED.transfer_id = ET.id
-      AND ETA_REJECTED.approver_status = 'REJECTED'
-      AND ETA_REJECTED.isDeleted = false
-      AND ETA_REJECTED.approval_level < ETA.approval_level
-    )`;
-
-    countQuery += ` AND NOT EXISTS (
-      SELECT 1 FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA_REJECTED
-      WHERE ETA_REJECTED.transfer_id = ET.id
-      AND ETA_REJECTED.approver_status = 'REJECTED'
-      AND ETA_REJECTED.isDeleted = false
-      AND ETA_REJECTED.approval_level < ETA.approval_level
-    )`;
-
-    query += ` AND ETA.approval_level = (
-      SELECT MIN(ETA2.approval_level) 
-      FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA2 
-      WHERE ETA2.transfer_id = ET.id 
-      AND ETA2.approver_status = 'PENDING'
-      AND ETA2.isDeleted = false
-    )`;
-
-    countQuery += ` AND ETA.approval_level = (
-      SELECT MIN(ETA2.approval_level) 
-      FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA2 
-      WHERE ETA2.transfer_id = ET.id 
-      AND ETA2.approver_status = 'PENDING'
-      AND ETA2.isDeleted = false
-    )`;
+        TA.*, TM.*, TCM.*, AUM.emp_code as allocated_to_user_code, AUM.title as allocated_to_userTitle, AUM.name as allocated_to_userName,
+        UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName, DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
+    FROM TICKET_ALLOCATION AS TA
+    LEFT JOIN TICKET_MANAGEMENT AS TM ON TM.id= TA.ticket_id
+    LEFT JOIN USER_MASTER AS AUM ON AUM.id= TA.allocated_to_user_id
+    LEFT JOIN USER_MASTER AS UM ON UM.id=TM.created_by_user_id
+    LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
+    LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
+    WHERE TA.allocated_to_user_id= :id AND TA.isDeleted = false`;
 
     // Prepare replacements object
     const replacements = {
@@ -599,25 +454,19 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
       offset,
     };
 
-    if (filter && filter.requested_for_user_id) {
-      countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-      query += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
-      replacements.requested_for_user_id = filter.requested_for_user_id;
-    }
-
-    if (filter && filter.from_branch_id) {
-      countQuery += ` AND ET.from_branch_id LIKE :from_branch_id`;
-      query += ` AND ET.from_branch_id LIKE :from_branch_id`;
-      replacements.from_branch_id = filter.from_branch_id;
+    if (filter && filter.ticket_category_id) {
+      countQuery += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
+      query += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
+      replacements.ticket_category_id = filter.ticket_category_id;
     }
 
     if (filter && filter.approver_status) {
-      countQuery += ` AND ETA.approver_status LIKE :approver_status`;
-      query += ` AND ETA.approver_status LIKE :approver_status`;
+      countQuery += ` AND TA.approver_status LIKE :approver_status`;
+      query += ` AND TA.approver_status LIKE :approver_status`;
       replacements.approver_status = filter.approver_status;
     }
 
-    query += ` ORDER BY ETA.createdAt DESC`;
+    query += ` ORDER BY TA.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;
 
     // Get total count
@@ -636,43 +485,12 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(400)
-        .send({ success: false, message: "Transfer requests not found!" });
+        .send({ success: false, message: "Tickets not found!" });
     } else {
-      const dataWithWorkflow = await Promise.all(
-        getAllData.map(async (data) => {
-          const transferDetails = { ...data };
-
-          try {
-            const getWorkflowData =
-              await DB.tbl_employee_transfer_approval.findAll({
-                where: { transfer_id: data.id, isDeleted: false },
-                include: [
-                  {
-                    model: DB.tbl_user_master,
-                    attributes: ["id", "title", "name", "emp_code"],
-                  },
-                ],
-                order: [["approval_level", "ASC"]], // Order by approval level
-              });
-
-            transferDetails.workflow_Details = getWorkflowData;
-          } catch (error) {
-            console.error(
-              `Error fetching workflow for transfer ${data.id}:`,
-              error
-            );
-            transferDetails.workflow_Details = [];
-            transferDetails.workflow_error = error.message;
-          }
-
-          return transferDetails;
-        })
-      );
-
       return res.status(200).send({
         success: true,
-        message: "Get all transfers list!",
-        data: dataWithWorkflow,
+        message: "Get all tickets list!",
+        data: getAllData,
         pagination: {
           currentPage: page,
           itemsPerPage: limit,
@@ -690,35 +508,28 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
 module.exports.approvalForTicket = async (req, res) => {
   try {
     const data = req.body;
-    const { id } = req.params;
+    const { id, user_id } = req.params;
 
     // Check if Data already exist
-    const isDataExist = await DB.tbl_employee_transfer_approval.findOne({
+    const isDataExist = await DB.tbl_ticket_allocation.findOne({
       where: {
-        transfer_id: id,
-        approver_status: "PENDING",
-        approver_id: data?.user_id,
+        id,
+        approver_status: "OPEN",
+        allocated_to_user_id: user_id,
         isDeleted: false,
       },
     });
 
     if (!isDataExist) {
       return res
-        .status(400)
-        .send({ success: false, message: "Transfer details not found!" });
+        .status(404)
+        .send({ success: false, message: "Tickets not found!" });
     } else {
-      // Get Total Number of Workflow Levels
-      const totalWorkflowLevels = await DB.tbl_employee_transfer_approval.count(
-        {
-          where: { transfer_id: isDataExist?.transfer_id },
-        }
-      );
-
-      if (data?.approver_status === "REJECTED") {
-        await DB.tbl_employee_transfer_approval.update(
+      if (data?.approver_status === "CLOSE") {
+        await DB.tbl_ticket_allocation.update(
           {
             approver_status: data?.approver_status,
-            comments: data?.comments,
+            remark: data?.remark,
             acted_on: data?.acted_on || new Date(),
           },
           {
@@ -726,43 +537,33 @@ module.exports.approvalForTicket = async (req, res) => {
           }
         );
 
-        await DB.tbl_employee_transfer.update(
+        await DB.tbl_ticket_management.update(
           {
-            approval_status: "REJECTED",
+            ticket_status: "CLOSE",
           },
           {
             where: {
-              id: isDataExist.transfer_id,
+              id: isDataExist?.ticket_id,
             },
           }
         );
       }
 
-      if (data?.approver_status === "APPROVED") {
-        if (isDataExist.approval_level === totalWorkflowLevels) {
-          await DB.tbl_employee_transfer_approval.update(
-            {
-              approver_status: data?.approver_status,
-              comments: data?.comments,
-              acted_on: data?.acted_on || new Date(),
-            },
-            { where: { id: isDataExist?.id } }
-          );
+      if (data?.approver_status === "ESCALATED") {
+        await DB.tbl_ticket_allocation.update(
+          {
+            approver_status: "ESCALATED",
+            remark: data?.remark,
+            acted_on: data?.acted_on || new Date(),
+          },
+          { where: { id, allocated_to_user_id: user_id } }
+        );
 
-          await DB.tbl_employee_transfer.update(
-            { approval_status: data?.approver_status },
-            { where: { id: isDataExist?.transfer_id } }
-          );
-        } else {
-          await DB.tbl_employee_transfer_approval.update(
-            {
-              approver_status: data?.approver_status,
-              comments: data?.comments,
-              acted_on: data?.acted_on || new Date(),
-            },
-            { where: { id: isDataExist?.id } }
-          );
-        }
+        await DB.tbl_ticket_allocation.create({
+          approver_status: "OPEN",
+          allocated_to_user_id: data?.approver_id,
+          ticket_id: isDataExist?.ticket_id,
+        });
       }
 
       return res.status(200).send({

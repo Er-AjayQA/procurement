@@ -9,11 +9,15 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
       },
       approver_status: {
-        type: Sequelize.ENUM("ESCALATED", "CLOSE"),
+        type: Sequelize.ENUM("PENDING", "ESCALATED", "CLOSE"),
+        defaultValue: "PENDING",
       },
       remark: {
         type: Sequelize.TEXT,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("remark", value === "" ? null : value);
+        },
       },
       acted_on: {
         type: Sequelize.DATE,
