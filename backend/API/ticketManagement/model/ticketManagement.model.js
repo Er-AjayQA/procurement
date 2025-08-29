@@ -13,6 +13,10 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         defaultValue: "Self",
       },
+      ticket_priority: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
       ticket_subject: {
         type: Sequelize.TEXT,
         allowNull: false,

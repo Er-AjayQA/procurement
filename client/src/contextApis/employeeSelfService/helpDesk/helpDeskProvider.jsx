@@ -1,24 +1,14 @@
 import { useEffect, useState } from "react";
 import {
-  getAllBranches,
   getAllDepartments,
-  getAllDesignations,
-  getAllRoles,
   getAllTicketCategory,
-  getAllTransferReason,
-  getAllTransferType,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { HelpDeskContext } from "./helpDeskContext";
 import {
-  deleteTransfer,
-  getAllTransfer,
-  getAllTransfersApprovalPendingByUser,
-  getAllTransfersApprovedByUser,
-  getAllTransfersRejectedByUser,
-  getTransferById,
-} from "../../../services/hrms_services/service";
-import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
+  getAllEmployeeDetails,
+  getEmployeeDetails,
+} from "../../../services/employeeDetails_services/services";
 import { useSelector } from "react-redux";
 import {
   deleteTicket,
@@ -30,6 +20,7 @@ import {
 export const HelpDeskProvider = ({ children }) => {
   const { userDetails } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
+  const [loginUserData, setLoginUserData] = useState(null);
   const [approvalByMeListing, setApprovalByMeListing] = useState(null);
   const [data, setData] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
@@ -148,6 +139,21 @@ export const HelpDeskProvider = ({ children }) => {
       }
     } catch (error) {
       setData(null);
+    }
+  };
+
+  // Get Login User Data By Id
+  const getLoginUserDataById = async (id) => {
+    try {
+      const response = await getEmployeeDetails(id);
+      if (response.data.success) {
+        setLoginUserData(response.data.data[0]);
+      } else {
+        toast.error(response.data.message);
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      setLoginUserData(null);
     }
   };
 
@@ -355,6 +361,14 @@ export const HelpDeskProvider = ({ children }) => {
     }
   }, [updateId, viewId, tabType]);
 
+  // For Get User Data operations
+  useEffect(() => {
+    if (userDetails) {
+      const id = userDetails?.id;
+      getLoginUserDataById(id);
+    }
+  }, [userDetails]);
+
   // For Delete operations
   useEffect(() => {
     if (deleteId) {
@@ -473,6 +487,7 @@ export const HelpDeskProvider = ({ children }) => {
     userOptions,
     ticketCategoryOptions,
     tabList,
+    loginUserData,
     refreshData,
     handleFormClose,
     getDataById,
@@ -485,6 +500,7 @@ export const HelpDeskProvider = ({ children }) => {
     setDepartmentOptions,
     setComponentType,
     setTabList,
+    setUserOptions,
     handleFormVisibility,
     handleTabClick,
     handleLimitChange,
