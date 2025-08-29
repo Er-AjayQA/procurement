@@ -1,13 +1,14 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import Select from "react-select";
 import {
-  approvalForTransfer,
   createTransfer,
   updateTransfer,
 } from "../../../services/hrms_services/service";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
+import { getTicketCategoryById } from "../../../services/master_services/service";
 
 export const HelpDeskForm = () => {
   const {
@@ -20,7 +21,12 @@ export const HelpDeskForm = () => {
     handleFormClose,
     setUpdateId,
     setData,
+    loginUserData,
+    departmentOptions,
+    ticketCategoryOptions,
+    userOptions,
     refreshData,
+    formSelectStyles,
   } = useHelpDeskContext();
 
   const {
@@ -33,38 +39,48 @@ export const HelpDeskForm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      requested_for_user_id: "",
-      emp_code: "",
-      from_role_id: "",
-      from_dept_id: "",
-      from_desig_id: "",
-      from_branch_id: "",
-      current_report_to_user_id: "",
-      transfer_type_id: "",
-      transfer_reason_id: "",
-      applicable_from_date: "",
-      applicable_to_date: "",
-      detailed_reason: "",
-      report_to_user_id: "",
-      to_role_id: "",
-      to_dept_id: "",
-      to_desig_id: "",
-      to_branch_id: "",
-      new_salary: "",
-      requested_by_user_id: "",
-      approvers_list: [],
+      created_by_user_id: "",
+      created_for_dept_id: "",
+      ticket_category_id: "",
+      ticket_type: "",
+      ticket_status: "",
+      ticket_description: "",
+      ticket_subject: "",
     },
   });
 
   const { userDetails } = useSelector((state) => state.auth);
-  const selectedUser = watch("requested_for_user_id");
+  const selectedTicketCategory = watch("ticket_category_id");
+  const [ticketTypeValue, setTicketTypeValue] = useState("Self");
+  const [ticketTypeOptions, setTicketTypeOptions] = useState([
+    { value: "Self", label: "For Self" },
+    { value: "Colleague", label: "For Colleague" },
+  ]);
+  const [ticketCategoryData, setTicketCategoryData] = useState(null);
 
+  // Handle Click Cancel Button
   const handleCancel = () => {
     resetForm();
     handleFormClose();
     handleComponentView("listing");
     setData(null);
     setUpdateId(null);
+  };
+
+  // Get ticket category data
+  const getTicketCategoryData = async (id) => {
+    try {
+      const response = await getTicketCategoryById(id);
+      if (response.success) {
+        setTicketCategoryData(response.data[0]);
+        setValue("ticket_priority", response.data[0]?.ticket_category_priority);
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setTicketCategoryData(null);
+      setValue("ticket_priority", "");
+    }
   };
 
   const resetForm = () => {
@@ -96,26 +112,13 @@ export const HelpDeskForm = () => {
   useEffect(() => {
     if (updateId && data) {
       const setUpdateDefaultData = () => {
-        setValue("requested_for_user_id", data?.requested_for_user_id);
-        setValue("emp_code", data?.emp_code);
-        setValue("from_role_id", data?.from_role_id);
-        setValue("from_dept_id", data?.from_dept_id);
-        setValue("from_desig_id", data?.from_desig_id);
-        setValue("from_branch_id", data?.from_branch_id);
-        setValue("current_report_to_user_id", data?.current_report_to_user_id);
-        setValue("transfer_type_id", data?.transfer_type_id);
-        setValue("transfer_reason_id", data?.transfer_reason_id);
-        setValue("applicable_from_date", data?.applicable_from_date);
-        setValue("applicable_to_date", data?.applicable_to_date);
-        setValue("detailed_reason", data?.detailed_reason);
-        setValue("report_to_user_id", data?.report_to_user_id);
-        setValue("to_role_id", data?.to_role_id);
-        setValue("to_dept_id", data?.to_dept_id);
-        setValue("to_desig_id", data?.to_desig_id);
-        setValue("to_branch_id", data?.to_branch_id);
-        setValue("new_salary", data?.new_salary);
-        setValue("requested_by_user_id", data?.requested_by_user_id);
-        setValue("approval_status", "PENDING");
+        setValue("ticket_type", data?.ticket_type);
+        setValue("created_by_user_id", data?.created_by_user_id);
+        setValue("created_for_dept_id", data?.created_for_dept_id);
+        setValue("created_by_user_id", data?.created_by_user_id);
+        setValue("ticket_status", data?.ticket_status);
+        setValue("ticket_subject", data?.ticket_subject);
+        setValue("ticket_description", data?.ticket_description);
 
         if (data?.workflow_detail && Array.isArray(data.workflow_detail)) {
           // If approvers_list contains objects with value property (react-select format)
@@ -138,70 +141,15 @@ export const HelpDeskForm = () => {
       e.preventDefault();
       let response;
 
-      // Approval Action
-      if (updateId && currentTab === "pending_for_approval") {
-        const approvalPayload = {
-          user_id: userDetails?.id,
-          comments: formData?.comments,
-          approver_status: formData?.approver_status,
-          acted_on: new Date().toISOString(),
-        };
-
-        response = await approvalForTransfer(updateId, approvalPayload);
-        if (response.success) {
-          toast.success(response.message);
-
-          if (typeof refreshData === "function") {
-            refreshData();
-          }
-
-          setTimeout(() => {
-            if (formData?.approver_status === "APPROVED") {
-              handleTabClick({
-                name: "Approved by Me",
-                value: "approved_by_me",
-              });
-            } else if (formData?.approver_status === "REJECTED") {
-              handleTabClick({
-                name: "Rejected by Me",
-                value: "rejected_by_me",
-              });
-            }
-            handleComponentView("listing");
-          }, 300);
-
-          return;
-        } else {
-          toast.error(response.message || "Approval action failed");
-          return;
-        }
-      }
-
       const payload = {
-        requested_for_user_id: formData?.requested_for_user_id,
-        emp_code: formData?.emp_code,
-        from_role_id: formData?.from_role_id,
-        from_dept_id: formData?.from_dept_id,
-        from_desig_id: formData?.from_desig_id,
-        from_branch_id: formData?.from_branch_id,
-        current_report_to_user_id: formData?.current_report_to_user_id,
-        transfer_type_id: formData?.transfer_type_id,
-        transfer_reason_id: formData?.transfer_reason_id,
-        applicable_from_date: formData?.applicable_from_date,
-        applicable_to_date: formData?.applicable_to_date,
-        detailed_reason: formData?.detailed_reason,
-        report_to_user_id: formData?.report_to_user_id,
-        to_role_id: formData?.to_role_id,
-        to_dept_id: formData?.to_dept_id,
-        to_desig_id: formData?.to_desig_id,
-        to_branch_id: formData?.to_branch_id,
-        new_salary: formData?.new_salary,
-        requested_by_user_id: userDetails?.id,
-        approval_status: "PENDING",
-        approvers_list: formData?.approvers_list,
+        ticket_type: formData?.ticket_type,
+        created_by_user_id: formData?.created_by_user_id,
+        created_for_dept_id: formData?.created_for_dept_id,
+        ticket_category_id: formData?.ticket_category_id,
+        ticket_status: formData?.ticket_status,
+        ticket_subject: formData?.ticket_subject,
+        ticket_description: formData?.ticket_description,
       };
-
-      console.log("Approvers List...", formData?.approvers_list);
 
       if (updateId) {
         response = await updateTransfer(updateId, payload);
@@ -235,13 +183,30 @@ export const HelpDeskForm = () => {
     return options.find((opt) => opt.value === value);
   };
 
+  // Auto Select user is Ticket Type is "Self"
+  useEffect(() => {
+    if (ticketTypeValue === "Self") {
+      let userOption = userOptions?.find(
+        (item) => item?.value == loginUserData?.id
+      );
+      setValue("user_id", userOption.value);
+    } else {
+      setValue("user_id", "");
+    }
+  }, [ticketTypeValue, setValue]);
+
+  // Get Category Data on Category Change
+  useEffect(() => {
+    getTicketCategoryData(selectedTicketCategory);
+  }, [selectedTicketCategory]);
+
   return (
     <>
       <div className="flex flex-col">
         <div className="flex justify-between items-center py-3  border-b border-gray-400">
           <div>
             <p className="text-sm font-bold">
-              {updateId ? "Update" : "Create"} Transfer Request
+              {updateId ? "Update" : "Raise"} Ticket
             </p>
           </div>
           <button
@@ -254,7 +219,7 @@ export const HelpDeskForm = () => {
 
         <div className="shadow-lg rounded-md h-[80vh] overflow-auto scrollbar-hide py-5">
           <div className="bg-button-hover py-2 px-1 rounded-t-md">
-            <h3 className="text-white text-xs">Raise Transfer Request</h3>
+            <h3 className="text-white text-xs">Raise Ticket</h3>
           </div>
 
           <div className="p-5">
@@ -263,6 +228,262 @@ export const HelpDeskForm = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="flex flex-col gap-10"
               >
+                <div className="flex py-5 px-3 flex-col gap-5">
+                  {/* Row-1 */}
+                  <div className="grid grid-cols-12 gap-5">
+                    {/* Ticket Type */}
+                    <div className="col-span-4 flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="self" className="text-sm">
+                          Ticket Type
+                        </label>
+
+                        <div className="flex gap-5">
+                          {ticketTypeOptions?.map((type) => {
+                            return (
+                              <>
+                                <div className="flex items-center gap-3">
+                                  <label className="inline-flex items-center">
+                                    <input
+                                      type="radio"
+                                      className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                      value={type.value}
+                                      checked={
+                                        ticketTypeValue === `${type.value}`
+                                      }
+                                      onChange={() =>
+                                        setTicketTypeValue(type.value)
+                                      }
+                                    />
+                                    <span className="ml-2 text-sm text-gray-700">
+                                      {type.label}
+                                    </span>
+                                  </label>
+                                </div>
+                              </>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Employee Name */}
+                    <div className="col-span-4 flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
+                        <label
+                          htmlFor="user_id"
+                          className="text-sm font-medium"
+                        >
+                          {ticketTypeValue === "Self"
+                            ? "Employee Name"
+                            : "Select Colleague"}
+                        </label>
+                        <Controller
+                          name="user_id"
+                          control={control}
+                          rules={{
+                            required:
+                              ticketTypeValue === "Colleague"
+                                ? "Please select a colleague"
+                                : false,
+                          }}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              options={userOptions || []}
+                              value={findSelectedOption(
+                                userOptions,
+                                field.value
+                              )}
+                              onChange={(selected) => {
+                                field.onChange(selected?.value || "");
+                              }}
+                              placeholder="Select employee..."
+                              isClearable
+                              isSearchable
+                              isDisabled={ticketTypeValue === "Self"}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={formSelectStyles}
+                            />
+                          )}
+                        />
+                        {errors.user_id && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.user_id.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Department Name */}
+                    <div className="col-span-4 flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
+                        <label
+                          htmlFor="created_for_dept_id"
+                          className="text-sm font-medium"
+                        >
+                          Department
+                        </label>
+                        <Controller
+                          name="created_for_dept_id"
+                          control={control}
+                          rules={{
+                            required: "Department is required!",
+                          }}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              options={departmentOptions || []}
+                              value={findSelectedOption(
+                                departmentOptions,
+                                field.value
+                              )}
+                              onChange={(selected) => {
+                                field.onChange(selected?.value || "");
+                              }}
+                              placeholder="Select department..."
+                              isClearable
+                              isSearchable
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={formSelectStyles}
+                            />
+                          )}
+                        />
+                        {errors.created_for_dept_id && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.created_for_dept_id.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row-2 */}
+                  <div className="grid grid-cols-12 gap-5 mt-5">
+                    {/* Ticket Category Name */}
+                    <div className="col-span-4 flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
+                        <label
+                          htmlFor="ticket_category_id"
+                          className="text-sm font-medium"
+                        >
+                          Ticket Category
+                        </label>
+                        <Controller
+                          name="ticket_category_id"
+                          control={control}
+                          rules={{
+                            required: "Category is required!",
+                          }}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              options={ticketCategoryOptions || []}
+                              value={findSelectedOption(
+                                ticketCategoryOptions,
+                                field.value
+                              )}
+                              onChange={(selected) => {
+                                field.onChange(selected?.value || "");
+                              }}
+                              placeholder="Select category..."
+                              isClearable
+                              isSearchable
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={formSelectStyles}
+                            />
+                          )}
+                        />
+                        {errors.ticket_category_id && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.ticket_category_id.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/*  Priority */}
+                    <div className="col-span-4 flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="ticket_priority" className="text-sm">
+                          Priority
+                        </label>
+                        <input
+                          type="text"
+                          id="ticket_priority"
+                          className={`rounded-lg text-[.8rem] hover:border-borders-inputHover `}
+                          placeholder="Ticket priority..."
+                          readOnly
+                          {...register("ticket_priority")}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row-3 */}
+                  <div className="flex flex-col gap-5 mt-5 shadow-2xl rounded-t-lg">
+                    <div className="p-2 bg-gray-600 rounded-t-lg">
+                      <h5 className="text-white font-bold text-xs">
+                        Ticket Details
+                      </h5>
+                    </div>
+
+                    <div className="p-5 flex flex-col gap-5">
+                      {/*  Ticket Subject */}
+                      <div className="w-[40%] flex flex-col gap-3">
+                        <div className="flex flex-col gap-2">
+                          <label htmlFor="ticket_subject" className="text-sm">
+                            Subject
+                          </label>
+                          <input
+                            type="text"
+                            id="ticket_subject"
+                            className={`rounded-lg text-[.8rem] hover:border-borders-inputHover `}
+                            placeholder="Ticket subject..."
+                            {...register("ticket_subject", {
+                              required: "Subject is required!",
+                            })}
+                          />
+                          {errors.ticket_subject && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.ticket_subject.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/*  Ticket Description */}
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-2">
+                          <label
+                            htmlFor="ticket_description"
+                            className="text-sm"
+                          >
+                            Description
+                          </label>
+                          <textarea
+                            name="ticket_description"
+                            id="ticket_description"
+                            className={`rounded-lg text-[.8rem] hover:border-borders-inputHover `}
+                            placeholder="Ticket description..."
+                            {...register("ticket_description", {
+                              required: "Description is required!",
+                            })}
+                          />
+                          {errors.ticket_description && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.ticket_description.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Submit Button */}
                 <div className="flex items-center justify-end">
                   <div className="flex items-center justify-center gap-5">

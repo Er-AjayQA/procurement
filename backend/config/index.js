@@ -1109,12 +1109,20 @@ db.tbl_generate_id_card.belongsTo(db.tbl_user_master, {
 });
 
 // ========================================== TICKET MANAGEMENT ========================================== //
-// Relation B/W User Master and Ticket Management Tables
+// Relation B/W User Master and Ticket Management Tables (Created By User)
 db.tbl_user_master.hasMany(db.tbl_ticket_management, {
   foreignKey: "created_by_user_id",
 });
 db.tbl_ticket_management.belongsTo(db.tbl_user_master, {
   foreignKey: "created_by_user_id",
+});
+
+// Relation B/W User Master and Ticket Management Tables (Created For User)
+db.tbl_user_master.hasMany(db.tbl_ticket_management, {
+  foreignKey: "user_id",
+});
+db.tbl_ticket_management.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
 });
 
 // Relation B/W Department Master and Ticket Management Tables
