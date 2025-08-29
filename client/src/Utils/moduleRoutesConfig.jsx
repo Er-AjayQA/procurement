@@ -1,5 +1,6 @@
 import { AttendanceCalendarPage } from "../pages/EmployeeSelfService/attendanceCalendar";
 import { EmployeeDetailPage } from "../pages/EmployeeSelfService/employeeDetails";
+import { MainHelpDeskPage } from "../pages/EmployeeSelfService/helpDesk";
 import { MainEmployeePage } from "../pages/Hrms/EmployeeManagement";
 import { MainEmployeeTransferPage } from "../pages/Hrms/EmployeeTransfer";
 import { MainEmployeeIdCardPage } from "../pages/Hrms/IdCardManagement";
@@ -39,6 +40,7 @@ export const moduleComponents = {
   "employee-self-service": {
     "employee-details": EmployeeDetailPage,
     "attendance-calendar": AttendanceCalendarPage,
+    "help-desk": MainHelpDeskPage,
   },
   "learning-management-system": {
     courses: CoursesPage,
