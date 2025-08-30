@@ -1,11 +1,13 @@
 import { useContext } from "react";
-import { TicketContext } from "./ticketManagement/ticketContext";
+import { AllTicketContext } from "./ticketManagement/allTickets/allTicketContext";
 
-// Use Ticket Context
-export const useTicketContext = () => {
-  const context = useContext(TicketContext);
+// Use All Ticket Context
+export const useAllTicketsContext = () => {
+  const context = useContext(AllTicketContext);
   if (context === undefined) {
-    throw new Error("useTicketContext must be used within a TicketProvider");
+    throw new Error(
+      "useAllTicketsContext must be used within a AllTicketProvider"
+    );
   }
   return context;
 };

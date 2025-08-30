@@ -4,38 +4,73 @@ export const TicketHistoryDetails = () => {
   const { data } = useHelpDeskContext();
   return (
     <>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-5">
         <div className="bg-button-hover py-2 px-1 rounded-t-md">
-          <h3 className="text-white text-xs">Destination Details</h3>
+          <h3 className="text-white text-xs">Ticket History</h3>
         </div>
-        <div className="grid grid-cols-3 gap-5 basis-[80%] justify-around shadow-lg rounded-md px-3 pb-4">
-          <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Branch</label>
-            <p className="text-[.7rem]">{data?.to_branch || "N/A"}</p>
+        <div className="basis-[90%] justify-around shadow-lg rounded-md pb-4 mx-auto">
+          {/* Table Headers */}
+          <div className="flex bg-gray-200">
+            <div className="w-[100px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
+              <label className="text-[.8rem]">S.No.</label>
+            </div>
+            <div className="w-[300px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
+              <label className="text-[.8rem]">Action Taken</label>
+            </div>
+            <div className="w-[200px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
+              <label className="text-[.8rem]">Acted On</label>
+            </div>
+            <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
+              <label className="text-[.8rem]">Assign To</label>
+            </div>
+            <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
+              <label className="text-[.8rem]">Remark</label>
+            </div>
+            <div className="w-[150px] px-2 py-2 text-center font-bold">
+              <label className="text-[.8rem]">Current Status</label>
+            </div>
           </div>
-          <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Reporting Manager</label>
-            <p className="text-[.7rem]">
-              {data?.report_to_manager_title}
-              {data?.report_to_manager}
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Role</label>
-            <p className="text-[.7rem]">{data?.to_role || "N/A"}</p>
-          </div>
-          <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Department</label>
-            <p className="text-[.7rem]">{data?.to_department || "N/A"}</p>
-          </div>
-          <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Designation</label>
-            <p className="text-[.7rem]">{data?.to_designation || "N/A"}</p>
-          </div>
-          <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Proposed Salary</label>
-            <p className="text-[.7rem]">{data?.new_salary || "N/A"}</p>
-          </div>
+
+          {/* Table Body */}
+
+          {data?.history_detail?.map((list, i) => {
+            return (
+              <div className="flex" key={i}>
+                <div className="w-[100px] px-2 py-2 text-center border-e border-e-gray-200 border-b border-b-gray-200">
+                  <p className="text-[.7rem]">{i + 1}</p>
+                </div>
+                <div className="w-[300px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
+                  <p className="text-[.7rem]">{list?.action_taken || "N/A"} </p>
+                </div>
+                <div className="w-[200px] px-2 py-2 text-center border-e border-e-gray-200 border-b border-b-gray-200">
+                  <p className="text-[.7rem]">{list?.action_date || "N/A"} </p>
+                </div>
+                <div
+                  className={`w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
+                    list?.executive_name ? "" : "text-center"
+                  }`}
+                >
+                  <p className="text-[.7rem]">
+                    {list?.executive_name || "N/A"}
+                  </p>
+                </div>
+                <div
+                  className={`w-[250px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
+                    list?.executive_remark ? "" : "text-center"
+                  }`}
+                >
+                  <p className="text-[.7rem]">
+                    {list?.executive_remark || "N/A"}
+                  </p>
+                </div>
+                <div className="w-[150px] px-2 py-2 text-center border-b border-b-gray-200">
+                  <p className="text-[.7rem]">
+                    {list?.current_status || "N/A"}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </>
