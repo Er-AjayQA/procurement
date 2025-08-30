@@ -11,13 +11,14 @@ import { useTicketCategoryMasterContext } from "../../../contextApis/useMastersC
 
 export const TicketCategoryMasterForm = ({ onClose }) => {
   const {
+    selectStyles,
     formVisibility,
     formType,
     getAllData,
     updateId,
     data,
+    setUpdateId,
     priorityOptions,
-    selectStyles,
   } = useTicketCategoryMasterContext();
 
   const {
@@ -29,9 +30,8 @@ export const TicketCategoryMasterForm = ({ onClose }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      // Set default empty values
       ticket_category_name: "",
-      ticket_category_priority: "",
+      ticket_category_priority: null,
       ticket_category_description: "",
     },
   });
@@ -39,26 +39,42 @@ export const TicketCategoryMasterForm = ({ onClose }) => {
   // Set form values when in update mode
   useEffect(() => {
     if (formType === "Update" && data) {
-      reset({
-        ticket_category_name:
-          data.ticket_category_name || data[0]?.ticket_category_name || "",
-        ticket_category_description:
-          data.ticket_category_description ||
-          data[0]?.ticket_category_description ||
-          "",
-      });
+      const setUpdateDefaultData = () => {
+        setValue("ticket_category_name", data?.ticket_category_name || "");
+        setValue(
+          "ticket_category_description",
+          data?.ticket_category_description || ""
+        );
+
+        if (priorityOptions.length > 0) {
+          const priorityOption = priorityOptions?.find(
+            (item) => item.value === data?.ticket_category_priority
+          );
+          setValue("ticket_category_priority", priorityOption || null);
+        } else {
+          setValue("ticket_category_priority", null);
+        }
+      };
+      setUpdateDefaultData();
     } else {
-      reset({ ticket_category_name: "", ticket_category_description: "" });
+      // Reset form when opening in Add mode
+      reset({
+        ticket_category_name: "",
+        ticket_category_description: "",
+        ticket_category_priority: null,
+      });
     }
-  }, [formType, data, reset, setValue]);
+  }, [formType, updateId, data, setValue, priorityOptions, reset]);
 
   // Handle Form Close
   const handleFormClose = () => {
     reset({
       ticket_category_name: "",
       ticket_category_description: "",
+      ticket_category_priority: null,
     });
     onClose();
+    setUpdateId(null);
   };
 
   // Handle Form Submit
@@ -113,7 +129,9 @@ export const TicketCategoryMasterForm = ({ onClose }) => {
           {/* Form Close Button */}
           <div
             className="hover:bg-red-500 p-2 rounded-lg hover:fill-white"
-            onClick={onClose}
+            onClick={() => {
+              handleFormClose();
+            }}
           >
             <MdOutlineClose className="fill-white" />
           </div>
@@ -161,12 +179,9 @@ export const TicketCategoryMasterForm = ({ onClose }) => {
                     <Select
                       {...field}
                       options={priorityOptions}
-                      value={priorityOptions?.find(
-                        (opt) =>
-                          opt.value === field.value?.value ||
-                          opt.value === field.value
-                      )}
+                      value={field.value}
                       onChange={(selected) => field.onChange(selected)}
+                      onBlur={field.onBlur}
                       placeholder="Select priority"
                       isClearable
                       isSearchable
