@@ -26,6 +26,14 @@ module.exports.createTicket = async (req, res) => {
     } else {
       const newData = await DB.tbl_ticket_management.create(data);
 
+      await DB.tbl_ticket_history.create({
+        current_status: "OPEN",
+        action_taken:
+          "Your ticket is received by concern department. Soon the issue will be resolved.",
+        created_on: new Date(),
+        ticket_id: newData?.id,
+      });
+
       return res.status(200).send({
         success: true,
         message: "Ticket generated successfully!",
@@ -130,44 +138,16 @@ module.exports.getTicketDetails = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const query = `
-    SELECT 
-        ET.*, 
-        FRM.name as from_role, 
-        TRM.name as to_role, 
-        FDM.name as from_department, 
-        TDM.name as to_department,
-        FDEM.name as from_designation, 
-        TDEM.name as to_designation, 
-        FBM.name as from_branch, 
-        TBM.name as to_branch,
-        TT.transfer_type, 
-        TR.reason_type, 
-        UM.id as request_by_user_id, 
-        UM.name as requested_by_user, 
-        RUM.id as report_to_manager_id,
-        RUM.name as report_to_manager, 
-        RQUM.id as requested_for_user_id, 
-        RQUM.name as requested_for_user_name,
-        CRUM.id as current_reporting_manager_id,
-        CRUM.title as current_reporting_manager_title,
-        CRUM.name as current_reporting_manager
-    FROM EMPLOYEE_TRANSFER AS ET
-    LEFT JOIN ROLE_MASTER AS FRM ON FRM.id = ET.from_role_id
-    LEFT JOIN ROLE_MASTER AS TRM ON TRM.id = ET.to_role_id
-    LEFT JOIN DEPARTMENT_MASTER AS FDM ON FDM.id = ET.from_dept_id
-    LEFT JOIN DEPARTMENT_MASTER AS TDM ON TDM.id = ET.to_dept_id
-    LEFT JOIN DESIGNATION_MASTER AS FDEM ON FDEM.id = ET.from_desig_id
-    LEFT JOIN DESIGNATION_MASTER AS TDEM ON TDEM.id = ET.to_desig_id
-    LEFT JOIN BRANCH_MASTER AS FBM ON FBM.id = ET.from_branch_id
-    LEFT JOIN BRANCH_MASTER AS TBM ON TBM.id = ET.to_branch_id
-    LEFT JOIN TRANSFER_TYPE_MASTER AS TT ON TT.id = ET.transfer_type_id
-    LEFT JOIN TRANSFER_REASON_MASTER AS TR ON TR.id = ET.transfer_reason_id
-    LEFT JOIN USER_MASTER AS RQUM ON RQUM.id = ET.requested_for_user_id
-    LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
-    LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
-    LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ET.id = ${id} AND ET.isDeleted = false`;
+    let query = `
+      SELECT 
+        TM.*, TCM.ticket_category_name, TCM.ticket_category_code, TCM.ticket_category_priority, UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName, UUM.emp_code as created_for_user_code, UUM.title as created_for_userTitle, UUM.name as created_for_userName,
+        DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
+    FROM TICKET_MANAGEMENT AS TM
+    LEFT JOIN USER_MASTER AS UM ON UM.id=TM.created_by_user_id
+    LEFT JOIN USER_MASTER AS UUM ON UUM.id=TM.user_id
+    LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
+    LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
+    WHERE TM.id=${id} AND TM.isDeleted = false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -175,43 +155,36 @@ module.exports.getTicketDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
-        .send({ success: false, message: "Transfer Request Not Found!" });
+        .status(404)
+        .send({ success: false, message: "Ticket Not Found!" });
     } else {
-      const getDataWithWorkflow = await Promise.all(
+      const getDataWithHistory = await Promise.all(
         getAllData?.map(async (data) => {
-          const transferDetail = { ...data };
+          const ticketDetail = { ...data };
 
           try {
-            const getWorkflowData =
-              await DB.tbl_employee_transfer_approval.findAll({
-                where: { transfer_id: data?.id },
-                include: [
-                  {
-                    model: DB.tbl_user_master,
-                    attributes: ["id", "title", "name", "emp_code"],
-                  },
-                ],
-              });
+            const getHistoryData = await DB.tbl_ticket_history.findAll({
+              where: { ticket_id: id },
+            });
 
-            transferDetail.workflow_detail = getWorkflowData;
+            ticketDetail.history_detail = getHistoryData;
           } catch (error) {
             console.error(
-              `Error fetching workflow for transfer ${data.id}:`,
+              `Error fetching history for ticket ${data.id}:`,
               error
             );
-            transferDetail.workflow_Details = [];
-            transferDetail.workflow_error = error.message;
+            ticketDetail.history_detail = [];
+            ticketDetail.history_error = error.message;
           }
 
-          return transferDetail;
+          return ticketDetail;
         })
       );
 
       return res.status(200).send({
         success: true,
-        message: "Get transfer details successfully!",
-        data: getDataWithWorkflow,
+        message: "Get ticket details successfully!",
+        data: getDataWithHistory,
       });
     }
   } catch (error) {
@@ -234,10 +207,11 @@ module.exports.getAllTicketDetails = async (req, res) => {
 
     let query = `
       SELECT 
-        TM.*, TCM.*, UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName,
+        TM.*, TCM.ticket_category_name, TCM.ticket_category_code, TCM.ticket_category_priority, UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName, UUM.emp_code as created_for_user_code, UUM.title as created_for_userTitle, UUM.name as created_for_userName,
         DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
     FROM TICKET_MANAGEMENT AS TM
     LEFT JOIN USER_MASTER AS UM ON UM.id=TM.created_by_user_id
+    LEFT JOIN USER_MASTER AS UUM ON UUM.id=TM.user_id
     LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
     LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
     WHERE TM.isDeleted = false`;
@@ -320,10 +294,11 @@ module.exports.getAllTicketsGeneratedByUserDetails = async (req, res) => {
         WHERE TM.created_by_user_id =${id} AND TM.isDeleted = false`;
 
     let query = `
-      SELECT 
-        TM.*, TCM.*, UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName,
+      SELECT
+        TM.*, TCM.ticket_category_name, TCM.ticket_category_code, TCM.ticket_category_priority, UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName, UUM.emp_code as created_for_user_code, UUM.title as created_for_userTitle, UUM.name as created_for_userName,
         DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
     FROM TICKET_MANAGEMENT AS TM
+    LEFT JOIN USER_MASTER AS UUM ON UUM.id=TM.user_id
     LEFT JOIN USER_MASTER AS UM ON UM.id=TM.created_by_user_id
     LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
     LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
@@ -438,11 +413,12 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
     let query = `
       SELECT 
         TA.*, TM.*, TCM.*, AUM.emp_code as allocated_to_user_code, AUM.title as allocated_to_userTitle, AUM.name as allocated_to_userName,
-        UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName, DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
+        UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName, UUM.emp_code as created_for_user_code, UUM.title as created_for_userTitle, UUM.name as created_for_userName, DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
     FROM TICKET_ALLOCATION AS TA
     LEFT JOIN TICKET_MANAGEMENT AS TM ON TM.id= TA.ticket_id
     LEFT JOIN USER_MASTER AS AUM ON AUM.id= TA.allocated_to_user_id
     LEFT JOIN USER_MASTER AS UM ON UM.id=TM.created_by_user_id
+    LEFT JOIN USER_MASTER AS UUM ON UUM.id=TM.user_id
     LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
     LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
     WHERE TA.allocated_to_user_id= :id AND TA.isDeleted = false`;

@@ -1,40 +1,35 @@
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import Select from "react-select";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { useState } from "react";
+import { ApproversPopup } from "./approversPopup";
+import { useAllTicketsContext } from "../../../contextApis/useTicketContextFile";
 import { SkeltonUi } from "../../UI/Skelton";
 import { AddButton } from "../../UI/addButtonUi";
-import { useState } from "react";
 import { ViewIcon } from "../../UI/viewIconUi";
 import { EditIcon } from "../../UI/editIconUi";
 import { DeleteIcon } from "../../UI/deleteIcon";
-import { ApproversPopup } from "./approversPopup";
-import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
+import { AssignIcon } from "../../UI/assignIconUi";
 
-export const HelpDeskListing = ({ componentType }) => {
+export const AllTicketListing = ({ componentType }) => {
   const {
-    filter,
     isLoading,
     listing,
-    tabType,
-    currentTab,
     page,
     totalPages,
     setPage,
     setViewId,
-    setUpdateId,
-    setDeleteId,
+    userOptions,
     departmentOptions,
     ticketCategoryOptions,
     styledComponent,
     handleLimitChange,
     handleChangeFilter,
     handleComponentView,
-    handleTabClick,
-    tabList,
-  } = useHelpDeskContext();
+  } = useAllTicketsContext();
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
+  const [selectedUser, setSelectedUser] = useState(null);
   const [showApproverPopup, setShowApproverPopup] = useState(false);
 
   return (
@@ -101,43 +96,33 @@ export const HelpDeskListing = ({ componentType }) => {
               classNamePrefix="react-select"
               styles={styledComponent}
             />
+            <Select
+              value={selectedUser}
+              onChange={(selectedOption) => {
+                setSelectedUser(selectedOption);
+                handleChangeFilter("dropdown", {
+                  field: "created_by_user_id",
+                  value: selectedOption ? selectedOption.value : "",
+                });
+              }}
+              options={userOptions}
+              placeholder="Search by Employee..."
+              isClearable
+              isSearchable
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={styledComponent}
+            />
           </div>
         </div>
-        {componentType === "listing" && currentTab === "my_requests" ? (
-          <div onClick={() => handleComponentView("form")}>
-            <AddButton text="Generate Ticket" />
-          </div>
-        ) : (
-          ""
-        )}
-      </div>
-      {/* Employee Tabs */}
-      <div>
-        <ul className="flex gap-5">
-          {tabList.map((tab) => (
-            <li
-              key={tab.value}
-              className={`text-[.8rem] cursor-pointer font-bold p-2 rounded-t-md border border-transparent hover:text-white hover:border-gray-300 hover:bg-body-bg_color ${
-                currentTab === tab.value
-                  ? "border-gray-300 bg-body-bg_color text-white"
-                  : ""
-              }`}
-              onClick={() => handleTabClick(tab)}
-            >
-              {tab.name}
-            </li>
-          ))}
-        </ul>
       </div>
 
+      {/* List Form */}
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">
-            {tabType.name} Listing
-          </h3>
+          <h3 className="text-white text-xs font-bold">All Tickets Listing</h3>
         </div>
 
-        {/* List Form */}
         <div className="p-3 h-[86%]">
           <div className="grid grid-cols-8 border-b border-gray-300 gap-2 bg-gray-200">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
@@ -147,9 +132,7 @@ export const HelpDeskListing = ({ componentType }) => {
             <div className="text-[.8rem] font-bold p-2">Category</div>
             <div className="text-[.8rem] font-bold p-2">Priority</div>
             <div className="text-[.8rem] font-bold p-2 text-center">
-              {currentTab === "my_requests"
-                ? "Ticket Status"
-                : "Approver Status"}
+              Ticket Status
             </div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
@@ -167,15 +150,6 @@ export const HelpDeskListing = ({ componentType }) => {
                     ? "text-yellow-600"
                     : "text-gray-600";
 
-                const myAllocatedStatusColor =
-                  list?.approver_status === "PENDING"
-                    ? "text-green-600"
-                    : list?.approver_status === "CLOSE"
-                    ? "text-red-600"
-                    : list?.approver_status === "ESCALATED"
-                    ? "text-yellow-600"
-                    : "text-gray-600";
-
                 return (
                   <div
                     key={list?.id}
@@ -188,7 +162,7 @@ export const HelpDeskListing = ({ componentType }) => {
                       For {list?.ticket_type || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.created_for_userTitle} {list?.created_for_userName}{" "}
+                      {list?.created_for_userTitle} {list?.created_for_userName}
                       - {list?.created_for_user_code}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem] overflow-hidden">
@@ -203,62 +177,27 @@ export const HelpDeskListing = ({ componentType }) => {
                       {list?.ticket_category_priority}
                     </div>
                     <div
-                      className={`flex items-center justify-center p-2 text-[.8rem] text-xs font-bold ${
-                        currentTab === "my_requests" ? "cursor-pointer" : ""
-                      } ${
-                        currentTab === "my_requests"
-                          ? myListStatusColor
-                          : myAllocatedStatusColor
-                      }`}
-                      onClick={
-                        currentTab === "my_requests"
-                          ? () => {
-                              setViewId(list?.id);
-                              setShowApproverPopup(true);
-                            }
-                          : ""
-                      }
+                      className={`flex items-center justify-center p-2 text-[.8rem] text-xs font-bold cursor-pointer ${myListStatusColor}`}
+                      onClick={() => {
+                        setViewId(list?.id);
+                        setShowApproverPopup(true);
+                      }}
                     >
-                      {currentTab === "my_requests"
-                        ? list?.ticket_status
-                        : list?.approver_status}
+                      {list?.ticket_status}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
                       <ViewIcon
                         onClick={() => {
                           handleComponentView("view");
                           setViewId(list?.id);
-                          console.log("ID", list?.id);
                         }}
                       />
-
-                      {(currentTab === "my_requests" &&
-                        list?.ticket_status === "OPEN") ||
-                      currentTab === "allocate_to_me" ? (
-                        <EditIcon
-                          onClick={() => {
-                            handleComponentView("form");
-                            setUpdateId(list?.id);
-                          }}
-                        />
-                      ) : (
-                        ""
-                      )}
-
-                      {currentTab === "my_requests" &&
-                      list?.ticket_status === "OPEN" ? (
-                        <DeleteIcon
-                          onClick={() => {
-                            setDeleteId(list?.id);
-                            handleTabClick({
-                              name: "My Requests",
-                              value: "my_requests",
-                            });
-                          }}
-                        />
-                      ) : (
-                        ""
-                      )}
+                      <AssignIcon
+                        onClick={() => {
+                          handleComponentView("view");
+                          setViewId(list?.id);
+                        }}
+                      />
                     </div>
                   </div>
                 );

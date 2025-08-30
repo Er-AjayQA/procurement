@@ -33,7 +33,7 @@ export const deleteTicket = async (id) => {
 
 // Get Ticket Details by ID
 export const getTicketDetailsById = async (id) => {
-  const response = await axiosInstance.post(`ticket-details-by-id/${id}`, {
+  const response = await axiosInstance.post(`get-ticket-details-by-id/${id}`, {
     headers: {
       "Content-Type": "application/json",
     },

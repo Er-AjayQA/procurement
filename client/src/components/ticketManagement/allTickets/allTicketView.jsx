@@ -1,12 +1,12 @@
-import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
-import { TicketHistoryDetails } from "./helpDeskViewComponents/ticketHistoryDetails";
+import { useAllTicketsContext } from "../../../contextApis/useTicketContextFile";
+import { TicketBasicDetails } from "./allTicketViewComponents/ticketBasicDetails";
+import { TicketHistoryDetails } from "./allTicketViewComponents/ticketHistoryDetails";
 
-export const HelpDeskView = () => {
+export const AllTicketView = () => {
   const { handleFormClose, handleComponentView, setViewId } =
-    useHelpDeskContext();
+    useAllTicketsContext();
 
   const handleCancel = () => {
-    handleFormClose();
     handleComponentView("listing");
     setViewId(null);
   };
@@ -16,7 +16,7 @@ export const HelpDeskView = () => {
       <div className="flex flex-col">
         <div className="flex justify-between items-center py-3 border-b border-gray-400">
           <div>
-            <p className="text-sm font-bold">View Transfer Request</p>
+            <p className="text-sm font-bold">Ticket Summary</p>
           </div>
           <button
             className="py-2 px-4 bg-red-600 rounded-md text-white text-sm hover:bg-red-700 transition-all duration=[.3s]"
@@ -26,8 +26,13 @@ export const HelpDeskView = () => {
           </button>
         </div>
 
-        <div className="shadow-lg rounded-md h-[80vh] overflow-auto scrollbar-hide">
-          {/* Employee Transfer Details Sections */}
+        <div className="rounded-md h-[80vh] overflow-auto scrollbar-hide">
+          {/* Ticket Basic Details Sections */}
+          <div className="py-5">
+            <TicketBasicDetails />
+          </div>
+
+          {/* Ticket History Sections */}
           <div className="py-5">
             <TicketHistoryDetails />
           </div>

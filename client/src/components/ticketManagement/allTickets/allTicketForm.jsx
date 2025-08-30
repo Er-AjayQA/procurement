@@ -3,14 +3,15 @@ import Select from "react-select";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
+
+import { useAllTicketsContext } from "../../../contextApis/useTicketContextFile";
 import { getTicketCategoryById } from "../../../services/master_services/service";
 import {
   createTicket,
   updateTicket,
 } from "../../../services/ticket_services/service";
 
-export const HelpDeskForm = () => {
+export const AllTicketForm = () => {
   const {
     data,
     tabType,
@@ -27,7 +28,7 @@ export const HelpDeskForm = () => {
     userOptions,
     refreshData,
     formSelectStyles,
-  } = useHelpDeskContext();
+  } = useAllTicketsContext();
 
   const {
     register,
@@ -132,7 +133,7 @@ export const HelpDeskForm = () => {
 
       const payload = {
         ticket_type: ticketTypeValue,
-        user_id: formData?.user_id,
+        user_id: formData?.user_id.value,
         created_by_user_id: userDetails?.id,
         created_for_dept_id: formData?.created_for_dept_id,
         ticket_category_id: formData?.ticket_category_id,
@@ -140,8 +141,6 @@ export const HelpDeskForm = () => {
         ticket_subject: formData?.ticket_subject,
         ticket_description: formData?.ticket_description,
       };
-
-      console.log("Payload=", payload);
 
       if (updateId) {
         response = await updateTicket(updateId, payload);

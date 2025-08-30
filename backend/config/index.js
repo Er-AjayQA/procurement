@@ -349,24 +349,24 @@ db.tbl_ticket_category_master =
 
 // Ticket Management Table
 db.tbl_ticket_management =
-  require("../API//ticketManagement/model/ticketManagement.model")(
+  require("../API/ticketManagement/model/ticketManagement.model")(
     sequelize,
     Sequelize
   );
 
 // Ticket Allocation Table
 db.tbl_ticket_allocation =
-  require("../API//ticketManagement/model/ticketAllocation.model")(
+  require("../API/ticketManagement/model/ticketAllocation.model")(
     sequelize,
     Sequelize
   );
 
-// // Purchase Request Table
-// db.tbl_purchase_request =
-//   require("../API/purchaseManagement/purchaseRequest/model/purchaseRequest.model")(
-//     sequelize,
-//     Sequelize
-//   );
+// Ticket History Table
+db.tbl_ticket_history =
+  require("../API/ticketManagement/model/ticketHistory.model")(
+    sequelize,
+    Sequelize
+  );
 
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
@@ -879,38 +879,6 @@ db.tbl_notification_master.belongsTo(db.tbl_user_master, {
   foreignKey: "user_id",
 });
 
-// // Relation B/W User Master and Purchase Request Tables
-// db.tbl_user_master.hasMany(db.tbl_purchase_request, {
-//   foreignKey: "user_id",
-// });
-// db.tbl_purchase_request.belongsTo(db.tbl_user_master, {
-//   foreignKey: "user_id",
-// });
-
-// // Relation B/W Department Master and Purchase Request Tables
-// db.tbl_department_master.hasMany(db.tbl_purchase_request, {
-//   foreignKey: "dept_id",
-// });
-// db.tbl_purchase_request.belongsTo(db.tbl_department_master, {
-//   foreignKey: "dept_id",
-// });
-
-// // Relation B/W Budget Management and Purchase Request Tables
-// db.tbl_budget_management.hasMany(db.tbl_purchase_request, {
-//   foreignKey: "budget_id",
-// });
-// db.tbl_purchase_request.belongsTo(db.tbl_budget_management, {
-//   foreignKey: "budget_id",
-// });
-
-// // Relation B/W City Master and Purchase Request Tables
-// db.tbl_state_master.hasMany(db.tbl_purchase_request, {
-//   foreignKey: "pr_delivery_state_id",
-// });
-// db.tbl_purchase_request.belongsTo(db.tbl_state_master, {
-//   foreignKey: "pr_delivery_state_id",
-// });
-
 // **************************** RBAC **************************** //
 // RBAC Module Master Table
 db.tbl_rbac_module_master =
@@ -1155,6 +1123,14 @@ db.tbl_user_master.hasMany(db.tbl_ticket_allocation, {
 });
 db.tbl_ticket_allocation.belongsTo(db.tbl_user_master, {
   foreignKey: "allocated_to_user_id",
+});
+
+// Relation B/W Ticket Management and Ticket History Tables
+db.tbl_ticket_management.hasMany(db.tbl_ticket_history, {
+  foreignKey: "ticket_id",
+});
+db.tbl_ticket_history.belongsTo(db.tbl_ticket_management, {
+  foreignKey: "ticket_id",
 });
 
 // ========== EXPORTS ========== //

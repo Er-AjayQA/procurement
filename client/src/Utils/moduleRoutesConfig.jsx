@@ -30,6 +30,7 @@ import { MasterUomPage } from "../pages/Masters/uomMaster";
 import { WorkflowPage } from "../pages/Masters/workflowPage";
 import { MasterRolePage } from "../pages/RbacManagement/roleMaster";
 import { MasterUserPermissionPage } from "../pages/RbacManagement/userPermission";
+import { MainAllTicketPage } from "../pages/TicketManagement/allTickets";
 
 export const moduleComponents = {
   hrms: {
@@ -49,6 +50,9 @@ export const moduleComponents = {
   "rbac-management": {
     "role-master": MasterRolePage,
     "rbac-permissions": MasterUserPermissionPage,
+  },
+  "ticket-management": {
+    "all-tickets": MainAllTicketPage,
   },
   masters: {
     "designation-master": MasterDesignationPage,
