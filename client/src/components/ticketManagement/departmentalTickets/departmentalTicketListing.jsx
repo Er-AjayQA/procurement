@@ -3,13 +3,13 @@ import Select from "react-select";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { useState } from "react";
 import { TicketHistoryPopup } from "./historyPopup";
-import { useAllTicketsContext } from "../../../contextApis/useTicketContextFile";
+import { useDepartmentalTicketsContext } from "../../../contextApis/useTicketContextFile";
 import { SkeltonUi } from "../../UI/Skelton";
 import { ViewIcon } from "../../UI/viewIconUi";
 import { AssignIcon } from "../../UI/assignIconUi";
 import { TicketActionPopup } from "./actionPopup";
 
-export const AllTicketListing = ({ componentType }) => {
+export const DepartmentalTicketListing = ({ componentType }) => {
   const {
     isLoading,
     listing,
@@ -24,7 +24,7 @@ export const AllTicketListing = ({ componentType }) => {
     handleLimitChange,
     handleChangeFilter,
     handleComponentView,
-  } = useAllTicketsContext();
+  } = useDepartmentalTicketsContext();
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);

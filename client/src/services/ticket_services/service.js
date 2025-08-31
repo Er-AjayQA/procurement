@@ -21,6 +21,16 @@ export const updateTicket = async (id, formData) => {
   return response.data;
 };
 
+// Allocate Ticket
+export const allocateTicket = async (id, formData) => {
+  const response = await axiosInstance.put(`escalate-ticket/${id}`, formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
 // Delete Ticket
 export const deleteTicket = async (id) => {
   const response = await axiosInstance.put(`delete-ticket/${id}`, {

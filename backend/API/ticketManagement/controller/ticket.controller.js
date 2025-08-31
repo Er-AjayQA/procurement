@@ -30,7 +30,7 @@ module.exports.createTicket = async (req, res) => {
         current_status: "OPEN",
         action_taken:
           "Your ticket is received by concern department. Soon the issue will be resolved.",
-        created_on: new Date(),
+        action_date: data?.acted_on || new Date(),
         ticket_id: newData?.id,
       });
 
@@ -51,41 +51,36 @@ module.exports.updateTicket = async (req, res) => {
     const { id } = req.params;
 
     // Check if Data already exist
-    const isDataExist = await DB.tbl_employee_transfer.findOne({
+    const isDataExist = await DB.tbl_ticket_management.findOne({
       where: {
         id,
-        approval_status: "PENDING" || "DRAFT",
+        ticket_status: "OPEN",
         isDeleted: false,
       },
     });
 
     if (!isDataExist) {
       return res
-        .status(400)
-        .send({ success: false, message: "Transfer details not found!" });
+        .status(404)
+        .send({ success: false, message: "Ticket not found!" });
     } else {
-      const duplicateData = await DB.tbl_employee_transfer.findOne({
-        where: {
-          id: { [DB.Sequelize.Op.ne]: id },
-          requested_for_user_id: data.requested_for_user_id,
-          approval_status: "PENDING" | "DRAFT",
-          isDeleted: false,
-        },
+      const updateData = await isDataExist.update(data);
+
+      const userData = await DB.tbl_user_master.findOne({
+        where: { id: data?.created_by_user_id },
       });
 
-      if (duplicateData) {
-        return res.status(409).send({
-          success: false,
-          message: "Transfer request for selected employee already generated!",
-        });
-      } else {
-        const updateData = await isDataExist.update(data);
-        return res.status(200).send({
-          success: true,
-          message: "Transfer request updated successfully!",
-          data: updateData,
-        });
-      }
+      await DB.tbl_ticket_history.create({
+        current_status: "OPEN",
+        action_taken: `Ticket get updated by ${userData?.title} ${userData?.name}`,
+        action_date: data?.acted_on || new Date(),
+        ticket_id: isDataExist?.id,
+      });
+
+      return res.status(201).send({
+        success: true,
+        message: "Ticket updated successfully!",
+      });
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
@@ -114,7 +109,7 @@ module.exports.escalateTicket = async (req, res) => {
     } else {
       const newData = await DB.tbl_ticket_allocation.create({
         approver_status: "PENDING",
-        allocated_to_user_id: data?.approver_id,
+        allocated_to_user_id: data?.allocated_to_user_id,
         ticket_id: id,
       });
 
@@ -122,6 +117,20 @@ module.exports.escalateTicket = async (req, res) => {
         { ticket_status: "ESCALATED" },
         { where: { id } }
       );
+
+      // Get User Assigned To User Details
+      const userData = await DB.tbl_user_master.findOne({
+        where: { id: data?.allocated_to_user_id },
+      });
+
+      await DB.tbl_ticket_history.create({
+        current_status: "ESCALATED",
+        action_taken: `Your ticket is assigned to ${userData?.title} ${userData?.name} successfully. Your issue will get resolved soon.`,
+        action_date: data?.acted_on || new Date(),
+        ticket_id: id,
+        executive_name: `${userData?.title} ${userData?.name}`,
+        executive_code: `${userData?.emp_code}`,
+      });
 
       return res.status(201).send({
         success: true,
