@@ -6,12 +6,8 @@ import {
   getAllDepartments,
   getAllTicketCategory,
 } from "../../../services/master_services/service";
+import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 import {
-  getAllEmployeeDetails,
-  getEmployeeDetails,
-} from "../../../services/employeeDetails_services/services";
-import {
-  deleteTicket,
   getAllTicketsDetails,
   getTicketDetailsById,
 } from "../../../services/ticket_services/service";
