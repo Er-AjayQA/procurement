@@ -94,9 +94,9 @@ export const getAllTicketsAllocatedToUser = async (id, formData) => {
 };
 
 // Approval for Ticket Actions
-export const approvalForTicket = async (id, formData) => {
+export const approvalForTicket = async (id, user_id, formData) => {
   const response = await axiosInstance.post(
-    `approval-for-ticket/${id}`,
+    `approval-for-ticket/${id}/${user_id}`,
     formData,
     {
       headers: {

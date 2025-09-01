@@ -26,7 +26,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
       },
       ticket_status: {
-        type: Sequelize.ENUM("OPEN", "CLOSE", "ESCALATED"),
+        type: Sequelize.ENUM("OPEN", "CLOSE", "ASSIGNED", "PICK", "ESCALATED"),
         defaultValue: "OPEN",
       },
       isDeleted: {

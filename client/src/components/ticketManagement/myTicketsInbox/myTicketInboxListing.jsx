@@ -1,17 +1,15 @@
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import Select from "react-select";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import { FaRegHandLizard } from "react-icons/fa6";
 import { useState } from "react";
 import { TicketHistoryPopup } from "./historyPopup";
-import { useDepartmentalTicketsContext } from "../../../contextApis/useTicketContextFile";
 import { SkeltonUi } from "../../UI/Skelton";
 import { ViewIcon } from "../../UI/viewIconUi";
-import { useSelector } from "react-redux";
-import { allocateTicket } from "../../../services/ticket_services/service";
-import { toast } from "react-toastify";
+import { useMyTicketsInboxContext } from "../../../contextApis/useTicketContextFile";
+import { EditIcon } from "../../UI/editIconUi";
+import { TicketActionPopup } from "./actionPopup";
 
-export const DepartmentalTicketListing = ({ componentType }) => {
+export const MyTicketInboxListing = ({ componentType }) => {
   const {
     isLoading,
     listing,
@@ -19,47 +17,21 @@ export const DepartmentalTicketListing = ({ componentType }) => {
     totalPages,
     setPage,
     setViewId,
+    setAllocationData,
+    setUpdateId,
     userOptions,
     departmentOptions,
     ticketCategoryOptions,
     styledComponent,
-    refreshData,
     handleLimitChange,
     handleChangeFilter,
     handleComponentView,
-  } = useDepartmentalTicketsContext();
-  const { userDetails } = useSelector((state) => state.auth);
+  } = useMyTicketsInboxContext();
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showApproverPopup, setShowApproverPopup] = useState(false);
   const [showActionPopup, setShowActionPopup] = useState(false);
-
-  // Handle Pick Ticket
-  const handlePickTicket = async (id, e) => {
-    try {
-      e.preventDefault();
-      let response;
-
-      const payload = {
-        allocated_to_user_id: userDetails?.id,
-        status: "PICK",
-      };
-
-      response = await allocateTicket(id, payload);
-
-      if (response.success) {
-        toast.success(response.message);
-        if (typeof refreshData === "function") {
-          refreshData();
-        }
-      } else {
-        toast.error(response.message || "Operation failed");
-      }
-    } catch (error) {
-      toast.error(error.message || "An error occurred");
-    }
-  };
 
   return (
     <>
@@ -150,7 +122,7 @@ export const DepartmentalTicketListing = ({ componentType }) => {
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
           <h3 className="text-white text-xs font-bold">
-            Departmental Tickets Listing
+            My Inbox Tickets Listing
           </h3>
         </div>
 
@@ -210,29 +182,27 @@ export const DepartmentalTicketListing = ({ componentType }) => {
                     <div
                       className={`flex items-center justify-center p-2 text-[.8rem] text-xs font-bold cursor-pointer ${myListStatusColor}`}
                       onClick={() => {
-                        setViewId(list?.id);
+                        setViewId(list?.ticket_id);
                         setShowApproverPopup(true);
                       }}
                     >
-                      {list?.ticket_status}
+                      {list?.approver_status}
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
                       <ViewIcon
                         onClick={() => {
                           handleComponentView("view");
-                          setViewId(list?.id);
+                          setViewId(list?.ticket_id);
                         }}
                       />
 
-                      {list?.ticket_status === "OPEN" && (
-                        <div
-                          className="p-1 hover:bg-blue-600 rounded-lg cursor-pointer"
-                          onClick={(e) => {
-                            handlePickTicket(list?.id, e);
+                      {list?.approver_status === "PENDING" && (
+                        <EditIcon
+                          onClick={() => {
+                            setAllocationData(list);
+                            setShowActionPopup(true);
                           }}
-                        >
-                          <FaRegHandLizard className="cursor-pointer hover:fill-white" />
-                        </div>
+                        />
                       )}
                     </div>
                   </div>
@@ -247,6 +217,14 @@ export const DepartmentalTicketListing = ({ componentType }) => {
             )}
           </div>
         </div>
+
+        {/* Display Ticket Action Popup */}
+        {showActionPopup && (
+          <TicketActionPopup
+            showActionPopup={showActionPopup}
+            setShowActionPopup={setShowActionPopup}
+          />
+        )}
 
         {/* Display Ticket History Popup */}
         {showApproverPopup && (

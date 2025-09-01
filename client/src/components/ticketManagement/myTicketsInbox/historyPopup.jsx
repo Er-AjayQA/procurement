@@ -1,11 +1,11 @@
 import { MdOutlineClose } from "react-icons/md";
-import { useDepartmentalTicketsContext } from "../../../contextApis/useTicketContextFile";
+import { useMyTicketsInboxContext } from "../../../contextApis/useTicketContextFile";
 
 export const TicketHistoryPopup = ({
   showApproverPopup,
   setShowApproverPopup,
 }) => {
-  const { data, setViewId, formatDateTime } = useDepartmentalTicketsContext();
+  const { data, setViewId, formatDateTime } = useMyTicketsInboxContext();
 
   // Handle Close Popup
   const handleClosePopup = () => {

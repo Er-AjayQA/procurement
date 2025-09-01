@@ -32,6 +32,7 @@ import { MasterRolePage } from "../pages/RbacManagement/roleMaster";
 import { MasterUserPermissionPage } from "../pages/RbacManagement/userPermission";
 import { MainAllTicketPage } from "../pages/TicketManagement/allTickets";
 import { MainDepartmentalTicketPage } from "../pages/TicketManagement/departmentalTickets";
+import { MainMyTicketInboxPage } from "../pages/TicketManagement/myTicketsInbox";
 
 export const moduleComponents = {
   hrms: {
@@ -55,6 +56,7 @@ export const moduleComponents = {
   "ticket-management": {
     "all-tickets": MainAllTicketPage,
     "departmental-tickets": MainDepartmentalTicketPage,
+    "my-inbox": MainMyTicketInboxPage,
   },
   masters: {
     "designation-master": MasterDesignationPage,

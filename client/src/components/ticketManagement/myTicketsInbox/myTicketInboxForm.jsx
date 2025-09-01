@@ -4,14 +4,14 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
-import { useDepartmentalTicketsContext } from "../../../contextApis/useTicketContextFile";
+import { useMyTicketsInboxContext } from "../../../contextApis/useTicketContextFile";
 import { getTicketCategoryById } from "../../../services/master_services/service";
 import {
   createTicket,
   updateTicket,
 } from "../../../services/ticket_services/service";
 
-export const DepartmentalTicketForm = () => {
+export const MyTicketInboxForm = () => {
   const {
     data,
     tabType,
@@ -28,7 +28,7 @@ export const DepartmentalTicketForm = () => {
     userOptions,
     refreshData,
     formSelectStyles,
-  } = useDepartmentalTicketsContext();
+  } = useMyTicketsInboxContext();
 
   const {
     register,

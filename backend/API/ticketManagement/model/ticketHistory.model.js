@@ -23,8 +23,11 @@ module.exports = (sequelize, Sequelize) => {
         },
       },
       current_status: {
-        type: Sequelize.ENUM("OPEN", "PENDING", "ESCALATED", "CLOSE"),
-        defaultValue: "OPEN",
+        type: Sequelize.STRING,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("current_status", value === "" ? null : value);
+        },
       },
       action_taken: {
         type: Sequelize.TEXT,

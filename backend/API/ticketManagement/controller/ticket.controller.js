@@ -29,7 +29,7 @@ module.exports.createTicket = async (req, res) => {
       await DB.tbl_ticket_history.create({
         current_status: "OPEN",
         action_taken:
-          "Your ticket is received by concern department. Soon the issue will be resolved.",
+          "A new ticket has been generated and is now in our queue.",
         action_date: data?.acted_on || new Date(),
         ticket_id: newData?.id,
       });
@@ -93,6 +93,8 @@ module.exports.escalateTicket = async (req, res) => {
     const { id } = req.params;
     const data = req.body;
 
+    console.log("Payload Backend", data);
+
     // Check if Data exist
     const isAlreadyExist = await DB.tbl_ticket_management.findOne({
       where: {
@@ -114,7 +116,7 @@ module.exports.escalateTicket = async (req, res) => {
       });
 
       await DB.tbl_ticket_management.update(
-        { ticket_status: "ESCALATED" },
+        { ticket_status: data?.status },
         { where: { id } }
       );
 
@@ -123,18 +125,31 @@ module.exports.escalateTicket = async (req, res) => {
         where: { id: data?.allocated_to_user_id },
       });
 
+      const messages = {
+        ASSIGNED: `This ticket is assigned to ${userData?.title} ${userData?.name} successfully. Issue will get resolved soon.`,
+        PICK: `Good news!, Ticket has been picked up by one of our support agents and is now being worked on.`,
+        ESCALATED: `This is an update regarding the ticket. To ensure that issue receives the specialized attention it requires, we have escalated the issue to a senior specialist on our team. This is a standard process to provide you with the most effective solution.`,
+        CLOSE: `This is an update regarding the ticket. The issue is been successfully resolved.`,
+      };
+
       await DB.tbl_ticket_history.create({
-        current_status: "ESCALATED",
-        action_taken: `Your ticket is assigned to ${userData?.title} ${userData?.name} successfully. Your issue will get resolved soon.`,
+        current_status: data?.status,
+        action_taken: messages[data?.status],
         action_date: data?.acted_on || new Date(),
         ticket_id: id,
         executive_name: `${userData?.title} ${userData?.name}`,
         executive_code: `${userData?.emp_code}`,
       });
 
+      const responseMessages = {
+        ASSIGNED: "Ticket Assigned successfully!",
+        PICK: "Ticket Picked successfully!",
+        ESCALATED: "Ticket escalated successfully!",
+      };
+
       return res.status(201).send({
         success: true,
-        message: "Ticket escalated successfully!",
+        message: responseMessages[data?.status],
       });
     }
   } catch (error) {
@@ -421,8 +436,7 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
 
     let query = `
       SELECT 
-        TA.*, TM.*, TCM.*, AUM.emp_code as allocated_to_user_code, AUM.title as allocated_to_userTitle, AUM.name as allocated_to_userName,
-        UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName, UUM.emp_code as created_for_user_code, UUM.title as created_for_userTitle, UUM.name as created_for_userName, DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
+        TA.id as approval_id, TA.approver_status,  TA.ticket_id, TA.allocated_to_user_id as current_allocated_user_id, TM.ticket_subject, TM.ticket_description, TM.ticket_status, TM.ticket_type, TM.ticket_priority, TCM.id as ticket_category_id, TCM.ticket_category_name, TCM.ticket_category_code, TCM.ticket_category_priority, AUM.emp_code as allocated_to_user_code, AUM.title as allocated_to_userTitle, AUM.name as allocated_to_userName,UM.emp_code as created_by_user_code, UM.title as created_by_userTitle, UM.name as created_by_userName, UUM.emp_code as created_for_user_code, UUM.title as created_for_userTitle, UUM.name as created_for_userName, DM.name as created_for_deptName, DM.dep_code as created_for_deptCode
     FROM TICKET_ALLOCATION AS TA
     LEFT JOIN TICKET_MANAGEMENT AS TM ON TM.id= TA.ticket_id
     LEFT JOIN USER_MASTER AS AUM ON AUM.id= TA.allocated_to_user_id
@@ -499,7 +513,7 @@ module.exports.approvalForTicket = async (req, res) => {
     const isDataExist = await DB.tbl_ticket_allocation.findOne({
       where: {
         id,
-        approver_status: "OPEN",
+        approver_status: "PENDING",
         allocated_to_user_id: user_id,
         isDeleted: false,
       },
@@ -510,6 +524,10 @@ module.exports.approvalForTicket = async (req, res) => {
         .status(404)
         .send({ success: false, message: "Tickets not found!" });
     } else {
+      const getAllocatedUserDetail = await DB.tbl_user_master.findOne({
+        where: { id: user_id },
+      });
+
       if (data?.approver_status === "CLOSE") {
         await DB.tbl_ticket_allocation.update(
           {
@@ -532,6 +550,17 @@ module.exports.approvalForTicket = async (req, res) => {
             },
           }
         );
+
+        await DB.tbl_ticket_history.create({
+          executive_name: `${getAllocatedUserDetail?.title} ${getAllocatedUserDetail?.name}`,
+          executive_code: `${getAllocatedUserDetail?.emp_code}`,
+          current_status: "CLOSE",
+          action_taken:
+            "The issue is resolved by the executive, that's why ticket is been closed. If you have any other issue then you can raise tickets. Nice to assist you!",
+          executive_remark: data?.remark,
+          action_date: data?.acted_on || new Date(),
+          ticket_id: isDataExist?.ticket_id,
+        });
       }
 
       if (data?.approver_status === "ESCALATED") {
@@ -541,12 +570,33 @@ module.exports.approvalForTicket = async (req, res) => {
             remark: data?.remark,
             acted_on: data?.acted_on || new Date(),
           },
-          { where: { id, allocated_to_user_id: user_id } }
+          { where: { id: isDataExist?.id } }
         );
 
         await DB.tbl_ticket_allocation.create({
-          approver_status: "OPEN",
-          allocated_to_user_id: data?.approver_id,
+          approver_status: "PENDING",
+          allocated_to_user_id: data?.allocated_to_user_id,
+          ticket_id: isDataExist?.ticket_id,
+        });
+
+        await DB.tbl_ticket_management.update(
+          {
+            ticket_status: "ESCALATED",
+          },
+          {
+            where: {
+              id: isDataExist?.ticket_id,
+            },
+          }
+        );
+
+        await DB.tbl_ticket_history.create({
+          executive_name: `${getAllocatedUserDetail?.title} ${getAllocatedUserDetail?.name}`,
+          executive_code: `${getAllocatedUserDetail?.emp_code}`,
+          current_status: "ESCALATED",
+          action_taken: `This is an update regarding the ticket. To ensure that issue receives the specialized attention it requires, we have escalated the issue to a senior specialist on our team. This is a standard process to provide you with the most effective solution.`,
+          executive_remark: data?.remark,
+          action_date: data?.acted_on || new Date(),
           ticket_id: isDataExist?.ticket_id,
         });
       }
