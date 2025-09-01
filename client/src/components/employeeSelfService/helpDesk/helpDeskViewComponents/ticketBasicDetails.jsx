@@ -41,7 +41,7 @@ export const TicketBasicDetails = () => {
           <div className="flex flex-col gap-2 justify-center">
             <label className="text-[.8rem]">Current Status</label>
             <p
-              className={`text-[.7rem] ${
+              className={`text-[.7rem] font-bold ${
                 (data?.ticket_status === "OPEN" && "text-green-600") ||
                 (data?.ticket_status === "CLOSE" && "text-red-600") ||
                 (data?.ticket_status === "ESCALATED" && "text-yellow-600")
