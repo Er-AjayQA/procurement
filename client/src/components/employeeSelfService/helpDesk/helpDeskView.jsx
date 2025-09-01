@@ -1,4 +1,5 @@
 import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
+import { TicketBasicDetails } from "./helpDeskViewComponents/ticketBasicDetails";
 import { TicketHistoryDetails } from "./helpDeskViewComponents/ticketHistoryDetails";
 
 export const HelpDeskView = () => {
@@ -16,7 +17,7 @@ export const HelpDeskView = () => {
       <div className="flex flex-col">
         <div className="flex justify-between items-center py-3 border-b border-gray-400">
           <div>
-            <p className="text-sm font-bold">View Transfer Request</p>
+            <p className="text-sm font-bold">Ticket Details</p>
           </div>
           <button
             className="py-2 px-4 bg-red-600 rounded-md text-white text-sm hover:bg-red-700 transition-all duration=[.3s]"
@@ -27,7 +28,12 @@ export const HelpDeskView = () => {
         </div>
 
         <div className="shadow-lg rounded-md h-[80vh] overflow-auto scrollbar-hide">
-          {/* Employee Transfer Details Sections */}
+          {/* Ticket Basic Details Sections */}
+          <div className="py-5">
+            <TicketBasicDetails />
+          </div>
+
+          {/* Ticket History Details Sections */}
           <div className="py-5">
             <TicketHistoryDetails />
           </div>

@@ -7,8 +7,8 @@ import { useState } from "react";
 import { ViewIcon } from "../../UI/viewIconUi";
 import { EditIcon } from "../../UI/editIconUi";
 import { DeleteIcon } from "../../UI/deleteIcon";
-import { ApproversPopup } from "./approversPopup";
 import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
+import { TicketHistoryPopup } from "./historyPopup";
 
 export const HelpDeskListing = ({ componentType }) => {
   const {
@@ -273,9 +273,9 @@ export const HelpDeskListing = ({ componentType }) => {
           </div>
         </div>
 
-        {/* Display Approver Popup */}
+        {/* Display Ticket History Popup */}
         {showApproverPopup && (
-          <ApproversPopup
+          <TicketHistoryPopup
             showApproverPopup={showApproverPopup}
             setShowApproverPopup={setShowApproverPopup}
           />

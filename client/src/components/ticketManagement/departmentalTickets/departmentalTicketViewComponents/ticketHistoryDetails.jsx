@@ -10,7 +10,7 @@ export const TicketHistoryDetails = () => {
         </div>
         <div className="basis-[90%] justify-around shadow-lg rounded-md pb-4 mx-auto">
           {/* Table Headers */}
-          <div className="flex bg-gray-200">
+          <div className="flex bg-gray-200 rounded-t-lg">
             <div className="w-[100px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">S.No.</label>
             </div>
@@ -21,7 +21,7 @@ export const TicketHistoryDetails = () => {
               <label className="text-[.8rem]">Acted On</label>
             </div>
             <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Assign To</label>
+              <label className="text-[.8rem]">Executive Name</label>
             </div>
             <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Remark by Executive</label>
@@ -35,7 +35,7 @@ export const TicketHistoryDetails = () => {
 
           {data?.history_detail?.map((list, i) => {
             return (
-              <div className="flex" key={i}>
+              <div className="flex hover:bg-gray-100" key={i}>
                 <div className="flex items-center justify-center w-[100px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
                   <p className="text-[.7rem]">{i + 1}</p>
                 </div>

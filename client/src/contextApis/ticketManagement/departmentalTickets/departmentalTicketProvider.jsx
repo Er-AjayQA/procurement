@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { DepartmentalTicketContext } from "./departmentalTicketContext";
@@ -21,10 +21,8 @@ export const DepartmentalTicketProvider = ({ children }) => {
   const [loginUserData, setLoginUserData] = useState(null);
   const [approvalByMeListing, setApprovalByMeListing] = useState(null);
   const [data, setData] = useState(null);
-  const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
   const [viewModules, setViewModules] = useState(null);
-  const [formType, setFormType] = useState("Add");
   const [componentType, setComponentType] = useState("listing");
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
@@ -41,6 +39,7 @@ export const DepartmentalTicketProvider = ({ children }) => {
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [ticketCategoryOptions, setTicketCategoryOptions] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const isMounted = useRef(false);
 
   const refreshData = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -254,7 +253,8 @@ export const DepartmentalTicketProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    if (componentType === "listing") {
+    if (!isMounted.current) {
+      isMounted.current = true;
       getAllTicketsData();
     }
   }, [limit, page, filter, refreshTrigger, componentType]);
@@ -344,13 +344,29 @@ export const DepartmentalTicketProvider = ({ children }) => {
     }),
   };
 
+  const formatDateTime = (time) => {
+    if (!time) return "N/A";
+
+    const date = new Date(time);
+
+    return date
+      .toLocaleString("en-IN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      })
+      .replace(",", "");
+  };
+
   const contextValue = {
     listing,
     approvalByMeListing,
     viewModules,
     viewVisibility,
-    formVisibility,
-    formType,
     data,
     filter,
     limit,
@@ -365,6 +381,7 @@ export const DepartmentalTicketProvider = ({ children }) => {
     departmentOptions,
     userOptions,
     ticketCategoryOptions,
+    formatDateTime,
     refreshData,
     getDataById,
     setUpdateId,

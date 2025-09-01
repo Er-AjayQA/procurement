@@ -312,6 +312,24 @@ export const AllTicketProvider = ({ children }) => {
     }),
   };
 
+  const formatDateTime = (time) => {
+    if (!time) return "N/A";
+
+    const date = new Date(time);
+
+    return date
+      .toLocaleString("en-IN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      })
+      .replace(",", "");
+  };
+
   const contextValue = {
     listing,
     approvalByMeListing,
@@ -334,6 +352,7 @@ export const AllTicketProvider = ({ children }) => {
     userOptions,
     ticketCategoryOptions,
     tabList,
+    formatDateTime,
     refreshData,
     getDataById,
     setUpdateId,

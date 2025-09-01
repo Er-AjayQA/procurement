@@ -21,7 +21,7 @@ export const TicketHistoryDetails = () => {
               <label className="text-[.8rem]">Acted On</label>
             </div>
             <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Assign To</label>
+              <label className="text-[.8rem]">Executive Name</label>
             </div>
             <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Remark by Executive</label>

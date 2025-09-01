@@ -1,42 +1,14 @@
-import { MdOutlineClose } from "react-icons/md";
-import { useDepartmentalTicketsContext } from "../../../contextApis/useTicketContextFile";
+import { useMyTicketsInboxContext } from "../../../../contextApis/useTicketContextFile";
 
-export const TicketHistoryPopup = ({
-  showApproverPopup,
-  setShowApproverPopup,
-}) => {
-  const { data, setViewId, formatDateTime } = useDepartmentalTicketsContext();
-
-  // Handle Close Popup
-  const handleClosePopup = () => {
-    setViewId(null);
-    setShowApproverPopup(false);
-  };
-
+export const TicketHistoryDetails = () => {
+  const { data } = useMyTicketsInboxContext();
   return (
     <>
-      {/* Overlay */}
-      <div
-        className={`fixed w-full h-full top-0 start-0 bg-[#0202025b] z-20 backdrop-blur-sm transition-all duration-[.4s] ${
-          showApproverPopup ? "block" : "hidden"
-        }`}
-      ></div>
-
-      {/* List Form */}
-      <div
-        className={`absolute top-[50%] start-[50%] w-[60%] translate-x-[-50%] translate-y-[-50%] bg-white z-30 min-h-[40%] shadow-lg rounded-lg transition-all duration-[.4s]`}
-      >
-        <div className="bg-button-hover py-2 px-2 rounded-t-md flex items-center justify-between">
-          <h3 className="text-white text-xs font-bold">Ticket History</h3>
-          {/* Form Close Button */}
-          <div
-            className="hover:bg-red-500 p-2 rounded-lg hover:fill-white cursor-pointer"
-            onClick={handleClosePopup}
-          >
-            <MdOutlineClose className="fill-white" />
-          </div>
+      <div className="flex flex-col gap-5">
+        <div className="bg-button-hover py-2 px-1 rounded-t-md">
+          <h3 className="text-white text-xs">Ticket History</h3>
         </div>
-        <div className="basis-[90%] justify-around rounded-md pb-4 mx-auto">
+        <div className="basis-[90%] justify-around shadow-lg rounded-md pb-4 mx-auto">
           {/* Table Headers */}
           <div className="flex bg-gray-200">
             <div className="w-[100px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
@@ -71,14 +43,12 @@ export const TicketHistoryPopup = ({
                   <p className="text-[.7rem]">{list?.action_taken || "N/A"} </p>
                 </div>
                 <div className="flex items-center justify-center w-[200px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
-                  <p className="text-[.7rem] text-center">
-                    {formatDateTime(list?.action_date)}
-                  </p>
+                  <p className="text-[.7rem]">{list?.action_date || "N/A"} </p>
                 </div>
                 <div
-                  className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 `}
+                  className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200`}
                 >
-                  <p className="text-[.7rem] text-center">
+                  <p className="text-[.7rem]">
                     {list?.executive_name || "N/A"}
                   </p>
                 </div>

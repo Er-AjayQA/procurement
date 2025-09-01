@@ -82,6 +82,7 @@ export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
 
       const payload = {
         allocated_to_user_id: formData?.allocated_to_user_id,
+        status: "ASSIGNED",
       };
 
       response = await allocateTicket(data?.id, payload);

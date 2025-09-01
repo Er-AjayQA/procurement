@@ -18,7 +18,10 @@ router.post(
   TicketController.getAllTicketAllocatedToUserDetails
 );
 router.put("/delete-ticket/:id", TicketController.deleteTicket);
-router.post("/approval-for-ticket/:id", TicketController.approvalForTicket);
+router.post(
+  "/approval-for-ticket/:id/:user_id",
+  TicketController.approvalForTicket
+);
 
 // ========== EXPORT ========== //
 module.exports = router;

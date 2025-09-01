@@ -1,11 +1,12 @@
 import { MdOutlineClose } from "react-icons/md";
 import { useAllTicketsContext } from "../../../contextApis/useTicketContextFile";
+import { useEffect, useState } from "react";
 
 export const TicketHistoryPopup = ({
   showApproverPopup,
   setShowApproverPopup,
 }) => {
-  const { data, setViewId } = useAllTicketsContext();
+  const { data, setViewId, formatDateTime } = useAllTicketsContext();
 
   // Handle Close Popup
   const handleClosePopup = () => {
@@ -49,7 +50,7 @@ export const TicketHistoryPopup = ({
               <label className="text-[.8rem]">Acted On</label>
             </div>
             <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Assign To</label>
+              <label className="text-[.8rem]">Executive Name</label>
             </div>
             <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Remark by Executive</label>
@@ -72,7 +73,7 @@ export const TicketHistoryPopup = ({
                 </div>
                 <div className="flex items-center justify-center w-[200px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
                   <p className="text-[.7rem] text-center">
-                    {list?.action_date || "N/A"}{" "}
+                    {formatDateTime(list?.action_date)}
                   </p>
                 </div>
                 <div

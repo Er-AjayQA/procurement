@@ -1,7 +1,7 @@
 import { useHelpDeskContext } from "../../../../contextApis/useEssContextFile";
 
 export const TicketHistoryDetails = () => {
-  const { data } = useHelpDeskContext();
+  const { data, formatDateTime } = useHelpDeskContext();
   return (
     <>
       <div className="flex flex-col gap-5">
@@ -21,7 +21,7 @@ export const TicketHistoryDetails = () => {
               <label className="text-[.8rem]">Acted On</label>
             </div>
             <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Assign To</label>
+              <label className="text-[.8rem]">Executive Name</label>
             </div>
             <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Remark</label>
@@ -36,34 +36,38 @@ export const TicketHistoryDetails = () => {
           {data?.history_detail?.map((list, i) => {
             return (
               <div className="flex" key={i}>
-                <div className="w-[100px] px-2 py-2 text-center border-e border-e-gray-200 border-b border-b-gray-200">
+                <div className="flex items-center justify-center w-[100px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
                   <p className="text-[.7rem]">{i + 1}</p>
                 </div>
-                <div className="w-[300px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
+                <div
+                  className={`flex items-center w-[300px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
+                    list?.action_taken ? "" : "justify-center"
+                  }`}
+                >
                   <p className="text-[.7rem]">{list?.action_taken || "N/A"} </p>
                 </div>
-                <div className="w-[200px] px-2 py-2 text-center border-e border-e-gray-200 border-b border-b-gray-200">
-                  <p className="text-[.7rem]">{list?.action_date || "N/A"} </p>
+                <div className="flex items-center justify-center w-[200px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
+                  <p className="text-[.7rem]">
+                    {formatDateTime(list?.action_date)}
+                  </p>
                 </div>
                 <div
-                  className={`w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
-                    list?.executive_name ? "" : "text-center"
-                  }`}
+                  className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200`}
                 >
                   <p className="text-[.7rem]">
                     {list?.executive_name || "N/A"}
                   </p>
                 </div>
                 <div
-                  className={`w-[250px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
-                    list?.executive_remark ? "" : "text-center"
+                  className={`flex items-center w-[250px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
+                    list?.executive_remark ? "" : "justify-center"
                   }`}
                 >
                   <p className="text-[.7rem]">
                     {list?.executive_remark || "N/A"}
                   </p>
                 </div>
-                <div className="w-[150px] px-2 py-2 text-center border-b border-b-gray-200">
+                <div className="flex items-center justify-center w-[150px] px-2 py-2 border-b border-b-gray-200">
                   <p className="text-[.7rem]">
                     {list?.current_status || "N/A"}
                   </p>
