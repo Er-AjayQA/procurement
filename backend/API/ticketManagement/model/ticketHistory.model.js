@@ -8,11 +8,11 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         primaryKey: true,
       },
-      executive_name: {
+      action_by: {
         type: Sequelize.STRING,
         allowNull: true,
         set(value) {
-          this.setDataValue("executive_name", value === "" ? null : value);
+          this.setDataValue("action_by", value === "" ? null : value);
         },
       },
       executive_code: {

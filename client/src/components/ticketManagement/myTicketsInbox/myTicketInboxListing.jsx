@@ -145,7 +145,7 @@ export const MyTicketInboxListing = ({ componentType }) => {
             ) : listing?.length > 0 ? (
               listing?.map((list, i) => {
                 const myListStatusColor =
-                  list?.ticket_status === "OPEN"
+                  list?.approver_status === "PENDING"
                     ? "text-green-600"
                     : list?.ticket_status === "CLOSE"
                     ? "text-red-600"

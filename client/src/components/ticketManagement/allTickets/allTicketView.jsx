@@ -1,10 +1,10 @@
 import { useAllTicketsContext } from "../../../contextApis/useTicketContextFile";
 import { TicketBasicDetails } from "./allTicketViewComponents/ticketBasicDetails";
+import { TicketDescription } from "./allTicketViewComponents/ticketDescription";
 import { TicketHistoryDetails } from "./allTicketViewComponents/ticketHistoryDetails";
 
 export const AllTicketView = () => {
-  const { handleFormClose, handleComponentView, setViewId } =
-    useAllTicketsContext();
+  const { data, handleComponentView, setViewId } = useAllTicketsContext();
 
   const handleCancel = () => {
     handleComponentView("listing");
@@ -16,7 +16,7 @@ export const AllTicketView = () => {
       <div className="flex flex-col">
         <div className="flex justify-between items-center py-3 border-b border-gray-400">
           <div>
-            <p className="text-sm font-bold">Ticket Summary</p>
+            <p className="text-sm font-bold">{data?.ticket_subject}</p>
           </div>
           <button
             className="py-2 px-4 bg-red-600 rounded-md text-white text-sm hover:bg-red-700 transition-all duration=[.3s]"
@@ -30,6 +30,11 @@ export const AllTicketView = () => {
           {/* Ticket Basic Details Sections */}
           <div className="py-5">
             <TicketBasicDetails />
+          </div>
+
+          {/* Ticket Description Sections */}
+          <div className="py-5">
+            <TicketDescription />
           </div>
 
           {/* Ticket History Sections */}

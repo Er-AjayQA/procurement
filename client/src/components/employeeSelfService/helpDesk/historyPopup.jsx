@@ -49,7 +49,7 @@ export const TicketHistoryPopup = ({
               <label className="text-[.8rem]">Acted On</label>
             </div>
             <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Executive Name</label>
+              <label className="text-[.8rem]">Action By</label>
             </div>
             <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Remark by Executive</label>
@@ -92,7 +92,13 @@ export const TicketHistoryPopup = ({
                   </p>
                 </div>
                 <div className="flex items-center justify-center w-[150px] px-2 py-2 border-b border-b-gray-200">
-                  <p className="text-[.7rem]">
+                  <p
+                    className={`text-[.7rem] font-bold  ${
+                      (data?.ticket_status === "OPEN" && "text-green-600") ||
+                      (data?.ticket_status === "CLOSE" && "text-red-600") ||
+                      (data?.ticket_status === "ESCALATED" && "text-yellow-600")
+                    }`}
+                  >
                     {list?.current_status || "N/A"}
                   </p>
                 </div>
