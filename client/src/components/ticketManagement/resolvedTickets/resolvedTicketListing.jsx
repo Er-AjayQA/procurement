@@ -4,14 +4,14 @@ import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { FaRegHandLizard } from "react-icons/fa6";
 import { useState } from "react";
 import { TicketHistoryPopup } from "./historyPopup";
-import { useDepartmentalTicketsContext } from "../../../contextApis/useTicketContextFile";
+import { useResolvedTicketsContext } from "../../../contextApis/useTicketContextFile";
 import { SkeltonUi } from "../../UI/Skelton";
 import { ViewIcon } from "../../UI/viewIconUi";
 import { useSelector } from "react-redux";
 import { allocateTicket } from "../../../services/ticket_services/service";
 import { toast } from "react-toastify";
 
-export const DepartmentalTicketListing = ({ componentType }) => {
+export const ResolvedTicketListing = ({ componentType }) => {
   const {
     isLoading,
     listing,
@@ -28,7 +28,7 @@ export const DepartmentalTicketListing = ({ componentType }) => {
     handleLimitChange,
     handleChangeFilter,
     handleComponentView,
-  } = useDepartmentalTicketsContext();
+  } = useResolvedTicketsContext();
   const { userDetails } = useSelector((state) => state.auth);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -153,7 +153,7 @@ export const DepartmentalTicketListing = ({ componentType }) => {
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
           <h3 className="text-white text-xs font-bold">
-            Departmental Tickets Listing
+            Resolved Tickets Listing
           </h3>
         </div>
 

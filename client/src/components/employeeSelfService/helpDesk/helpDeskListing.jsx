@@ -165,7 +165,7 @@ export const HelpDeskListing = ({ componentType }) => {
                     ? "text-red-600"
                     : list?.ticket_status === "ESCALATED"
                     ? "text-yellow-600"
-                    : "text-gray-600";
+                    : "text-blue-600";
 
                 const myAllocatedStatusColor =
                   list?.approver_status === "PENDING"
@@ -174,7 +174,7 @@ export const HelpDeskListing = ({ componentType }) => {
                     ? "text-red-600"
                     : list?.approver_status === "ESCALATED"
                     ? "text-yellow-600"
-                    : "text-gray-600";
+                    : "text-blue-600";
 
                 return (
                   <div

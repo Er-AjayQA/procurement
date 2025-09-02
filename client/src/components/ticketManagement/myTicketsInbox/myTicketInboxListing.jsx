@@ -151,7 +151,7 @@ export const MyTicketInboxListing = ({ componentType }) => {
                     ? "text-red-600"
                     : list?.ticket_status === "ESCALATED"
                     ? "text-yellow-600"
-                    : "text-gray-600";
+                    : "text-blue-600";
 
                 return (
                   <div

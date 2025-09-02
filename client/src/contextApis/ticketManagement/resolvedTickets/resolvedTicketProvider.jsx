@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { DepartmentalTicketContext } from "./departmentalTicketContext";
+import { ResolvedTicketContext } from "./resolvedTicketContext";
 import {
   getAllDepartments,
   getAllTicketCategory,
@@ -15,7 +15,7 @@ import {
   getTicketDetailsById,
 } from "../../../services/ticket_services/service";
 
-export const DepartmentalTicketProvider = ({ children }) => {
+export const ResolvedTicketProvider = ({ children }) => {
   const { userDetails } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [loginUserData, setLoginUserData] = useState(null);
@@ -30,6 +30,7 @@ export const DepartmentalTicketProvider = ({ children }) => {
     created_by_user_id: "",
     created_for_dept_id: "",
     ticket_category_id: "",
+    ticket_status: "",
   });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
@@ -48,18 +49,11 @@ export const DepartmentalTicketProvider = ({ children }) => {
   // Get All Tickets
   const getAllTicketsData = async () => {
     try {
-      // Only fetch tickets if we have login user data with department ID
-      if (!loginUserData?.dep_id) {
-        setListing(null);
-        setIsLoading(false);
-        return;
-      }
-
       setIsLoading(true);
       const data = await getAllTicketsDetails({
         limit,
         page,
-        filter,
+        filter: { ...filter, ticket_status: "CLOSE" },
       });
 
       if (data.success) {
@@ -248,21 +242,8 @@ export const DepartmentalTicketProvider = ({ children }) => {
     }
   }, [userDetails]);
 
-  // Update filter when loginUserData becomes available
   useEffect(() => {
-    if (loginUserData?.dep_id) {
-      setFilter((prev) => ({
-        ...prev,
-        created_for_dept_id: loginUserData?.dep_id,
-      }));
-    }
-  }, [loginUserData]);
-
-  // Fetch tickets only when we have login user data with department ID
-  useEffect(() => {
-    if (loginUserData?.dep_id) {
-      getAllTicketsData();
-    }
+    getAllTicketsData();
   }, [limit, page, filter, refreshTrigger, componentType, loginUserData]);
 
   const styledComponent = {
@@ -407,8 +388,8 @@ export const DepartmentalTicketProvider = ({ children }) => {
   };
 
   return (
-    <DepartmentalTicketContext.Provider value={contextValue}>
+    <ResolvedTicketContext.Provider value={contextValue}>
       {children}
-    </DepartmentalTicketContext.Provider>
+    </ResolvedTicketContext.Provider>
   );
 };

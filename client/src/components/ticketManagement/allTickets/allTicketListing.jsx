@@ -147,7 +147,9 @@ export const AllTicketListing = ({ componentType }) => {
                     ? "text-red-600"
                     : list?.ticket_status === "ESCALATED"
                     ? "text-yellow-600"
-                    : "text-gray-600";
+                    : list?.ticket_status === "ASSIGNED"
+                    ? "text-pink-600"
+                    : "text-blue-600";
 
                 return (
                   <div

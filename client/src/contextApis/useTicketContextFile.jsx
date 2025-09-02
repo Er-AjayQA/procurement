@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { AllTicketContext } from "./ticketManagement/allTickets/allTicketContext";
 import { DepartmentalTicketContext } from "./ticketManagement/departmentalTickets/departmentalTicketContext";
 import { MyTicketInboxContext } from "./ticketManagement/myTicketsInbox/myTicketInboxContext";
+import { ResolvedTicketContext } from "./ticketManagement/resolvedTickets/resolvedTicketContext";
 
 // Use All Ticket Context
 export const useAllTicketsContext = () => {
@@ -31,6 +32,17 @@ export const useMyTicketsInboxContext = () => {
   if (context === undefined) {
     throw new Error(
       "useMyTicketsInboxContext must be used within a MyTicketInboxProvider"
+    );
+  }
+  return context;
+};
+
+// Use Resolved Ticket Context
+export const useResolvedTicketsContext = () => {
+  const context = useContext(ResolvedTicketContext);
+  if (context === undefined) {
+    throw new Error(
+      "useResolvedTicketsContext must be used within a ResolvedTicketProvider"
     );
   }
   return context;

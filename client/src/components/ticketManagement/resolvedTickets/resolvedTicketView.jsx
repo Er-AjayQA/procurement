@@ -1,11 +1,11 @@
-import { useMyTicketsInboxContext } from "../../../contextApis/useTicketContextFile";
-import { TicketBasicDetails } from "./myTicketsViewComponents/ticketBasicDetails";
-import { TicketDescription } from "./myTicketsViewComponents/ticketDescription";
-import { TicketHistoryDetails } from "./myTicketsViewComponents/ticketHistoryDetails";
+import { useResolvedTicketsContext } from "../../../contextApis/useTicketContextFile";
+import { TicketBasicDetails } from "./resolvedTicketViewComponents/ticketBasicDetails";
+import { TicketDescription } from "./resolvedTicketViewComponents/ticketDescription";
+import { TicketHistoryDetails } from "./resolvedTicketViewComponents/ticketHistoryDetails";
 
-export const MyTicketInboxView = () => {
+export const ResolvedTicketView = () => {
   const { data, handleFormClose, handleComponentView, setViewId } =
-    useMyTicketsInboxContext();
+    useResolvedTicketsContext();
 
   const handleCancel = () => {
     handleComponentView("listing");

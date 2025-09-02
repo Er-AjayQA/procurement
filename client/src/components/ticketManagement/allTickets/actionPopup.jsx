@@ -59,7 +59,7 @@ export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
         const userData = response?.data;
         // Filter and map properly
         const filteredOptions = userData
-          .filter((item) => item?.dep_id === data?.created_for_dept_id)
+          .filter((item) => item?.id !== data?.created_by_user_id)
           .map((item) => ({
             value: item?.id,
             label: `${item?.title} ${item?.name} - ${item?.emp_code}`,
@@ -82,6 +82,7 @@ export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
 
       const payload = {
         allocated_to_user_id: formData?.allocated_to_user_id,
+        action_by_user_id: userDetails?.id,
         status: "ASSIGNED",
       };
 
