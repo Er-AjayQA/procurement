@@ -256,6 +256,7 @@ module.exports.getTicketDetails = async (req, res) => {
           try {
             const getHistoryData = await DB.tbl_ticket_history.findAll({
               where: { ticket_id: id },
+              order: [["createdAt", "DESC"]],
             });
 
             ticketDetail.history_detail = getHistoryData;
@@ -533,11 +534,11 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
       replacements.ticket_category_id = filter.ticket_category_id;
     }
 
-    if (filter && filter.approver_status) {
-      countQuery += ` AND TA.approver_status LIKE :approver_status`;
-      query += ` AND TA.approver_status LIKE :approver_status`;
-      replacements.approver_status = filter.approver_status;
-    }
+    // if (filter && filter.approver_status) {
+    //   countQuery += ` AND TA.approver_status LIKE :approver_status`;
+    //   query += ` AND TA.approver_status LIKE :approver_status`;
+    //   replacements.approver_status = filter.approver_status;
+    // }
 
     query += ` ORDER BY TA.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;

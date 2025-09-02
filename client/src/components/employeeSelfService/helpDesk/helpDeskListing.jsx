@@ -9,6 +9,7 @@ import { EditIcon } from "../../UI/editIconUi";
 import { DeleteIcon } from "../../UI/deleteIcon";
 import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
 import { TicketHistoryPopup } from "./historyPopup";
+import { TicketActionPopup } from "./actionPopup";
 
 export const HelpDeskListing = ({ componentType }) => {
   const {
@@ -23,6 +24,7 @@ export const HelpDeskListing = ({ componentType }) => {
     setViewId,
     setUpdateId,
     setDeleteId,
+    setAllocationData,
     departmentOptions,
     ticketCategoryOptions,
     styledComponent,
@@ -34,7 +36,7 @@ export const HelpDeskListing = ({ componentType }) => {
   } = useHelpDeskContext();
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
+  const [showActionPopup, setShowActionPopup] = useState(false);
   const [showApproverPopup, setShowApproverPopup] = useState(false);
 
   return (
@@ -203,9 +205,7 @@ export const HelpDeskListing = ({ componentType }) => {
                       {list?.ticket_category_priority}
                     </div>
                     <div
-                      className={`flex items-center justify-center p-2 text-[.8rem] text-xs font-bold ${
-                        currentTab === "my_requests" ? "cursor-pointer" : ""
-                      } ${
+                      className={`flex items-center justify-center p-2 text-[.8rem] cursor-pointer text-xs font-bold ${
                         currentTab === "my_requests"
                           ? myListStatusColor
                           : myAllocatedStatusColor
@@ -216,7 +216,10 @@ export const HelpDeskListing = ({ componentType }) => {
                               setViewId(list?.id);
                               setShowApproverPopup(true);
                             }
-                          : ""
+                          : () => {
+                              setViewId(list?.ticket_id);
+                              setShowApproverPopup(true);
+                            }
                       }
                     >
                       {currentTab === "my_requests"
@@ -232,18 +235,25 @@ export const HelpDeskListing = ({ componentType }) => {
                         }}
                       />
 
-                      {(currentTab === "my_requests" &&
-                        list?.ticket_status === "OPEN") ||
-                      currentTab === "allocate_to_me" ? (
-                        <EditIcon
-                          onClick={() => {
-                            handleComponentView("form");
-                            setUpdateId(list?.id);
-                          }}
-                        />
-                      ) : (
-                        ""
-                      )}
+                      {currentTab === "my_requests" &&
+                        list?.ticket_status === "OPEN" && (
+                          <EditIcon
+                            onClick={() => {
+                              handleComponentView("form");
+                              setUpdateId(list?.id);
+                            }}
+                          />
+                        )}
+
+                      {currentTab === "allocate_to_me" &&
+                        list?.approver_status === "PENDING" && (
+                          <EditIcon
+                            onClick={() => {
+                              setAllocationData(list);
+                              setShowActionPopup(true);
+                            }}
+                          />
+                        )}
 
                       {currentTab === "my_requests" &&
                       list?.ticket_status === "OPEN" ? (
@@ -278,6 +288,14 @@ export const HelpDeskListing = ({ componentType }) => {
           <TicketHistoryPopup
             showApproverPopup={showApproverPopup}
             setShowApproverPopup={setShowApproverPopup}
+          />
+        )}
+
+        {/* Display Ticket Action Popup */}
+        {showActionPopup && (
+          <TicketActionPopup
+            showActionPopup={showActionPopup}
+            setShowActionPopup={setShowActionPopup}
           />
         )}
 
