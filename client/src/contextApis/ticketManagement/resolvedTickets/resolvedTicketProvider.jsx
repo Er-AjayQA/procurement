@@ -27,7 +27,7 @@ export const ResolvedTicketProvider = ({ children }) => {
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [filter, setFilter] = useState({
-    created_by_user_id: "",
+    user_id: "",
     created_for_dept_id: "",
     ticket_category_id: "",
     ticket_status: "",

@@ -56,6 +56,27 @@ module.exports.createTicket = async (req, res) => {
         { transaction }
       );
 
+      // Generating Notification
+      const getEmployeeListOfDepartment = await DB.tbl_user_master.findAll({
+        attributes: ["id"],
+        where: { dep_id: data?.created_for_dept_id, isDeleted: false },
+        transaction,
+      });
+
+      if (
+        getEmployeeListOfDepartment &&
+        getEmployeeListOfDepartment.length > 0
+      ) {
+        await DB.tbl_notification_master.bulkCreate(
+          getEmployeeListOfDepartment.map((emp) => ({
+            title: "New Ticket Raised!",
+            message: `The ticket is raised by ${getUserDetails?.title} ${getUserDetails?.name}. The issue is registered for ${data?.ticket_subject}`,
+            user_id: emp?.id,
+          })),
+          { transaction }
+        );
+      }
+
       await transaction.commit();
 
       return res.status(200).send({
@@ -308,9 +329,9 @@ module.exports.getAllTicketDetails = async (req, res) => {
     LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
     WHERE TM.isDeleted = false`;
 
-    if (filter.created_by_user_id) {
-      countQuery += ` AND TM.created_by_user_id LIKE :created_by_user_id`;
-      query += ` AND TM.created_by_user_id LIKE :created_by_user_id`;
+    if (filter.user_id) {
+      countQuery += ` AND TM.user_id LIKE :user_id`;
+      query += ` AND TM.user_id LIKE :user_id`;
     }
 
     if (filter.created_for_dept_id) {
@@ -334,7 +355,7 @@ module.exports.getAllTicketDetails = async (req, res) => {
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
       replacements: {
-        created_by_user_id: `${filter.created_by_user_id}`,
+        user_id: `${filter.user_id}`,
         created_for_dept_id: `${filter.created_for_dept_id}`,
         ticket_category_id: `${filter.ticket_category_id}`,
         ticket_status: `${filter.ticket_status}`,
@@ -346,7 +367,7 @@ module.exports.getAllTicketDetails = async (req, res) => {
 
     let getAllData = await DB.sequelize.query(query, {
       replacements: {
-        created_by_user_id: `${filter.created_by_user_id}`,
+        user_id: `${filter.user_id}`,
         created_for_dept_id: `${filter.created_for_dept_id}`,
         ticket_category_id: `${filter.ticket_category_id}`,
         ticket_status: `${filter.ticket_status}`,
@@ -507,6 +528,7 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
     let countQuery = `
         SELECT COUNT(*) as total 
         FROM TICKET_ALLOCATION AS TA
+        LEFT JOIN TICKET_MANAGEMENT AS TM ON TM.id= TA.ticket_id
         WHERE TA.allocated_to_user_id= :id AND TA.isDeleted = false`;
 
     let query = `
@@ -534,11 +556,17 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
       replacements.ticket_category_id = filter.ticket_category_id;
     }
 
-    // if (filter && filter.approver_status) {
-    //   countQuery += ` AND TA.approver_status LIKE :approver_status`;
-    //   query += ` AND TA.approver_status LIKE :approver_status`;
-    //   replacements.approver_status = filter.approver_status;
-    // }
+    if (filter && filter.created_for_dept_id) {
+      countQuery += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
+      query += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
+      replacements.created_for_dept_id = filter.created_for_dept_id;
+    }
+
+    if (filter && filter.user_id) {
+      countQuery += ` AND TM.user_id LIKE :user_id`;
+      query += ` AND TM.user_id LIKE :user_id`;
+      replacements.user_id = filter.user_id;
+    }
 
     query += ` ORDER BY TA.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;

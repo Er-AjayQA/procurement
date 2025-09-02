@@ -163,7 +163,7 @@ export const NotificationProvider = ({ children }) => {
 
     const pollInterval = setInterval(() => {
       getAllData();
-    }, 300000);
+    }, 10000);
 
     return () => clearInterval(pollInterval);
   }, [userDetails?.id]);

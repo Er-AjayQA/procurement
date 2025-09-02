@@ -228,11 +228,17 @@ export const HelpDeskListing = ({ componentType }) => {
                     </div>
                     <div className="flex justify-center text-[.8rem] items-center p-2 gap-2">
                       <ViewIcon
-                        onClick={() => {
-                          handleComponentView("view");
-                          setViewId(list?.id);
-                          console.log("ID", list?.id);
-                        }}
+                        onClick={
+                          currentTab === "my_requests"
+                            ? () => {
+                                handleComponentView("view");
+                                setViewId(list?.id);
+                              }
+                            : () => {
+                                handleComponentView("view");
+                                setViewId(list?.ticket_id);
+                              }
+                        }
                       />
 
                       {currentTab === "my_requests" &&

@@ -14,17 +14,17 @@ export const TicketHistoryDetails = () => {
             <div className="w-[100px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">S.No.</label>
             </div>
+            <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
+              <label className="text-[.8rem]">Action By</label>
+            </div>
             <div className="w-[300px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Action Taken</label>
             </div>
             <div className="w-[200px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Acted On</label>
             </div>
-            <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Action By</label>
-            </div>
             <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Remark</label>
+              <label className="text-[.8rem]">Comment</label>
             </div>
             <div className="w-[150px] px-2 py-2 text-center font-bold">
               <label className="text-[.8rem]">Current Status</label>
@@ -40,6 +40,11 @@ export const TicketHistoryDetails = () => {
                   <p className="text-[.7rem]">{i + 1}</p>
                 </div>
                 <div
+                  className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200`}
+                >
+                  <p className="text-[.7rem]">{list?.action_by || "N/A"}</p>
+                </div>
+                <div
                   className={`flex items-center w-[300px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
                     list?.action_taken ? "" : "justify-center"
                   }`}
@@ -50,11 +55,6 @@ export const TicketHistoryDetails = () => {
                   <p className="text-[.7rem]">
                     {formatDateTime(list?.action_date)}
                   </p>
-                </div>
-                <div
-                  className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200`}
-                >
-                  <p className="text-[.7rem]">{list?.action_by || "N/A"}</p>
                 </div>
                 <div
                   className={`flex items-center w-[250px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
