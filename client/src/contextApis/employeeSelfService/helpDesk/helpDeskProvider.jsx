@@ -37,7 +37,10 @@ export const HelpDeskProvider = ({ children }) => {
   const [updateId, setUpdateId] = useState(null);
   const [allocationData, setAllocationData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [filter, setFilter] = useState({ ticket_category_id: "" });
+  const [filter, setFilter] = useState({
+    ticket_category_id: "",
+    created_for_dept_id: "",
+  });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
@@ -64,7 +67,6 @@ export const HelpDeskProvider = ({ children }) => {
     if (tabType.value === "my_requests") {
       return {
         ...cleanFilter,
-        created_for_dept_id: "",
       };
     } else if (tabType.value === "allocate_to_me") {
       return {

@@ -28,6 +28,8 @@ export const MyTicketInboxProvider = ({ children }) => {
   const [filter, setFilter] = useState({
     approver_status: "",
     ticket_category_id: "",
+    user_id: "",
+    created_for_dept_id: "",
   });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);

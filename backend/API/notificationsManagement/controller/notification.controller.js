@@ -115,6 +115,7 @@ module.exports.getAllNotificationDetails = async (req, res) => {
           attributes: ["id", "name", "emp_code"],
         },
       ],
+      order: [["createdAt", "DESC"]],
     });
 
     if (!getAllData || getAllData.length === 0) {

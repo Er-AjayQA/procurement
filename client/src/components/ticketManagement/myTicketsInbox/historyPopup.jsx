@@ -24,7 +24,7 @@ export const TicketHistoryPopup = ({
 
       {/* List Form */}
       <div
-        className={`absolute top-[50%] start-[50%] w-[60%] translate-x-[-50%] translate-y-[-50%] bg-white z-30 min-h-[40%] shadow-lg rounded-lg transition-all duration-[.4s]`}
+        className={`absolute top-[50%] start-[50%] w-[70%] translate-x-[-50%] translate-y-[-50%] bg-white z-30 min-h-[40%] shadow-lg rounded-lg transition-all duration-[.4s]`}
       >
         <div className="bg-button-hover py-2 px-2 rounded-t-md flex items-center justify-between">
           <h3 className="text-white text-xs font-bold">Ticket History</h3>
@@ -42,17 +42,17 @@ export const TicketHistoryPopup = ({
             <div className="w-[100px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">S.No.</label>
             </div>
+            <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
+              <label className="text-[.8rem]">Action By</label>
+            </div>
             <div className="w-[300px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Action Taken</label>
             </div>
             <div className="w-[200px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
               <label className="text-[.8rem]">Acted On</label>
             </div>
-            <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Executive Name</label>
-            </div>
             <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Remark by Executive</label>
+              <label className="text-[.8rem]">Comment</label>
             </div>
             <div className="w-[150px] px-2 py-2 text-center font-bold">
               <label className="text-[.8rem]">Current Status</label>
@@ -68,6 +68,13 @@ export const TicketHistoryPopup = ({
                   <div className="flex items-center justify-center w-[100px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
                     <p className="text-[.7rem]">{i + 1}</p>
                   </div>
+                  <div
+                    className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 `}
+                  >
+                    <p className="text-[.7rem] text-center">
+                      {list?.action_by || "N/A"}
+                    </p>
+                  </div>
                   <div className="w-[300px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
                     <p className="text-[.7rem]">
                       {list?.action_taken || "N/A"}{" "}
@@ -76,13 +83,6 @@ export const TicketHistoryPopup = ({
                   <div className="flex items-center justify-center w-[200px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
                     <p className="text-[.7rem] text-center">
                       {formatDateTime(list?.action_date)}
-                    </p>
-                  </div>
-                  <div
-                    className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 `}
-                  >
-                    <p className="text-[.7rem] text-center">
-                      {list?.action_by || "N/A"}
                     </p>
                   </div>
                   <div

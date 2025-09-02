@@ -100,7 +100,7 @@ export const AllTicketListing = ({ componentType }) => {
               onChange={(selectedOption) => {
                 setSelectedUser(selectedOption);
                 handleChangeFilter("dropdown", {
-                  field: "created_by_user_id",
+                  field: "user_id",
                   value: selectedOption ? selectedOption.value : "",
                 });
               }}
