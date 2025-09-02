@@ -35,6 +35,7 @@ export const HelpDeskProvider = ({ children }) => {
   const [componentType, setComponentType] = useState("listing");
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
+  const [allocationData, setAllocationData] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [filter, setFilter] = useState({ ticket_category_id: "" });
   const [limit, setLimit] = useState(10);
@@ -68,7 +69,6 @@ export const HelpDeskProvider = ({ children }) => {
     } else if (tabType.value === "allocate_to_me") {
       return {
         ...cleanFilter,
-        approver_status: "PENDING",
       };
     }
 
@@ -496,6 +496,7 @@ export const HelpDeskProvider = ({ children }) => {
     viewId,
     updateId,
     deleteId,
+    allocationData,
     tabType,
     currentTab,
     componentType,
@@ -515,6 +516,7 @@ export const HelpDeskProvider = ({ children }) => {
     setDeleteId,
     setPage,
     setViewId,
+    setAllocationData,
     setData,
     setViewVisibility,
     setDepartmentOptions,
