@@ -16,6 +16,7 @@ module.exports.createTicket = async (req, res) => {
         ticket_status: `OPEN`,
         isDeleted: false,
       },
+      transaction,
     });
 
     if (isAlreadyExist) {
@@ -25,14 +26,23 @@ module.exports.createTicket = async (req, res) => {
           "Ticket for selected department with this category already exist!",
       });
     } else {
-      const newData = await DB.tbl_ticket_management.create(data);
+      const newData = await DB.tbl_ticket_management.create(data, {
+        transaction,
+      });
 
       // Get Creator Details
       const getUserDetails = await DB.tbl_user_master.findOne({
         where: { id: data?.created_by_user_id },
+        transaction,
       });
 
-      console.log("USER===============", getUserDetails);
+      if (!getUserDetails) {
+        await transaction.rollback();
+        return res.status(404).send({
+          success: false,
+          message: "User not found!",
+        });
+      }
 
       await DB.tbl_ticket_history.create(
         {
@@ -43,7 +53,7 @@ module.exports.createTicket = async (req, res) => {
           action_by: `${getUserDetails?.title} ${getUserDetails?.name}`,
           ticket_id: newData?.id,
         },
-        transaction
+        { transaction }
       );
 
       await transaction.commit();
@@ -61,6 +71,7 @@ module.exports.createTicket = async (req, res) => {
 
 // ========== UPDATE TICKET CONTROLLER ========== //
 module.exports.updateTicket = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
   try {
     const data = req.body;
     const { id } = req.params;
@@ -72,25 +83,42 @@ module.exports.updateTicket = async (req, res) => {
         ticket_status: "OPEN",
         isDeleted: false,
       },
+      transaction,
     });
 
     if (!isDataExist) {
+      await transaction.rollback();
       return res
         .status(404)
         .send({ success: false, message: "Ticket not found!" });
     } else {
-      const updateData = await isDataExist.update(data);
+      const updateData = await isDataExist.update(data, { transaction });
 
       const userData = await DB.tbl_user_master.findOne({
         where: { id: data?.created_by_user_id },
+        transaction,
       });
 
-      await DB.tbl_ticket_history.create({
-        current_status: "OPEN",
-        action_taken: `Ticket get updated by ${userData?.title} ${userData?.name}`,
-        action_date: data?.acted_on || new Date(),
-        ticket_id: isDataExist?.id,
-      });
+      if (!userData) {
+        await transaction.rollback();
+        return res.status(404).send({
+          success: false,
+          message: "User not found!",
+        });
+      }
+
+      await DB.tbl_ticket_history.create(
+        {
+          current_status: "OPEN",
+          action_taken: `Ticket content is updated.`,
+          action_date: data?.acted_on || new Date(),
+          action_by: `${userData?.title} ${userData?.name}`,
+          ticket_id: isDataExist?.id,
+        },
+        { transaction }
+      );
+
+      await transaction.commit();
 
       return res.status(201).send({
         success: true,
@@ -98,17 +126,17 @@ module.exports.updateTicket = async (req, res) => {
       });
     }
   } catch (error) {
+    await transaction.rollback();
     res.status(500).send({ success: false, message: error.message });
   }
 };
 
 // ========== ALLOCATE TICKET CONTROLLER ========== //
 module.exports.escalateTicket = async (req, res) => {
+  const transaction = await DB.sequelize.transaction();
   try {
     const { id } = req.params;
     const data = req.body;
-
-    console.log("Payload Backend", data);
 
     // Check if Data exist
     const isAlreadyExist = await DB.tbl_ticket_management.findOne({
@@ -116,45 +144,68 @@ module.exports.escalateTicket = async (req, res) => {
         id,
         isDeleted: false,
       },
+      transaction,
     });
 
     if (!isAlreadyExist) {
+      await transaction.rollback();
       return res.status(404).send({
         success: false,
         message: "Ticket not found!",
       });
     } else {
-      const newData = await DB.tbl_ticket_allocation.create({
-        approver_status: "PENDING",
-        allocated_to_user_id: data?.allocated_to_user_id,
-        ticket_id: id,
+      const getUserDetails = await DB.tbl_user_master.findOne({
+        where: { id: data?.action_by_user_id },
+        transaction,
       });
+
+      if (!getUserDetails) {
+        await transaction.rollback();
+        return res.status(404).send({
+          success: false,
+          message: "User not found!",
+        });
+      }
+
+      const newData = await DB.tbl_ticket_allocation.create(
+        {
+          approver_status: "PENDING",
+          allocated_to_user_id: data?.allocated_to_user_id,
+          ticket_id: id,
+        },
+        { transaction }
+      );
 
       await DB.tbl_ticket_management.update(
         { ticket_status: data?.status },
-        { where: { id } }
+        { where: { id }, transaction }
       );
 
-      // Get User Assigned To User Details
-      const userData = await DB.tbl_user_master.findOne({
+      const getAllocatedUserDetails = await DB.tbl_user_master.findOne({
         where: { id: data?.allocated_to_user_id },
+        transaction,
       });
 
       const messages = {
-        ASSIGNED: `This ticket is assigned to ${userData?.title} ${userData?.name} successfully. Issue will get resolved soon.`,
+        ASSIGNED: `This ticket is assigned to ${getAllocatedUserDetails?.title} ${getAllocatedUserDetails?.name} successfully. Issue will get resolved soon.`,
         PICK: `Good news!, Ticket has been picked up by one of our support agents and is now being worked on.`,
         ESCALATED: `This is an update regarding the ticket. To ensure that issue receives the specialized attention it requires, we have escalated the issue to a senior specialist on our team. This is a standard process to provide you with the most effective solution.`,
         CLOSE: `This is an update regarding the ticket. The issue is been successfully resolved.`,
       };
 
-      await DB.tbl_ticket_history.create({
-        current_status: data?.status,
-        action_taken: messages[data?.status],
-        action_date: data?.acted_on || new Date(),
-        ticket_id: id,
-        executive_name: `${userData?.title} ${userData?.name}`,
-        executive_code: `${userData?.emp_code}`,
-      });
+      await DB.tbl_ticket_history.create(
+        {
+          current_status: data?.status,
+          action_taken: messages[data?.status],
+          action_date: data?.acted_on || new Date(),
+          action_by: `${getUserDetails?.title} ${getUserDetails?.name}`,
+          ticket_id: id,
+          executive_code: `${getUserDetails?.emp_code}`,
+        },
+        { transaction }
+      );
+
+      await transaction.commit();
 
       const responseMessages = {
         ASSIGNED: "Ticket Assigned successfully!",
@@ -168,6 +219,7 @@ module.exports.escalateTicket = async (req, res) => {
       });
     }
   } catch (error) {
+    await transaction.rollback();
     res.status(500).send({ success: false, message: error.message });
   }
 };
@@ -270,6 +322,11 @@ module.exports.getAllTicketDetails = async (req, res) => {
       query += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
     }
 
+    if (filter.ticket_status) {
+      countQuery += ` AND TM.ticket_status LIKE :ticket_status`;
+      query += ` AND TM.ticket_status LIKE :ticket_status`;
+    }
+
     query += ` ORDER BY TM.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;
 
@@ -279,6 +336,7 @@ module.exports.getAllTicketDetails = async (req, res) => {
         created_by_user_id: `${filter.created_by_user_id}`,
         created_for_dept_id: `${filter.created_for_dept_id}`,
         ticket_category_id: `${filter.ticket_category_id}`,
+        ticket_status: `${filter.ticket_status}`,
       },
       type: DB.sequelize.QueryTypes.SELECT,
     });
@@ -290,6 +348,7 @@ module.exports.getAllTicketDetails = async (req, res) => {
         created_by_user_id: `${filter.created_by_user_id}`,
         created_for_dept_id: `${filter.created_for_dept_id}`,
         ticket_category_id: `${filter.ticket_category_id}`,
+        ticket_status: `${filter.ticket_status}`,
         limit,
         offset,
       },
@@ -525,6 +584,15 @@ module.exports.approvalForTicket = async (req, res) => {
     const data = req.body;
     const { id, user_id } = req.params;
 
+    // Validate required fields
+    if (!data.approver_status) {
+      await transaction.rollback();
+      return res.status(400).send({
+        success: false,
+        message: "approver_status is required!",
+      });
+    }
+
     // Check if Data already exist
     const isDataExist = await DB.tbl_ticket_allocation.findOne({
       where: {
@@ -541,114 +609,130 @@ module.exports.approvalForTicket = async (req, res) => {
       return res
         .status(404)
         .send({ success: false, message: "Tickets not found!" });
-    } else {
-      const getAllocatedUserDetail = await DB.tbl_user_master.findOne({
-        where: { id: user_id },
-        transaction,
-      });
+    }
 
-      if (!getAllocatedUserDetail) {
+    const getAllocatedUserDetail = await DB.tbl_user_master.findOne({
+      where: { id: user_id },
+      transaction,
+    });
+
+    if (!getAllocatedUserDetail) {
+      await transaction.rollback();
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found!" });
+    }
+
+    if (data.approver_status === "CLOSE") {
+      await DB.tbl_ticket_allocation.update(
+        {
+          approver_status: data.approver_status,
+          remark: data.remark,
+          acted_on: data.acted_on || new Date(),
+          action_by: `${getAllocatedUserDetail.title} ${getAllocatedUserDetail.name}`,
+        },
+        {
+          where: { id: isDataExist.id },
+          transaction,
+        }
+      );
+
+      await DB.tbl_ticket_management.update(
+        {
+          ticket_status: "CLOSE",
+        },
+        {
+          where: {
+            id: isDataExist.ticket_id,
+          },
+          transaction,
+        }
+      );
+
+      await DB.tbl_ticket_history.create(
+        {
+          action_by: `${getAllocatedUserDetail.title} ${getAllocatedUserDetail.name}`,
+          executive_code: `${getAllocatedUserDetail.emp_code}`,
+          current_status: "CLOSE",
+          action_taken:
+            "The issue is resolved by the executive, that's why ticket is been closed. If you have any other issue then you can raise tickets. Nice to assist you!",
+          executive_remark: data.remark,
+          action_date: data.acted_on || new Date(),
+          ticket_id: isDataExist.ticket_id,
+        },
+        { transaction }
+      );
+    } else if (data.approver_status === "ESCALATED") {
+      // Validate required field for escalation
+      if (!data.allocated_to_user_id) {
         await transaction.rollback();
-        return res
-          .status(404)
-          .send({ success: false, message: "User not found!" });
+        return res.status(400).send({
+          success: false,
+          message: "allocated_to_user_id is required for escalation!",
+        });
       }
 
-      if (data?.approver_status === "CLOSE") {
-        await DB.tbl_ticket_allocation.update(
-          {
-            approver_status: data?.approver_status,
-            remark: data?.remark,
-            acted_on: data?.acted_on || new Date(),
-            action_by: `${getAllocatedUserDetail?.title} ${getAllocatedUserDetail?.name}`,
-          },
-          {
-            where: { id: isDataExist?.id },
-            transaction,
-          }
-        );
+      await DB.tbl_ticket_allocation.update(
+        {
+          approver_status: "ESCALATED",
+          remark: data.remark,
+          acted_on: data.acted_on || new Date(),
+        },
+        {
+          where: { id: isDataExist.id },
+          transaction,
+        }
+      );
 
-        await DB.tbl_ticket_management.update(
-          {
-            ticket_status: "CLOSE",
-          },
-          {
-            where: {
-              id: isDataExist?.ticket_id,
-            },
-            transaction,
-          }
-        );
+      await DB.tbl_ticket_allocation.create(
+        {
+          approver_status: "PENDING",
+          allocated_to_user_id: data.allocated_to_user_id,
+          ticket_id: isDataExist.ticket_id,
+        },
+        { transaction }
+      );
 
-        await DB.tbl_ticket_history.create(
-          {
-            executive_name: `${getAllocatedUserDetail?.title} ${getAllocatedUserDetail?.name}`,
-            executive_code: `${getAllocatedUserDetail?.emp_code}`,
-            current_status: "CLOSE",
-            action_taken:
-              "The issue is resolved by the executive, that's why ticket is been closed. If you have any other issue then you can raise tickets. Nice to assist you!",
-            executive_remark: data?.remark,
-            action_date: data?.acted_on || new Date(),
-            ticket_id: isDataExist?.ticket_id,
+      await DB.tbl_ticket_management.update(
+        {
+          ticket_status: "ESCALATED",
+        },
+        {
+          where: {
+            id: isDataExist.ticket_id,
           },
-          { transaction }
-        );
-      }
+          transaction,
+        }
+      );
 
-      if (data?.approver_status === "ESCALATED") {
-        await DB.tbl_ticket_allocation.update(
-          {
-            approver_status: "ESCALATED",
-            remark: data?.remark,
-            acted_on: data?.acted_on || new Date(),
-            action_by: `${getAllocatedUserDetail?.title} ${getAllocatedUserDetail?.name}`,
-          },
-          { where: { id: isDataExist?.id }, transaction }
-        );
-
-        await DB.tbl_ticket_allocation.create(
-          {
-            approver_status: "PENDING",
-            allocated_to_user_id: data?.allocated_to_user_id,
-            ticket_id: isDataExist?.ticket_id,
-          },
-          { transaction }
-        );
-
-        await DB.tbl_ticket_management.update(
-          {
-            ticket_status: "ESCALATED",
-          },
-          {
-            where: {
-              id: isDataExist?.ticket_id,
-            },
-            transaction,
-          }
-        );
-
-        await DB.tbl_ticket_history.create(
-          {
-            executive_name: `${getAllocatedUserDetail?.title} ${getAllocatedUserDetail?.name}`,
-            executive_code: `${getAllocatedUserDetail?.emp_code}`,
-            current_status: "ESCALATED",
-            action_taken: `This is an update regarding the ticket. To ensure that issue receives the specialized attention it requires, we have escalated the issue to a senior specialist on our team. This is a standard process to provide you with the most effective solution.`,
-            executive_remark: data?.remark,
-            action_date: data?.acted_on || new Date(),
-            ticket_id: isDataExist?.ticket_id,
-          },
-          { transaction }
-        );
-      }
-
-      await transaction.commit();
-      return res.status(200).send({
-        success: true,
-        message: "Status changed successfully!",
+      await DB.tbl_ticket_history.create(
+        {
+          action_by: `${getAllocatedUserDetail.title} ${getAllocatedUserDetail.name}`,
+          executive_code: `${getAllocatedUserDetail.emp_code}`,
+          current_status: "ESCALATED",
+          action_taken: `This is an update regarding the ticket. To ensure that issue receives the specialized attention it requires, we have escalated the issue to a senior specialist on our team. This is a standard process to provide you with the most effective solution.`,
+          executive_remark: data.remark,
+          action_date: data.acted_on || new Date(),
+          ticket_id: isDataExist.ticket_id,
+        },
+        { transaction }
+      );
+    } else {
+      await transaction.rollback();
+      return res.status(400).send({
+        success: false,
+        message: "Invalid approver_status value!",
       });
     }
+
+    await transaction.commit();
+    return res.status(200).send({
+      success: true,
+      message: "Status changed successfully!",
+    });
   } catch (error) {
     await transaction.rollback();
+    console.error("Approval error:", error);
     res.status(500).send({ success: false, message: error.message });
   }
 };

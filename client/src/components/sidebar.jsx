@@ -73,14 +73,17 @@ export const SidebarMenu = () => {
                 : "#";
 
             return (
-              <li key={module.id}>
+              <li
+                key={module.id}
+                className={`border-s border-s-[2px] hover:border-s-white ${
+                  activeModule === module.name
+                    ? "border-s-gray-300"
+                    : "border-s-transparent"
+                }`}
+              >
                 <Link
                   to={`/procurement/${module.endpoint}/${firstSubmodule.endpoint}`}
-                  className={`flex justify-between items-center text-gray-300 hover:text-white !text-[.8rem] px-2 py-1 text-sm border-s border-s-[2px] hover:border-s-white ${
-                    activeModule === module.name
-                      ? "border-s-gray-300"
-                      : "border-s-transparent"
-                  }`}
+                  className={`flex justify-between items-center text-gray-300 hover:text-white !text-[.8rem] px-2 py-1 text-sm `}
                   onClick={() => handleMenuClick(module, firstSubmodule)}
                 >
                   {module.name}

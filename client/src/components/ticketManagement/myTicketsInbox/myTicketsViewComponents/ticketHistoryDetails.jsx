@@ -1,7 +1,7 @@
 import { useMyTicketsInboxContext } from "../../../../contextApis/useTicketContextFile";
 
 export const TicketHistoryDetails = () => {
-  const { data } = useMyTicketsInboxContext();
+  const { data, formatDateTime } = useMyTicketsInboxContext();
   return (
     <>
       <div className="flex flex-col gap-5">
@@ -43,14 +43,14 @@ export const TicketHistoryDetails = () => {
                   <p className="text-[.7rem]">{list?.action_taken || "N/A"} </p>
                 </div>
                 <div className="flex items-center justify-center w-[200px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
-                  <p className="text-[.7rem]">{list?.action_date || "N/A"} </p>
+                  <p className="text-[.7rem]">
+                    {formatDateTime(list?.action_date)}
+                  </p>
                 </div>
                 <div
                   className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200`}
                 >
-                  <p className="text-[.7rem]">
-                    {list?.executive_name || "N/A"}
-                  </p>
+                  <p className="text-[.7rem]">{list?.action_by || "N/A"}</p>
                 </div>
                 <div
                   className={`flex items-center w-[250px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
@@ -58,15 +58,18 @@ export const TicketHistoryDetails = () => {
                   }`}
                 >
                   <p className="text-[.7rem]">
-                    {list?.executive_remark || "N/A"}
+                    {list?.executive_remark || "-"}
                   </p>
                 </div>
                 <div className="flex items-center justify-center w-[150px] px-2 py-2 border-b border-b-gray-200">
                   <p
                     className={`text-[.7rem] font-bold  ${
-                      (data?.ticket_status === "OPEN" && "text-green-600") ||
-                      (data?.ticket_status === "CLOSE" && "text-red-600") ||
-                      (data?.ticket_status === "ESCALATED" && "text-yellow-600")
+                      (list?.current_status === "OPEN" && "text-green-600") ||
+                      (list?.current_status === "CLOSE" && "text-red-600") ||
+                      (list?.current_status === "ESCALATED" &&
+                        "text-yellow-600") ||
+                      (list?.current_status === "PICK" && "text-blue-600") ||
+                      (list?.current_status === "ASSIGNED" && "text-pink-600")
                     }`}
                   >
                     {list?.current_status || "N/A"}

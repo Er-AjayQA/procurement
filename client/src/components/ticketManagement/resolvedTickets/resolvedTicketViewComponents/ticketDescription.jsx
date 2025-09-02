@@ -1,10 +1,7 @@
-import {
-  useAllTicketsContext,
-  useDepartmentalTicketsContext,
-} from "../../../../contextApis/useTicketContextFile";
+import { useResolvedTicketsContext } from "../../../../contextApis/useTicketContextFile";
 
 export const TicketDescription = () => {
-  const { data } = useAllTicketsContext();
+  const { data } = useResolvedTicketsContext();
   return (
     <>
       <div className="flex flex-col gap-3">

@@ -12,9 +12,7 @@ export const TicketDescription = () => {
           <div className="col-span-10 flex flex-col gap-2 justify-center">
             {/* <label className="text-[.8rem]">Description</label> */}
             <p className="text-[.7rem]">
-              {data?.ticket_description
-                ? `For ${data?.ticket_description}`
-                : "N/A"}
+              {data?.ticket_description ? `${data?.ticket_description}` : "N/A"}
             </p>
           </div>
         </div>

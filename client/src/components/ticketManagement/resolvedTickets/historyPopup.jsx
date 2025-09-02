@@ -1,11 +1,11 @@
 import { MdOutlineClose } from "react-icons/md";
-import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
+import { useResolvedTicketsContext } from "../../../contextApis/useTicketContextFile";
 
 export const TicketHistoryPopup = ({
   showApproverPopup,
   setShowApproverPopup,
 }) => {
-  const { data, setViewId, formatDateTime } = useHelpDeskContext();
+  const { data, setViewId, formatDateTime } = useResolvedTicketsContext();
 
   // Handle Close Popup
   const handleClosePopup = () => {
@@ -93,7 +93,7 @@ export const TicketHistoryPopup = ({
                 </div>
                 <div className="flex items-center justify-center w-[150px] px-2 py-2 border-b border-b-gray-200">
                   <p
-                    className={`text-[.7rem] font-bold  ${
+                    className={`text-[.7rem] font-bold ${
                       (list?.current_status === "OPEN" && "text-green-600") ||
                       (list?.current_status === "CLOSE" && "text-red-600") ||
                       (list?.current_status === "ESCALATED" &&
