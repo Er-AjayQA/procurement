@@ -100,3 +100,18 @@ body {
     transform: translateY(-4px) scale(1.1);
   }
 }
+
+/* Calendar Style */
+.days_container {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.dates_containers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(150px, 150px);
+  gap: 2px;
+  border-radius: 100px;
+}
