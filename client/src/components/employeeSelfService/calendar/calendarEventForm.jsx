@@ -87,11 +87,11 @@ export const CalendarEventForm = () => {
             <MdOutlineClose className="fill-white" />
           </div>
         </div>
-        <div className="basis-[90%] justify-around rounded-md pb-4 mx-auto">
-          <form className="flex flex-col gap-10">
+        <div className="basis-[80%] justify-around rounded-md pb-4 mx-auto">
+          <form className="flex flex-col gap-10 px-5">
             <div className="flex py-5 px-3 flex-col gap-5">
               {/* Row-1 */}
-              <div className="flex items-center justify-between gap-5">
+              <div className="flex items-center justify-between gap-5 px-2">
                 {/* Event type */}
                 <div className="flex items-center gap-5">
                   {eventTypeOptions?.map((event) => {
@@ -161,7 +161,7 @@ export const CalendarEventForm = () => {
                 </div> */}
               </div>
 
-              <div className="flex flex-col gap-5 h-[400px] overflow-auto">
+              <div className="flex flex-col gap-5 h-[450px] overflow-auto px-2 py-5">
                 {/* Row-2 */}
                 <div className="grid grid-cols-12 gap-5">
                   {/* Event Title */}

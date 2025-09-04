@@ -368,6 +368,19 @@ db.tbl_ticket_history =
     Sequelize
   );
 
+// Event Management Table
+db.tbl_event_management = require("../API/eventManagement/model/event.model")(
+  sequelize,
+  Sequelize
+);
+
+// Event Category Table
+db.tbl_event_category =
+  require("../API/configurationMasters/eventCategory_master/model/eventCategory.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {

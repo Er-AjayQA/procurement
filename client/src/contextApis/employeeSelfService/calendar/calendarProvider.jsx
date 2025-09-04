@@ -32,19 +32,24 @@ export const CalendarProvider = ({ children }) => {
   ]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [monthsOptions, setMonthsOptions] = useState([
-    { value: "1", label: "JAN" },
-    { value: "2", label: "FEB" },
-    { value: "3", label: "MAR" },
-    { value: "4", label: "APR" },
-    { value: "5", label: "MAY" },
-    { value: "6", label: "JUN" },
-    { value: "7", label: "JUL" },
-    { value: "8", label: "AUG" },
-    { value: "9", label: "SEP" },
-    { value: "10", label: "OCT" },
-    { value: "11", label: "NOV" },
-    { value: "12", label: "DEC" },
+    { value: "0", label: "January" },
+    { value: "1", label: "February" },
+    { value: "2", label: "March" },
+    { value: "3", label: "April" },
+    { value: "4", label: "May" },
+    { value: "5", label: "June" },
+    { value: "6", label: "July" },
+    { value: "7", label: "August" },
+    { value: "8", label: "September" },
+    { value: "9", label: "October" },
+    { value: "10", label: "November" },
+    { value: "11", label: "December" },
   ]);
+  const [selectedMonth, setSelectedMonth] = useState(
+    monthsOptions.find((month) => month.value == new Date().getMonth())
+  );
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [yearsOptions, setYearsOptions] = useState([]);
   const [daysOptions, setDaysOptions] = useState([
     { value: "0", label: "Sunday" },
     { value: "1", label: "Monday" },
@@ -73,9 +78,18 @@ export const CalendarProvider = ({ children }) => {
     { value: "formal", label: "Formal" },
     { value: "informal", label: "Informal" },
   ]);
+  const [selectedFullDateFormat, setSelectedFullDateFormat] = useState(null);
 
   const refreshData = () => {
     setRefreshTrigger((prev) => prev + 1);
+  };
+
+  // Add this helper function to get month label
+  const getMonthLabel = (monthValue) => {
+    const month = monthsOptions.find(
+      (opt) => parseInt(opt.value) === monthValue
+    );
+    return month ? month.label : "Unknown Month";
   };
 
   // Get Days In Month
@@ -106,6 +120,28 @@ export const CalendarProvider = ({ children }) => {
     }
 
     setCurrentDate(newDate);
+    setSelectedMonth(
+      monthsOptions.find((data) => data.value == newDate.getMonth())
+    );
+    setSelectedYear(newDate.getFullYear());
+  };
+
+  // Handle month change from dropdowns
+  const handleMonthChange = (selectedOption) => {
+    if (selectedOption) {
+      const newDate = new Date(selectedYear, selectedOption.value, 1);
+      setCurrentDate(newDate);
+      setSelectedMonth(selectedOption);
+    }
+  };
+
+  // Handle year change from dropdowns
+  const handleYearChange = (selectedOption) => {
+    if (selectedOption) {
+      const newDate = new Date(selectedOption.value, selectedMonth, 1);
+      setCurrentDate(newDate);
+      setSelectedYear(selectedOption.value);
+    }
   };
 
   // Get First Day Of Month
@@ -231,8 +267,18 @@ export const CalendarProvider = ({ children }) => {
   };
 
   // Handle Event Form Visibility
-  const handleEventForm = () => {
+  const handleEventForm = (data) => {
     setShowEventForm((prev) => !prev);
+
+    const formattedDay = data < 10 ? `0${data}` : data;
+    const formattedMonth =
+      selectedMonth.value < 10
+        ? `0${parseInt(selectedMonth.value) + 1}`
+        : selectedMonth.value + 1;
+
+    setSelectedFullDateFormat(
+      `${formattedDay}-${formattedMonth}-${selectedYear}`
+    );
   };
 
   useEffect(() => {
@@ -281,8 +327,8 @@ export const CalendarProvider = ({ children }) => {
         dateElements.push(
           <div
             key={`day-${day}`}
-            className="rounded-[20px] text-center p-2 border border-gray-200 min-h-[50px] flex justify-center cursor-pointer items-center hover:bg-gray-100"
-            onClick={() => handleEventForm()}
+            className="rounded-[20px] text-center p-2 border border-gray-300 min-h-[50px] flex justify-center cursor-pointer items-center hover:bg-gray-100 hover:shadow-md hover:shadow-blue-400"
+            onClick={() => handleEventForm(day)}
           >
             {day}
           </div>
@@ -396,13 +442,24 @@ export const CalendarProvider = ({ children }) => {
       .replace(",", "");
   };
 
+  // Generate years options (10 years back and 10 years forward)
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear - 10; i <= currentYear + 10; i++) {
+      years.push({ value: i, label: i.toString() });
+    }
+    setYearsOptions(years);
+    setSelectedYear(currentYear); // Set initial selected year
+  }, []);
+
   // Helper function to find selected option
   const findSelectedOption = useCallback((options, value) => {
     if (!options || value === undefined || value === null) return null;
     return options.find((opt) => opt.value === value) || null;
   }, []);
 
-  console.log("Form Visibility====", showEventForm);
+  console.log("Selected Date====", selectedFullDateFormat);
 
   const contextValue = {
     viewStyleOptions,
@@ -419,6 +476,8 @@ export const CalendarProvider = ({ children }) => {
     styledComponent,
     showEventForm,
     dateTab,
+    selectedMonth,
+    selectedYear,
     monthsOptions,
     daysOptions,
     departmentOptions,
@@ -426,7 +485,9 @@ export const CalendarProvider = ({ children }) => {
     eventTypeOptions,
     reminderOptions,
     dressOptions,
+    yearsOptions,
     defaultEventType,
+    getMonthLabel,
     formatDateTime,
     refreshData,
     handleCurrentDate,
@@ -435,6 +496,7 @@ export const CalendarProvider = ({ children }) => {
     setUpdateId,
     setDeleteId,
     setViewId,
+    setSelectedMonth,
     setDefaultEventType,
     setDepartmentOptions,
     setUserOptions,
@@ -442,6 +504,8 @@ export const CalendarProvider = ({ children }) => {
     handleViewVisibility,
     handleEventForm,
     handleViewStyleClick,
+    handleMonthChange,
+    handleYearChange,
     findSelectedOption,
   };
 
