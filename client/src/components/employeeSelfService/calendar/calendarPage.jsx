@@ -1,6 +1,8 @@
 import { useCalendarContext } from "../../../contextApis/useEssContextFile";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { CalendarEventForm } from "./calendarEventForm";
+import { Controller } from "react-hook-form";
+import Select from "react-select";
 
 export const CalendarPage = () => {
   const {
@@ -8,11 +10,28 @@ export const CalendarPage = () => {
     currentDate,
     dateTab,
     currentViewStyle,
+    selectedMonth,
+    setSelectedMonth,
+    selectedYear,
     handleViewStyleClick,
     handleCurrentDate,
+    handleMonthChange,
+    handleYearChange,
+    handleChangeFilter,
+    findSelectedOption,
     showEventForm,
+    monthsOptions,
     daysOptions,
+    yearsOptions,
+    formSelectStyles,
+    styledComponent,
+    getMonthLabel,
   } = useCalendarContext();
+
+  // Format current month and year for display
+  const currentMonthName =
+    monthsOptions.find((month) => month.value === selectedMonth)?.label || "";
+  const currentYear = selectedYear;
 
   return (
     <>
@@ -28,11 +47,28 @@ export const CalendarPage = () => {
                 >
                   <MdKeyboardArrowLeft size={20} />
                 </button>
-                <div className="font-bold">
-                  {currentDate.toLocaleString("default", {
-                    month: "long",
-                    year: "numeric",
-                  })}
+                {/* Month Dropdown */}
+                <div className="w-40">
+                  <Select
+                    value={selectedMonth}
+                    onChange={handleMonthChange}
+                    options={monthsOptions}
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={styledComponent}
+                  />
+                </div>
+
+                {/* Year Dropdown */}
+                <div className="w-36">
+                  <Select
+                    value={findSelectedOption(yearsOptions, selectedYear)}
+                    onChange={handleYearChange}
+                    options={yearsOptions}
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    styles={styledComponent}
+                  />
                 </div>
                 <button
                   onClick={() => handleCurrentDate("next")}
@@ -40,6 +76,10 @@ export const CalendarPage = () => {
                 >
                   <MdKeyboardArrowRight size={20} />
                 </button>
+              </div>
+              {/* Display current month and year */}
+              <div className="font-bold text-sm">
+                {selectedMonth.label} {currentYear}
               </div>
             </div>
             {/* View Options */}
