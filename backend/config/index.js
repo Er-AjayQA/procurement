@@ -368,15 +368,36 @@ db.tbl_ticket_history =
     Sequelize
   );
 
+// Event Category Table
+db.tbl_event_category =
+  require("../API/configurationMasters/eventCategory_master/model/eventCategory.model")(
+    sequelize,
+    Sequelize
+  );
+
 // Event Management Table
 db.tbl_event_management = require("../API/eventManagement/model/event.model")(
   sequelize,
   Sequelize
 );
 
-// Event Category Table
-db.tbl_event_category =
-  require("../API/configurationMasters/eventCategory_master/model/eventCategory.model")(
+// Event Registration Table
+db.tbl_event_registration =
+  require("../API/eventManagement/model/eventRegistration.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Event Tickets Table
+db.tbl_event_ticket_type =
+  require("../API/eventManagement/model/eventTicket.model")(
+    sequelize,
+    Sequelize
+  );
+
+// Event Registration Cancel Table
+db.tbl_event_registration_payment_transactions =
+  require("../API/eventManagement/model/eventRegistrationPaymentTransaction.model")(
     sequelize,
     Sequelize
   );
