@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_event_category
+// db.tbl_event_ticket_type
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
