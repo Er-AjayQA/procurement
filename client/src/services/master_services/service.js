@@ -1488,3 +1488,80 @@ export const deleteTicketCategory = async (id) => {
   });
   return response.data;
 };
+
+// **************************** EVENT CATEGORY MASTER **************************** //
+// Create Event Category Master
+export const createEventCategory = async (formData) => {
+  const response = await axiosInstance.post("create-event-category", formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};
+
+// Update Event Category
+export const updateEventCategory = async (id, formData) => {
+  try {
+    const response = await axiosInstance.put(
+      `update-event-category/${id}`,
+      formData
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
+
+// Update Status
+export const updateEventCategoryStatus = async (id) => {
+  const response = await axiosInstance.put(
+    `update-event-category-status/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get Master Event Category by ID
+export const getEventCategoryById = async (id) => {
+  const response = await axiosInstance.post(
+    `get-event-category-details/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Get All Master Event Category List
+export const getAllEventCategory = async (formData) => {
+  const response = await axiosInstance.post(
+    "get-all-event-categories",
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+// Delete Event Category Master
+export const deleteEventCategory = async (id) => {
+  const response = await axiosInstance.put(`delete-event-category/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.data;
+};

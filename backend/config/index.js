@@ -369,7 +369,7 @@ db.tbl_ticket_history =
   );
 
 // Event Category Table
-db.tbl_event_category =
+db.tbl_event_category_master =
   require("../API/configurationMasters/eventCategory_master/model/eventCategory.model")(
     sequelize,
     Sequelize
@@ -1169,10 +1169,10 @@ db.tbl_ticket_history.belongsTo(db.tbl_ticket_management, {
 
 // ========================================== EVENT MANAGEMENT ========================================== //
 // Relation B/W Event Category Master And Event Management Tables
-db.tbl_event_category.hasMany(db.tbl_event_management, {
+db.tbl_event_category_master.hasMany(db.tbl_event_management, {
   foreignKey: "event_category_id",
 });
-db.tbl_event_management.belongsTo(db.tbl_event_category, {
+db.tbl_event_management.belongsTo(db.tbl_event_category_master, {
   foreignKey: "event_category_id",
 });
 

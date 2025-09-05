@@ -1,12 +1,16 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_event_category = sequelize.define(
-    "EVENT_CATEGORY",
+  const tbl_event_category_master_master = sequelize.define(
+    "EVENT_CATEGORY_MASTER",
     {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
+      },
+      event_category_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       event_category_name: {
         type: Sequelize.STRING,
@@ -27,5 +31,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_event_category;
+  return tbl_event_category_master_master;
 };

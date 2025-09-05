@@ -2,6 +2,7 @@ import { AttendanceCalendarPage } from "../pages/EmployeeSelfService/attendanceC
 import { MainCalendarPage } from "../pages/EmployeeSelfService/calendar";
 import { EmployeeDetailPage } from "../pages/EmployeeSelfService/employeeDetails";
 import { MainHelpDeskPage } from "../pages/EmployeeSelfService/helpDesk";
+import { MainRegisteredEventsPage } from "../pages/EventManagement/registeredEvents";
 import { MainEmployeePage } from "../pages/Hrms/EmployeeManagement";
 import { MainEmployeeTransferPage } from "../pages/Hrms/EmployeeTransfer";
 import { MainEmployeeIdCardPage } from "../pages/Hrms/IdCardManagement";
@@ -18,6 +19,7 @@ import { MasterCourseCategoryPage } from "../pages/Masters/courseCategoryMaster"
 import { MasterDepartmentPage } from "../pages/Masters/departmentMaster";
 import { MasterDesignationPage } from "../pages/Masters/designationMaster";
 import { MasterEmployeeTypePage } from "../pages/Masters/employeeTypeMaster";
+import { MasterEventCategoryPage } from "../pages/Masters/eventCategoryMaster";
 import { MasterItemCategoryPage } from "../pages/Masters/itemCategoryMaster";
 import { MasterItemPage } from "../pages/Masters/itemMaster";
 import { MasterServiceCategoryPage } from "../pages/Masters/serviceCategoryMaster";
@@ -62,6 +64,9 @@ export const moduleComponents = {
     "my-inbox": MainMyTicketInboxPage,
     "resolved-tickets": MainResolvedTicketPage,
   },
+  "event-management": {
+    "registered-events": MainRegisteredEventsPage,
+  },
   masters: {
     "designation-master": MasterDesignationPage,
     "department-master": MasterDepartmentPage,
@@ -85,5 +90,6 @@ export const moduleComponents = {
     "transfer-type-master": MasterTransferTypePage,
     "transfer-reason-master": MasterTransferReasonPage,
     "ticket-category-master": MasterTicketCategoryPage,
+    "event-category-master": MasterEventCategoryPage,
   },
 };

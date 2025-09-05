@@ -19,8 +19,15 @@ router.put(
   "/update-event-tickets/:event_id/:id",
   EventController.updateEventTickets
 );
-// router.post("/verify-otp", EventController.verifyOTP);
-// router.post("/reset-password", EventController.resetPassword);
+router.post(
+  "/get-event-ticket-detail/:id",
+  EventController.getEventTicketsDetails
+);
+router.post(
+  "/get-all-event-tickets",
+  EventController.getAllEventTicketsDetails
+);
+router.put("/delete-event-ticket/:id", EventController.deleteEventTickets);
 
 // ********************* EVENT REGISTRATION MANAGEMENT ********************* //
 
