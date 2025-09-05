@@ -1,5 +1,6 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../../config/index");
+const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 
 // ========== CREATE EVENT CATEGORY CONTROLLER ========== //
 module.exports.createEventCategory = async (req, res) => {
@@ -7,7 +8,7 @@ module.exports.createEventCategory = async (req, res) => {
     const data = req.body;
 
     // Check if Data already exist
-    const isAlreadyExist = await DB.tbl_event_category.findOne({
+    const isAlreadyExist = await DB.tbl_event_category_master.findOne({
       where: {
         event_category_name: data?.event_category_name,
         isDeleted: false,
@@ -20,7 +21,17 @@ module.exports.createEventCategory = async (req, res) => {
         message: "Category Name Already Exist!",
       });
     } else {
-      const newData = await DB.tbl_event_category.create(data);
+      let code = await generateUniqueCode(
+        "EVTC",
+        4,
+        "event_category_code",
+        "EVENT_CATEGORY_MASTER"
+      );
+
+      const newData = await DB.tbl_event_category_master.create({
+        ...data,
+        event_category_code: code,
+      });
       return res.status(201).send({
         success: true,
         message: "Category Created Successfully!",
@@ -39,7 +50,7 @@ module.exports.updateEventCategory = async (req, res) => {
     const { id } = req.params;
 
     // Check if Data exist
-    const isDataExist = await DB.tbl_event_category.findOne({
+    const isDataExist = await DB.tbl_event_category_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -51,7 +62,7 @@ module.exports.updateEventCategory = async (req, res) => {
         .status(404)
         .send({ success: false, message: "Category Not Found!" });
     } else {
-      const duplicateData = await DB.tbl_event_category.findOne({
+      const duplicateData = await DB.tbl_event_category_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           event_category_name: data.event_category_name,
@@ -85,7 +96,7 @@ module.exports.getEventCategoryDetails = async (req, res) => {
 
     const query = `
     SELECT EC.*
-    FROM EVENT_CATEGORY AS EC
+    FROM EVENT_CATEGORY_MASTER AS EC
     WHERE EC.id=${id} AND EC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
@@ -124,10 +135,12 @@ module.exports.getAllEventCategoryDetails = async (req, res) => {
       };
     }
 
-    const totalRecords = await DB.tbl_event_category.count({ whereClause });
+    const totalRecords = await DB.tbl_event_category_master.count({
+      whereClause,
+    });
     const totalPages = Math.ceil(totalRecords / limit);
 
-    const getAllData = await DB.tbl_event_category.findAll({
+    const getAllData = await DB.tbl_event_category_master.findAll({
       where: whereClause,
       limit: limit,
       offset: offset,
@@ -163,7 +176,7 @@ module.exports.updateEventCategoryStatus = async (req, res) => {
     const { id } = req.params;
 
     // Check if Category exist
-    const isDataExist = await DB.tbl_event_category.findOne({
+    const isDataExist = await DB.tbl_event_category_master.findOne({
       where: {
         id,
         isDeleted: false,
@@ -195,7 +208,7 @@ module.exports.deleteEventCategory = async (req, res) => {
     const { id } = req.params;
 
     // Check if Category exist
-    const isDataExist = await DB.tbl_event_category.findOne({
+    const isDataExist = await DB.tbl_event_category_master.findOne({
       where: {
         id,
         isDeleted: false,

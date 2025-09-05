@@ -125,7 +125,7 @@ module.exports.getEventDetails = async (req, res) => {
         EM.*, ECM.event_category_name, ECM.event_category_description, CM.name as country_name, SM.name as state_name, CIM.name as city_name,
         UM.emp_code as organizer_emp_code, UM.title as organizer_name_title, UM.name as organizer_name, UM.contact_code as organizer_contact_code, UM.contact_no as organizer_contact_no
       FROM EVENT_MANAGEMENT AS EM
-      LEFT JOIN EVENT_CATEGORY AS ECM ON ECM.id = EM.event_category_id
+      LEFT JOIN EVENT_CATEGORY_MASTER AS ECM ON ECM.id = EM.event_category_id
       LEFT JOIN COUNTRY_MASTER AS CM ON CM.id = EM.event_country_id
       LEFT JOIN STATE_MASTER AS SM ON SM.id = EM.event_state_id
       LEFT JOIN CITY_MASTER AS CIM ON CIM.id = EM.event_city_id
@@ -191,7 +191,7 @@ module.exports.getAllEventsDetails = async (req, res) => {
         EM.*, ECM.event_category_name, ECM.event_category_description, CM.name as country_name, SM.name as state_name, CIM.name as city_name,
         UM.emp_code as organizer_emp_code, UM.title as organizer_name_title, UM.name as organizer_name, UM.contact_code as organizer_contact_code, UM.contact_no as organizer_contact_no
       FROM EVENT_MANAGEMENT AS EM
-      LEFT JOIN EVENT_CATEGORY AS ECM ON ECM.id = EM.event_category_id
+      LEFT JOIN EVENT_CATEGORY_MASTER AS ECM ON ECM.id = EM.event_category_id
       LEFT JOIN COUNTRY_MASTER AS CM ON CM.id = EM.event_country_id
       LEFT JOIN STATE_MASTER AS SM ON SM.id = EM.event_state_id
       LEFT JOIN CITY_MASTER AS CIM ON CIM.id = EM.event_city_id
@@ -559,15 +559,10 @@ module.exports.getEventTicketsDetails = async (req, res) => {
 
     let query = `
       SELECT 
-        EM.*, ECM.event_category_name, ECM.event_category_description, CM.name as country_name, SM.name as state_name, CIM.name as city_name,
-        UM.emp_code as organizer_emp_code, UM.title as organizer_name_title, UM.name as organizer_name, UM.contact_code as organizer_contact_code, UM.contact_no as organizer_contact_no
-      FROM EVENT_MANAGEMENT AS EM
-      LEFT JOIN EVENT_CATEGORY AS ECM ON ECM.id = EM.event_category_id
-      LEFT JOIN COUNTRY_MASTER AS CM ON CM.id = EM.event_country_id
-      LEFT JOIN STATE_MASTER AS SM ON SM.id = EM.event_state_id
-      LEFT JOIN CITY_MASTER AS CIM ON CIM.id = EM.event_city_id
-      LEFT JOIN USER_MASTER AS UM ON UM.id = EM.event_organizer_id
-      WHERE EM.id= ${id} AND EM.isDeleted = false`;
+        ETT.*, EM.event_code, EM.event_title
+      FROM EVENT_TICKET_TYPES AS ETT
+      LEFT JOIN EVENT_MANAGEMENT AS EM ON EM.id = ETT.event_id
+      WHERE ETT.id= ${id} AND ETT.isDeleted = false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -576,31 +571,11 @@ module.exports.getEventTicketsDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(404)
-        .send({ success: false, message: "Event not found!" });
+        .send({ success: false, message: "No such event ticket found!" });
     } else {
-      // Getting Allowance Details
-      // const allowances = await DB.tbl_userAllowance_master.findAll({
-      //   attributes: ["id", "amount", "allowance_id", "uniqueCode"],
-      //   where: { user_id: getAllData[0].id, isDeleted: false },
-      //   include: [
-      //     {
-      //       model: DB.tbl_allowance_master,
-      //       attributes: ["id", "name", "is_taxable"],
-      //       where: { isDeleted: false },
-      //     },
-      //   ],
-      // });
-
-      // getAllData[0] = {
-      //   ...getAllData[0],
-      //   allowance_details: allowances,
-      //   family_details: family_details,
-      //   previous_employer_details: prev_emp_details,
-      //   salary_history: salary_revision_details,
-      // };
       return res.status(200).send({
         success: true,
-        status: "Get event Data successfully!",
+        status: "Get event ticket data successfully!",
         data: getAllData,
       });
     }
@@ -619,21 +594,18 @@ module.exports.getAllEventTicketsDetails = async (req, res) => {
 
     // Base queries
     let countQuery = `
-      SELECT COUNT(*) as total 
-      FROM EVENT_MANAGEMENT AS EM
-      WHERE EM.isDeleted = false`;
+      SELECT 
+        ETT.*, EM.event_code, EM.event_title
+      FROM EVENT_TICKET_TYPES AS ETT
+      LEFT JOIN EVENT_MANAGEMENT AS EM ON EM.id = ETT.event_id
+      WHERE ETT.isDeleted = false`;
 
     let query = `
       SELECT 
-        EM.*, ECM.event_category_name, ECM.event_category_description, CM.name as country_name, SM.name as state_name, CIM.name as city_name,
-        UM.emp_code as organizer_emp_code, UM.title as organizer_name_title, UM.name as organizer_name, UM.contact_code as organizer_contact_code, UM.contact_no as organizer_contact_no
-      FROM EVENT_MANAGEMENT AS EM
-      LEFT JOIN EVENT_CATEGORY AS ECM ON ECM.id = EM.event_category_id
-      LEFT JOIN COUNTRY_MASTER AS CM ON CM.id = EM.event_country_id
-      LEFT JOIN STATE_MASTER AS SM ON SM.id = EM.event_state_id
-      LEFT JOIN CITY_MASTER AS CIM ON CIM.id = EM.event_city_id
-      LEFT JOIN USER_MASTER AS UM ON UM.id = EM.event_organizer_id
-      WHERE EM.isDeleted = false`;
+        ETT.*, EM.event_code, EM.event_title
+      FROM EVENT_TICKET_TYPES AS ETT
+      LEFT JOIN EVENT_MANAGEMENT AS EM ON EM.id = ETT.event_id
+      WHERE ETT.isDeleted = false`;
 
     // Prepare replacements object
     const replacements = {
@@ -641,23 +613,16 @@ module.exports.getAllEventTicketsDetails = async (req, res) => {
       offset: offset,
     };
 
-    // Add Event Category filter if provided
-    if (filter?.event_category_id) {
-      countQuery += ` AND EM.event_category_id = :event_category_id`;
-      query += ` AND EM.event_category_id = :event_category_id`;
-      replacements.event_category_id = filter.event_category_id;
-    }
-
-    // Add Event Type filter if provided
-    if (filter?.event_type) {
-      countQuery += ` AND EM.event_type LIKE :event_type`;
-      query += ` AND EM.event_type LIKE :event_type`;
-      replacements.event_type = `%${filter.event_type}%`;
+    // Add Event Id if provided
+    if (filter?.event_id) {
+      countQuery += ` AND ETT.event_id = :event_id`;
+      query += ` AND ETT.event_id = :event_id`;
+      replacements.event_id = filter.event_id;
     }
 
     // Complete the queries
-    query += ` GROUP BY EM.id`; // Only group by the primary key
-    query += ` ORDER BY EM.createdAt DESC`;
+    query += ` GROUP BY ETT.id`; // Only group by the primary key
+    query += ` ORDER BY ETT.createdAt DESC`;
     query += ` LIMIT :limit OFFSET :offset`;
 
     // Get total count
@@ -677,11 +642,11 @@ module.exports.getAllEventTicketsDetails = async (req, res) => {
     if (getAllData.length < 1) {
       return res
         .status(200)
-        .send({ success: true, message: "No Events found!", data: [] });
+        .send({ success: true, message: "No events tickets found!", data: [] });
     } else {
       return res.status(200).send({
         success: true,
-        message: "Get all events list successfully!",
+        message: "Get all event tickets list successfully!",
         records: getAllData.length,
         data: getAllData,
         pagination: {
@@ -698,62 +663,30 @@ module.exports.getAllEventTicketsDetails = async (req, res) => {
   }
 };
 
-// ========== CHANGE EVENT TICKET STATUS CONTROLLER ========== //
-module.exports.updateEventTicketsStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const data = req.body;
-
-    // Check if Event Exist
-    const isEventExist = await DB.tbl_event_management.findOne({
-      where: {
-        id,
-        isDeleted: false,
-      },
-    });
-
-    if (!isEventExist) {
-      return res
-        .status(404)
-        .send({ success: false, message: "Event not found!" });
-    } else {
-      const updateStatus = await isEventExist.update({
-        status: data?.status,
-      });
-      return res.status(201).send({
-        success: true,
-        message: `Event ${data?.status} Successfully!`,
-      });
-    }
-  } catch (error) {
-    res.status(500).send({ success: false, message: error.message });
-  }
-};
-
 // ========== DELETE EVENT TICKET CONTROLLER ========== //
 module.exports.deleteEventTickets = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if Event Exist
-    const isEventExist = await DB.tbl_event_management.findOne({
+    // Check if Event Ticket Exist
+    const isTicketExist = await DB.tbl_event_ticket_type.findOne({
       where: {
         id,
         isDeleted: false,
       },
     });
 
-    if (!isEventExist) {
+    if (!isTicketExist) {
       return res
         .status(404)
-        .send({ success: false, message: "Event not found!" });
+        .send({ success: false, message: "Event ticket not found!" });
     } else {
-      await isEventExist.update({
+      await isTicketExist.update({
         isDeleted: true,
       });
       return res.status(201).send({
         success: true,
-        message: "Event Deleted Successfully!",
+        message: "Event ticket deleted successfully!",
       });
     }
   } catch (error) {

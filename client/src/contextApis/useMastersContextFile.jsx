@@ -20,6 +20,7 @@ import { CourseCategoryMasterContext } from "./masters/courseCategoryMaster/cour
 import { TransferTypeMasterContext } from "./masters/transferTypeMaster/transferTypeMasterContext";
 import { TransferReasonMasterContext } from "./masters/transferReasonMaster/transferReasonMasterContext";
 import { TicketCategoryMasterContext } from "./masters/ticketCategoryMaster/ticketCategoryMasterContext";
+import { EventCategoryMasterContext } from "./masters/eventCategoryMaster/eventCategoryMasterContext";
 
 // Use Designation Master Context
 export const useDesignationMasterContext = () => {
@@ -243,6 +244,17 @@ export const useTicketCategoryMasterContext = () => {
   if (context === undefined) {
     throw new Error(
       "useTicketCategoryMasterContext must be used within a TicketCategoryMasterProvider"
+    );
+  }
+  return context;
+};
+
+// Use Event Category Master Context
+export const useEventCategoryMasterContext = () => {
+  const context = useContext(EventCategoryMasterContext);
+  if (context === undefined) {
+    throw new Error(
+      "useEventCategoryMasterContext must be used within a EventCategoryMasterProvider"
     );
   }
   return context;
