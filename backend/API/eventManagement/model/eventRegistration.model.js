@@ -16,12 +16,16 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      member_contact_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       member_contact: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       registration_date: {
-        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        type: Sequelize.DATE,
         allowNull: false,
       },
       registration_status: {

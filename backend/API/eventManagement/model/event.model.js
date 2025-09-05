@@ -20,7 +20,7 @@ module.exports = (sequelize, Sequelize) => {
       },
       event_description: {
         type: Sequelize.TEXT,
-        allowNull: true,
+        allowNull: false,
       },
       event_start_date: {
         type: Sequelize.DATE,
@@ -81,11 +81,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         allowNull: true,
         set(value) {
-          this.setDataValue("capacity", value === "" ? null : value);
+          this.setDataValue("sitting_capacity", value === "" ? null : value);
         },
       },
       registration_deadline: {
-        type: Sequelize.DATEONLY("YYYY-MM-DD"),
+        type: Sequelize.DATE,
         allowNull: true,
         set(value) {
           this.setDataValue(

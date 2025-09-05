@@ -1167,5 +1167,92 @@ db.tbl_ticket_history.belongsTo(db.tbl_ticket_management, {
   foreignKey: "ticket_id",
 });
 
+// ========================================== EVENT MANAGEMENT ========================================== //
+// Relation B/W Event Category Master And Event Management Tables
+db.tbl_event_category.hasMany(db.tbl_event_management, {
+  foreignKey: "event_category_id",
+});
+db.tbl_event_management.belongsTo(db.tbl_event_category, {
+  foreignKey: "event_category_id",
+});
+
+// Relation B/W Country Master And Event Management Tables
+db.tbl_country_master.hasMany(db.tbl_event_management, {
+  foreignKey: "event_country_id",
+});
+db.tbl_event_management.belongsTo(db.tbl_country_master, {
+  foreignKey: "event_country_id",
+});
+
+// Relation B/W State Master And Event Management Tables
+db.tbl_state_master.hasMany(db.tbl_event_management, {
+  foreignKey: "event_state_id",
+});
+db.tbl_event_management.belongsTo(db.tbl_state_master, {
+  foreignKey: "event_state_id",
+});
+
+// Relation B/W City Master And Event Management Tables
+db.tbl_city_master.hasMany(db.tbl_event_management, {
+  foreignKey: "event_city_id",
+});
+db.tbl_event_management.belongsTo(db.tbl_city_master, {
+  foreignKey: "event_city_id",
+});
+
+// Relation B/W User Master And Event Management Tables
+db.tbl_user_master.hasMany(db.tbl_event_management, {
+  foreignKey: "event_organizer_id",
+});
+db.tbl_event_management.belongsTo(db.tbl_user_master, {
+  foreignKey: "event_organizer_id",
+});
+
+// Relation B/W Event Ticket And Event Management Tables
+db.tbl_event_management.hasMany(db.tbl_event_ticket_type, {
+  foreignKey: "event_id",
+});
+db.tbl_event_ticket_type.belongsTo(db.tbl_event_management, {
+  foreignKey: "event_id",
+});
+
+// Relation B/W Event Management And Event Registration Tables
+db.tbl_event_management.hasMany(db.tbl_event_registration, {
+  foreignKey: "event_id",
+});
+db.tbl_event_registration.belongsTo(db.tbl_event_management, {
+  foreignKey: "event_id",
+});
+
+// Relation B/W Event Ticket And Event Registration Tables
+db.tbl_event_ticket_type.hasMany(db.tbl_event_registration, {
+  foreignKey: "event_ticket_id",
+});
+db.tbl_event_registration.belongsTo(db.tbl_event_ticket_type, {
+  foreignKey: "event_ticket_id",
+});
+
+// Relation B/W Event Management And Event Payment Transaction Tables
+db.tbl_event_management.hasMany(db.tbl_event_registration, {
+  foreignKey: "event_id",
+});
+db.tbl_event_registration.belongsTo(db.tbl_event_management, {
+  foreignKey: "event_id",
+});
+
+// Relation B/W Event Registration And Event Payment Transaction Tables
+db.tbl_event_registration.hasMany(
+  db.tbl_event_registration_payment_transactions,
+  {
+    foreignKey: "registration_id",
+  }
+);
+db.tbl_event_registration_payment_transactions.belongsTo(
+  db.tbl_event_registration,
+  {
+    foreignKey: "registration_id",
+  }
+);
+
 // ========== EXPORTS ========== //
 module.exports = db;
