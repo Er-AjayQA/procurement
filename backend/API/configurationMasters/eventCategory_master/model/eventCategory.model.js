@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_event_category_master_master = sequelize.define(
+  const tbl_event_category_master = sequelize.define(
     "EVENT_CATEGORY_MASTER",
     {
       id: {
@@ -31,5 +31,5 @@ module.exports = (sequelize, Sequelize) => {
     },
     { freezeTableName: true }
   );
-  return tbl_event_category_master_master;
+  return tbl_event_category_master;
 };

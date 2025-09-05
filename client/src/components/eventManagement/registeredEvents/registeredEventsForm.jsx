@@ -35,9 +35,11 @@ export const RegisteredEventsForm = () => {
     loginUserData,
     departmentOptions,
     eventCategoryOptions,
+    registrationRequiredOptions,
     userOptions,
     countryOptions,
     eventTypeOptions,
+    sittingTypeOptions,
     refreshData,
     formSelectStyles,
   } = useRegisteredEventsContext();
@@ -68,19 +70,10 @@ export const RegisteredEventsForm = () => {
   const [citiesOptions, setCitiesOptions] = useState(null);
   const selectedCountry = watch("event_country_id");
   const selectedState = watch("event_state_id");
-  const selectedTicketCategory = watch("ticket_category_id");
-
-  const [ticketTypeValue, setTicketTypeValue] = useState(
-    isEditMode && data?.ticket_type ? data.ticket_type : TICKET_TYPES.SELF
-  );
-  const [ticketCategoryData, setTicketCategoryData] = useState(null);
+  const selectedSittingType = watch("sitting_type");
+  const [selectedEventType, setselectedEventType] = useState("In-Person");
+  const [selectedRegisterType, setSelectedRegisterType] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-
-  // Memoized user option for current user
-  const currentUserOption = useMemo(
-    () => userOptions?.find((item) => item.value === loginUserData?.id),
-    [userOptions, loginUserData]
-  );
 
   // Reset form function
   const resetForm = useCallback(() => {
@@ -92,8 +85,7 @@ export const RegisteredEventsForm = () => {
       ticket_subject: "",
       ticket_description: "",
     });
-    setTicketTypeValue(TICKET_TYPES.SELF);
-    setTicketCategoryData(null);
+    setselectedEventType("In-Person");
   }, [reset]);
 
   // Handle Click Cancel Button
@@ -105,54 +97,11 @@ export const RegisteredEventsForm = () => {
     setUpdateId(null);
   }, [resetForm, handleFormClose, handleComponentView, setData, setUpdateId]);
 
-  // Get ticket category data
-  const getTicketCategoryData = useCallback(
-    async (id) => {
-      if (!id) {
-        setTicketCategoryData(null);
-        setValue("ticket_priority", "");
-        return;
-      }
-
-      try {
-        const response = await getTicketCategoryById(id);
-        if (response.success) {
-          setTicketCategoryData(response.data[0]);
-          setValue(
-            "ticket_priority",
-            response.data[0]?.ticket_category_priority || ""
-          );
-        } else {
-          throw new Error(response.message);
-        }
-      } catch (error) {
-        setTicketCategoryData(null);
-        setValue("ticket_priority", "");
-        console.error("Error fetching ticket category:", error);
-      }
-    },
-    [setValue]
-  );
-
-  // Set Employee User ID based on ticket type
-  const setCreatedForUserID = useCallback(() => {
-    if (ticketTypeValue === TICKET_TYPES.SELF && currentUserOption) {
-      setValue("user_id", currentUserOption.value);
-    } else if (ticketTypeValue === TICKET_TYPES.COLLEAGUE) {
-      setValue("user_id", "");
-    }
-  }, [ticketTypeValue, setValue, currentUserOption]);
-
   // Set form values when in update mode - FIXED VERSION
   useEffect(() => {
     if (isEditMode && data) {
       const setUpdateDefaultData = async () => {
         try {
-          // Set Ticket Type first
-          if (data?.ticket_type) {
-            setTicketTypeValue(data?.ticket_type);
-          }
-
           // Set user based on ticket type
           if (data?.ticket_type === TICKET_TYPES.COLLEAGUE && data?.user_id) {
             // Wait for userOptions to be available
@@ -174,11 +123,6 @@ export const RegisteredEventsForm = () => {
           setValue("ticket_priority", data?.ticket_priority);
           setValue("ticket_subject", data?.ticket_subject);
           setValue("ticket_description", data?.ticket_description);
-
-          // Fetch category data for priority
-          if (data?.ticket_category_id) {
-            await getTicketCategoryData(data?.ticket_category_id);
-          }
         } catch (error) {
           console.error("Error setting update data:", error);
           toast.error("Failed to load ticket data");
@@ -187,14 +131,7 @@ export const RegisteredEventsForm = () => {
 
       setUpdateDefaultData();
     }
-  }, [
-    isEditMode,
-    data,
-    setValue,
-    userOptions,
-    loginUserData,
-    getTicketCategoryData,
-  ]);
+  }, [isEditMode, data, setValue, userOptions, loginUserData]);
 
   // Get State Options
   const getAllStatesOptions = async (id) => {
@@ -255,7 +192,7 @@ export const RegisteredEventsForm = () => {
   const onSubmit = async (formData) => {
     try {
       const payload = {
-        ticket_type: ticketTypeValue,
+        event_type: selectedEventType,
         user_id: formData.user_id,
         created_by_user_id: userDetails?.id,
         created_for_dept_id: formData.created_for_dept_id,
@@ -292,23 +229,6 @@ export const RegisteredEventsForm = () => {
     if (!options || value === undefined || value === null) return null;
     return options.find((opt) => opt.value === value) || null;
   }, []);
-
-  // Auto Select user if Ticket Type is "Self"
-  useEffect(() => {
-    if (!isEditMode) {
-      setCreatedForUserID();
-    }
-  }, [ticketTypeValue, setCreatedForUserID, isEditMode]);
-
-  // Get Category Data on Category Change
-  useEffect(() => {
-    if (selectedTicketCategory) {
-      getTicketCategoryData(selectedTicketCategory);
-    } else {
-      setTicketCategoryData(null);
-      setValue("ticket_priority", "");
-    }
-  }, [selectedTicketCategory, getTicketCategoryData, setValue]);
 
   // Fetching States on Country Selection
   useEffect(() => {
@@ -349,7 +269,7 @@ export const RegisteredEventsForm = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col p-2 gap-10">
               {/* Basic Details Section */}
-              <div className="flex flex-col gap-2 shadow-lg rounded-t-lg">
+              <div className="flex flex-col gap-3 shadow-lg rounded-t-lg">
                 {/* Section Title */}
                 <div className="p-2 bg-gray-200 rounded-t-lg">
                   <h5 className="text-gray-600 font-bold text-xs">
@@ -358,34 +278,103 @@ export const RegisteredEventsForm = () => {
                 </div>
 
                 {/* Section Body */}
-                <div className="p-5 py-2 pb-5 flex flex-col gap-5">
-                  {/* Event Type */}
-                  <div className="flex flex-col gap-3">
-                    <label className="text-sm">Event Type</label>
-                    <div className="flex gap-5">
-                      {eventTypeOptions.map((type) => (
-                        <div
-                          className="flex items-center gap-3"
-                          key={type.value}
-                        >
-                          <label className="inline-flex items-center">
-                            <input
-                              type="radio"
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                              value={type.value}
-                              checked={ticketTypeValue === type.value}
-                              onChange={() => setTicketTypeValue(type.value)}
-                              disabled={isEditMode} // Disable in edit mode
+                <div className="p-5 py-2 pb-5 flex flex-col gap-10">
+                  {/* Row - 1 */}
+                  <div className="grid grid-cols-12 gap-3">
+                    {/* Event Type */}
+                    <div className="col-span-4 flex flex-col gap-3">
+                      <label className="text-sm">Type:</label>
+                      <div className="flex gap-5">
+                        {eventTypeOptions.map((type) => (
+                          <div
+                            className="flex items-center gap-3"
+                            key={type.value}
+                          >
+                            <label className="inline-flex items-center">
+                              <input
+                                type="radio"
+                                id="event_type"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                value={type.value}
+                                checked={selectedEventType === type.value}
+                                onChange={() =>
+                                  setselectedEventType(type.value)
+                                }
+                              />
+                              <span className="ml-2 text-sm text-gray-700">
+                                {type.label}
+                              </span>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Event Category */}
+                    <div className="col-span-4 flex flex-col gap-3">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm">Event Category</label>
+                        <Controller
+                          name="event_category_id"
+                          control={control}
+                          rules={{
+                            required: "Category is required...",
+                          }}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              options={eventCategoryOptions || []}
+                              value={findSelectedOption(
+                                eventCategoryOptions,
+                                field.value
+                              )}
+                              onChange={(selected) => {
+                                field.onChange(selected?.value || null);
+                              }}
+                              placeholder="Select event category..."
+                              isClearable
+                              isSearchable
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={formSelectStyles}
                             />
-                            <span className="ml-2 text-sm text-gray-700">
-                              {type.label}
-                            </span>
-                          </label>
-                        </div>
-                      ))}
+                          )}
+                        />
+                        {errors.event_category_id && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.event_category_id.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Meeting Link */}
+                    <div className="col-span-4 flex flex-col gap-2">
+                      <label className="text-sm">Meeting Link</label>
+                      <input
+                        type="text"
+                        id="event_meet_link"
+                        value={
+                          selectedEventType !== "In-Person"
+                            ? "https://dummy-meeting.in"
+                            : ""
+                        }
+                        className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                        placeholder="Meeting link..."
+                        {...register("event_meet_link", {
+                          required: "Meeting link is required!",
+                        })}
+                        disabled={true}
+                      />
+                      {errors.event_meet_link && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors.event_meet_link.message}
+                        </p>
+                      )}
                     </div>
                   </div>
 
+                  {/* Row - 2 */}
                   <div className="grid grid-cols-12 gap-5">
                     {/* Event Title */}
                     <div className="col-span-4 flex flex-col gap-2">
@@ -476,7 +465,7 @@ export const RegisteredEventsForm = () => {
               </div>
 
               {/* Venue Details Section */}
-              <div className="flex flex-col gap-2 shadow-lg rounded-t-lg">
+              <div className="flex flex-col gap-3 shadow-lg rounded-t-lg">
                 {/* Section Title */}
                 <div className="p-2 bg-gray-200 rounded-t-lg">
                   <h5 className="text-gray-600 font-bold text-xs">
@@ -485,7 +474,7 @@ export const RegisteredEventsForm = () => {
                 </div>
 
                 {/* Section Body */}
-                <div className="p-5 py-2 pb-5 flex flex-col gap-5">
+                <div className="p-5 py-2 pb-5 flex flex-col gap-10">
                   {/* Row - 1 */}
                   <div className="grid grid-cols-12 gap-5">
                     {/* Event Organizer */}
@@ -746,33 +735,62 @@ export const RegisteredEventsForm = () => {
                 <div className="p-5 py-2 pb-5 flex flex-col gap-5">
                   {/* Row - 1 */}
                   <div className="grid grid-cols-12 gap-5">
-                    {/* Event Organizer */}
+                    {/* Registration Required */}
+                    <div className="col-span-4 flex flex-col gap-3">
+                      <label className="text-sm">Registration Required?</label>
+                      <div className="flex gap-5">
+                        {registrationRequiredOptions.map((type) => (
+                          <div
+                            className="flex items-center gap-3"
+                            key={type.value}
+                          >
+                            <label className="inline-flex items-center">
+                              <input
+                                type="radio"
+                                id="is_paid"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                value={type.value}
+                                checked={selectedRegisterType === type.value}
+                                onChange={() =>
+                                  setSelectedRegisterType(type.value)
+                                }
+                              />
+                              <span className="ml-2 text-sm text-gray-700">
+                                {type.label}
+                              </span>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Event Sitting */}
                     <div className="col-span-4 flex flex-col gap-3">
                       <div className="flex flex-col gap-2">
                         <label
-                          htmlFor="event_organizer_id"
+                          htmlFor="sitting_type"
                           className="text-sm font-medium"
                         >
-                          Organizer Name
+                          Sitting Type
                         </label>
                         <Controller
-                          name="event_organizer_id"
+                          name="sitting_type"
                           control={control}
                           rules={{
-                            required: "Organizer name is required...",
+                            required: "Sitting type is required...",
                           }}
                           render={({ field }) => (
                             <Select
                               {...field}
-                              options={userOptions || []}
+                              options={sittingTypeOptions || []}
                               value={findSelectedOption(
-                                userOptions,
+                                sittingTypeOptions,
                                 field.value
                               )}
                               onChange={(selected) => {
                                 field.onChange(selected?.value || null);
                               }}
-                              placeholder="Select organizer name..."
+                              placeholder="Select sitting type..."
                               isClearable
                               isSearchable
                               className="react-select-container"
@@ -781,209 +799,56 @@ export const RegisteredEventsForm = () => {
                             />
                           )}
                         />
-                        {errors.event_organizer_id && (
+                        {errors.sitting_type && (
                           <p className="text-red-500 text-xs mt-1">
-                            {errors.event_organizer_id.message}
+                            {errors.sitting_type.message}
                           </p>
                         )}
                       </div>
                     </div>
 
-                    {/* Event Venue */}
+                    {/* Sitting Capacity */}
                     <div className="col-span-4 flex flex-col gap-2">
-                      <label htmlFor="venue_name" className="text-sm">
-                        Venue Name
+                      <label htmlFor="sitting_capacity" className="text-sm">
+                        Sitting Capacity
                       </label>
                       <input
-                        type="text"
-                        id="venue_name"
+                        type="number"
+                        id="sitting_capacity"
                         className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="event venue..."
-                        {...register("venue_name", {
-                          required: "Event venue is required!",
+                        placeholder="capacity..."
+                        {...register("sitting_capacity", {
+                          required: "Sitting capacity is required!",
                         })}
+                        disabled={selectedSittingType === "Unlimited"}
                       />
-                      {errors.venue_name && (
+                      {errors.sitting_capacity && (
                         <p className="text-red-500 text-xs mt-1">
-                          {errors.venue_name.message}
+                          {errors.sitting_capacity.message}
                         </p>
                       )}
-                    </div>
-
-                    {/* Event Country */}
-                    <div className="col-span-4 flex flex-col gap-3">
-                      <div className="flex flex-col gap-2">
-                        <label
-                          htmlFor="event_country_id"
-                          className="text-sm font-medium"
-                        >
-                          Country
-                        </label>
-                        <Controller
-                          name="event_country_id"
-                          control={control}
-                          rules={{
-                            required: "Country is required...",
-                          }}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              options={countryOptions || []}
-                              value={findSelectedOption(
-                                countryOptions,
-                                field.value
-                              )}
-                              onChange={(selected) => {
-                                field.onChange(selected?.value || null);
-                              }}
-                              placeholder="Select country..."
-                              isClearable
-                              isSearchable
-                              className="react-select-container"
-                              classNamePrefix="react-select"
-                              styles={formSelectStyles}
-                            />
-                          )}
-                        />
-                        {errors.event_country_id && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {errors.event_country_id.message}
-                          </p>
-                        )}
-                      </div>
                     </div>
                   </div>
 
                   {/* Row - 2 */}
                   <div className="grid grid-cols-12 gap-5">
-                    {/* Event State */}
-                    <div className="col-span-4 flex flex-col gap-3">
-                      <div className="flex flex-col gap-2">
-                        <label
-                          htmlFor="event_state_id"
-                          className="text-sm font-medium"
-                        >
-                          State
-                        </label>
-                        <Controller
-                          name="event_state_id"
-                          control={control}
-                          rules={{
-                            required: "State is required...",
-                          }}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              options={statesOptions || []}
-                              value={findSelectedOption(
-                                statesOptions,
-                                field.value
-                              )}
-                              onChange={(selected) => {
-                                field.onChange(selected?.value || null);
-                              }}
-                              placeholder="Select state..."
-                              isClearable
-                              isSearchable
-                              className="react-select-container"
-                              classNamePrefix="react-select"
-                              styles={formSelectStyles}
-                            />
-                          )}
-                        />
-                        {errors.event_state_id && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {errors.event_state_id.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Event City */}
-                    <div className="col-span-4 flex flex-col gap-3">
-                      <div className="flex flex-col gap-2">
-                        <label
-                          htmlFor="event_city_id"
-                          className="text-sm font-medium"
-                        >
-                          City
-                        </label>
-                        <Controller
-                          name="event_city_id"
-                          control={control}
-                          rules={{
-                            required: "City is required...",
-                          }}
-                          render={({ field }) => (
-                            <Select
-                              {...field}
-                              options={citiesOptions || []}
-                              value={findSelectedOption(
-                                citiesOptions,
-                                field.value
-                              )}
-                              onChange={(selected) => {
-                                field.onChange(selected?.value || null);
-                              }}
-                              placeholder="Select city..."
-                              isClearable
-                              isSearchable
-                              className="react-select-container"
-                              classNamePrefix="react-select"
-                              styles={formSelectStyles}
-                            />
-                          )}
-                        />
-                        {errors.event_city_id && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {errors.event_city_id.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Zip Code/Pin Code */}
+                    {/* Event Base Price */}
                     <div className="col-span-4 flex flex-col gap-2">
-                      <label htmlFor="zip_code" className="text-sm">
-                        Postal Code
+                      <label htmlFor="base_ticket_price" className="text-sm">
+                        Ticket Base Price
                       </label>
                       <input
                         type="number"
-                        id="zip_code"
+                        id="base_ticket_price"
                         className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="postal code..."
-                        {...register("zip_code", {
-                          required: "Event postal code is required!",
+                        placeholder="base price..."
+                        {...register("base_ticket_price", {
+                          required: "Ticket base price is required!",
                         })}
                       />
-                      {errors.zip_code && (
+                      {errors.base_ticket_price && (
                         <p className="text-red-500 text-xs mt-1">
-                          {errors.zip_code.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Row - 3 */}
-                  <div className="grid grid-cols-12 gap-5">
-                    {/* Event Full Address */}
-                    <div className="col-span-10 flex flex-col gap-2">
-                      <label htmlFor="event_address" className="text-sm">
-                        Full Address
-                      </label>
-                      <textarea
-                        name="event_address"
-                        id="event_address"
-                        rows={5}
-                        className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="event address..."
-                        {...register("event_address", {
-                          required: "Address is required!",
-                        })}
-                      />
-                      {errors.event_address && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {errors.event_address.message}
+                          {errors.base_ticket_price.message}
                         </p>
                       )}
                     </div>

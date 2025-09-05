@@ -57,6 +57,15 @@ export const RegisteredEventsProvider = ({ children }) => {
     { value: "Online", label: "Online" },
     { value: "Hybrid", label: "Hybrid" },
   ]);
+  const [registrationRequiredOptions, setRegistrationRequiredOptions] =
+    useState([
+      { value: true, label: "Yes" },
+      { value: false, label: "No" },
+    ]);
+  const [sittingTypeOptions, setSittingTypeOptions] = useState([
+    { value: "Unlimited", label: "Unlimited" },
+    { value: "Limited", label: "Limited" },
+  ]);
 
   const refreshData = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -193,7 +202,7 @@ export const RegisteredEventsProvider = ({ children }) => {
   };
 
   // Get All Event Category List
-  const getAllTicketCategoryOptions = async () => {
+  const getAllEventCategoryOptions = async () => {
     try {
       const response = await getAllEventCategory({
         limit: 5000,
@@ -234,7 +243,7 @@ export const RegisteredEventsProvider = ({ children }) => {
         setUserOptions(
           response?.data.map((data) => ({
             value: data?.id,
-            label: data?.name,
+            label: `${data?.name} - ${data?.emp_code}`,
           }))
         );
       } else {
@@ -315,13 +324,9 @@ export const RegisteredEventsProvider = ({ children }) => {
   useEffect(() => {
     getAllDepartmentOptions();
     getAllUsersOptions();
-    getAllTicketCategoryOptions();
-  }, [updateId, deleteId]);
-
-  // Get Country Options
-  useEffect(() => {
+    getAllEventCategoryOptions();
     getAllCountryOptions();
-  }, [refreshTrigger]);
+  }, [updateId, deleteId, refreshTrigger]);
 
   // For update operations
   useEffect(() => {
@@ -390,12 +395,12 @@ export const RegisteredEventsProvider = ({ children }) => {
       ...base,
       minHeight: "32px",
       borderRadius: "0.5rem",
-      borderColor: "rgb(78, 79, 80)",
+      borderColor: "rgb(209 213 219)",
       fontSize: "0.8rem",
       paddingLeft: "0.75rem",
       paddingRight: "0.75rem",
-      paddingTop: "0.5rem",
-      paddingBottom: "0.5rem",
+      paddingTop: "0.4rem",
+      paddingBottom: "0.4rem",
       "&:hover": {
         borderColor: "#d1d5db",
       },
@@ -475,6 +480,8 @@ export const RegisteredEventsProvider = ({ children }) => {
     eventCategoryOptions,
     eventTypeOptions,
     countryOptions,
+    registrationRequiredOptions,
+    sittingTypeOptions,
     loginUserData,
     formatDateTime,
     refreshData,
