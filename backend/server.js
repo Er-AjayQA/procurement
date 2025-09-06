@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_event_registration_payment_transactions
+// db.tbl_entity_configuration
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -26,6 +26,7 @@ app.use(cors());
 
 // // ========== IMPORTING ROUTES ========== //
 const userRoute = require("./API/user/router/user.router");
+const entityConfigRoute = require("./API/entityManagement/entityConfiguration/router/entityConfig.router");
 const departmentRoute = require("./API/configurationMasters/department/router/department.router");
 const designationRoute = require("./API/configurationMasters/designation/router/designation.router");
 const roleRoute = require("./API/configurationMasters/role_master/router/role.router");
@@ -71,6 +72,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/procurement", userRoute);
+app.use("/api/v1/procurement", entityConfigRoute);
 app.use("/api/v1/procurement", departmentRoute);
 app.use("/api/v1/procurement", designationRoute);
 app.use("/api/v1/procurement", roleRoute);
