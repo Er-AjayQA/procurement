@@ -117,7 +117,7 @@ export const RegisteredEventsListing = ({ componentType }) => {
         </div>
         {componentType === "listing" ? (
           <div onClick={() => handleComponentView("form")}>
-            <AddButton text="Generate Ticket" />
+            <AddButton text="Generate Event" />
           </div>
         ) : (
           ""
@@ -132,22 +132,26 @@ export const RegisteredEventsListing = ({ componentType }) => {
         {/* List Form */}
         <div className="p-3 h-[86%]">
           <div className="flex border-b border-gray-300 gap-2 bg-gray-200">
-            <div className="text-[.8rem] font-bold p-2 w-[100px]">S.No.</div>
-            <div className="text-[.8rem] font-bold p-2 w-[150px]">Code</div>
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[80px]">
+              S.No.
+            </div>
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[150px]">
+              Code
+            </div>
             <div className="text-[.8rem] font-bold p-2 w-[200px]">Category</div>
-            <div className="text-[.8rem] font-bold p-2 w-[150px]">
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[150px]">
               Event Type
             </div>
-            <div className="text-[.8rem] font-bold p-2 w-[250px]">
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[250px]">
               Start Date
             </div>
-            <div className="text-[.8rem] font-bold p-2 w-[150px]">
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[200px]">
               Registration
             </div>
-            <div className="text-[.8rem] font-bold p-2 text-center w-[150px]">
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 text-center w-[200px]">
               Status
             </div>
-            <div className="text-[.8rem] font-bold p-2 text-center w-[250px]">
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 text-center w-[250px]">
               Action
             </div>
           </div>
@@ -170,28 +174,28 @@ export const RegisteredEventsListing = ({ componentType }) => {
                     key={list?.id}
                     className="flex border-b border-gray-200 last:border-none gap-2 hover:bg-gray-100"
                   >
-                    <div className="flex items-center p-2 text-[.8rem] w-[100px]">
+                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[80px]">
                       {i + 1}.
                     </div>
-                    <div className="flex items-center p-2 text-[.8rem] w-[150px]">
+                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[150px]">
                       {list?.event_code || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem] w-[200px]">
                       {list?.event_category_name || "N/A"}
                     </div>
-                    <div className="flex items-center p-2 text-[.8rem] w-[150px]">
+                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[150px]">
                       {list?.event_type || "N/A"}
                     </div>
-                    <div className="flex items-center p-2 text-[.8rem] w-[250px]">
+                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[250px]">
                       {list?.event_start_date
                         ? formatDateTime(list?.event_start_date)
                         : "N/A"}
                     </div>
-                    <div className="flex items-center p-2 text-[.8rem] w-[150px]">
-                      {list?.is_paid === true ? "Required" : "Not-Required"}
+                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[200px]">
+                      {list?.is_paid ? "Required" : "Not-Required"}
                     </div>
                     <div
-                      className={`flex items-center justify-center p-2 text-[.8rem] cursor-pointer text-xs w-[150px] font-bold ${myListStatusColor}`}
+                      className={`flex items-center justify-center p-2 text-[.8rem] cursor-pointer text-xs w-[200px] font-bold ${myListStatusColor}`}
                     >
                       <select
                         name="status"
@@ -213,7 +217,7 @@ export const RegisteredEventsListing = ({ componentType }) => {
                         })}
                       </select>
                     </div>
-                    <div className="flex justify-center text-[.8rem] items-center p-2 gap-2 w-[250px]">
+                    <div className="flex items-center justify-center text-[.8rem] p-2 gap-2 w-[250px]">
                       <ViewIcon
                         onClick={() => {
                           handleComponentView("view");

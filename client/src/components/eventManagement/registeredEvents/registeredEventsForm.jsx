@@ -71,7 +71,7 @@ export const RegisteredEventsForm = () => {
   const selectedCountry = watch("event_country_id");
   const selectedState = watch("event_state_id");
   const selectedSittingType = watch("sitting_type");
-  const [selectedEventType, setselectedEventType] = useState("In-Person");
+  const [selectedEventType, setSelectedEventType] = useState("In-Person");
   const [selectedRegisterType, setSelectedRegisterType] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
@@ -88,7 +88,6 @@ export const RegisteredEventsForm = () => {
       event_address: "",
       zip_code: "",
       event_meet_link: "https://dummy-meeting.in",
-      is_paid: false,
       sitting_type: "",
       sitting_capacity: 0,
       registration_deadline: "",
@@ -98,7 +97,8 @@ export const RegisteredEventsForm = () => {
       event_city_id: null,
       event_organizer_id: null,
     });
-    setselectedEventType("In-Person");
+    setSelectedEventType("In-Person");
+    setSelectedRegisterType(false);
   }, [reset]);
 
   // Handle Click Cancel Button
@@ -121,6 +121,22 @@ export const RegisteredEventsForm = () => {
             return date.toISOString().slice(0, 16);
           };
 
+          setSelectedEventType(data?.event_type);
+          setSelectedRegisterType(Boolean(data?.is_paid));
+
+          if (data?.is_paid) {
+            setValue(
+              "base_ticket_price",
+              data?.base_ticket_price ? data?.base_ticket_price : ""
+            );
+            setValue(
+              "registration_deadline",
+              data?.registration_deadline
+                ? formatDateForInput(data?.registration_deadline)
+                : ""
+            );
+          }
+
           // Set other form values
           setValue("event_category_id", data?.event_category_id);
           setValue("event_title", data?.event_title);
@@ -138,11 +154,6 @@ export const RegisteredEventsForm = () => {
           setValue("is_paid", data?.is_paid);
           setValue("sitting_type", data?.sitting_type);
           setValue("sitting_capacity", data?.sitting_capacity);
-          setValue(
-            "registration_deadline",
-            formatDateForInput(data?.registration_deadline)
-          );
-          setValue("base_ticket_price", data?.base_ticket_price);
           setValue("event_country_id", data?.event_country_id);
           setValue("event_state_id", data?.event_state_id);
           setValue("event_city_id", data?.event_city_id);
@@ -171,11 +182,15 @@ export const RegisteredEventsForm = () => {
         event_address: formData?.event_address,
         zip_code: formData?.zip_code,
         event_meet_link: formData?.event_meet_link || "",
-        is_paid: formData?.is_paid,
+        is_paid: selectedRegisterType,
         sitting_type: selectedSittingType,
         sitting_capacity: formData?.sitting_capacity || "",
-        registration_deadline: formData?.registration_deadline || "",
-        base_ticket_price: formData?.base_ticket_price || 0,
+        registration_deadline: selectedRegisterType
+          ? formData?.registration_deadline
+          : "",
+        base_ticket_price: selectedRegisterType
+          ? formData?.base_ticket_price
+          : 0,
         event_country_id: formData?.event_country_id,
         event_state_id: formData?.event_state_id,
         event_city_id: formData?.event_city_id,
@@ -332,7 +347,7 @@ export const RegisteredEventsForm = () => {
                                 value={type.value}
                                 checked={selectedEventType === type.value}
                                 onChange={() =>
-                                  setselectedEventType(type.value)
+                                  setSelectedEventType(type.value)
                                 }
                               />
                               <span className="ml-2 text-sm text-gray-700">
