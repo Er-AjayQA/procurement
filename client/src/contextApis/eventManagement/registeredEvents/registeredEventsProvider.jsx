@@ -3,7 +3,6 @@ import {
   getAllCountries,
   getAllDepartments,
   getAllEventCategory,
-  getAllTicketCategory,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { RegisteredEventsContext } from "./registeredEventsContext";
@@ -12,11 +11,11 @@ import {
   getEmployeeDetails,
 } from "../../../services/employeeDetails_services/services";
 import { useSelector } from "react-redux";
+import { deleteTicket } from "../../../services/ticket_services/service";
 import {
-  deleteTicket,
-  getTicketDetailsById,
-} from "../../../services/ticket_services/service";
-import { getAllEventsList } from "../../../services/eventManagement_services/service";
+  getAllEventsList,
+  getEventById,
+} from "../../../services/eventManagement_services/service";
 
 export const RegisteredEventsProvider = ({ children }) => {
   const { userDetails } = useSelector((state) => state.auth);
@@ -99,7 +98,7 @@ export const RegisteredEventsProvider = ({ children }) => {
   // Get Data By Id
   const getDataById = async (id) => {
     try {
-      const response = await getTicketDetailsById(id);
+      const response = await getEventById(id);
       if (response.success) {
         setData(response.data[0]);
       } else {
@@ -254,30 +253,6 @@ export const RegisteredEventsProvider = ({ children }) => {
     }
   };
 
-  // Get All Department List
-  const getAllDepartmentOptions = async () => {
-    try {
-      const response = await getAllDepartments({
-        limit: 500,
-        page: "",
-        filter: "",
-      });
-
-      if (response.success) {
-        setDepartmentOptions(
-          response?.data.map((data) => ({
-            value: data?.id,
-            label: data?.name,
-          }))
-        );
-      } else {
-        throw new Error(response.message);
-      }
-    } catch (error) {
-      setDepartmentOptions(null);
-    }
-  };
-
   // Get All Country List
   const getAllCountryOptions = async () => {
     try {
@@ -302,27 +277,12 @@ export const RegisteredEventsProvider = ({ children }) => {
     }
   };
 
-  // // Handle Form Close
-  // const handleFormClose = () => {
-  //   if (currentTab === "my_requests") {
-  //     handleTabClick({ name: "My Requests", value: "my_requests" });
-  //   }
-
-  //   if (currentTab === "allocate_to_me") {
-  //     handleTabClick({
-  //       name: "Allocated to Me",
-  //       value: "allocate_to_me",
-  //     });
-  //   }
-  // };
-
   // For initial load and filter/pagination changes
   useEffect(() => {
     getAllData(userDetails?.id);
   }, [limit, page, filter, refreshTrigger, userDetails?.id, deleteId]);
 
   useEffect(() => {
-    getAllDepartmentOptions();
     getAllUsersOptions();
     getAllEventCategoryOptions();
     getAllCountryOptions();

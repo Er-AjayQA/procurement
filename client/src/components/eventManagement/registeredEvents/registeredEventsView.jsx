@@ -1,15 +1,12 @@
 import { useRegisteredEventsContext } from "../../../contextApis/useEventContextFile";
 import { EventBasicDetails } from "./registeredEventsViewComponents/eventBasicDetails";
-import { EventDescription } from "./registeredEventsViewComponents/eventDescription";
 import { EventRegistrationDetails } from "./registeredEventsViewComponents/eventRegistrationDetails";
 import { EventVenueDetails } from "./registeredEventsViewComponents/eventVenueDetails";
 
 export const RegisteredEventsView = () => {
-  const { data, handleFormClose, handleComponentView, setViewId } =
-    useRegisteredEventsContext();
+  const { data, handleComponentView, setViewId } = useRegisteredEventsContext();
 
   const handleCancel = () => {
-    handleFormClose();
     handleComponentView("listing");
     setViewId(null);
   };
@@ -20,7 +17,7 @@ export const RegisteredEventsView = () => {
         <div className="flex justify-between items-center py-3 border-b border-gray-400">
           <div>
             <p className="text-sm">
-              <span className="font-bold">Subject:</span> {data?.ticket_subject}
+              <span className="font-bold">Event:</span> {data?.event_title}
             </p>
           </div>
           <button
@@ -45,11 +42,6 @@ export const RegisteredEventsView = () => {
           {/* Event Registration Details Sections */}
           <div className="py-5">
             <EventRegistrationDetails />
-          </div>
-
-          {/* Event Description Sections */}
-          <div className="py-5">
-            <EventDescription />
           </div>
         </div>
       </div>
