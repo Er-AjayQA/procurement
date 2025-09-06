@@ -27,8 +27,8 @@ module.exports.createEntity = async (req, res) => {
       });
     } else {
       let code = await generateUniqueCode(
-        data?.entity_code_prefix,
-        data?.entity_code_prefix.length,
+        "ENT",
+        3,
         "entity_code",
         "ENTITY_CONFIGURATION"
       );
@@ -87,7 +87,7 @@ module.exports.updateEntity = async (req, res) => {
           transaction,
         });
 
-      if (checkIfEntityWithSameName) {
+      if (checkIfEntityWithSameName.length > 0) {
         await transaction.rollback();
         return res.status(409).send({
           success: false,
@@ -192,19 +192,12 @@ module.exports.getAllEntityDetails = async (req, res) => {
       offset: offset,
     };
 
-    // // Add Event Category filter if provided
-    // if (filter?.event_category_id) {
-    //   countQuery += ` AND EC.event_category_id = :event_category_id`;
-    //   query += ` AND EC.event_category_id = :event_category_id`;
-    //   replacements.event_category_id = filter.event_category_id;
-    // }
-
-    // // Add Event Type filter if provided
-    // if (filter?.event_type) {
-    //   countQuery += ` AND EC.event_type LIKE :event_type`;
-    //   query += ` AND EC.event_type LIKE :event_type`;
-    //   replacements.event_type = `%${filter.event_type}%`;
-    // }
+    // Add Name filter if provided
+    if (filter?.name) {
+      countQuery += ` AND EC.entity_name = :name`;
+      query += ` AND EC.entity_name = :name`;
+      replacements.entity_name = filter.name;
+    }
 
     // Complete the queries
     query += ` GROUP BY EC.id`;
@@ -269,7 +262,7 @@ module.exports.updateEntityStatus = async (req, res) => {
         .send({ success: false, message: "Entity not found!" });
     } else {
       const updateStatus = await isEntityExist.update({
-        status: data?.status,
+        status: !isEntityExist?.status,
       });
       return res.status(201).send({
         success: true,
