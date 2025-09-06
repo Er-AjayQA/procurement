@@ -1254,5 +1254,13 @@ db.tbl_event_registration_payment_transactions.belongsTo(
   }
 );
 
+// ========================================== ENTITY MANAGEMENT ========================================== //
+// Entity Configuration Table
+db.tbl_entity_configuration =
+  require("../API/entityManagement/entityConfiguration/model/entityConfig.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== EXPORTS ========== //
 module.exports = db;
