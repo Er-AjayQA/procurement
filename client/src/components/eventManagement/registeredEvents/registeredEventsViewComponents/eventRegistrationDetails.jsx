@@ -6,82 +6,33 @@ export const EventRegistrationDetails = () => {
     <>
       <div className="flex flex-col gap-5">
         <div className="bg-button-hover py-2 px-1 rounded-t-md">
-          <h3 className="text-white text-xs">Ticket History</h3>
+          <h3 className="text-white text-xs">Registration Details</h3>
         </div>
-        <div className="basis-[90%] justify-around shadow-lg rounded-md pb-4 mx-auto">
-          {/* Table Headers */}
-          <div className="flex bg-gray-200">
-            <div className="w-[100px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">S.No.</label>
-            </div>
-            <div className="w-[150px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Action By</label>
-            </div>
-            <div className="w-[300px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Action Taken</label>
-            </div>
-            <div className="w-[200px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Acted On</label>
-            </div>
-            <div className="w-[250px] px-2 py-2 text-center font-bold border-e border-e-gray-300">
-              <label className="text-[.8rem]">Comment</label>
-            </div>
-            <div className="w-[150px] px-2 py-2 text-center font-bold">
-              <label className="text-[.8rem]">Current Status</label>
-            </div>
+        <div className="grid grid-cols-3 gap-5 basis-[80%] justify-around shadow-lg rounded-md px-3 pb-4">
+          <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">Registration Required</label>
+            <p className="text-[.7rem]">{data?.is_paid ? "Yes" : "No"}</p>
           </div>
-
-          {/* Table Body */}
-
-          {data?.history_detail?.map((list, i) => {
-            return (
-              <div className="flex" key={i}>
-                <div className="flex items-center justify-center w-[100px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
-                  <p className="text-[.7rem]">{i + 1}</p>
-                </div>
-                <div
-                  className={`flex items-center justify-center w-[150px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200`}
-                >
-                  <p className="text-[.7rem]">{list?.action_by || "N/A"}</p>
-                </div>
-                <div
-                  className={`flex items-center w-[300px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
-                    list?.action_taken ? "" : "justify-center"
-                  }`}
-                >
-                  <p className="text-[.7rem]">{list?.action_taken || "N/A"} </p>
-                </div>
-                <div className="flex items-center justify-center w-[200px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200">
-                  <p className="text-[.7rem]">
-                    {formatDateTime(list?.action_date)}
-                  </p>
-                </div>
-                <div
-                  className={`flex items-center w-[250px] px-2 py-2 border-e border-e-gray-200 border-b border-b-gray-200 ${
-                    list?.executive_remark ? "" : "justify-center"
-                  }`}
-                >
-                  <p className="text-[.7rem]">
-                    {list?.executive_remark || "-"}
-                  </p>
-                </div>
-                <div className="flex items-center justify-center w-[150px] px-2 py-2 border-b border-b-gray-200">
-                  <p
-                    className={`text-[.7rem] font-bold  ${
-                      (list?.current_status === "OPEN" && "text-green-600") ||
-                      (list?.current_status === "CLOSE" && "text-red-600") ||
-                      (list?.current_status === "ESCALATED" &&
-                        "text-yellow-600") ||
-                      (list?.current_status === "PICK" && "text-blue-600") ||
-                      (list?.current_status === "ASSIGNED" && "text-pink-600")
-                    }`}
-                  >
-                    {list?.current_status || "N/A"}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+          <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">Sitting Type</label>
+            <p className="text-[.7rem]">{data?.sitting_type || "N/A"}</p>
+          </div>
+          <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">Sitting Capacity</label>
+            <p className="text-[.7rem]">{data?.sitting_capacity || "N/A"}</p>
+          </div>
+          <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">Ticket Base Price</label>
+            <p className="text-[.7rem]">{data?.base_ticket_price || "N/A"}</p>
+          </div>
+          <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">Registration Deadline</label>
+            <p className="text-[.7rem]">
+              {data?.base_ticket_price
+                ? formatDateTime(data?.registration_deadline)
+                : "N/A"}
+            </p>
+          </div>
         </div>
       </div>
     </>

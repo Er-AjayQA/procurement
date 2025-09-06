@@ -1,7 +1,7 @@
 import { useRegisteredEventsContext } from "../../../../contextApis/useEventContextFile";
 
 export const EventBasicDetails = () => {
-  const { data } = useRegisteredEventsContext();
+  const { data, formatDateTime } = useRegisteredEventsContext();
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -10,46 +10,51 @@ export const EventBasicDetails = () => {
         </div>
         <div className="grid grid-cols-3 gap-5 basis-[80%] justify-around shadow-lg rounded-md px-3 pb-4">
           <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Ticket Type</label>
+            <label className="text-[.8rem]">Event Type</label>
             <p className="text-[.7rem]">
-              {data?.ticket_type ? `For ${data?.ticket_type}` : "N/A"}
+              {data?.event_type ? `${data?.event_type}` : "N/A"}
             </p>
           </div>
           <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Employee Name</label>
+            <label className="text-[.8rem]">Event Category</label>
+            <p className="text-[.7rem]">{data?.event_category_name || "N/A"}</p>
+          </div>
+          <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">Meeting Link</label>
+            <p className="text-[.7rem]">{data?.event_meet_link || "N/A"}</p>
+          </div>
+          <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">From</label>
             <p className="text-[.7rem]">
-              {data?.created_for_userTitle} {data?.created_for_userName} -{" "}
-              {data?.created_for_user_code}
+              {data?.event_start_date
+                ? formatDateTime(data?.event_start_date)
+                : "N/A"}
             </p>
           </div>
           <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Raised For (Department)</label>
+            <label className="text-[.8rem]">To</label>
             <p className="text-[.7rem]">
-              {data?.created_for_deptName || "N/A"}
+              {data?.event_end_date
+                ? formatDateTime(data?.event_end_date)
+                : "N/A"}
             </p>
-          </div>
-          <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Ticket Category</label>
-            <p className="text-[.7rem]">
-              {data?.ticket_category_name || "N/A"}
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 justify-center">
-            <label className="text-[.8rem]">Priority</label>
-            <p className="text-[.7rem]">{data?.ticket_priority || "N/A"}</p>
           </div>
           <div className="flex flex-col gap-2 justify-center">
             <label className="text-[.8rem]">Current Status</label>
             <p
               className={`text-[.7rem] font-bold ${
-                (data?.ticket_status === "OPEN" && "text-green-600") ||
-                (data?.ticket_status === "CLOSE" && "text-red-600") ||
-                (data?.ticket_status === "ESCALATED" && "text-yellow-600") ||
-                (data?.ticket_status === "PICK" && "text-blue-600")
+                (data?.status === "DRAFT" && "text-yellow-600") ||
+                (data?.status === "PUBLISHED" && "text-green-600") ||
+                (data?.status === "CANCELLED" && "text-red-600") ||
+                (data?.status === "FINISHED" && "text-blue-600")
               }`}
             >
-              {data?.ticket_status || "N/A"}
+              {data?.status || "N/A"}
             </p>
+          </div>
+          <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">Description</label>
+            <p className="text-[.7rem]">{data?.event_description || "N/A"}</p>
           </div>
         </div>
       </div>

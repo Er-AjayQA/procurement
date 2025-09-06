@@ -2,38 +2,25 @@ import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { useEffect, useMemo, useCallback, useState } from "react";
+import { useEffect, useCallback, useState } from "react";
 import {
   getAllCities,
   getAllStates,
-  getTicketCategoryById,
 } from "../../../services/master_services/service";
-import {
-  createTicket,
-  updateTicket,
-} from "../../../services/ticket_services/service";
 import { useRegisteredEventsContext } from "../../../contextApis/useEventContextFile";
-
-const TICKET_TYPES = {
-  SELF: "Self",
-  COLLEAGUE: "Colleague",
-};
-
-const TICKET_TYPE_OPTIONS = [
-  { value: TICKET_TYPES.SELF, label: "For Self" },
-  { value: TICKET_TYPES.COLLEAGUE, label: "For Colleague" },
-];
+import {
+  createEvent,
+  updateEvent,
+} from "../../../services/eventManagement_services/service";
 
 export const RegisteredEventsForm = () => {
   const {
     data,
     updateId,
     handleComponentView,
-    handleFormClose,
     setUpdateId,
     setData,
     loginUserData,
-    departmentOptions,
     eventCategoryOptions,
     registrationRequiredOptions,
     userOptions,
@@ -56,12 +43,25 @@ export const RegisteredEventsForm = () => {
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
-      user_id: null,
-      created_for_dept_id: null,
-      ticket_category_id: null,
-      ticket_priority: "",
-      ticket_subject: "",
-      ticket_description: "",
+      event_category_id: "",
+      event_title: "",
+      event_description: "",
+      event_start_date: "",
+      event_end_date: "",
+      event_type: "In-Person",
+      venue_name: "",
+      event_address: "",
+      zip_code: "",
+      event_meet_link: "https://dummy-meeting.in",
+      is_paid: false,
+      sitting_type: "",
+      sitting_capacity: 0,
+      registration_deadline: "",
+      base_ticket_price: 0,
+      event_country_id: null,
+      event_state_id: null,
+      event_city_id: null,
+      event_organizer_id: null,
     },
   });
 
@@ -78,12 +78,25 @@ export const RegisteredEventsForm = () => {
   // Reset form function
   const resetForm = useCallback(() => {
     reset({
-      user_id: null,
-      created_for_dept_id: null,
-      ticket_category_id: null,
-      ticket_priority: "",
-      ticket_subject: "",
-      ticket_description: "",
+      event_category_id: "",
+      event_title: "",
+      event_description: "",
+      event_start_date: "",
+      event_end_date: "",
+      event_type: "In-Person",
+      venue_name: "",
+      event_address: "",
+      zip_code: "",
+      event_meet_link: "https://dummy-meeting.in",
+      is_paid: false,
+      sitting_type: "",
+      sitting_capacity: 0,
+      registration_deadline: "",
+      base_ticket_price: 0,
+      event_country_id: null,
+      event_state_id: null,
+      event_city_id: null,
+      event_organizer_id: null,
     });
     setselectedEventType("In-Person");
   }, [reset]);
@@ -91,38 +104,49 @@ export const RegisteredEventsForm = () => {
   // Handle Click Cancel Button
   const handleCancel = useCallback(() => {
     resetForm();
-    handleFormClose();
     handleComponentView("listing");
     setData(null);
     setUpdateId(null);
-  }, [resetForm, handleFormClose, handleComponentView, setData, setUpdateId]);
+  }, [resetForm, handleComponentView, setData, setUpdateId]);
 
   // Set form values when in update mode - FIXED VERSION
   useEffect(() => {
     if (isEditMode && data) {
       const setUpdateDefaultData = async () => {
         try {
-          // Set user based on ticket type
-          if (data?.ticket_type === TICKET_TYPES.COLLEAGUE && data?.user_id) {
-            // Wait for userOptions to be available
-            if (userOptions && userOptions.length > 0) {
-              const userOption = userOptions.find(
-                (item) => item.value === data.user_id
-              );
-              if (userOption) {
-                setValue("user_id", data.user_id);
-              }
-            }
-          } else if (data?.ticket_type === TICKET_TYPES.SELF) {
-            setValue("user_id", loginUserData?.id);
-          }
+          // Format dates for datetime-local inputs
+          const formatDateForInput = (dateString) => {
+            if (!dateString) return "";
+            const date = new Date(dateString);
+            return date.toISOString().slice(0, 16);
+          };
 
           // Set other form values
-          setValue("created_for_dept_id", data?.created_for_dept_id);
-          setValue("ticket_category_id", data?.ticket_category_id);
-          setValue("ticket_priority", data?.ticket_priority);
-          setValue("ticket_subject", data?.ticket_subject);
-          setValue("ticket_description", data?.ticket_description);
+          setValue("event_category_id", data?.event_category_id);
+          setValue("event_title", data?.event_title);
+          setValue("event_description", data?.event_description);
+          setValue(
+            "event_start_date",
+            formatDateForInput(data?.event_start_date)
+          );
+          setValue("event_end_date", formatDateForInput(data?.event_end_date));
+          setValue("event_type", data?.event_type);
+          setValue("venue_name", data?.venue_name);
+          setValue("event_address", data?.event_address);
+          setValue("zip_code", data?.zip_code);
+          setValue("event_meet_link", data?.event_meet_link);
+          setValue("is_paid", data?.is_paid);
+          setValue("sitting_type", data?.sitting_type);
+          setValue("sitting_capacity", data?.sitting_capacity);
+          setValue(
+            "registration_deadline",
+            formatDateForInput(data?.registration_deadline)
+          );
+          setValue("base_ticket_price", data?.base_ticket_price);
+          setValue("event_country_id", data?.event_country_id);
+          setValue("event_state_id", data?.event_state_id);
+          setValue("event_city_id", data?.event_city_id);
+          setValue("event_organizer_id", data?.event_organizer_id);
         } catch (error) {
           console.error("Error setting update data:", error);
           toast.error("Failed to load ticket data");
@@ -132,6 +156,58 @@ export const RegisteredEventsForm = () => {
       setUpdateDefaultData();
     }
   }, [isEditMode, data, setValue, userOptions, loginUserData]);
+
+  // Handle Form Submission
+  const onSubmit = async (formData) => {
+    try {
+      const payload = {
+        event_category_id: formData?.event_category_id,
+        event_title: formData?.event_title,
+        event_description: formData?.event_description,
+        event_start_date: formData?.event_start_date,
+        event_end_date: formData?.event_end_date,
+        event_type: selectedEventType,
+        venue_name: formData?.venue_name,
+        event_address: formData?.event_address,
+        zip_code: formData?.zip_code,
+        event_meet_link: formData?.event_meet_link || "",
+        is_paid: formData?.is_paid,
+        sitting_type: selectedSittingType,
+        sitting_capacity: formData?.sitting_capacity || "",
+        registration_deadline: formData?.registration_deadline || "",
+        base_ticket_price: formData?.base_ticket_price || 0,
+        event_country_id: formData?.event_country_id,
+        event_state_id: formData?.event_state_id,
+        event_city_id: formData?.event_city_id,
+        event_organizer_id: formData?.event_organizer_id,
+      };
+
+      const response = isEditMode
+        ? await updateEvent(updateId, payload)
+        : await createEvent(payload);
+
+      if (response.success) {
+        toast.success(response.message);
+
+        if (typeof refreshData === "function") {
+          refreshData();
+        }
+
+        resetForm();
+        handleComponentView("listing");
+      } else {
+        throw new Error(response.message || "Operation failed");
+      }
+    } catch (error) {
+      toast.error(error.message || "An error occurred");
+    }
+  };
+
+  // Helper function to find selected option
+  const findSelectedOption = useCallback((options, value) => {
+    if (!options || value === undefined || value === null) return null;
+    return options.find((opt) => opt.value === value) || null;
+  }, []);
 
   // Get State Options
   const getAllStatesOptions = async (id) => {
@@ -187,48 +263,6 @@ export const RegisteredEventsForm = () => {
       console.error("Error fetching Cities options:", error);
     }
   };
-
-  // Handle Form Submission
-  const onSubmit = async (formData) => {
-    try {
-      const payload = {
-        event_type: selectedEventType,
-        user_id: formData.user_id,
-        created_by_user_id: userDetails?.id,
-        created_for_dept_id: formData.created_for_dept_id,
-        ticket_category_id: formData.ticket_category_id,
-        ticket_priority: formData.ticket_priority,
-        ticket_subject: formData.ticket_subject,
-        ticket_description: formData.ticket_description,
-        acted_on: new Date(),
-      };
-
-      const response = isEditMode
-        ? await updateTicket(updateId, payload)
-        : await createTicket(payload);
-
-      if (response.success) {
-        toast.success(response.message);
-
-        if (typeof refreshData === "function") {
-          refreshData();
-        }
-
-        resetForm();
-        handleComponentView("listing");
-      } else {
-        throw new Error(response.message || "Operation failed");
-      }
-    } catch (error) {
-      toast.error(error.message || "An error occurred");
-    }
-  };
-
-  // Helper function to find selected option
-  const findSelectedOption = useCallback((options, value) => {
-    if (!options || value === undefined || value === null) return null;
-    return options.find((opt) => opt.value === value) || null;
-  }, []);
 
   // Fetching States on Country Selection
   useEffect(() => {
@@ -349,29 +383,26 @@ export const RegisteredEventsForm = () => {
                     </div>
 
                     {/* Meeting Link */}
-                    <div className="col-span-4 flex flex-col gap-2">
-                      <label className="text-sm">Meeting Link</label>
-                      <input
-                        type="text"
-                        id="event_meet_link"
-                        value={
-                          selectedEventType !== "In-Person"
-                            ? "https://dummy-meeting.in"
-                            : ""
-                        }
-                        className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="Meeting link..."
-                        {...register("event_meet_link", {
-                          required: "Meeting link is required!",
-                        })}
-                        disabled={true}
-                      />
-                      {errors.event_meet_link && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {errors.event_meet_link.message}
-                        </p>
-                      )}
-                    </div>
+                    {selectedEventType !== "In-Person" ? (
+                      <div className="col-span-4 flex flex-col gap-2">
+                        <label className="text-sm">Meeting Link</label>
+                        <input
+                          type="text"
+                          id="event_meet_link"
+                          value={
+                            selectedEventType !== "In-Person"
+                              ? "https://dummy-meeting.in"
+                              : ""
+                          }
+                          className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                          placeholder="Meeting link..."
+                          {...register("event_meet_link")}
+                          disabled={true}
+                        />
+                      </div>
+                    ) : (
+                      <div className="col-span-4 flex flex-col gap-2"></div>
+                    )}
                   </div>
 
                   {/* Row - 2 */}
@@ -438,8 +469,9 @@ export const RegisteredEventsForm = () => {
                     </div>
                   </div>
 
-                  {/* Event Description */}
+                  {/* Row - 3 */}
                   <div className="grid grid-cols-12 gap-5">
+                    {/* Event Description */}
                     <div className="col-span-10 flex flex-col gap-2">
                       <label htmlFor="event_description" className="text-sm">
                         Description
@@ -764,7 +796,7 @@ export const RegisteredEventsForm = () => {
                       </div>
                     </div>
 
-                    {/* Event Sitting */}
+                    {/* Event Sitting Type */}
                     <div className="col-span-4 flex flex-col gap-3">
                       <div className="flex flex-col gap-2">
                         <label
@@ -808,51 +840,74 @@ export const RegisteredEventsForm = () => {
                     </div>
 
                     {/* Sitting Capacity */}
-                    <div className="col-span-4 flex flex-col gap-2">
-                      <label htmlFor="sitting_capacity" className="text-sm">
-                        Sitting Capacity
-                      </label>
-                      <input
-                        type="number"
-                        id="sitting_capacity"
-                        className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="capacity..."
-                        {...register("sitting_capacity", {
-                          required: "Sitting capacity is required!",
-                        })}
-                        disabled={selectedSittingType === "Unlimited"}
-                      />
-                      {errors.sitting_capacity && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {errors.sitting_capacity.message}
-                        </p>
-                      )}
-                    </div>
+                    {selectedSittingType === "Limited" && (
+                      <div className="col-span-4 flex flex-col gap-2">
+                        <label htmlFor="sitting_capacity" className="text-sm">
+                          Sitting Capacity
+                        </label>
+                        <input
+                          type="number"
+                          id="sitting_capacity"
+                          min={0}
+                          className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                          placeholder="capacity..."
+                          {...register("sitting_capacity", {
+                            required: "Sitting capacity is required!",
+                          })}
+                          disabled={selectedSittingType === "Unlimited"}
+                        />
+                        {errors.sitting_capacity && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.sitting_capacity.message}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Row - 2 */}
-                  <div className="grid grid-cols-12 gap-5">
-                    {/* Event Base Price */}
-                    <div className="col-span-4 flex flex-col gap-2">
-                      <label htmlFor="base_ticket_price" className="text-sm">
-                        Ticket Base Price
-                      </label>
-                      <input
-                        type="number"
-                        id="base_ticket_price"
-                        className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="base price..."
-                        {...register("base_ticket_price", {
-                          required: "Ticket base price is required!",
-                        })}
-                      />
-                      {errors.base_ticket_price && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {errors.base_ticket_price.message}
-                        </p>
-                      )}
+                  {selectedRegisterType === true && (
+                    <div className="grid grid-cols-12 gap-5">
+                      {/* Event Base Price */}
+                      <div className="col-span-4 flex flex-col gap-2">
+                        <label htmlFor="base_ticket_price" className="text-sm">
+                          Ticket Base Price
+                        </label>
+                        <input
+                          type="number"
+                          id="base_ticket_price"
+                          min={0}
+                          className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                          placeholder="base price..."
+                          {...register("base_ticket_price", {
+                            required: "Ticket base price is required!",
+                          })}
+                        />
+                        {errors.base_ticket_price && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {errors.base_ticket_price.message}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Event Registration Last Date */}
+                      <div className="col-span-4 flex flex-col gap-2">
+                        <label
+                          htmlFor="registration_deadline"
+                          className="text-sm"
+                        >
+                          Registration Last Date
+                        </label>
+                        <input
+                          type="datetime-local"
+                          id="registration_deadline"
+                          className={`rounded-lg text-[.8rem] border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                          placeholder="Last date of registration..."
+                          {...register("registration_deadline")}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
