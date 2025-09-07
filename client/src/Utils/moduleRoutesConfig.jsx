@@ -2,6 +2,7 @@ import { AttendanceCalendarPage } from "../pages/EmployeeSelfService/attendanceC
 import { MainCalendarPage } from "../pages/EmployeeSelfService/calendar";
 import { EmployeeDetailPage } from "../pages/EmployeeSelfService/employeeDetails";
 import { MainHelpDeskPage } from "../pages/EmployeeSelfService/helpDesk";
+import { MainEntityConfigPage } from "../pages/EntityManagement/EntityConfig";
 import { MainRegisteredEventsPage } from "../pages/EventManagement/registeredEvents";
 import { MainEmployeePage } from "../pages/Hrms/EmployeeManagement";
 import { MainEmployeeTransferPage } from "../pages/Hrms/EmployeeTransfer";
@@ -66,6 +67,9 @@ export const moduleComponents = {
   },
   "event-management": {
     "registered-events": MainRegisteredEventsPage,
+  },
+  "entity-management": {
+    "entity-configurations": MainEntityConfigPage,
   },
   masters: {
     "designation-master": MasterDesignationPage,

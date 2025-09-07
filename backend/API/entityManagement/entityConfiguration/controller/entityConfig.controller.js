@@ -5,50 +5,220 @@ const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 // ********************* EVENT MANAGEMENT CONTROLLERS ********************* //
 // ========== CREATE ENTITY CONTROLLER ========== //
 module.exports.createEntity = async (req, res) => {
-  const transaction = await DB.sequelize.transaction();
   try {
     const data = req.body;
+    const entity_id = req.body?.entity_id || null;
 
-    // Check if Entity Exist with same name
-    const checkAlreadyExist = await DB.tbl_entity_configuration.findOne({
-      where: {
-        entity_name: data?.entity_name,
-        display_name: data?.display_name,
-        isDeleted: false,
-      },
-      transaction,
-    });
+    // ADD BASIC DETAILS TAB DATA
+    if (data.tab_type === "basic_details") {
+      let { entity_name, display_name, entity_code_prefix, entity_type } =
+        req.body;
 
-    if (checkAlreadyExist) {
-      await transaction.rollback();
-      return res.status(409).send({
-        success: false,
-        message: "Entity with same name already exist!",
+      // Check if Entity already exist
+      const isAlreadyExist = await DB.tbl_entity_configuration.findOne({
+        where: {
+          [DB.Sequelize.Op.or]: [
+            { entity_name: data?.entity_name },
+            { display_name: data?.display_name },
+          ],
+          isDeleted: false,
+        },
       });
-    } else {
-      let code = await generateUniqueCode(
-        "ENT",
-        3,
-        "entity_code",
-        "ENTITY_CONFIGURATION"
-      );
 
-      const createData = await DB.tbl_entity_configuration.create(
-        { ...data, entity_code: code },
-        {
-          transaction,
+      if (isAlreadyExist) {
+        return res
+          .status(409)
+          .send({ success: false, message: "Entity Already Exist!" });
+      } else {
+        if (req.file) {
+          data.logo = req.file.path || null;
         }
-      );
 
-      await transaction.commit();
+        let code = await generateUniqueCode(
+          "ENT",
+          3,
+          "entity_code",
+          "ENTITY_CONFIGURATION"
+        );
 
-      return res.status(201).send({
-        success: true,
-        message: "Entity created successfully!",
+        const transaction = await DB.sequelize.transaction();
+
+        try {
+          const newEntity = await DB.tbl_entity_configuration.create(
+            {
+              entity_code: code,
+              entity_name: entity_name,
+              display_name: display_name,
+              entity_code_prefix: entity_code_prefix,
+              entity_type: entity_type,
+              logo: data.logo, // Added missing logo field
+            },
+            { transaction }
+          );
+
+          await transaction.commit();
+
+          return res.status(201).send({
+            success: true,
+            message: "Basic Details Saved Successfully!",
+            data: newEntity?.id,
+          });
+        } catch (error) {
+          await transaction.rollback();
+          throw error;
+        }
+      }
+    }
+
+    // ADD SMTP DETAILS TAB DATA
+    if (data.tab_type === "smtp_details") {
+      let { smtp_server_address, smtp_port_no, username, password } = req.body;
+
+      let findEntity = await DB.tbl_entity_configuration.findOne({
+        where: { id: entity_id },
       });
+
+      if (!findEntity) {
+        return res.status(404).send({
+          success: false,
+          message: "Entity Not Found!",
+        });
+      }
+
+      const transaction = await DB.sequelize.transaction();
+      try {
+        // Adding the SMTP Details
+        await DB.tbl_entity_configuration.update(
+          {
+            smtp_server_address: smtp_server_address,
+            smtp_port_no: smtp_port_no,
+            username: username,
+            password: password,
+          },
+          { where: { id: findEntity?.id }, transaction }
+        );
+
+        await transaction.commit();
+        return res.status(201).send({
+          success: true,
+          message: "Smtp details saved successfully",
+        });
+      } catch (error) {
+        console.log("Error in Adding Smtp Details", error);
+        await transaction.rollback();
+        throw error;
+      }
+    }
+
+    // ADD COMMUNICATION DETAILS TAB DATA
+    if (data.tab_type === "communication_details") {
+      let {
+        email_domain,
+        email_signature,
+        contact_country_code,
+        contact_no,
+        default_time_zone,
+        business_hours,
+        local_currency,
+        tax_info,
+        language_preference,
+      } = req.body;
+
+      // Find Entity details need to update
+      let findEntity = await DB.tbl_entity_configuration.findOne({
+        where: { id: entity_id },
+      });
+
+      if (!findEntity) {
+        return res.status(404).send({
+          success: false,
+          message: "Entity Not Found!",
+        });
+      } else {
+        const transaction = await DB.sequelize.transaction();
+
+        try {
+          await DB.tbl_entity_configuration.update(
+            {
+              email_domain: email_domain,
+              email_signature: email_signature,
+              contact_country_code: contact_country_code,
+              contact_no: contact_no,
+              default_time_zone: default_time_zone,
+              business_hours: business_hours,
+              local_currency: local_currency,
+              tax_info: tax_info,
+              language_preference: language_preference,
+            },
+            { where: { id: findEntity.id }, transaction }
+          );
+
+          await transaction.commit();
+          return res.status(201).send({
+            success: true,
+            message: "Communication details Saved successfully",
+          });
+        } catch (error) {
+          console.log("Error in Adding Communication Details", error);
+          await transaction.rollback();
+          throw error;
+        }
+      }
+    }
+
+    // ADD REGIONAL DETAILS TAB DATA
+    if (data.tab_type === "regional_details") {
+      let {
+        date_format,
+        time_format,
+        date_time_format,
+        thousand_separator,
+        decimal_separator,
+        currency_symbol,
+        currency_symbol_position,
+        number_of_decimal,
+      } = req.body;
+
+      // Check Entity
+      let findEntity = await DB.tbl_entity_configuration.findOne({
+        where: { id: entity_id },
+      });
+
+      if (!findEntity) {
+        return res.status(404).send({
+          success: false,
+          message: "Entity Not Found!",
+        });
+      } else {
+        try {
+          const transaction = await DB.sequelize.transaction();
+
+          await DB.tbl_entity_configuration.update(
+            {
+              date_format: date_format,
+              time_format: time_format,
+              date_time_format: date_time_format,
+              thousand_separator: thousand_separator,
+              decimal_separator: decimal_separator,
+              currency_symbol: currency_symbol,
+              currency_symbol_position: currency_symbol_position,
+              number_of_decimal: number_of_decimal,
+            },
+            { where: { id: findEntity.id }, transaction }
+          );
+          await transaction.commit();
+          return res.status(201).send({
+            success: true,
+            message: "Regional details saved successfully",
+          });
+        } catch (error) {
+          console.log("Error in Adding Regional Details", error);
+          await transaction.rollback();
+          throw error;
+        }
+      }
     }
   } catch (error) {
-    await transaction.rollback();
     res.status(500).send({ success: false, message: error.message });
   }
 };
