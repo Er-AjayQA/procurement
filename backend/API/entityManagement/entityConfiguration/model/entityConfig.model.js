@@ -9,7 +9,24 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
       },
 
+      tab_type: {
+        type: Sequelize.ENUM(
+          "basic_details",
+          "smtp_details",
+          "communication_details",
+          "regional_details"
+        ),
+        allowNull: false,
+      },
+
       // BASIC DETAILS
+      logo: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("logo", value === "" ? null : value);
+        },
+      },
       entity_code: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -44,13 +61,6 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: true,
         set(value) {
           this.setDataValue("email_signature", value === "" ? null : value);
-        },
-      },
-      logo: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        set(value) {
-          this.setDataValue("logo", value === "" ? null : value);
         },
       },
       contact_country_code: {
