@@ -8,6 +8,7 @@ const initialState = {
   activeModule: JSON.parse(localStorage.getItem("activeModule")) || "Dashboard",
   activeSubmodule:
     JSON.parse(localStorage.getItem("activeSubmodule")) || "Dashboard",
+  activeEntity: JSON.parse(localStorage.getItem("activeEntity")) || null,
 };
 
 export const authSlice = createSlice({
@@ -48,6 +49,14 @@ export const authSlice = createSlice({
       );
     },
 
+    setActiveEntity: (state, action) => {
+      state.activeEntity = action.payload.activeEntity;
+      localStorage.setItem(
+        "activeEntity",
+        JSON.stringify(action.payload.activeEntity)
+      );
+    },
+
     logout: (state) => {
       state.isAuthentic = false;
       state.token = null;
@@ -55,6 +64,7 @@ export const authSlice = createSlice({
       state.userDetails = null;
       state.activeModule = "Dashboard";
       state.activeSubmodule = "Dashboard";
+      state.activeEntity = null;
       localStorage.clear();
     },
   },
@@ -67,6 +77,7 @@ export const {
   setActiveSubmodule,
   setToken,
   setAssignedModules,
+  setActiveEntity,
   logout,
 } = authSlice.actions;
 export default authSlice.reducer;

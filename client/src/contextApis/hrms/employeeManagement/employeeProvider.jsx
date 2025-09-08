@@ -20,6 +20,7 @@ import {
   getEmployeeDetails,
 } from "../../../services/employeeDetails_services/services";
 import { deleteEmployee } from "../../../services/hrms_services/service";
+import { getAllEntityList } from "../../../services/entityManagement_services/service";
 
 export const EmployeeProvider = ({ children }) => {
   const [listing, setListing] = useState(null);
@@ -52,6 +53,7 @@ export const EmployeeProvider = ({ children }) => {
   const [shiftOptions, setShiftOptions] = useState([]);
   const [allowancesOptions, setAllowancesOptions] = useState([]);
   const [contractTypesOptions, setContractTypesOptions] = useState([]);
+  const [entityOptions, setEntityOptions] = useState([]);
   const [bloodOptions, setBloodOptions] = useState([
     { value: "A+", label: "A+" },
     { value: "A-", label: "A-" },
@@ -485,6 +487,32 @@ export const EmployeeProvider = ({ children }) => {
     }
   };
 
+  // Get All Entity List
+  const getAllEntityOptions = async () => {
+    try {
+      const response = await getAllEntityList({
+        limit: 5000,
+        page: "",
+        filter: {
+          name: "",
+        },
+      });
+
+      if (response.success) {
+        setEntityOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.entity_name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setEntityOptions(null);
+    }
+  };
+
   // For initial load and filter/pagination changes
   useEffect(() => {
     getAllData();
@@ -518,6 +546,7 @@ export const EmployeeProvider = ({ children }) => {
     getAllAllowancesOptions();
     getAllBanksList();
     getAllContractTypesList();
+    getAllEntityOptions();
   }, [updateId]);
 
   const styledComponent = {
@@ -640,6 +669,7 @@ export const EmployeeProvider = ({ children }) => {
     maritalStatusOptions,
     bankOptions,
     contractTypesOptions,
+    entityOptions,
     getAllData,
     getDataById,
     getAllShiftsOptions,

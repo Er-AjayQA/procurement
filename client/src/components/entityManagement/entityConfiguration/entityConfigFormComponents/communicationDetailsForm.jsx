@@ -19,23 +19,15 @@ export const EntityCommunicationDetailsForm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      title: "",
-      name: "",
-      code: "",
+      email_domain: "",
+      email_signature: "",
+      contact_country_code: "",
       contact_no: "",
-      alt_code: "",
-      alt_contact_no: "",
-      dob: "",
-      gender: "",
-      personal_email: "",
-      official_email: "",
-      reporting_manager_id: "",
-      role_id: "",
-      emp_type_id: "",
-      designation_id: "",
-      dep_id: "",
-      area_id: "",
-      userImage: null,
+      default_time_zone: "",
+      business_hours: "",
+      local_currency: "",
+      tax_info: "",
+      language_preference: "",
     },
   });
 
@@ -47,49 +39,33 @@ export const EntityCommunicationDetailsForm = () => {
     handleTabClick,
     handleComponentView,
     countryCodeOptions,
+    currencyOptions,
     formSelectStyles,
-    setCreatedUserId,
+    createdEntityId,
+    setCreatedEntityId,
   } = useEntityConfigContext();
 
   // Set form values when in update mode
   useEffect(() => {
     if (updateId && data && countryCodeOptions.length > 0) {
       const setUpdateDefaultData = () => {
-        setValue("title", data?.title);
-        setValue("name", data?.name);
-        setValue("contact_code", data?.contact_code);
+        setValue("email_domain", data?.email_domain);
+        setValue("email_signature", data?.email_signature);
+        setValue("contact_country_code", data?.contact_country_code);
         setValue("contact_no", data?.contact_no);
-        setValue("alt_contact_code", data?.alt_contact_code);
-        setValue("alt_contact_no", data?.alt_contact_no);
-        setValue("dob", data?.dob);
-        setValue("gender", data?.gender);
-        setValue("personal_email", data?.personal_email);
-        setValue("official_email", data?.official_email);
-        setValue("reporting_manager_id", data?.reporting_manager_id);
-        setValue("role_id", data?.role_id);
-        setValue("emp_type_id", data?.emp_type_id);
-        setValue("designation_id", data?.designation_id);
-        setValue("dep_id", data?.dep_id);
-        setValue("area_id", data?.area_id);
-        setValue("branch_id", data?.branch_id);
+        setValue("default_time_zone", data?.default_time_zone);
+        setValue("business_hours", data?.business_hours);
+        setValue("local_currency", data?.local_currency);
+        setValue("tax_info", data?.tax_info);
+        setValue("language_preference", data?.language_preference);
 
-        if (data?.contact_code) {
+        if (data?.contact_country_code) {
           const option = countryCodeOptions?.find(
-            (item) => item.value == data.contact_code
+            (item) => item.value == data.contact_country_code
           );
 
           if (option) {
-            setValue("contact_code", option.value);
-          }
-        }
-
-        if (data?.alt_contact_code) {
-          const option = countryCodeOptions?.find(
-            (item) => item.value == data?.alt_contact_code
-          );
-
-          if (option) {
-            setValue("alt_contact_code", option.value);
+            setValue("contact_country_code", option.value);
           }
         }
       };
@@ -102,22 +78,16 @@ export const EntityCommunicationDetailsForm = () => {
     try {
       const payload = {
         tab_type: tabType,
-        title: formData.title,
-        name: formData.name,
-        contact_code: formData.code,
-        contact_no: formData.contact_no,
-        alt_contact_code: formData.alt_code,
-        alt_contact_no: formData.alt_contact_no,
-        dob: formData.dob,
-        gender: formData.gender,
-        personal_email: formData.personal_email,
-        official_email: formData.official_email,
-        reporting_manager_id: formData.reporting_manager_id,
-        role_id: formData.role_id,
-        emp_type_id: formData.emp_type_id,
-        designation_id: formData.designation_id,
-        dep_id: formData.dep_id,
-        area_id: formData.area_id,
+        entity_id: createdEntityId,
+        email_domain: formData?.email_domain,
+        email_signature: formData?.email_signature,
+        contact_country_code: formData?.contact_country_code,
+        contact_no: formData?.contact_no,
+        default_time_zone: formData?.default_time_zone,
+        business_hours: formData?.business_hours,
+        local_currency: formData?.local_currency,
+        tax_info: formData?.tax_info,
+        language_preference: formData?.language_preference,
       };
 
       let response;
@@ -128,9 +98,8 @@ export const EntityCommunicationDetailsForm = () => {
       }
       if (response.success) {
         toast.success(response.message);
-        handleTabClick("personal_details");
+        handleTabClick("regional_details");
         getAllData();
-        setCreatedUserId(response?.data);
       } else {
         toast.error(response.message || "Operation failed");
       }
@@ -292,13 +261,32 @@ export const EntityCommunicationDetailsForm = () => {
                 <label htmlFor="local_currency" className="text-sm">
                   Local Currency
                 </label>
-                <input
-                  type="text"
-                  id="local_currency"
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                  placeholder="Enter local currency"
-                  {...register("local_currency")}
+                <Controller
+                  name="local_currency"
+                  control={control}
+                  rules={{ required: "Local currency is required" }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={currencyOptions}
+                      value={findSelectedOption(currencyOptions, field.value)}
+                      onChange={(selected) =>
+                        field.onChange(selected?.value || "")
+                      }
+                      placeholder="Select currency..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={formSelectStyles}
+                    />
+                  )}
                 />
+                {errors.local_currency && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.local_currency.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -325,7 +313,7 @@ export const EntityCommunicationDetailsForm = () => {
                 )}
               </div>
 
-              {/* Language Prefference */}
+              {/* Language Preferred */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="language_preference" className="text-sm">
                   Preffered Language
@@ -355,7 +343,7 @@ export const EntityCommunicationDetailsForm = () => {
                   className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
                   onClick={() => {
                     handleComponentView("listing");
-                    setCreatedUserId(null);
+                    setCreatedEntityId(null);
                     handleTabClick("basic_details");
                   }}
                 >

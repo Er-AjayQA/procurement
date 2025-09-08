@@ -402,13 +402,51 @@ db.tbl_event_registration_payment_transactions =
     Sequelize
   );
 
+// Entity Configuration Table
+db.tbl_entity_configuration =
+  require("../API/entityManagement/entityConfiguration/model/entityConfig.model")(
+    sequelize,
+    Sequelize
+  );
+
+// User Registered Entities Table
+db.tbl_user_registered_entities =
+  require("../API/user/model/userRegisteredEntities.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
+// Relation B/W User and User Registered Entities Tables
+db.tbl_user_master.hasMany(db.tbl_user_registered_entities, {
+  foreignKey: "user_id",
+});
+db.tbl_user_registered_entities.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
+});
+
+// Relation B/W Entity Configuration and User Registered Entities Tables
+db.tbl_entity_configuration.hasMany(db.tbl_user_registered_entities, {
+  foreignKey: "entity_id",
+});
+db.tbl_user_registered_entities.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
 // Relation B/W User and Login Tables
 db.tbl_user_master.hasMany(db.tbl_login_master, {
   foreignKey: "user_id",
 });
 db.tbl_login_master.belongsTo(db.tbl_user_master, {
   foreignKey: "user_id",
+});
+
+// Relation B/W User and Entity Tables
+db.tbl_entity_configuration.hasMany(db.tbl_user_master, {
+  foreignKey: "primary_entity_id",
+});
+db.tbl_user_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "primary_entity_id",
 });
 
 // Relation B/W User and Department Master Tables
@@ -1255,12 +1293,6 @@ db.tbl_event_registration_payment_transactions.belongsTo(
 );
 
 // ========================================== ENTITY MANAGEMENT ========================================== //
-// Entity Configuration Table
-db.tbl_entity_configuration =
-  require("../API/entityManagement/entityConfiguration/model/entityConfig.model")(
-    sequelize,
-    Sequelize
-  );
 
 // ========== EXPORTS ========== //
 module.exports = db;

@@ -9,16 +9,6 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
       },
 
-      tab_type: {
-        type: Sequelize.ENUM(
-          "basic_details",
-          "smtp_details",
-          "communication_details",
-          "regional_details"
-        ),
-        allowNull: false,
-      },
-
       // BASIC DETAILS
       logo: {
         type: Sequelize.STRING,
@@ -65,11 +55,20 @@ module.exports = (sequelize, Sequelize) => {
       },
       contact_country_code: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue(
+            "contact_country_code",
+            value === "" ? null : value
+          );
+        },
       },
       contact_no: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("contact_no", value === "" ? null : value);
+        },
       },
       default_time_zone: {
         type: Sequelize.STRING,
@@ -161,15 +160,24 @@ module.exports = (sequelize, Sequelize) => {
       },
       thousand_separator: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("thousand_separator", value === "" ? null : value);
+        },
       },
       decimal_separator: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("decimal_separator", value === "" ? null : value);
+        },
       },
       currency_symbol: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("currency_symbol", value === "" ? null : value);
+        },
       },
       currency_symbol_position: {
         type: Sequelize.ENUM("Start", "End"),
@@ -178,7 +186,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       number_of_decimal: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
+        set(value) {
+          this.setDataValue("number_of_decimal", value === "" ? null : value);
+        },
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,
@@ -186,7 +197,7 @@ module.exports = (sequelize, Sequelize) => {
       },
       status: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false,
+        defaultValue: true,
       },
     },
     { freezeTableName: true }
