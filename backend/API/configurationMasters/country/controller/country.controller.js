@@ -1,5 +1,6 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../../config/index");
+const getSymbolFromCurrency = require("currency-symbol-map");
 const xlsx = require("xlsx");
 
 // ========== UPLOAD COUNTRY CONTROLLER ========== //
@@ -22,6 +23,7 @@ module.exports.uploadCountry = async (req, res) => {
         name,
         iso2,
         phonecode,
+        currency,
         currency_name,
         currency_symbol,
         nationality,
@@ -33,18 +35,20 @@ module.exports.uploadCountry = async (req, res) => {
         !name ||
         !iso2 ||
         !phonecode ||
+        !currency ||
         !currency_name ||
         !currency_symbol ||
         !nationality
       ) {
         console.warn(
-          "Skipping row - missing name, iso2, phonecode, currency_name,currency_symbol,nationality:",
+          "Skipping row - missing name, iso2, phonecode, currency, currency_name,currency_symbol,nationality:",
           row
         );
         continue;
       }
 
       // Insert country if not exists and get ID
+
       const [country, created] = await DB.tbl_country_master.findOrCreate({
         where: {
           [DB.Sequelize.Op.or]: [
@@ -59,6 +63,7 @@ module.exports.uploadCountry = async (req, res) => {
           country_code: iso2,
           nationality: nationality,
           phone_code: phonecode,
+          currency: currency,
           currency_code: currency_name,
           currency_symbol: currency_symbol,
         },
@@ -217,7 +222,7 @@ module.exports.getAllCountryCodes = async (req, res) => {
 module.exports.getAllCountryCurrencyDetails = async (req, res) => {
   try {
     const query = `
-    SELECT C.currency_code, C.currency_symbol
+    SELECT C.currency, C.currency_code
     FROM COUNTRY_MASTER AS C`;
 
     const getAllData = await DB.sequelize.query(query, {
@@ -229,11 +234,21 @@ module.exports.getAllCountryCurrencyDetails = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Currency Details Not Found!" });
     } else {
+      // Get currency symbol
+
+      let currencyWithSymbol = getAllData.map((data) => {
+        let countryCurrency = { ...data };
+
+        let currency = getSymbolFromCurrency(data?.currency);
+        countryCurrency.currency_symbol = currency;
+        return countryCurrency;
+      });
+
       return res.status(200).send({
         success: true,
         status: "Get All Currency Details List!",
-        records: getAllData.length,
-        data: getAllData,
+        records: currencyWithSymbol.length,
+        data: currencyWithSymbol,
       });
     }
   } catch (error) {

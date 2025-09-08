@@ -888,6 +888,20 @@ module.exports.getUserDetails = async (req, res) => {
         where: { user_id: getAllData[0].id, isDeleted: false },
       });
 
+      // Getting Registered Entities Details
+      const registered_entities_details =
+        await DB.tbl_user_registered_entities.findAll({
+          attributes: ["id"],
+          include: [
+            {
+              model: DB.tbl_entity_configuration,
+              attributes: ["id", "entity_name", "entity_code"],
+              where: { isDeleted: false },
+            },
+          ],
+          where: { user_id: getAllData[0].id, isDeleted: false },
+        });
+
       // Getting Previous Employer Details
       const prev_emp_details =
         await DB.tbl_user_previous_employer_detail.findAll({
@@ -925,6 +939,7 @@ module.exports.getUserDetails = async (req, res) => {
         family_details: family_details,
         previous_employer_details: prev_emp_details,
         salary_history: salary_revision_details,
+        registered_entities_details,
       };
       return res.status(200).send({
         success: true,
@@ -1152,7 +1167,7 @@ module.exports.userLogin = async (req, res) => {
 
     // Get User Details
     const userDetails = await DB.sequelize.query(
-      `SELECT U.id, U.emp_code, U.name, U.userImage, U.gender, U.official_email
+      `SELECT U.id, U.emp_code, U.name, U.userImage, U.gender, U.official_email, U.primary_entity_id
         FROM USER_MASTER AS U
         WHERE U.official_email=:official_email`,
       {
@@ -1161,16 +1176,19 @@ module.exports.userLogin = async (req, res) => {
       }
     );
 
+    console.log("User Details...........", userDetails);
+
     // Create Token
     await sodium.ready; // Initializing
     const jwtSecrete = sodium.to_hex(sodium.randombytes_buf(64));
     const token = jwt.sign(
       {
         id: userDetails[0].id,
-        emp_code: userDetails[0].emp_code,
-        userName: userDetails[0].name,
-        userImage: userDetails[0].userImage,
-        official_email: userDetails[0].official_email,
+        emp_code: userDetails[0]?.emp_code,
+        userName: userDetails[0]?.name,
+        userImage: userDetails[0]?.userImage,
+        official_email: userDetails[0]?.official_email,
+        primary_entity_id: userDetails[0]?.primary_entity_id,
       },
       jwtSecrete
     );

@@ -225,62 +225,165 @@ module.exports.createEntity = async (req, res) => {
 
 // ========== UPDATE ENTITY CONTROLLER ========== //
 module.exports.updateEntity = async (req, res) => {
-  const transaction = await DB.sequelize.transaction();
   try {
-    const { id } = req.params;
     const data = req.body;
 
-    // Check if Entity Exist
-    const checkAlreadyExist = await DB.tbl_entity_configuration.findOne({
-      where: {
-        id,
-        isDeleted: false,
-      },
-      transaction,
+    const isEntityExist = await DB.tbl_entity_configuration.findOne({
+      where: { id: req.params.id, isDeleted: false },
     });
 
-    if (!checkAlreadyExist) {
-      await transaction.rollback();
-      return res.status(404).send({
-        success: false,
-        message: "Entity not found!",
-      });
+    if (!isEntityExist) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Entity Not Exist!" });
     } else {
-      const checkIfEntityWithSameName =
-        await DB.tbl_entity_configuration.findAll({
-          where: {
-            id: { [DB.Sequelize.Op.ne]: id },
-            entity_name: data?.entity_name,
-            display_name: data?.display_name,
-            isDeleted: false,
-          },
-          transaction,
-        });
+      // ADD BASIC DETAILS TAB DATA
+      if (data.tab_type === "basic_details") {
+        const transaction = await DB.sequelize.transaction();
 
-      if (checkIfEntityWithSameName.length > 0) {
-        await transaction.rollback();
-        return res.status(409).send({
-          success: false,
-          message: "Entity with same name already exist!",
-        });
+        try {
+          let { entity_name, display_name, entity_code_prefix, entity_type } =
+            req.body;
+
+          if (req.file) {
+            data.logo = req.file.path || null;
+          }
+
+          const updateEntity = await DB.tbl_entity_configuration.update(
+            {
+              entity_name,
+              display_name,
+              entity_code_prefix,
+              entity_type,
+            },
+            { where: { id: isEntityExist.id } },
+            { transaction }
+          );
+
+          await transaction.commit();
+
+          return res.status(201).send({
+            success: true,
+            message: "Basic details updated successfully!",
+            data: updateEntity,
+          });
+        } catch (error) {
+          await transaction.rollback();
+          throw error;
+        }
       }
 
-      const updateData = await checkAlreadyExist.update(data, {
-        where: {
-          id: checkAlreadyExist?.id,
-        },
-        transaction,
-      });
+      // ADD SMTP DETAILS TAB DATA
+      if (data.tab_type === "smtp_details") {
+        let { smtp_server_address, smtp_port_no, username, password } =
+          req.body;
 
-      await transaction.commit();
+        const transaction = await DB.sequelize.transaction();
+        try {
+          // Adding the Personal Details
+          await DB.tbl_entity_configuration.update(
+            {
+              smtp_server_address,
+              smtp_port_no,
+              username,
+              password,
+            },
+            {
+              where: { id: isEntityExist.id },
+              transaction,
+            }
+          );
 
-      return res.status(201).send({
-        success: true,
-        message: "Entity updated successfully!",
-      });
+          await transaction.commit();
+          return res.status(201).send({
+            success: true,
+            message: "SMTP details updated successfully",
+          });
+        } catch (error) {
+          console.log("Error in Updating SMTP Details", error);
+          await transaction.rollback();
+          throw error;
+        }
+      }
+
+      // ADD COMMUNICATION DETAILS TAB DATA
+      if (data.tab_type === "communication_details") {
+        let data = req.body;
+
+        const transaction = await DB.sequelize.transaction();
+
+        try {
+          await DB.tbl_entity_configuration.update(
+            {
+              email_domain: data?.email_domain,
+              email_signature: data?.email_signature,
+              contact_country_code: data?.contact_country_code,
+              contact_no: data?.contact_no,
+              default_time_zone: data?.default_time_zone,
+              business_hours: data?.business_hours,
+              local_currency: data?.local_currency,
+              tax_info: data?.tax_info,
+              language_preference: data?.language_preference,
+            },
+            { where: { id: isEntityExist.id }, transaction }
+          );
+
+          await transaction.commit();
+          return res.status(201).send({
+            success: true,
+            message: "Communication details Updated successfully",
+          });
+        } catch (error) {
+          console.log("Error in Updating Communication Details", error);
+          await transaction.rollback();
+          throw error;
+        }
+      }
+
+      // ADD REGIONAL DETAILS TAB DATA
+      if (data.tab_type === "regional_details") {
+        let {
+          date_format,
+          time_format,
+          date_time_format,
+          thousand_separator,
+          decimal_separator,
+          currency_symbol,
+          currency_symbol_position,
+          number_of_decimal,
+        } = req.body;
+        try {
+          const transaction = await DB.sequelize.transaction();
+
+          await DB.tbl_entity_configuration.update(
+            {
+              date_format,
+              time_format,
+              date_time_format,
+              thousand_separator,
+              decimal_separator,
+              currency_symbol,
+              currency_symbol_position,
+              number_of_decimal,
+            },
+            {
+              where: { id: isEntityExist.id },
+              transaction,
+            }
+          );
+          await transaction.commit();
+          return res.status(201).send({
+            success: true,
+            message: "Regional details Updated successfully",
+          });
+        } catch (error) {
+          console.log("Error in Updating Regional Details", error);
+          await transaction.rollback();
+          throw error;
+        }
+      }
     }
   } catch (error) {
-    await transaction.rollback();
     res.status(500).send({ success: false, message: error.message });
   }
 };

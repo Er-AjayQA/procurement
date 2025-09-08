@@ -62,6 +62,7 @@ export const EmployeeBasicDetailsForm = () => {
     formSelectStyles,
     setCreatedUserId,
     branchOptions,
+    entityOptions,
   } = useEmployeeContext();
 
   const [titleOptions] = useState([
@@ -344,6 +345,40 @@ export const EmployeeBasicDetailsForm = () => {
                 )}
               </div>
 
+              {/* Entity Dropdown */}
+              <div className="col-span-4 flex flex-col gap-3">
+                <label htmlFor="entity_id" className="text-sm">
+                  Select Entity
+                </label>
+                <Controller
+                  name="entity_id"
+                  control={control}
+                  rules={{ required: "At least one entity is required" }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={entityOptions}
+                      value={findSelectedOption(entityOptions, field.value)}
+                      onChange={(selected) =>
+                        field.onChange(selected?.value || "")
+                      }
+                      placeholder="Select entities..."
+                      isClearable
+                      isSearchable
+                      isMulti
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={formSelectStyles}
+                    />
+                  )}
+                />
+                {errors.entity_id && (
+                  <p className="text-red-500 text-[.7rem]">
+                    {errors.entity_id.message}
+                  </p>
+                )}
+              </div>
+
               {/* Name Title */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="title" className="text-sm">
@@ -376,7 +411,10 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
+            </div>
 
+            {/* Row-2 */}
+            <div className="grid grid-cols-12 gap-5">
               {/* Employee Name */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="name" className="text-sm">
@@ -397,10 +435,7 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* Row-2 */}
-            <div className="grid grid-cols-12 gap-5">
               {/* Contact Number */}
               <div className="col-span-4 flex flex-col gap-3">
                 <div className="flex flex-col gap-2">
@@ -508,7 +543,10 @@ export const EmployeeBasicDetailsForm = () => {
                   </div>
                 </div>
               </div>
+            </div>
 
+            {/* Row-3 */}
+            <div className="grid grid-cols-12 gap-5">
               {/* DOB */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="dob" className="text-sm">
@@ -530,10 +568,7 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* Row-3 */}
-            <div className="grid grid-cols-12 gap-5">
               {/* Gender */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="gender" className="text-sm">
@@ -590,7 +625,10 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
+            </div>
 
+            {/* Row-4 */}
+            <div className="grid grid-cols-12 gap-5">
               {/* Official Email */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="official_email" className="text-sm">
@@ -615,10 +653,7 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* Row-4 */}
-            <div className="grid grid-cols-12 gap-5">
               {/* Reporting Manager */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="reporting_manager_id" className="text-sm">
@@ -687,7 +722,10 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
+            </div>
 
+            {/* Row-5 */}
+            <div className="grid grid-cols-12 gap-5">
               {/* Employee Type */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="emp_type_id" className="text-sm">
@@ -723,10 +761,7 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* Row-5 */}
-            <div className="grid grid-cols-12 gap-5">
               {/* Designation */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="designation_id" className="text-sm">
@@ -796,7 +831,10 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
+            </div>
 
+            {/* Row-6 */}
+            <div className="grid grid-cols-12 gap-5">
               {/* Area */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="area_id" className="text-sm">
@@ -829,10 +867,7 @@ export const EmployeeBasicDetailsForm = () => {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* Row-6 */}
-            <div className="grid grid-cols-12 gap-5">
               {/* Branch */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="branch_id" className="text-sm">
@@ -866,6 +901,7 @@ export const EmployeeBasicDetailsForm = () => {
                 )}
               </div>
             </div>
+
             {/* Submit Button */}
             <div className="flex items-center justify-end">
               <div className="flex items-center justify-center gap-5">

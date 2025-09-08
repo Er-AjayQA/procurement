@@ -9,21 +9,51 @@ import {
   Navbar,
   NavbarToggle,
 } from "flowbite-react";
+import Select from "react-select";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../ReduxToolkit/authSlice";
 import { useEffect, useState } from "react";
 import { NotificationContainer } from "./notificationManagement/notificationContainer";
 import { useNotificationContext } from "../contextApis/useNotificationContextFile";
+import { getAllEntityList } from "../services/entityManagement_services/service";
 
 export const HeaderNav = () => {
   const { userDetails, activeModule } = useSelector((state) => state.auth);
   const [displayModule, setDisplayModule] = useState(activeModule);
   const { newNotificationsCount, handleNotificationVisibility, viewId } =
     useNotificationContext();
+  const [selectedEntity, setSelectedEntity] = useState("");
+  const [entityOptions, setEntityOptions] = useState(null);
 
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
+
+  // Get Entity Options
+  const getAllEntitiesList = async () => {
+    try {
+      const data = await getAllEntityList({
+        limit: 5000,
+        page: "",
+        filter: {
+          name: "",
+        },
+      });
+
+      if (data.success) {
+        setEntityOptions(
+          data?.data.map((data) => ({
+            value: data?.id,
+            label: data?.display_name,
+          }))
+        );
+      } else {
+        setEntityOptions(null);
+      }
+    } catch (error) {
+      setEntityOptions(null);
+    }
+  };
 
   useEffect(() => {
     setDisplayModule(activeModule);
@@ -34,6 +64,54 @@ export const HeaderNav = () => {
     dispatch(logout());
     navigate(`/procurement/sign-in`);
   };
+
+  // Fetching all available entities on page load
+  useEffect(() => {
+    getAllEntitiesList();
+  }, []);
+
+  const styledComponent = {
+    control: (base) => ({
+      ...base,
+      minHeight: "32px",
+      height: "32px",
+      borderRadius: "0.375rem",
+      borderColor: "#d1d5db", // gray-300
+      fontSize: "0.875rem", // text-sm
+      paddingLeft: "0.5rem", // px-2
+      paddingRight: "0.5rem", // px-2
+      borderTop: "0px",
+      borderLeft: "0px",
+      borderRight: "0px",
+      "&:hover": {
+        borderColor: "#d1d5db", // gray-300
+      },
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "4px",
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      padding: "4px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0px",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: "0px",
+      paddingBottom: "0px",
+      paddingTop: "0px",
+    }),
+    option: (base) => ({
+      ...base,
+      fontSize: "0.875rem", // text-sm
+    }),
+  };
+
+  console.log("Selected Entity....", selectedEntity);
 
   return (
     <Navbar fluid rounded className="bg-white !px-0 !py-0">
@@ -64,12 +142,33 @@ export const HeaderNav = () => {
         <NavbarToggle />
       </div>
 
-      <div className="me-5 relative p-2">
+      <div className="me-5 relative p-2 flex items-center gap-10">
+        {/* Select Entity Dropdown */}
+        <div className="flex flex-col gap-3 w-[200px]">
+          <label htmlFor="date_format" className="text-sm hidden">
+            Select Entity
+          </label>
+          <Select
+            value={selectedEntity}
+            onChange={(selectedOption) => {
+              setSelectedEntity(selectedOption);
+            }}
+            options={entityOptions}
+            placeholder="Select Entity..."
+            isSearchable
+            className="react-select-container"
+            classNamePrefix="react-select"
+            styles={styledComponent}
+          />
+        </div>
+
+        {/* Notification Bell Icon */}
         <FaBell
           className="w-[20px] h-[20px] cursor-pointer"
           onClick={() => handleNotificationVisibility("open")}
         />
 
+        {/* Profile Setting Dropdown */}
         <div className="w-[10px] h-[10px] rounded-[50%] bg-red-600 absolute top-[-2px] right-[-2px] p-2 text-xs text-white flex items-center justify-center">
           {newNotificationsCount}
         </div>

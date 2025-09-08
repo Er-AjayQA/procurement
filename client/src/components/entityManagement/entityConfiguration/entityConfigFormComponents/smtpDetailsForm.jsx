@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useEntityConfigContext } from "../../../../contextApis/useEntityContextFile";
 import {
@@ -18,23 +18,10 @@ export const EntitySmtpDetailsForm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      title: "",
-      name: "",
-      code: "",
-      contact_no: "",
-      alt_code: "",
-      alt_contact_no: "",
-      dob: "",
-      gender: "",
-      personal_email: "",
-      official_email: "",
-      reporting_manager_id: "",
-      role_id: "",
-      emp_type_id: "",
-      designation_id: "",
-      dep_id: "",
-      area_id: "",
-      userImage: null,
+      smtp_server_address: "",
+      smtp_port_no: "",
+      username: "",
+      password: "",
     },
   });
 
@@ -47,71 +34,18 @@ export const EntitySmtpDetailsForm = () => {
     handleComponentView,
     countryCodeOptions,
     formSelectStyles,
-    setCreatedUserId,
+    createdEntityId,
+    setCreatedEntityId,
   } = useEntityConfigContext();
-
-  const [titleOptions] = useState([
-    { value: "Mr.", label: "Mr." },
-    { value: "Mrs.", label: "Mrs." },
-    { value: "Miss.", label: "Miss." },
-  ]);
-  const [genderOptions] = useState([
-    { value: "Male", label: "Male" },
-    { value: "Female", label: "Female" },
-    { value: "Other", label: "Other" },
-  ]);
 
   // Set form values when in update mode
   useEffect(() => {
     if (updateId && data && countryCodeOptions.length > 0) {
       const setUpdateDefaultData = () => {
-        setValue("title", data?.title);
-        setValue("name", data?.name);
-        setValue("contact_code", data?.contact_code);
-        setValue("contact_no", data?.contact_no);
-        setValue("alt_contact_code", data?.alt_contact_code);
-        setValue("alt_contact_no", data?.alt_contact_no);
-        setValue("dob", data?.dob);
-        setValue("gender", data?.gender);
-        setValue("personal_email", data?.personal_email);
-        setValue("official_email", data?.official_email);
-        setValue("reporting_manager_id", data?.reporting_manager_id);
-        setValue("role_id", data?.role_id);
-        setValue("emp_type_id", data?.emp_type_id);
-        setValue("designation_id", data?.designation_id);
-        setValue("dep_id", data?.dep_id);
-        setValue("area_id", data?.area_id);
-        setValue("branch_id", data?.branch_id);
-
-        if (data?.title) {
-          const option = titleOptions?.find(
-            (item) => item.value === data.title
-          );
-
-          if (option) {
-            setValue("title", option.value);
-          }
-        }
-
-        if (data?.contact_code) {
-          const option = countryCodeOptions?.find(
-            (item) => item.value == data.contact_code
-          );
-
-          if (option) {
-            setValue("contact_code", option.value);
-          }
-        }
-
-        if (data?.alt_contact_code) {
-          const option = countryCodeOptions?.find(
-            (item) => item.value == data?.alt_contact_code
-          );
-
-          if (option) {
-            setValue("alt_contact_code", option.value);
-          }
-        }
+        setValue("smtp_server_address", data?.smtp_server_address);
+        setValue("smtp_port_no", data?.smtp_port_no);
+        setValue("username", data?.username);
+        setValue("password", data?.password);
       };
       setUpdateDefaultData();
     }
@@ -122,22 +56,11 @@ export const EntitySmtpDetailsForm = () => {
     try {
       const payload = {
         tab_type: tabType,
-        title: formData.title,
-        name: formData.name,
-        contact_code: formData.code,
-        contact_no: formData.contact_no,
-        alt_contact_code: formData.alt_code,
-        alt_contact_no: formData.alt_contact_no,
-        dob: formData.dob,
-        gender: formData.gender,
-        personal_email: formData.personal_email,
-        official_email: formData.official_email,
-        reporting_manager_id: formData.reporting_manager_id,
-        role_id: formData.role_id,
-        emp_type_id: formData.emp_type_id,
-        designation_id: formData.designation_id,
-        dep_id: formData.dep_id,
-        area_id: formData.area_id,
+        entity_id: createdEntityId,
+        smtp_server_address: formData?.smtp_server_address,
+        smtp_port_no: formData?.smtp_port_no,
+        username: formData?.username,
+        password: formData?.password,
       };
 
       let response;
@@ -148,9 +71,8 @@ export const EntitySmtpDetailsForm = () => {
       }
       if (response.success) {
         toast.success(response.message);
-        handleTabClick("personal_details");
+        handleTabClick("communication_details");
         getAllData();
-        setCreatedUserId(response?.data);
       } else {
         toast.error(response.message || "Operation failed");
       }
@@ -268,7 +190,7 @@ export const EntitySmtpDetailsForm = () => {
                   className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
                   onClick={() => {
                     handleComponentView("listing");
-                    setCreatedUserId(null);
+                    setCreatedEntityId(null);
                     handleTabClick("basic_details");
                   }}
                 >

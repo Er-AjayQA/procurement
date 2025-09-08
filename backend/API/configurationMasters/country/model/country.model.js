@@ -23,6 +23,10 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      currency: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       currency_code: {
         type: Sequelize.STRING,
         allowNull: false,

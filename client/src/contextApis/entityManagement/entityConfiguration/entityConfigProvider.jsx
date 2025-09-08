@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   getAllCountries,
+  getAllCurrencies,
   getAllPhoneCodes,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
@@ -24,7 +25,7 @@ export const EntityConfigProvider = ({ children }) => {
   const [viewId, setViewId] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [createdUserId, setCreatedUserId] = useState(null);
+  const [createdEntityId, setCreatedEntityId] = useState(null);
   const [filter, setFilter] = useState({ name: "", role_id: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
@@ -32,6 +33,32 @@ export const EntityConfigProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [countryListOptions, setCountryListOptions] = useState([]);
   const [countryCodeOptions, setCountryCodeOptions] = useState([]);
+  const [currencyOptions, setCurrencyOptions] = useState([]);
+  const [currencySymbolOptions, setCurrencySymbolOptions] = useState([]);
+  const [datesFormatOptions, setDatesFormatOptions] = useState([
+    { value: "mm-dd-yyyy", label: "MM-DD-YYYY" },
+    { value: "dd-mm-yyyy", label: "DD-MM-YYYY" },
+    { value: "yyyy-mm-dd", label: "YYYY-MM-DD" },
+    { value: "mm/dd/yyyy", label: "MM/DD/YYYY" },
+    { value: "dd/mm/yyyy", label: "DD/MM/YYYY" },
+    { value: "yyyy/mm/dd", label: "YYYY/MM/DD" },
+  ]);
+  const [timeFormatOptions, setTimeFormatOptions] = useState([
+    { value: "h:m a", label: "h:m a - (12 Hrs) eg: 2:15 am" },
+    { value: "hh:mm a", label: "hh:mm a - (12 Hrs) eg: 02:09 pm" },
+    { value: "H:M A", label: "H:M A - (24 Hrs) eg: 22:15 AM" },
+    { value: "HH:MM A", label: "HH:MM A - (24 Hrs) eg: 02:15 AM" },
+    { value: "h:m:s a", label: "h:m:s a - (12 Hrs) eg: 2:15:40 am" },
+    {
+      value: "hh:mm:ss a",
+      label: "hh:mm:ss a - (12 Hrs) eg: 08:15:30 am",
+    },
+    { value: "H:M:S A", label: "H:M:S A - (24 Hrs) eg: 22:15:45 PM" },
+    {
+      value: "HH:MM:SS A",
+      label: "HH:MM:SS A - (24 Hrs) eg: 02:15:50 PM",
+    },
+  ]);
   const [separatorOptions, setSeparatorOptions] = useState([
     { value: "comma", label: "Comma (,)" },
     { value: "dot", label: "Dot (.)" },
@@ -66,8 +93,8 @@ export const EntityConfigProvider = ({ children }) => {
   const getDataById = async (id) => {
     try {
       const response = await getEntityById(id);
-      if (response.data.success) {
-        setData(response.data.data[0]);
+      if (response.success) {
+        setData(response.data[0]);
       } else {
         toast.error(response.message);
         throw new Error(response.message);
@@ -115,7 +142,7 @@ export const EntityConfigProvider = ({ children }) => {
     setData(null);
     setUpdateId(null);
     setViewId(null);
-    setCreatedUserId(null);
+    setCreatedEntityId(null);
   };
 
   // Handle User Delete Functionality
@@ -222,6 +249,33 @@ export const EntityConfigProvider = ({ children }) => {
     }
   };
 
+  // Get All Currency List
+  const getAllCurrencyOptions = async () => {
+    try {
+      const response = await getAllCurrencies();
+
+      if (response.success) {
+        setCurrencyOptions(
+          response?.data.map((data) => ({
+            value: data?.currency_code,
+            label: data?.currency_code,
+          }))
+        );
+        setCurrencySymbolOptions(
+          response?.data.map((data) => ({
+            value: data?.currency_symbol,
+            label: `${data?.currency_symbol} - ${data?.currency_code}`,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setCurrencyOptions(null);
+      setCurrencySymbolOptions(null);
+    }
+  };
+
   // For initial load and filter/pagination changes
   useEffect(() => {
     getAllData();
@@ -246,6 +300,7 @@ export const EntityConfigProvider = ({ children }) => {
   useEffect(() => {
     getAllCountryOptions();
     getAllCountryCodesOptions();
+    getAllCurrencyOptions();
   }, [updateId]);
 
   const styledComponent = {
@@ -347,7 +402,7 @@ export const EntityConfigProvider = ({ children }) => {
     isLoading,
     viewId,
     updateId,
-    createdUserId,
+    createdEntityId,
     deleteId,
     tabType,
     componentType,
@@ -357,6 +412,10 @@ export const EntityConfigProvider = ({ children }) => {
     countryListOptions,
     separatorOptions,
     currencyPositionOptions,
+    currencyOptions,
+    datesFormatOptions,
+    timeFormatOptions,
+    currencySymbolOptions,
     getAllData,
     getDataById,
     setUpdateId,
@@ -364,7 +423,7 @@ export const EntityConfigProvider = ({ children }) => {
     setPage,
     setViewId,
     setData,
-    setCreatedUserId,
+    setCreatedEntityId,
     setViewVisibility,
     setCountryCodeOptions,
     setCountryListOptions,

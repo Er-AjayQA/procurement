@@ -108,28 +108,11 @@ export const EntityConfigListing = ({ componentType }) => {
               className="py-1 px-2 rounded-md text-sm border-borders-light"
               onChange={(e) => handleChangeFilter("input", e)}
             />
-            <Select
-              value={selectedRole}
-              onChange={(selectedOption) => {
-                setSelectedRole(selectedOption);
-                handleChangeFilter("dropdown", {
-                  field: "role_id",
-                  value: selectedOption ? selectedOption.value : "",
-                });
-              }}
-              options={rolesList}
-              placeholder="Search by role..."
-              isClearable
-              isSearchable
-              className="react-select-container"
-              classNamePrefix="react-select"
-              styles={styledComponent}
-            />
           </div>
         </div>
         {componentType === "listing" ? (
           <div onClick={() => handleComponentView("form")}>
-            <AddButton text="Create Employee" />
+            <AddButton text="Create Entity" />
           </div>
         ) : (
           <div
@@ -145,17 +128,17 @@ export const EntityConfigListing = ({ componentType }) => {
       </div>
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">Employee Listing</h3>
+          <h3 className="text-white text-xs font-bold">Entity Listing</h3>
         </div>
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="grid grid-cols-7 border-b border-gray-300 gap-2">
+          <div className="grid grid-cols-7 border-b border-gray-300 bg-gray-200 gap-2">
             <div className="text-[.8rem] font-bold p-2">S.No.</div>
-            <div className="text-[.8rem] font-bold p-2">User Name</div>
-            <div className="text-[.8rem] font-bold p-2">User Role</div>
-            <div className="text-[.8rem] font-bold p-2">Official Email</div>
-            <div className="text-[.8rem] font-bold p-2">Phone No.</div>
+            <div className="text-[.8rem] font-bold p-2">Entity Name</div>
+            <div className="text-[.8rem] font-bold p-2">Displayed Name</div>
+            <div className="text-[.8rem] font-bold p-2">Code</div>
+            <div className="text-[.8rem] font-bold p-2">Contact No.</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Status</div>
             <div className="text-[.8rem] font-bold p-2 text-center">Action</div>
           </div>
@@ -167,24 +150,24 @@ export const EntityConfigListing = ({ componentType }) => {
                 return (
                   <div
                     key={list?.id}
-                    className="grid grid-cols-7 border-b border-gray-200 last:border-none gap-2"
+                    className="grid grid-cols-7 border-b border-gray-200 last:border-none gap-2 hover:bg-gray-100"
                   >
                     <div className="flex items-center p-2 text-[.8rem]">
                       {i + 1}.
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.title} {list?.name}
+                      {list?.entity_name || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.role_name || "N/A"}
+                      {list?.display_name || "N/A"}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem] overflow-hidden">
                       <span className="text-[.8rem] overflow-x-auto scrollbar-hide">
-                        {list?.official_email || "N/A"}
+                        {list?.entity_code || "N/A"}
                       </span>
                     </div>
                     <div className="flex items-center p-2 text-[.8rem]">
-                      {list?.contact_code}-{list?.contact_no}
+                      {list?.contact_country_code}-{list?.contact_no}
                     </div>
                     <div className="flex items-center p-2 text-[.8rem] justify-center">
                       {list.status ? (

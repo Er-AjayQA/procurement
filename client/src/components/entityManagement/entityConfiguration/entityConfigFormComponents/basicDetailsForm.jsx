@@ -19,23 +19,11 @@ export const EntityBasicDetailsForm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      title: "",
-      name: "",
-      code: "",
-      contact_no: "",
-      alt_code: "",
-      alt_contact_no: "",
-      dob: "",
-      gender: "",
-      personal_email: "",
-      official_email: "",
-      reporting_manager_id: "",
-      role_id: "",
-      emp_type_id: "",
-      designation_id: "",
-      dep_id: "",
-      area_id: "",
-      userImage: null,
+      logo: null,
+      entity_name: "",
+      display_name: "",
+      entity_code_prefix: "",
+      entity_type: "",
     },
   });
 
@@ -44,13 +32,10 @@ export const EntityBasicDetailsForm = () => {
     getAllData,
     updateId,
     tabType,
-    rolesList,
     handleTabClick,
     handleComponentView,
-    countryCodeOptions,
     formSelectStyles,
-    setCreatedUserId,
-    branchOptions,
+    setCreatedEntityId,
   } = useEntityConfigContext();
 
   const [previewImage, setPreviewImage] = useState(null);
@@ -79,70 +64,12 @@ export const EntityBasicDetailsForm = () => {
 
   // Set form values when in update mode
   useEffect(() => {
-    if (
-      updateId &&
-      data &&
-      countryCodeOptions.length > 0 &&
-      branchOptions.length > 0
-    ) {
+    if (updateId && data) {
       const setUpdateDefaultData = () => {
-        setValue("title", data?.title);
-        setValue("name", data?.name);
-        setValue("contact_code", data?.contact_code);
-        setValue("contact_no", data?.contact_no);
-        setValue("alt_contact_code", data?.alt_contact_code);
-        setValue("alt_contact_no", data?.alt_contact_no);
-        setValue("dob", data?.dob);
-        setValue("gender", data?.gender);
-        setValue("personal_email", data?.personal_email);
-        setValue("official_email", data?.official_email);
-        setValue("reporting_manager_id", data?.reporting_manager_id);
-        setValue("role_id", data?.role_id);
-        setValue("emp_type_id", data?.emp_type_id);
-        setValue("designation_id", data?.designation_id);
-        setValue("dep_id", data?.dep_id);
-        setValue("area_id", data?.area_id);
-        setValue("branch_id", data?.branch_id);
-
-        if (data?.contact_code) {
-          const option = countryCodeOptions?.find(
-            (item) => item.value == data.contact_code
-          );
-
-          if (option) {
-            setValue("contact_code", option.value);
-          }
-        }
-
-        if (data?.alt_contact_code) {
-          const option = countryCodeOptions?.find(
-            (item) => item.value == data?.alt_contact_code
-          );
-
-          if (option) {
-            setValue("alt_contact_code", option.value);
-          }
-        }
-
-        if (data?.role_id) {
-          const option = rolesList?.find(
-            (item) => item.value == parseInt(data.role_id)
-          );
-
-          if (option) {
-            setValue("role_id", option.value);
-          }
-        }
-
-        if (data?.branch_id) {
-          const branchOption = branchOptions?.find(
-            (item) => item.value == data?.branch_id
-          );
-
-          if (branchOption) {
-            setValue("branch_id", branchOption.value);
-          }
-        }
+        setValue("entity_name", data?.entity_name);
+        setValue("display_name", data?.display_name);
+        setValue("entity_code_prefix", data?.entity_code_prefix);
+        setValue("entity_type", data?.entity_type);
       };
       setUpdateDefaultData();
     }
@@ -153,22 +80,10 @@ export const EntityBasicDetailsForm = () => {
     try {
       const payload = {
         tab_type: tabType,
-        title: formData.title,
-        name: formData.name,
-        contact_code: formData.code,
-        contact_no: formData.contact_no,
-        alt_contact_code: formData.alt_code,
-        alt_contact_no: formData.alt_contact_no,
-        dob: formData.dob,
-        gender: formData.gender,
-        personal_email: formData.personal_email,
-        official_email: formData.official_email,
-        reporting_manager_id: formData.reporting_manager_id,
-        role_id: formData.role_id,
-        emp_type_id: formData.emp_type_id,
-        designation_id: formData.designation_id,
-        dep_id: formData.dep_id,
-        area_id: formData.area_id,
+        entity_name: formData?.entity_name,
+        display_name: formData?.display_name,
+        entity_code_prefix: formData?.entity_code_prefix,
+        entity_type: formData?.entity_type,
       };
 
       let response;
@@ -179,9 +94,9 @@ export const EntityBasicDetailsForm = () => {
       }
       if (response.success) {
         toast.success(response.message);
-        handleTabClick("personal_details");
+        handleTabClick("smtp_details");
         getAllData();
-        setCreatedUserId(response?.data);
+        setCreatedEntityId(response?.data);
       } else {
         toast.error(response.message || "Operation failed");
       }
@@ -366,7 +281,7 @@ export const EntityBasicDetailsForm = () => {
                   className="bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-4 rounded-lg"
                   onClick={() => {
                     handleComponentView("listing");
-                    setCreatedUserId(null);
+                    setCreatedEntityId(null);
                     handleTabClick("basic_details");
                   }}
                 >

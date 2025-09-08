@@ -19,14 +19,14 @@ export const EntityRegionalDetailsForm = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      bank_id: "",
-      account_holder_name: "",
-      bank_address: "",
-      account_number: "",
-      re_account_number: "",
-      nuit_number: "",
-      inss_number: "",
-      nib_number: "",
+      date_format: "",
+      time_format: "",
+      date_time_format: "",
+      thousand_separator: "",
+      decimal_separator: "",
+      currency_symbol: "",
+      currency_symbol_position: "",
+      number_of_decimal: "",
     },
   });
 
@@ -35,7 +35,6 @@ export const EntityRegionalDetailsForm = () => {
     getAllData,
     updateId,
     tabType,
-    createdUserId,
     setCreatedUserId,
     handleTabClick,
     handleComponentView,
@@ -43,36 +42,28 @@ export const EntityRegionalDetailsForm = () => {
     bankOptions,
     separatorOptions,
     currencyPositionOptions,
+    datesFormatOptions,
+    timeFormatOptions,
+    currencySymbolOptions,
+    createdEntityId,
+    setCreatedEntityId,
   } = useEntityConfigContext();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [accountNumberError, setAccountNumberError] = useState(false);
-  const [isBankOptionsLoaded, setIsBankOptionsLoaded] = useState(false);
-  const accountNumber = watch("account_number");
-  const reAccountNumber = watch("re_account_number");
 
   // Set form values when in update mode
   useEffect(() => {
-    if (updateId && data && bankOptions.length > 0) {
+    if (updateId && data) {
       const setUpdateDefaultData = async () => {
-        setValue("account_holder_name", data?.account_holder_name);
-        setValue("bank_address", data?.bank_address);
-        setValue("account_number", data?.account_number);
-        setValue("re_account_number", data?.re_account_number);
-        setValue("nuit_number", data?.nuit_number);
-        setValue("inss_number", data?.inss_number);
-        setValue("nib_number", data?.nib_number);
-
-        setIsBankOptionsLoaded(true);
+        setValue("date_format", data?.date_format);
+        setValue("time_format", data?.time_format);
+        setValue("date_time_format", data?.date_time_format);
+        setValue("thousand_separator", data?.thousand_separator);
+        setValue("decimal_separator", data?.decimal_separator);
+        setValue("currency_symbol", data?.currency_symbol);
+        setValue("currency_symbol_position", data?.currency_symbol_position);
+        setValue("number_of_decimal", data?.number_of_decimal);
       };
-
-      const bankOption = bankOptions?.find(
-        (item) => item.value == data?.bank_id
-      );
-
-      if (bankOption) {
-        setValue("bank_id", bankOption.value);
-      }
 
       setUpdateDefaultData();
     }
@@ -81,36 +72,32 @@ export const EntityRegionalDetailsForm = () => {
   // Handle Form Submit
   const onSubmit = async (formData) => {
     try {
-      if (formData.account_number !== formData.re_account_number) {
-        toast.error("Account no. & Re-Account no. must match!");
-        setAccountNumberError(true);
-        return;
-      }
-
       setIsLoading(true);
 
       const payload = {
         tab_type: tabType,
-        bank_id: formData?.bank_id,
-        account_holder_name: formData?.account_holder_name,
-        bank_address: formData?.bank_address,
-        account_number: formData?.account_number.toString(),
-        re_account_number: formData?.re_account_number.toString(),
-        nuit_number: formData?.nuit_number,
-        inss_number: formData?.inss_number,
-        nib_number: formData?.nib_number,
+        date_format: formData?.date_format,
+        time_format: formData?.time_format,
+        date_time_format: formData?.date_time_format,
+        thousand_separator: formData?.thousand_separator,
+        decimal_separator: formData?.decimal_separator,
+        currency_symbol: formData?.currency_symbol,
+        currency_symbol_position: formData?.currency_symbol_position,
+        number_of_decimal: formData?.number_of_decimal,
       };
 
       let response;
       if (updateId) {
         response = await updateEntity(updateId, payload);
       } else {
-        payload.user_id = createdUserId;
+        payload.entity_id = createdEntityId;
         response = await createEntity(payload);
       }
       if (response.success) {
         toast.success(response.message);
-        handleTabClick("document_details");
+        handleTabClick("basic_details");
+        handleComponentView("listing");
+        setCreatedEntityId(null);
         getAllData();
       } else {
         toast.error(response.message || "Operation failed");
@@ -129,19 +116,6 @@ export const EntityRegionalDetailsForm = () => {
     return options.find((opt) => opt.value === value);
   };
 
-  // Handling Account & Re-Account number error on fields value change
-  useEffect(() => {
-    if (accountNumber && reAccountNumber) {
-      if (accountNumber !== reAccountNumber) {
-        setAccountNumberError(true);
-      } else {
-        setAccountNumberError(false);
-      }
-    } else {
-      setAccountNumberError(false);
-    }
-  }, [accountNumber, reAccountNumber]);
-
   return (
     <div className="flex gap-3">
       <div className="flex flex-col gap-3 flex-grow">
@@ -149,19 +123,34 @@ export const EntityRegionalDetailsForm = () => {
           <div className="flex flex-col gap-5">
             {/* Row-1 */}
             <div className="grid grid-cols-12 gap-5">
-              {/* Preffered Date Format */}
+              {/* Preferred Date Format */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="date_format" className="text-sm">
-                  Preffered Date Format
+                  Preferred Date Format
                 </label>
-                <input
-                  type="text"
-                  id="date_format"
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                  placeholder="Enter preffered date format..."
-                  {...register("date_format", {
-                    required: "Date format is required!",
-                  })}
+                <Controller
+                  name="date_format"
+                  control={control}
+                  rules={{ required: "Date format is required" }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={datesFormatOptions}
+                      value={findSelectedOption(
+                        datesFormatOptions,
+                        field.value
+                      )}
+                      onChange={(selected) =>
+                        field.onChange(selected?.value || "")
+                      }
+                      placeholder="Select date format..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={formSelectStyles}
+                    />
+                  )}
                 />
                 {errors.date_format && (
                   <p className="text-red-500 text-[.7rem]">
@@ -170,19 +159,31 @@ export const EntityRegionalDetailsForm = () => {
                 )}
               </div>
 
-              {/* Preffered Time Format */}
+              {/* Preferred Time Format */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="time_format" className="text-sm">
-                  Preffered Time Format
+                  Preferred Time Format
                 </label>
-                <input
-                  type="text"
-                  id="time_format"
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                  placeholder="Enter preffered time format..."
-                  {...register("time_format", {
-                    required: "Time format is required!",
-                  })}
+                <Controller
+                  name="time_format"
+                  control={control}
+                  rules={{ required: "Time format is required" }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={timeFormatOptions}
+                      value={findSelectedOption(timeFormatOptions, field.value)}
+                      onChange={(selected) =>
+                        field.onChange(selected?.value || "")
+                      }
+                      placeholder="Select time format..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={formSelectStyles}
+                    />
+                  )}
                 />
                 {errors.time_format && (
                   <p className="text-red-500 text-[.7rem]">
@@ -191,10 +192,10 @@ export const EntityRegionalDetailsForm = () => {
                 )}
               </div>
 
-              {/* Preffered Date Time Format */}
+              {/* Preferred Date Time Format */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="date_time_format" className="text-sm">
-                  Preffered DateTime Format
+                  Preferred DateTime Format
                 </label>
                 <input
                   type="text"
@@ -215,7 +216,7 @@ export const EntityRegionalDetailsForm = () => {
 
             {/* Row-2 */}
             <div className="grid grid-cols-12 gap-5">
-              {/* Preffered Thousand Separator */}
+              {/* Preferred Thousand Separator */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="thousand_separator" className="text-sm">
                   Thousand Separator
@@ -248,7 +249,7 @@ export const EntityRegionalDetailsForm = () => {
                 )}
               </div>
 
-              {/* Preffered Decimal Separator */}
+              {/* Preferred Decimal Separator */}
               <div className="col-span-4 flex flex-col gap-3">
                 <label htmlFor="decimal_separator" className="text-sm">
                   Decimal Separator
@@ -286,14 +287,29 @@ export const EntityRegionalDetailsForm = () => {
                 <label htmlFor="currency_symbol" className="text-sm">
                   Currency Symbol
                 </label>
-                <input
-                  type="text"
-                  id="currency_symbol"
-                  className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
-                  placeholder="Enter currency symbol..."
-                  {...register("currency_symbol", {
-                    required: "Currency symbol is required!",
-                  })}
+                <Controller
+                  name="currency_symbol"
+                  control={control}
+                  rules={{ required: "Currency symbol is required" }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={currencySymbolOptions}
+                      value={findSelectedOption(
+                        currencySymbolOptions,
+                        field.value
+                      )}
+                      onChange={(selected) =>
+                        field.onChange(selected?.value || "")
+                      }
+                      placeholder="Select currency symbol..."
+                      isClearable
+                      isSearchable
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                      styles={formSelectStyles}
+                    />
+                  )}
                 />
                 {errors.currency_symbol && (
                   <p className="text-red-500 text-[.7rem]">
@@ -325,7 +341,7 @@ export const EntityRegionalDetailsForm = () => {
                       onChange={(selected) =>
                         field.onChange(selected?.value || "")
                       }
-                      placeholder="Symbol position separator..."
+                      placeholder="Select symbol position..."
                       isClearable
                       isSearchable
                       className="react-select-container"
@@ -347,8 +363,10 @@ export const EntityRegionalDetailsForm = () => {
                   No. of Decimals
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="number_of_decimal"
+                  min={0}
+                  defaultValue={0}
                   className="rounded-lg text-[.8rem] hover:border-borders-inputHover"
                   placeholder="Enter number of decimals..."
                   {...register("number_of_decimal", {

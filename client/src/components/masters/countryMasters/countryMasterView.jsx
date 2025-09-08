@@ -75,6 +75,14 @@ export const CountryMasterView = ({ onClose }) => {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
+                <span className="text-sm font-bold">Currency:</span>
+              </div>
+              <div>
+                <span className="text-sm">{data?.currency || "N/A"}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
                 <span className="text-sm font-bold">Currency Code:</span>
               </div>
               <div>
