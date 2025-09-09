@@ -459,6 +459,30 @@ db.tbl_designation_master.belongsTo(db.tbl_entity_configuration, {
   foreignKey: "entity_id",
 });
 
+// ========================================== ALLOWANCE MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_allowance_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_allowance_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== BANK MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_bank_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_bank_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== CONTRACT TYPE MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_contractType_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_contractType_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
 // ========================================== USER MANAGEMENT RELATIONS ========================================== //
 // Relation B/W User and User Registered Entities Tables
 db.tbl_user_master.hasMany(db.tbl_user_registered_entities, {

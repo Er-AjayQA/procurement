@@ -2,23 +2,39 @@
 const express = require("express");
 const router = express.Router();
 const AllowanceController = require("../controller/allowance.controller");
+const EntityAuth = require("../../../../helper/utilFunctions");
 
 // ========== ROUTES ========== //
-router.post("/create-allowance", AllowanceController.createAllowance);
-router.put("/update-allowance/:id", AllowanceController.updateAllowance);
 router.post(
-  "/get-allowance-details/:id",
+  "/create-allowance/:selectedEntity",
+  EntityAuth.checkEntity,
+  AllowanceController.createAllowance
+);
+router.put(
+  "/update-allowance/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  AllowanceController.updateAllowance
+);
+router.post(
+  "/get-allowance-details/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   AllowanceController.getAllowanceDetails
 );
 router.post(
-  "/get-all-allowance-details",
+  "/get-all-allowance-details/:selectedEntity",
+  EntityAuth.checkEntity,
   AllowanceController.getAllAllowanceDetails
 );
 router.put(
-  "/update-allowance-status/:id",
+  "/update-allowance-status/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   AllowanceController.updateAllowanceStatus
 );
-router.put("/delete-allowance/:id", AllowanceController.deleteAllowance);
+router.put(
+  "/delete-allowance/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  AllowanceController.deleteAllowance
+);
 
 // ========== EXPORT ========== //
 module.exports = router;
