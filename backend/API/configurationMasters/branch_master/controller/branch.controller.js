@@ -11,6 +11,7 @@ module.exports.createBranch = async (req, res) => {
     const isAlreadyExist = await DB.tbl_branch_master.findOne({
       where: {
         name: data.name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -65,6 +66,7 @@ module.exports.updateBranch = async (req, res) => {
     const isBranchExist = await DB.tbl_branch_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -78,6 +80,7 @@ module.exports.updateBranch = async (req, res) => {
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           name: data.name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -92,7 +95,6 @@ module.exports.updateBranch = async (req, res) => {
         return res.status(201).send({
           success: true,
           message: "Branch Updated Successfully!",
-          data: updateBranch,
         });
       }
     }
@@ -112,8 +114,7 @@ module.exports.getBranchDetails = async (req, res) => {
     LEFT JOIN COUNTRY_MASTER AS C ON C.id=B.country_id
     LEFT JOIN STATE_MASTER AS S ON S.id=B.state_id
     LEFT JOIN CITY_MASTER AS CN ON CN.id=B.city_id
-    WHERE B.id=${id}
-    AND B.isDeleted=false`;
+    WHERE B.id=${id} AND B.entity_id=${selectedEntity} AND B.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -121,7 +122,7 @@ module.exports.getBranchDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Branch Not Found!" });
     } else {
       return res.status(200).send({
@@ -221,22 +222,22 @@ module.exports.updateBranchStatus = async (req, res) => {
     const isBranchExist = await DB.tbl_branch_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isBranchExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Branch Not Found!" });
     } else {
       const updateStatus = await isBranchExist.update({
         status: !isBranchExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -253,19 +254,20 @@ module.exports.deleteBranch = async (req, res) => {
     const isBranchExist = await DB.tbl_branch_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isBranchExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Branch Not Found!" });
     } else {
       await isBranchExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Branch Deleted Successfully!",
       });

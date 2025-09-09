@@ -10,20 +10,23 @@ module.exports.createContractType = async (req, res) => {
     const isAlreadyExist = await DB.tbl_contractType_master.findOne({
       where: {
         name: data.name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Contract-Type Already Exist!" });
     } else {
-      const newEmploymentType = await DB.tbl_contractType_master.create(data);
-      return res.status(200).send({
+      const newEmploymentType = await DB.tbl_contractType_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "Contract-Type Created Successfully!",
-        data: newEmploymentType,
       });
     }
   } catch (error) {
@@ -41,19 +44,21 @@ module.exports.updateContractType = async (req, res) => {
     const isContractTypeExist = await DB.tbl_contractType_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isContractTypeExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Contract-Type Not Found!" });
     } else {
       const checkName = await DB.tbl_contractType_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           name: data.name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -65,10 +70,9 @@ module.exports.updateContractType = async (req, res) => {
         });
       } else {
         const updateContractType = await isContractTypeExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           status: "Contract-Type Updated Successfully!",
-          data: updateContractType,
         });
       }
     }
@@ -85,7 +89,7 @@ module.exports.getContractTypeDetails = async (req, res) => {
     const query = `
     SELECT C.*
     FROM CONTRACT_TYPE_MASTER AS C
-    WHERE C.id=${id} AND C.isDeleted=false`;
+    WHERE C.entity_id=${req?.selectedEntity} AND C.id=${id} AND C.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -93,7 +97,7 @@ module.exports.getContractTypeDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Contract-Type Not Found!" });
     } else {
       return res.status(200).send({
@@ -115,7 +119,7 @@ module.exports.getAllContractTypesDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
@@ -135,7 +139,7 @@ module.exports.getAllContractTypesDetails = async (req, res) => {
 
     if (!getAllData || getAllData.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Contract-Type Not Found!" });
     } else {
       return res.status(200).send({
@@ -164,22 +168,22 @@ module.exports.updateContractTypeStatus = async (req, res) => {
     const isContractTypeExist = await DB.tbl_contractType_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isContractTypeExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Contract-Type Not Found!" });
     } else {
       const updateStatus = await isContractTypeExist.update({
         status: !isContractTypeExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -196,19 +200,20 @@ module.exports.deleteContractType = async (req, res) => {
     const isContractTypeExist = await DB.tbl_contractType_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isContractTypeExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Contract-Type Not Found!" });
     } else {
       await isContractTypeExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Contract-Type Deleted Successfully!",
       });

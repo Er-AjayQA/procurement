@@ -10,15 +10,31 @@ router.post(
   EntityAuth.checkEntity,
   AreaController.createArea
 );
-router.put("/update-area/:id", AreaController.updateArea);
-router.post("/get-area-details/:id", AreaController.getAreaDetails);
+router.put(
+  "/update-area/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  AreaController.updateArea
+);
+router.post(
+  "/get-area-details/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  AreaController.getAreaDetails
+);
 router.post(
   "/get-all-area-details/:selectedEntity",
   EntityAuth.checkEntity,
   AreaController.getAllAreaDetails
 );
-router.put("/update-area-status/:id", AreaController.updateAreaStatus);
-router.put("/delete-area/:id", AreaController.deleteArea);
+router.put(
+  "/update-area-status/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  AreaController.updateAreaStatus
+);
+router.put(
+  "/delete-area/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  AreaController.deleteArea
+);
 
 // ========== EXPORT ========== //
 module.exports = router;

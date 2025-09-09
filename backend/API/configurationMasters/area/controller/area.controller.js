@@ -12,6 +12,7 @@ module.exports.createArea = async (req, res) => {
       where: {
         name: data.name,
         dept_id: data.dept_id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -46,20 +47,22 @@ module.exports.updateArea = async (req, res) => {
     const isAreaExist = await DB.tbl_area_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isAreaExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Area Not Found!" });
     } else {
       const duplicateArea = await DB.tbl_area_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
-          name: data.name,
-          dept_id: data.dept_id,
+          name: data?.name,
+          dept_id: data?.dept_id,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -70,10 +73,9 @@ module.exports.updateArea = async (req, res) => {
           .send({ success: false, message: "Area Name Already Exist!" });
       } else {
         const updateArea = await isAreaExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Area Updated Successfully!",
-          data: updateArea,
         });
       }
     }
@@ -91,7 +93,7 @@ module.exports.getAreaDetails = async (req, res) => {
     SELECT A.*, D.name AS department_name
     FROM AREA_MASTER AS A
     LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
-    WHERE A.id=${id}`;
+    WHERE A.entity_id=${req?.selectedEntity} AND A.id=${id}`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -99,7 +101,7 @@ module.exports.getAreaDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Area Not Found!" });
     } else {
       return res.status(200).send({
@@ -181,22 +183,22 @@ module.exports.updateAreaStatus = async (req, res) => {
     const isAreaExist = await DB.tbl_area_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isAreaExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Area Not Found!" });
     } else {
       const updateStatus = await isAreaExist.update({
         status: !isAreaExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -213,19 +215,20 @@ module.exports.deleteArea = async (req, res) => {
     const isAreaExist = await DB.tbl_area_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isAreaExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Area Not Found!" });
     } else {
       await isAreaExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Area Deleted Successfully!",
       });

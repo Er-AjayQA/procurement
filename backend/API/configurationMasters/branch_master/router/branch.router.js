@@ -10,15 +10,31 @@ router.post(
   EntityAuth.checkEntity,
   BranchController.createBranch
 );
-router.put("/update-branch/:id", BranchController.updateBranch);
-router.post("/get-branch-details/:id", BranchController.getBranchDetails);
+router.put(
+  "/update-branch/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  BranchController.updateBranch
+);
+router.post(
+  "/get-branch-details/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  BranchController.getBranchDetails
+);
 router.post(
   "/get-all-branch-details/:selectedEntity",
   EntityAuth.checkEntity,
   BranchController.getAllBranchDetails
 );
-router.put("/update-branch-status/:id", BranchController.updateBranchStatus);
-router.put("/delete-branch/:id", BranchController.deleteBranch);
+router.put(
+  "/update-branch-status/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  BranchController.updateBranchStatus
+);
+router.put(
+  "/delete-branch/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  BranchController.deleteBranch
+);
 
 // ========== EXPORT ========== //
 module.exports = router;

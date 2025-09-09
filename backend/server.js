@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_designation_master
+// db.tbl_contractType_master
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
