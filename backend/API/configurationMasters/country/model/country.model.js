@@ -31,10 +31,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      currency_symbol: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
     },
     { freezeTableName: true }
   );

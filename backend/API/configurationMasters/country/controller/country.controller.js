@@ -65,7 +65,6 @@ module.exports.uploadCountry = async (req, res) => {
           phone_code: phonecode,
           currency: currency,
           currency_code: currency_name,
-          currency_symbol: currency_symbol,
         },
       });
     }

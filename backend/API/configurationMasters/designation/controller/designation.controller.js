@@ -16,11 +16,14 @@ module.exports.createDesignation = async (req, res) => {
 
     if (isAlreadyExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Designation Already Exist!" });
     } else {
-      const newDesignation = await DB.tbl_designation_master.create(data);
-      return res.status(200).send({
+      const newDesignation = await DB.tbl_designation_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "Designation Created Successfully!",
         data: newDesignation,
@@ -120,14 +123,14 @@ module.exports.getAllDesignationDetails = async (req, res) => {
     let countQuery = `
       SELECT COUNT(*) as total 
       FROM DESIGNATION_MASTER AS D 
-      WHERE D.isDeleted = false`;
+      WHERE entity_id= ${req?.selectedEntity} AND D.isDeleted = false`;
 
     let query = `
             SELECT D.*
             FROM DESIGNATION_MASTER AS D
-            WHERE D.isDeleted=false`;
+            WHERE entity_id= ${req?.selectedEntity} AND D.isDeleted=false`;
 
-    if (filter) {
+    if (filter?.name) {
       countQuery += ` AND D.name LIKE :filter`;
       query += ` AND D.name LIKE :filter`;
     }

@@ -891,12 +891,10 @@ module.exports.getUserDetails = async (req, res) => {
       // Getting Registered Entities Details
       const registered_entities_details =
         await DB.tbl_user_registered_entities.findAll({
-          attributes: ["id"],
           include: [
             {
               model: DB.tbl_entity_configuration,
-              attributes: ["id", "entity_name", "entity_code"],
-              where: { isDeleted: false },
+              attributes: ["id", "entity_name"],
             },
           ],
           where: { user_id: getAllData[0].id, isDeleted: false },
@@ -939,7 +937,9 @@ module.exports.getUserDetails = async (req, res) => {
         family_details: family_details,
         previous_employer_details: prev_emp_details,
         salary_history: salary_revision_details,
-        registered_entities_details,
+        registered_entities_details: registered_entities_details?.map(
+          (data) => data?.ENTITY_CONFIGURATION
+        ),
       };
       return res.status(200).send({
         success: true,

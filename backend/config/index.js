@@ -417,6 +417,49 @@ db.tbl_user_registered_entities =
   );
 
 // ========== RELATIONS ========== //
+
+// ========================================== DEPARTMENT MASTER RELATIONS ========================================== //
+// Relation B/W Entity Configuration and Department Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_department_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_department_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// Relation B/W Department Master and User Tables
+db.tbl_user_master.hasMany(db.tbl_department_master, {
+  foreignKey: "department_head_id",
+});
+db.tbl_department_master.belongsTo(db.tbl_user_master, {
+  foreignKey: "department_head_id",
+});
+
+// ========================================== AREA MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_area_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_area_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== BRANCH MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_branch_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_branch_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== DESIGNATION MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_designation_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_designation_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== USER MANAGEMENT RELATIONS ========================================== //
 // Relation B/W User and User Registered Entities Tables
 db.tbl_user_master.hasMany(db.tbl_user_registered_entities, {
   foreignKey: "user_id",
@@ -487,14 +530,6 @@ db.tbl_contractType_master.hasMany(db.tbl_user_master, {
 });
 db.tbl_user_master.belongsTo(db.tbl_contractType_master, {
   foreignKey: "contract_type_id",
-});
-
-// Relation B/W Department Master and User Tables
-db.tbl_user_master.hasMany(db.tbl_department_master, {
-  foreignKey: "department_head_id",
-});
-db.tbl_department_master.belongsTo(db.tbl_user_master, {
-  foreignKey: "department_head_id",
 });
 
 // Relation B/W Area Master and Department Master Tables

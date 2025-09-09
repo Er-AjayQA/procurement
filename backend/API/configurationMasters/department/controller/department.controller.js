@@ -5,35 +5,49 @@ const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 // ========== CREATE DEPARTMENT CONTROLLER ========== //
 module.exports.createDepartment = async (req, res) => {
   try {
+    const { selectedEntity } = req.params;
     const data = req.body;
 
-    // Check if Department already exist
-    const isAlreadyExist = await DB.tbl_department_master.findOne({
-      where: {
-        name: data.name,
-        isDeleted: false,
-      },
+    const checkIfEntityExist = await DB.tbl_entity_configuration.findOne({
+      where: { id: selectedEntity, isDeleted: false },
     });
 
-    if (isAlreadyExist) {
+    if (!checkIfEntityExist) {
       return res
-        .status(400)
-        .send({ success: false, message: "Department Already Exist!" });
+        .status(404)
+        .send({ success: false, message: "Selected entity not exist!" });
     } else {
-      let code = await generateUniqueCode(
-        "DEP",
-        3,
-        "dep_code",
-        "DEPARTMENT_MASTER"
-      );
-      data.dep_code = code;
-
-      const newDepartment = await DB.tbl_department_master.create(data);
-      return res.status(200).send({
-        success: true,
-        message: "Department Created Successfully!",
-        data: newDepartment,
+      // Check if Department already exist
+      const isAlreadyExist = await DB.tbl_department_master.findOne({
+        where: {
+          name: data?.name,
+          isDeleted: false,
+        },
       });
+
+      if (isAlreadyExist) {
+        return res
+          .status(409)
+          .send({ success: false, message: "Department Already Exist!" });
+      } else {
+        let code = await generateUniqueCode(
+          "DEP",
+          3,
+          "dep_code",
+          "DEPARTMENT_MASTER"
+        );
+        data.dep_code = code;
+
+        const newDepartment = await DB.tbl_department_master.create({
+          ...data,
+          entity_id: selectedEntity,
+        });
+        return res.status(201).send({
+          success: true,
+          message: "Department Created Successfully!",
+          data: newDepartment,
+        });
+      }
     }
   } catch (error) {
     res.status(500).send({ success: false, message: error.message });
@@ -119,6 +133,7 @@ module.exports.getDepartmentDetails = async (req, res) => {
 // ========== GET ALL DEPARTMENT DETAILS CONTROLLER ========== //
 module.exports.getAllDepartmentDetails = async (req, res) => {
   try {
+    const { selectedEntity } = req.params;
     const limit = parseInt(req.body.limit) || 10;
     const page = parseInt(req.body.page) || 1;
     const offset = (page - 1) * limit;
@@ -127,13 +142,13 @@ module.exports.getAllDepartmentDetails = async (req, res) => {
     let countQuery = `
       SELECT COUNT(*) as total 
       FROM DEPARTMENT_MASTER AS D 
-      WHERE D.isDeleted = false`;
+      WHERE D.entity_id=${selectedEntity} AND D.isDeleted = false`;
 
     let query = `
             SELECT D.*, U.emp_code, U.name As department_head_name
             FROM DEPARTMENT_MASTER AS D
             LEFT JOIN USER_MASTER AS U on U.id=D.department_head_id
-            WHERE D.isDeleted=false`;
+            WHERE D.entity_id=${selectedEntity} AND D.isDeleted=false`;
 
     if (filter) {
       countQuery += ` AND D.name LIKE :filter`;

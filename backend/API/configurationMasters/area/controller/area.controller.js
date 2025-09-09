@@ -21,8 +21,11 @@ module.exports.createArea = async (req, res) => {
         .status(400)
         .send({ success: false, message: "Area Already Exist!" });
     } else {
-      const newArea = await DB.tbl_area_master.create(data);
-      return res.status(200).send({
+      const newArea = await DB.tbl_area_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "Area Created Successfully!",
         data: newArea,
@@ -118,7 +121,7 @@ module.exports.getAllAreaDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    let whereClause = { isDeleted: false };
+    let whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.name = { [DB.Sequelize.Op.like]: `%${filter.name}%` };

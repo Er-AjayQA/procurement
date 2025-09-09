@@ -128,12 +128,16 @@ export const deleteDesignation = async (id) => {
 
 // **************************** DEPARTMENT MASTER **************************** //
 // Create Department Master
-export const createDepartment = async (formData) => {
-  const response = await axiosInstance.post("create-department", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createDepartment = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-department/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -172,9 +176,9 @@ export const getDepartmentById = async (id) => {
 };
 
 // Get All Master Departments List
-export const getAllDepartments = async (formData) => {
+export const getAllDepartments = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-department-details",
+    `get-all-department-details/${selectedEntity}`,
     formData,
     {
       headers: {
