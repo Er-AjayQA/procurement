@@ -11,19 +11,23 @@ import {
 } from "flowbite-react";
 import Select from "react-select";
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../ReduxToolkit/authSlice";
+import { logout, setActiveEntity } from "../ReduxToolkit/authSlice";
 import { useEffect, useState } from "react";
 import { NotificationContainer } from "./notificationManagement/notificationContainer";
 import { useNotificationContext } from "../contextApis/useNotificationContextFile";
 import { getAllEntityList } from "../services/entityManagement_services/service";
+import { getEmployeeDetails } from "../services/employeeDetails_services/services";
 
 export const HeaderNav = () => {
   const { userDetails, activeModule } = useSelector((state) => state.auth);
+  const [userData, setUserData] = useState(null);
   const [displayModule, setDisplayModule] = useState(activeModule);
   const { newNotificationsCount, handleNotificationVisibility, viewId } =
     useNotificationContext();
   const [selectedEntity, setSelectedEntity] = useState("");
+  const [userEntityIds, setUserEntityIds] = useState([]);
   const [entityOptions, setEntityOptions] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -55,9 +59,42 @@ export const HeaderNav = () => {
     }
   };
 
+  // Get User Details
+  const getUserData = async (id) => {
+    try {
+      const data = await getEmployeeDetails(id);
+
+      if (data.data.success) {
+        setUserData(data?.data?.data[0]);
+
+        // Extract user's entity IDs
+        const primaryEntityId = data?.data?.data[0]?.primary_entity_id;
+        const registeredEntities =
+          data?.data?.data[0]?.registered_entities_details || [];
+        const registeredEntityIds = registeredEntities.map(
+          (entity) => entity.id
+        );
+        // Combine all entity IDs user has access to
+        const allEntityIds = [primaryEntityId, ...registeredEntityIds];
+        setUserEntityIds(allEntityIds);
+      } else {
+        setUserData(null);
+      }
+    } catch (error) {
+      setUserData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     setDisplayModule(activeModule);
   }, [activeModule]);
+
+  // Fetching user data
+  useEffect(() => {
+    if (userDetails) getUserData(userDetails?.id);
+  }, [userDetails]);
 
   // Handling Logout
   const handleLogout = () => {
@@ -69,6 +106,19 @@ export const HeaderNav = () => {
   useEffect(() => {
     getAllEntitiesList();
   }, []);
+
+  //
+  useEffect(() => {
+    if (userData && entityOptions) {
+      const findPrimaryEntity = entityOptions?.find(
+        (option) => option?.value === userData?.primary_entity_id
+      );
+
+      if (findPrimaryEntity) {
+        setSelectedEntity(findPrimaryEntity);
+      }
+    }
+  }, [userData, entityOptions]);
 
   const styledComponent = {
     control: (base) => ({
@@ -111,7 +161,18 @@ export const HeaderNav = () => {
     }),
   };
 
-  console.log("Selected Entity....", selectedEntity);
+  useEffect(() => {
+    if (selectedEntity) {
+      dispatch(setActiveEntity({ activeEntity: selectedEntity?.value }));
+    }
+  }, [selectedEntity]);
+
+  // Filter entities to only show the ones the user has access to
+  const filteredEntityOptions = entityOptions
+    ? entityOptions.filter((option) => userEntityIds.includes(option.value))
+    : [];
+
+  console.log("Selected User....", entityOptions);
 
   return (
     <Navbar fluid rounded className="bg-white !px-0 !py-0">
@@ -153,7 +214,7 @@ export const HeaderNav = () => {
             onChange={(selectedOption) => {
               setSelectedEntity(selectedOption);
             }}
-            options={entityOptions}
+            options={filteredEntityOptions}
             placeholder="Select Entity..."
             isSearchable
             className="react-select-container"

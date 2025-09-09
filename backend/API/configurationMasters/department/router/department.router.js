@@ -4,14 +4,17 @@ const router = express.Router();
 const DepartmentController = require("../controller/department.controller");
 
 // ========== ROUTES ========== //
-router.post("/create-department", DepartmentController.createDepartment);
+router.post(
+  "/create-department/:selectedEntity",
+  DepartmentController.createDepartment
+);
 router.put("/update-department/:id", DepartmentController.updateDepartment);
 router.post(
   "/get-department-details/:id",
   DepartmentController.getDepartmentDetails
 );
 router.post(
-  "/get-all-department-details",
+  "/get-all-department-details/:selectedEntity",
   DepartmentController.getAllDepartmentDetails
 );
 router.put(

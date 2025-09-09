@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { DepartmentMasterContext } from "./departmentMasterContext";
 import {
   deleteDepartment,
@@ -9,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 
 export const DepartmentMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
@@ -22,9 +24,13 @@ export const DepartmentMasterProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     setIsLoading(true);
-    const data = await getAllDepartments({ limit, page, filter });
+    const data = await getAllDepartments(selectedEntity, {
+      limit,
+      page,
+      filter,
+    });
 
     if (data.success) {
       setIsLoading(false);
@@ -105,8 +111,10 @@ export const DepartmentMasterProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
 
   // For update operations
   useEffect(() => {

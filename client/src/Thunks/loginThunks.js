@@ -19,6 +19,7 @@ import {
 import { moduleAccessService } from "../services/rbac_services/service";
 import { getUserDetailsFromToken } from "../Utils/jwtDecode";
 import {
+  setActiveEntity,
   setAssignedModules,
   setToken,
   setUserDetails,
@@ -40,6 +41,9 @@ export const loginUser = createAsyncThunk(
         if (modulesData.success) {
           dispatch(setAssignedModules({ assignedModules: modulesData.data }));
           dispatch(setUserDetails({ userDetails }));
+          dispatch(
+            setActiveEntity({ activeEntity: userDetails?.primary_entity_id })
+          );
           dispatch(setToken({ token: response.data.token }));
 
           dispatch(loginComplete());

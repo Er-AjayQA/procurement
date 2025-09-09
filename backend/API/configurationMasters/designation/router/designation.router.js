@@ -2,16 +2,22 @@
 const express = require("express");
 const router = express.Router();
 const DesignationController = require("../controller/designation.controller");
+const EntityAuth = require("../../../../helper/utilFunctions");
 
 // ========== ROUTES ========== //
-router.post("/create-designation", DesignationController.createDesignation);
+router.post(
+  "/create-designation/:selectedEntity",
+  EntityAuth.checkEntity,
+  DesignationController.createDesignation
+);
 router.put("/update-designation/:id", DesignationController.updateDesignation);
 router.post(
   "/get-designation-details/:id",
   DesignationController.getDesignationDetails
 );
 router.post(
-  "/get-all-designations",
+  "/get-all-designations/:selectedEntity",
+  EntityAuth.checkEntity,
   DesignationController.getAllDesignationDetails
 );
 router.put(

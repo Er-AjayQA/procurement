@@ -17,7 +17,7 @@ module.exports.createBranch = async (req, res) => {
 
     if (isAlreadyExist) {
       return res
-        .status(400)
+        .status(409)
         .send({ success: false, message: "Branch Already Exist!" });
     } else {
       let code = await generateUniqueCode(
@@ -42,8 +42,9 @@ module.exports.createBranch = async (req, res) => {
         country_id: data.country_id,
         state_id: data.state_id,
         city_id: data.city_id,
+        entity_id: req?.selectedEntity,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Branch Created Successfully!",
         data: newBranch,
@@ -70,7 +71,7 @@ module.exports.updateBranch = async (req, res) => {
 
     if (!isBranchExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Branch Not Found!" });
     } else {
       const duplicateBranch = await DB.tbl_branch_master.findOne({
@@ -88,7 +89,7 @@ module.exports.updateBranch = async (req, res) => {
         });
       } else {
         const updateBranch = await isBranchExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Branch Updated Successfully!",
           data: updateBranch,
@@ -142,7 +143,7 @@ module.exports.getAllBranchDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    let whereClause = { isDeleted: false };
+    let whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.billing_status !== undefined || filter.billing_status !== "") {
       whereClause.billing_status = {
