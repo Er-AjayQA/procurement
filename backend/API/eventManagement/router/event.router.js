@@ -2,32 +2,68 @@
 const express = require("express");
 const router = express.Router();
 const EventController = require("../controller/event.controller");
+const EntityAuth = require("../../../helper/utilFunctions");
 
 // ========== ROUTES ========== //
 
 // ********************* EVENT MANAGEMENT ROUTES ********************* //
-router.post("/create-event", EventController.createEvent);
-router.put("/update-event/:id", EventController.updateEvent);
-router.get("/get-event-details/:id", EventController.getEventDetails);
-router.post("/get-all-events-details", EventController.getAllEventsDetails);
-router.put("/update-event-status/:id", EventController.updateEventStatus);
-router.put("/delete-event/:id", EventController.deleteEvent);
+router.post(
+  "/create-event/:selectedEntity",
+  EntityAuth.checkEntity,
+  EventController.createEvent
+);
+router.put(
+  "/update-event/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  EventController.updateEvent
+);
+router.get(
+  "/get-event-details/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  EventController.getEventDetails
+);
+router.post(
+  "/get-all-events-details/:selectedEntity",
+  EntityAuth.checkEntity,
+  EventController.getAllEventsDetails
+);
+router.put(
+  "/update-event-status/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  EventController.updateEventStatus
+);
+router.put(
+  "/delete-event/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  EventController.deleteEvent
+);
 
 // ********************* EVENT TICKET MANAGEMENT ********************* //
-router.post("/create-event-tickets/:id", EventController.createEventTickets);
+router.post(
+  "/create-event-tickets/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  EventController.createEventTickets
+);
 router.put(
-  "/update-event-tickets/:event_id/:id",
+  "/update-event-tickets/:selectedEntity/:event_id/:id",
+  EntityAuth.checkEntity,
   EventController.updateEventTickets
 );
 router.post(
-  "/get-event-ticket-detail/:id",
+  "/get-event-ticket-detail/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   EventController.getEventTicketsDetails
 );
 router.post(
-  "/get-all-event-tickets",
+  "/get-all-event-tickets/:selectedEntity",
+  EntityAuth.checkEntity,
   EventController.getAllEventTicketsDetails
 );
-router.put("/delete-event-ticket/:id", EventController.deleteEventTickets);
+router.put(
+  "/delete-event-ticket/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  EventController.deleteEventTickets
+);
 
 // ********************* EVENT REGISTRATION MANAGEMENT ********************* //
 

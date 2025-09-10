@@ -1388,6 +1388,22 @@ db.tbl_ticket_history.belongsTo(db.tbl_ticket_management, {
 });
 
 // ========================================== EVENT MANAGEMENT ========================================== //
+// Relation B/W Entity Master Master And Event Management Tables
+db.tbl_entity_configuration.hasMany(db.tbl_event_management, {
+  foreignKey: "entity_id",
+});
+db.tbl_event_management.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// Relation B/W Entity Master And Event Ticket Tables
+db.tbl_entity_configuration.hasMany(db.tbl_event_ticket_type, {
+  foreignKey: "entity_id",
+});
+db.tbl_event_ticket_type.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
 // Relation B/W Event Category Master And Event Management Tables
 db.tbl_event_category_master.hasMany(db.tbl_event_management, {
   foreignKey: "event_category_id",
