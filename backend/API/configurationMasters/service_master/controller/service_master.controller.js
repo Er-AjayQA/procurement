@@ -10,14 +10,15 @@ module.exports.createService = async (req, res) => {
     // Check if Service already exist
     const isAlreadyExist = await DB.tbl_service_master.findOne({
       where: {
-        name: data.name,
-        service_category_id: data.service_category_id,
+        name: data?.name,
+        service_category_id: data?.service_category_id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
-      return res.status(400).send({
+      return res.status(409).send({
         success: false,
         message: "Service Already Exist in Selected Category!",
       });
@@ -30,12 +31,14 @@ module.exports.createService = async (req, res) => {
       );
       data.service_code = code;
 
-      const newService = await DB.tbl_service_master.create(data);
+      const newService = await DB.tbl_service_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
 
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Item Created Successfully!",
-        data: newService,
       });
     }
   } catch (error) {
@@ -53,13 +56,14 @@ module.exports.updateService = async (req, res) => {
     const isCategoryExist = await DB.tbl_service_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Service Not Found!" });
     } else {
       const duplicateService = await DB.tbl_service_master.findOne({
@@ -69,6 +73,7 @@ module.exports.updateService = async (req, res) => {
           service_category_id: data.service_category_id
             ? data.service_category_id
             : isCategoryExist.service_category_id,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -80,10 +85,9 @@ module.exports.updateService = async (req, res) => {
       } else {
         const updateService = await isCategoryExist.update(data);
 
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Service Updated Successfully!",
-          data: updateService,
         });
       }
     }
@@ -101,7 +105,7 @@ module.exports.getServiceDetails = async (req, res) => {
     SELECT S.*, SC.name AS service_category_name, SC.service_category_description, SC.service_category_code
     FROM SERVICE_MASTER AS S
     LEFT JOIN SERVICE_CATEGORY_MASTER AS SC ON SC.id=S.service_category_id
-    WHERE S.id=${id} AND S.isDeleted=false`;
+    WHERE S.id=${id} AND S.entity_id=${req?.selectedEntity} AND S.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -109,7 +113,7 @@ module.exports.getServiceDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Service Not Found!" });
     } else {
       return res.status(200).send({
@@ -131,7 +135,7 @@ module.exports.getAllServiceDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
@@ -165,7 +169,7 @@ module.exports.getAllServiceDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Services Not Found!" });
     } else {
       return res.status(200).send({
@@ -194,23 +198,23 @@ module.exports.updateServiceStatus = async (req, res) => {
     const isServiceExist = await DB.tbl_service_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isServiceExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Item Not Found!" });
     } else {
       const updateStatus = await isServiceExist.update({
         status: !isServiceExist.status,
       });
 
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -227,20 +231,21 @@ module.exports.deleteService = async (req, res) => {
     const isServiceExist = await DB.tbl_service_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isServiceExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Service Not Found!" });
     } else {
       await isServiceExist.update({
         isDeleted: true,
       });
 
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Service Deleted Successfully!",
       });

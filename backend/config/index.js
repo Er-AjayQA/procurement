@@ -419,7 +419,7 @@ db.tbl_user_registered_entities =
 // ========== RELATIONS ========== //
 
 // ========================================== DEPARTMENT MASTER RELATIONS ========================================== //
-// Relation B/W Entity Configuration and Department Master Tables
+// Relation B/W Entity Master and Department Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_department_master, {
   foreignKey: "entity_id",
 });
@@ -427,7 +427,7 @@ db.tbl_department_master.belongsTo(db.tbl_entity_configuration, {
   foreignKey: "entity_id",
 });
 
-// Relation B/W Department Master and User Tables
+// Relation B/W Department Master and User Master Tables
 db.tbl_user_master.hasMany(db.tbl_department_master, {
   foreignKey: "department_head_id",
 });
@@ -436,6 +436,7 @@ db.tbl_department_master.belongsTo(db.tbl_user_master, {
 });
 
 // ========================================== AREA MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Area Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_area_master, {
   foreignKey: "entity_id",
 });
@@ -444,6 +445,7 @@ db.tbl_area_master.belongsTo(db.tbl_entity_configuration, {
 });
 
 // ========================================== BRANCH MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Department Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_branch_master, {
   foreignKey: "entity_id",
 });
@@ -452,6 +454,7 @@ db.tbl_branch_master.belongsTo(db.tbl_entity_configuration, {
 });
 
 // ========================================== DESIGNATION MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Designation Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_designation_master, {
   foreignKey: "entity_id",
 });
@@ -460,6 +463,7 @@ db.tbl_designation_master.belongsTo(db.tbl_entity_configuration, {
 });
 
 // ========================================== ALLOWANCE MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Allowance Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_allowance_master, {
   foreignKey: "entity_id",
 });
@@ -468,6 +472,7 @@ db.tbl_allowance_master.belongsTo(db.tbl_entity_configuration, {
 });
 
 // ========================================== BANK MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Bank Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_bank_master, {
   foreignKey: "entity_id",
 });
@@ -476,6 +481,7 @@ db.tbl_bank_master.belongsTo(db.tbl_entity_configuration, {
 });
 
 // ========================================== CONTRACT TYPE MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Contract Type Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_contractType_master, {
   foreignKey: "entity_id",
 });
@@ -484,6 +490,7 @@ db.tbl_contractType_master.belongsTo(db.tbl_entity_configuration, {
 });
 
 // ========================================== COURSE CATEGORY MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Course Category Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_course_category, {
   foreignKey: "entity_id",
 });
@@ -492,6 +499,7 @@ db.tbl_course_category.belongsTo(db.tbl_entity_configuration, {
 });
 
 // ========================================== EMPLOYEMENT TYPE MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Employement Type Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_employmentType_master, {
   foreignKey: "entity_id",
 });
@@ -500,10 +508,101 @@ db.tbl_employmentType_master.belongsTo(db.tbl_entity_configuration, {
 });
 
 // ========================================== EVENT CATEGORY MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Event Category Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_event_category_master, {
   foreignKey: "entity_id",
 });
 db.tbl_event_category_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== ITEM CATEGORY MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Item Category Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_item_category_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_item_category_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== ITEM MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and item Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_item_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_item_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== ROLE MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Role Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_role_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_role_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== SERVICE CATEGORY MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Service Category Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_service_category_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_service_category_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== SERVICE MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Service Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_service_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_service_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== SHIFT MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Shift Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_shift_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_shift_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== TICKET CATEGORY MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Ticket Category Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_ticket_category_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_ticket_category_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== TRANSFER REASON MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Ticket Reason Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_transfer_reason_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_transfer_reason_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== TRANSFER TYPE MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Ticket Type Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_transfer_type_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_transfer_type_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== UOM MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Uom Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_uom_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_uom_master.belongsTo(db.tbl_entity_configuration, {
   foreignKey: "entity_id",
 });
 

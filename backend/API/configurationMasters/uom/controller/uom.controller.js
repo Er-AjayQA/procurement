@@ -9,21 +9,24 @@ module.exports.createUom = async (req, res) => {
     // Check if UOM already exist
     const isAlreadyExist = await DB.tbl_uom_master.findOne({
       where: {
-        name: data.name,
+        name: data?.name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "UOM Already Exist!" });
     } else {
-      const newUom = await DB.tbl_uom_master.create(data);
-      return res.status(200).send({
+      const newUom = await DB.tbl_uom_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "UOM Created Successfully!",
-        data: newUom,
       });
     }
   } catch (error) {
@@ -41,19 +44,21 @@ module.exports.updateUom = async (req, res) => {
     const isUomExist = await DB.tbl_uom_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isUomExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "UOM Not Found!" });
     } else {
       const duplicateUom = await DB.tbl_uom_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           name: data.name ? data.name : isUomExist.name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -66,10 +71,9 @@ module.exports.updateUom = async (req, res) => {
         const updateUom = await isUomExist.update(data, {
           where: { id: isUomExist.id },
         });
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "UOM Updated Successfully!",
-          data: updateUom,
         });
       }
     }
@@ -86,7 +90,7 @@ module.exports.getUomDetails = async (req, res) => {
     const query = `
     SELECT U.*
     FROM UOM_MASTER AS U
-    WHERE U.id=${id} AND U.isDeleted=false`;
+    WHERE U.id=${id} AND U.entity_id=${req?.selectedEntity} AND U.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -94,7 +98,7 @@ module.exports.getUomDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "UOM Not Found!" });
     } else {
       return res.status(200).send({
@@ -116,7 +120,7 @@ module.exports.getAllUomDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
@@ -134,7 +138,7 @@ module.exports.getAllUomDetails = async (req, res) => {
 
     if (!getAllData || getAllData.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "UOM Not Found!" });
     } else {
       return res.status(200).send({
@@ -163,22 +167,22 @@ module.exports.updateUomStatus = async (req, res) => {
     const isUomExist = await DB.tbl_uom_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isUomExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "UOM Not Found!" });
     } else {
       const updateStatus = await isUomExist.update({
         status: !isUomExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -195,19 +199,20 @@ module.exports.deleteUom = async (req, res) => {
     const isUomExist = await DB.tbl_uom_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isUomExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "UOM Not Found!" });
     } else {
       await isUomExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "UOM Deleted Successfully!",
       });
