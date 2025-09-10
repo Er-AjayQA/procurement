@@ -9,7 +9,8 @@ module.exports.createDesignation = async (req, res) => {
     // Check if Designation already exist
     const isAlreadyExist = await DB.tbl_designation_master.findOne({
       where: {
-        name: data.name,
+        name: data?.name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -26,7 +27,6 @@ module.exports.createDesignation = async (req, res) => {
       return res.status(201).send({
         success: true,
         message: "Designation Created Successfully!",
-        data: newDesignation,
       });
     }
   } catch (error) {
@@ -44,19 +44,21 @@ module.exports.updateDesignation = async (req, res) => {
     const isDesignationExist = await DB.tbl_designation_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isDesignationExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Designation Not Found!" });
     } else {
       const duplicateDesignation = await DB.tbl_designation_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
-          name: data.name,
+          name: data?.name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -68,10 +70,9 @@ module.exports.updateDesignation = async (req, res) => {
         });
       } else {
         const updateDesignation = await isDesignationExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Designation Updated Successfully!",
-          data: updateDesignation,
         });
       }
     }
@@ -88,8 +89,7 @@ module.exports.getDesignationDetails = async (req, res) => {
     const query = `
     SELECT D.*
     FROM DESIGNATION_MASTER AS D
-    WHERE D.id=${id}
-    AND D.isDeleted=false`;
+    WHERE D.id=${id} AND D.entity_id=${req?.selectedEntity} AND D.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -97,7 +97,7 @@ module.exports.getDesignationDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Designation Not Found!" });
     } else {
       return res.status(200).send({
@@ -157,7 +157,7 @@ module.exports.getAllDesignationDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Designations Not Found!" });
     } else {
       return res.status(200).send({
@@ -186,22 +186,22 @@ module.exports.updateDesignationStatus = async (req, res) => {
     const isDesignationExist = await DB.tbl_designation_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isDesignationExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Designation Not Found!" });
     } else {
       const updateStatus = await isDesignationExist.update({
         status: !isDesignationExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -218,19 +218,20 @@ module.exports.deleteDesignation = async (req, res) => {
     const isDesignationExist = await DB.tbl_designation_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isDesignationExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Designation Not Found!" });
     } else {
       await isDesignationExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Designation Deleted Successfully!",
       });

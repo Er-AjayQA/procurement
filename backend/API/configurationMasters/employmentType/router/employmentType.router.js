@@ -2,30 +2,37 @@
 const express = require("express");
 const router = express.Router();
 const EmploymentTypeController = require("../controller/employmentType.controller");
+const EntityAuth = require("../../../../helper/utilFunctions");
 
 // ========== ROUTES ========== //
 router.post(
-  "/create-employment-type",
+  "/create-employment-type/:selectedEntity",
+  EntityAuth.checkEntity,
   EmploymentTypeController.createEmploymentType
 );
 router.put(
-  "/update-employment-type/:id",
+  "/update-employment-type/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   EmploymentTypeController.updateEmploymentType
 );
 router.post(
-  "/get-employments-type-details/:id",
+  "/get-employments-type-details/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   EmploymentTypeController.getEmploymentTypeDetails
 );
 router.post(
-  "/get-all-employment-type-details",
+  "/get-all-employment-type-details/:selectedEntity",
+  EntityAuth.checkEntity,
   EmploymentTypeController.getAllEmploymentTypesDetails
 );
 router.put(
-  "/update-employment-type-status/:id",
+  "/update-employment-type-status/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   EmploymentTypeController.updateEmploymentTypeStatus
 );
 router.put(
-  "/delete-employment-type/:id",
+  "/delete-employment-type/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   EmploymentTypeController.deleteEmploymentType
 );
 

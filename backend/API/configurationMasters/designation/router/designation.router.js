@@ -10,9 +10,14 @@ router.post(
   EntityAuth.checkEntity,
   DesignationController.createDesignation
 );
-router.put("/update-designation/:id", DesignationController.updateDesignation);
+router.put(
+  "/update-designation/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  DesignationController.updateDesignation
+);
 router.post(
-  "/get-designation-details/:id",
+  "/get-designation-details/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   DesignationController.getDesignationDetails
 );
 router.post(
@@ -21,10 +26,15 @@ router.post(
   DesignationController.getAllDesignationDetails
 );
 router.put(
-  "/update-designation-status/:id",
+  "/update-designation-status/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   DesignationController.updateDesignationStatus
 );
-router.put("/delete-designation/:id", DesignationController.deleteDesignation);
+router.put(
+  "/delete-designation/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  DesignationController.deleteDesignation
+);
 
 // ========== EXPORT ========== //
 module.exports = router;

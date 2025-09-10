@@ -11,6 +11,7 @@ module.exports.createEventCategory = async (req, res) => {
     const isAlreadyExist = await DB.tbl_event_category_master.findOne({
       where: {
         event_category_name: data?.event_category_name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -30,12 +31,12 @@ module.exports.createEventCategory = async (req, res) => {
 
       const newData = await DB.tbl_event_category_master.create({
         ...data,
+        entity_id: req?.selectedEntity,
         event_category_code: code,
       });
       return res.status(201).send({
         success: true,
         message: "Category Created Successfully!",
-        data: newData,
       });
     }
   } catch (error) {
@@ -53,6 +54,7 @@ module.exports.updateEventCategory = async (req, res) => {
     const isDataExist = await DB.tbl_event_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -66,6 +68,7 @@ module.exports.updateEventCategory = async (req, res) => {
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           event_category_name: data.event_category_name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -80,7 +83,6 @@ module.exports.updateEventCategory = async (req, res) => {
         return res.status(201).send({
           success: true,
           message: "Category Updated Successfully!",
-          data: updateData,
         });
       }
     }
@@ -97,7 +99,7 @@ module.exports.getEventCategoryDetails = async (req, res) => {
     const query = `
     SELECT EC.*
     FROM EVENT_CATEGORY_MASTER AS EC
-    WHERE EC.id=${id} AND EC.isDeleted=false`;
+    WHERE EC.id=${id} AND EC.entity_id=${req?.selectedEntity} AND EC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -127,7 +129,7 @@ module.exports.getAllEventCategoryDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.event_category_name = {
@@ -149,12 +151,11 @@ module.exports.getAllEventCategoryDetails = async (req, res) => {
 
     if (!getAllData || getAllData.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Categories Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        records: getAllData.length,
         message: "Get All Categories List!",
         data: getAllData,
         pagination: {
@@ -179,6 +180,7 @@ module.exports.updateEventCategoryStatus = async (req, res) => {
     const isDataExist = await DB.tbl_event_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -194,7 +196,6 @@ module.exports.updateEventCategoryStatus = async (req, res) => {
       return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -211,6 +212,7 @@ module.exports.deleteEventCategory = async (req, res) => {
     const isDataExist = await DB.tbl_event_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

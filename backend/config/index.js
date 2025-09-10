@@ -483,6 +483,30 @@ db.tbl_contractType_master.belongsTo(db.tbl_entity_configuration, {
   foreignKey: "entity_id",
 });
 
+// ========================================== COURSE CATEGORY MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_course_category, {
+  foreignKey: "entity_id",
+});
+db.tbl_course_category.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== EMPLOYEMENT TYPE MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_employmentType_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_employmentType_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// ========================================== EVENT CATEGORY MASTER RELATIONS ========================================== //
+db.tbl_entity_configuration.hasMany(db.tbl_event_category_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_event_category_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
 // ========================================== USER MANAGEMENT RELATIONS ========================================== //
 // Relation B/W User and User Registered Entities Tables
 db.tbl_user_master.hasMany(db.tbl_user_registered_entities, {
