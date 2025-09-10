@@ -7,8 +7,10 @@ import {
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useDesignationMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const DesignationMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useDesignationMasterContext();
   const {
@@ -40,15 +42,17 @@ export const DesignationMasterForm = ({ onClose }) => {
     try {
       let response = "";
       if (formType === "Update") {
-        response = await updateDesignation(updateId, { name: data.name });
+        response = await updateDesignation(activeEntity, updateId, {
+          name: data.name,
+        });
       } else {
-        response = await createDesignation({ name: data.name });
+        response = await createDesignation(activeEntity, { name: data.name });
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
         reset();
       } else {
         toast.error(response.message);

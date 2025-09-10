@@ -6,50 +6,62 @@ import {
   getDesignationById,
   updateDesignationStatus,
 } from "../../../services/master_services/service";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 export const DesignationMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
   const [data, setData] = useState(null);
   const [updateId, setUpdateId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [filter, setFilter] = useState(null);
+  const [filter, setFilter] = useState({ name: "" });
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
   // Get All Master Data
-  const getAllData = async () => {
-    setIsLoading(true);
-    const data = await getAllDesignations({ limit, page, filter });
+  const getAllData = async (selectedEntity) => {
+    try {
+      setIsLoading(true);
+      const data = await getAllDesignations(selectedEntity, {
+        limit,
+        page,
+        filter,
+      });
 
-    if (data.success) {
+      if (data.success) {
+        setIsLoading(false);
+        setListing(data.data);
+        setTotalPages(data.pagination.totalPages);
+      } else {
+        setIsLoading(false);
+        setListing(null);
+      }
+    } catch (error) {
+      setListing(null);
+    } finally {
       setIsLoading(false);
-      setListing(data.data);
-      setTotalPages(data.pagination.totalPages);
-    } else {
-      setIsLoading(false);
-      setListing([]);
     }
   };
 
   // Get Data By Id
-  const getDataById = async () => {
-    const response = await getDesignationById(updateId);
+  const getDataById = async (selectedEntity) => {
+    const response = await getDesignationById(selectedEntity, updateId);
     if (response.success) {
       setData(response.data);
     }
   };
 
   // Delete Data By Id
-  const deleteData = async () => {
-    const response = await deleteDesignation(deleteId);
+  const deleteData = async (selectedEntity) => {
+    const response = await deleteDesignation(selectedEntity, deleteId);
     if (response.success) {
       toast(response.message);
-      getAllData();
+      getAllData(activeEntity);
       setDeleteId(null);
     } else {
       toast.error(response.message);
@@ -75,12 +87,12 @@ export const DesignationMasterProvider = ({ children }) => {
   };
 
   // Handle Active/Inactive
-  const handleActiveInactive = async (id) => {
+  const handleActiveInactive = async (selectedEntity, id) => {
     try {
-      const response = await updateDesignationStatus(id);
+      const response = await updateDesignationStatus(selectedEntity, id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -100,25 +112,27 @@ export const DesignationMasterProvider = ({ children }) => {
   // Handle Filter Value
   const handleChangeFilter = (e) => {
     e.preventDefault();
-    setFilter(e.target.value);
+    setFilter((prev) => ({ [e.target.name]: e.target.value }));
   };
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
 
   // For update operations
   useEffect(() => {
-    if (updateId) {
-      getDataById();
+    if (activeEntity && updateId) {
+      getDataById(activeEntity);
     }
   }, [updateId]);
 
   // For delete operations
   useEffect(() => {
-    if (deleteId) {
-      deleteData();
+    if (activeEntity && deleteId) {
+      deleteData(activeEntity);
     }
   }, [deleteId]);
 

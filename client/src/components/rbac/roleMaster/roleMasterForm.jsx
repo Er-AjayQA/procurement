@@ -7,8 +7,10 @@ import {
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useRoleMasterContext } from "../../../contextApis/useRbacContextFile";
+import { useSelector } from "react-redux";
 
 export const RoleMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllMasters, updateId, data } =
     useRoleMasterContext();
 
@@ -36,7 +38,7 @@ export const RoleMasterForm = ({ onClose }) => {
 
   // Handle Form Close
   const handleFormClose = () => {
-    getAllMasters();
+    getAllMasters(activeEntity);
     onClose();
     reset({ name: "" });
   };
@@ -46,9 +48,11 @@ export const RoleMasterForm = ({ onClose }) => {
     try {
       let response = "";
       if (formType === "Update") {
-        response = await updateRole(updateId, { name: data.name });
+        response = await updateRole(activeEntity, updateId, {
+          name: data.name,
+        });
       } else {
-        response = await createRole({ name: data.name });
+        response = await createRole(activeEntity, { name: data.name });
       }
 
       if (response.success) {
