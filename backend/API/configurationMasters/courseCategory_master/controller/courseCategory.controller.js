@@ -9,22 +9,25 @@ module.exports.createCourseCategory = async (req, res) => {
     // Check if Course Category already exist
     const isAlreadyExist = await DB.tbl_course_category.findOne({
       where: {
-        name: data.name,
+        name: data?.name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
-      return res.status(400).send({
+      return res.status(404).send({
         success: false,
         message: "Course Category Name Already Exist!",
       });
     } else {
-      const newCategory = await DB.tbl_course_category.create(data);
-      return res.status(200).send({
+      const newCategory = await DB.tbl_course_category.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "Course Category Created Successfully!",
-        data: newCategory,
       });
     }
   } catch (error) {
@@ -42,19 +45,21 @@ module.exports.updateCourseCategory = async (req, res) => {
     const isCategoryExist = await DB.tbl_course_category.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Course Category Not Found!" });
     } else {
       const duplicateCategory = await DB.tbl_course_category.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
-          name: data.name,
+          name: data?.name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -66,10 +71,9 @@ module.exports.updateCourseCategory = async (req, res) => {
         });
       } else {
         const updateCategory = await isCategoryExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Course Category Updated Successfully!",
-          data: updateCategory,
         });
       }
     }
@@ -86,7 +90,7 @@ module.exports.getCourseCategoryDetails = async (req, res) => {
     const query = `
     SELECT CC.*
     FROM COURSE_CATEGORY AS CC
-    WHERE CC.id=${id} AND CC.isDeleted=false`;
+    WHERE CC.entity_id=${req?.selectedEntity} AND CC.id=${id} AND CC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -94,7 +98,7 @@ module.exports.getCourseCategoryDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Course Category Not Found!" });
     } else {
       return res.status(200).send({
@@ -116,7 +120,7 @@ module.exports.getAllCourseCategoryDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
@@ -134,12 +138,11 @@ module.exports.getAllCourseCategoryDetails = async (req, res) => {
 
     if (!getAllData || getAllData.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Course Categories Not Found!" });
     } else {
       return res.status(200).send({
         success: true,
-        records: getAllData.length,
         message: "Get All Course Categories List!",
         data: getAllData,
         pagination: {
@@ -164,22 +167,22 @@ module.exports.updateCourseCategoryStatus = async (req, res) => {
     const isCategoryExist = await DB.tbl_course_category.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Course Category Not Found!" });
     } else {
       const updateStatus = await isCategoryExist.update({
         status: !isCategoryExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -196,13 +199,14 @@ module.exports.deleteCourseCategory = async (req, res) => {
     const isCategoryExist = await DB.tbl_course_category.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Course Category Not Found!" });
     } else {
       await isCategoryExist.update({

@@ -2,26 +2,39 @@
 const express = require("express");
 const router = express.Router();
 const DepartmentController = require("../controller/department.controller");
+const EntityAuth = require("../../../../helper/utilFunctions");
 
 // ========== ROUTES ========== //
 router.post(
   "/create-department/:selectedEntity",
+  EntityAuth.checkEntity,
   DepartmentController.createDepartment
 );
-router.put("/update-department/:id", DepartmentController.updateDepartment);
+router.put(
+  "/update-department/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  DepartmentController.updateDepartment
+);
 router.post(
-  "/get-department-details/:id",
+  "/get-department-details/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   DepartmentController.getDepartmentDetails
 );
 router.post(
   "/get-all-department-details/:selectedEntity",
+  EntityAuth.checkEntity,
   DepartmentController.getAllDepartmentDetails
 );
 router.put(
-  "/update-department-status/:id",
+  "/update-department-status/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   DepartmentController.updateDepartmentStatus
 );
-router.put("/delete-department/:id", DepartmentController.deleteDepartment);
+router.put(
+  "/delete-department/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  DepartmentController.deleteDepartment
+);
 
 // ========== EXPORT ========== //
 module.exports = router;
