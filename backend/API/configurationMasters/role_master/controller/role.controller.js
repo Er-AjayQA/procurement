@@ -88,7 +88,7 @@ module.exports.getRoleDetails = async (req, res) => {
     const query = `
     SELECT R.*
     FROM ROLE_MASTER AS R
-    WHERE R.id=${id} AND R.entity-id=${req?.selectedEntity} AND R.isDeleted=false`;
+    WHERE R.id=${id} AND R.entity_id=${req?.selectedEntity} AND R.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,

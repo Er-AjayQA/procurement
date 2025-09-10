@@ -4,8 +4,12 @@ import { DesignationMasterForm } from "./designationMasterForm";
 import { DesignationMasterListing } from "./designationMasterListing";
 
 export const DesignationMasterPage = () => {
-  const { handleLimitChange, handleChangeFilter, handleFormVisibility } =
-    useDesignationMasterContext();
+  const {
+    filter,
+    handleLimitChange,
+    handleChangeFilter,
+    handleFormVisibility,
+  } = useDesignationMasterContext();
   return (
     <>
       <div className="px-5 h-full">
@@ -39,6 +43,8 @@ export const DesignationMasterPage = () => {
             <div>
               <input
                 type="search"
+                name="name"
+                value={filter?.name}
                 placeholder="Search here.."
                 className="py-1 px-2 rounded-md text-sm border-borders-light"
                 onChange={(e) => handleChangeFilter(e)}

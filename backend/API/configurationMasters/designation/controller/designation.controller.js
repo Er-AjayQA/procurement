@@ -131,8 +131,8 @@ module.exports.getAllDesignationDetails = async (req, res) => {
             WHERE entity_id= ${req?.selectedEntity} AND D.isDeleted=false`;
 
     if (filter?.name) {
-      countQuery += ` AND D.name LIKE :filter`;
-      query += ` AND D.name LIKE :filter`;
+      countQuery += ` AND D.name LIKE :name`;
+      query += ` AND D.name LIKE :name`;
     }
 
     query += ` ORDER BY D.createdAt DESC`;
@@ -140,7 +140,7 @@ module.exports.getAllDesignationDetails = async (req, res) => {
 
     // Get total count
     const totalResult = await DB.sequelize.query(countQuery, {
-      replacements: { filter: `%${filter}%` },
+      replacements: { name: `%${filter?.name}%` },
       type: DB.sequelize.QueryTypes.SELECT,
     });
     const totalRecords = totalResult[0].total;
@@ -148,7 +148,7 @@ module.exports.getAllDesignationDetails = async (req, res) => {
 
     const getAllData = await DB.sequelize.query(query, {
       replacements: {
-        filter: filter ? `%${filter}%` : null,
+        name: `%${filter?.name}%`,
         limit,
         offset,
       },

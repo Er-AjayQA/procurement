@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   deleteRole,
   getAllRoles,
@@ -9,6 +10,7 @@ import { toast } from "react-toastify";
 import { RoleMasterContext } from "./roleMasterContext";
 
 export const RoleMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
@@ -22,9 +24,9 @@ export const RoleMasterProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get Master Roles List From API
-  const getAllMasters = async () => {
+  const getAllMasters = async (selectedEntity) => {
     setIsLoading(true);
-    const data = await getAllRoles({ limit, page, filter });
+    const data = await getAllRoles(selectedEntity, { limit, page, filter });
 
     if (data.success) {
       setIsLoading(false);
@@ -37,16 +39,16 @@ export const RoleMasterProvider = ({ children }) => {
   };
 
   // Get Role Data By Id
-  const getRoleDataById = async () => {
-    const response = await getRoleById(updateId);
+  const getRoleDataById = async (selectedEntity) => {
+    const response = await getRoleById(selectedEntity, updateId);
     if (response.success) {
       setData(response.data);
     }
   };
 
   // Delete Role By Id
-  const deleteRoleMaster = async () => {
-    const response = await deleteRole(deleteId);
+  const deleteRoleMaster = async (selectedEntity) => {
+    const response = await deleteRole(selectedEntity, deleteId);
     if (response.success) {
       toast(response.message);
       getAllMasters();
@@ -75,12 +77,12 @@ export const RoleMasterProvider = ({ children }) => {
   };
 
   // Handle Role Active/Inactive
-  const handleRoleActiveInactive = async (id) => {
+  const handleRoleActiveInactive = async (selectedEntity, id) => {
     try {
-      const response = await updateRoleStatus(id);
+      const response = await updateRoleStatus(selectedEntity, id);
 
       if (response.success) {
-        getAllMasters();
+        getAllMasters(selectedEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -105,20 +107,22 @@ export const RoleMasterProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllMasters();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllMasters(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
 
   // For update operations
   useEffect(() => {
-    if (updateId) {
-      getRoleDataById();
+    if (activeEntity && updateId) {
+      getRoleDataById(activeEntity);
     }
   }, [updateId]);
 
   // For delete operations
   useEffect(() => {
-    if (deleteId) {
-      deleteRoleMaster();
+    if (activeEntity && deleteId) {
+      deleteRoleMaster(activeEntity);
     }
   }, [deleteId]);
 
