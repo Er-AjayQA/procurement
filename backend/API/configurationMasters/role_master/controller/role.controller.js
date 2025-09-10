@@ -1,6 +1,5 @@
 // ========== REQUIRE STATEMENTS ========== //
 const DB = require("../../../../config/index");
-const { generateUniqueCode } = require("../../../../helper/generateUniqueCode");
 
 // ========== CREATE ROLE CONTROLLER ========== //
 module.exports.createRole = async (req, res) => {
@@ -10,21 +9,24 @@ module.exports.createRole = async (req, res) => {
     // Check if Role already exist
     const isAlreadyExist = await DB.tbl_role_master.findOne({
       where: {
-        name: data.name,
+        name: data?.name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
       return res
-        .status(400)
+        .status(409)
         .send({ success: false, message: "Role Already Exist!" });
     } else {
-      const newRole = await DB.tbl_role_master.create(data);
-      return res.status(200).send({
+      const newRole = await DB.tbl_role_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "Role Created Successfully!",
-        data: newRole,
       });
     }
   } catch (error) {
@@ -42,19 +44,21 @@ module.exports.updateRole = async (req, res) => {
     const isRoleExist = await DB.tbl_role_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isRoleExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Role Not Found!" });
     } else {
       const duplicateRole = await DB.tbl_role_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
-          name: data.name,
+          name: data?.name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -65,10 +69,9 @@ module.exports.updateRole = async (req, res) => {
           .send({ success: false, message: "Role Name Already Exist!" });
       } else {
         const updateRole = await isRoleExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Role Updated Successfully!",
-          data: updateRole,
         });
       }
     }
@@ -85,7 +88,7 @@ module.exports.getRoleDetails = async (req, res) => {
     const query = `
     SELECT R.*
     FROM ROLE_MASTER AS R
-    WHERE R.id=${id} AND R.isDeleted=false`;
+    WHERE R.id=${id} AND R.entity-id=${req?.selectedEntity} AND R.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -93,7 +96,7 @@ module.exports.getRoleDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Role Not Found!" });
     } else {
       return res.status(200).send({
@@ -119,14 +122,14 @@ module.exports.getAllRoleDetails = async (req, res) => {
     let countQuery = `
       SELECT COUNT(*) as total 
       FROM ROLE_MASTER AS R 
-      WHERE R.isDeleted = false`;
+      WHERE R.entity_id=${req?.selectedEntity} AND R.isDeleted = false`;
 
     let query = `
       SELECT R.*
       FROM ROLE_MASTER AS R
-      WHERE R.isDeleted = false`;
+      WHERE R.entity_id=${req?.selectedEntity} AND R.isDeleted = false`;
 
-    if (filter) {
+    if (filter?.name) {
       countQuery += ` AND R.name LIKE :filter`;
       query += ` AND R.name LIKE :filter`;
     }
@@ -154,7 +157,7 @@ module.exports.getAllRoleDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Roles Not Found!" });
     } else {
       return res.status(200).send({
@@ -183,22 +186,22 @@ module.exports.updateRoleStatus = async (req, res) => {
     const isRoleExist = await DB.tbl_role_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isRoleExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Role Not Found!" });
     } else {
       const updateStatus = await isRoleExist.update({
         status: !isRoleExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -215,19 +218,20 @@ module.exports.deleteRole = async (req, res) => {
     const isRoleExist = await DB.tbl_role_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isRoleExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Role Not Found!" });
     } else {
       await isRoleExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Role Deleted Successfully!",
       });

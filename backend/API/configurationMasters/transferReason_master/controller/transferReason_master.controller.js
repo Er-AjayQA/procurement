@@ -9,21 +9,24 @@ module.exports.createTransferReason = async (req, res) => {
     // Check if data already exist
     const isAlreadyExist = await DB.tbl_transfer_reason_master.findOne({
       where: {
-        reason_type: data.reason_type,
+        reason_type: data?.reason_type,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Transfer Reason Already Exist!" });
     } else {
-      const newData = await DB.tbl_transfer_reason_master.create(data);
-      return res.status(200).send({
+      const newData = await DB.tbl_transfer_reason_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "Transfer Reason Created Successfully!",
-        data: newData,
       });
     }
   } catch (error) {
@@ -41,19 +44,21 @@ module.exports.updateTransferReason = async (req, res) => {
     const isDataExist = await DB.tbl_transfer_reason_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isDataExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Transfer Reason Not Found!" });
     } else {
       const duplicateData = await DB.tbl_transfer_reason_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
-          reason_type: data.reason_type,
+          reason_type: data?.reason_type,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -64,10 +69,9 @@ module.exports.updateTransferReason = async (req, res) => {
           .send({ success: false, message: "Transfer Reason Already Exist!" });
       } else {
         const updateData = await isDataExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Transfer Reason Updated Successfully!",
-          data: updateData,
         });
       }
     }
@@ -84,7 +88,7 @@ module.exports.getTransferReasonDetails = async (req, res) => {
     const query = `
     SELECT TR.*
     FROM TRANSFER_REASON_MASTER AS TR
-    WHERE TR.id=${id} AND TR.isDeleted=false`;
+    WHERE TR.id=${id} AND TR.entity_id=${req?.selectedEntity} AND TR.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -92,7 +96,7 @@ module.exports.getTransferReasonDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Transfer Reason Not Found!" });
     } else {
       return res.status(200).send({
@@ -114,7 +118,7 @@ module.exports.getAllTransferReasonDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.reason_type !== undefined || filter.reason_type !== "") {
       whereClause.reason_type = {
@@ -136,7 +140,7 @@ module.exports.getAllTransferReasonDetails = async (req, res) => {
 
     if (!getAllData || getAllData.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Transfer Reason Not Found!" });
     } else {
       return res.status(200).send({
@@ -165,22 +169,22 @@ module.exports.updateTransferReasonStatus = async (req, res) => {
     const isDataExist = await DB.tbl_transfer_reason_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isDataExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Transfer Reason Not Found!" });
     } else {
       const updateStatus = await isDataExist.update({
         status: !isDataExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -197,19 +201,20 @@ module.exports.deleteTransferReason = async (req, res) => {
     const isDataExist = await DB.tbl_transfer_reason_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isDataExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Transfer Reason Not Found!" });
     } else {
       await isDataExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Transfer Reason Deleted Successfully!",
       });

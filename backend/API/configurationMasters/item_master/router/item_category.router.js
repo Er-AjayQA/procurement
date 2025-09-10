@@ -2,27 +2,37 @@
 const express = require("express");
 const router = express.Router();
 const ItemCategoryController = require("../controller/item_category.controller");
+const EntityAuth = require("../../../../helper/utilFunctions");
 
 // ========== ROUTES ========== //
-router.post("/create-item-category", ItemCategoryController.createItemCategory);
+router.post(
+  "/create-item-category/:selectedEntity",
+  EntityAuth.checkEntity,
+  ItemCategoryController.createItemCategory
+);
 router.put(
-  "/update-item-category/:id",
+  "/update-item-category/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   ItemCategoryController.updateItemCategory
 );
 router.post(
-  "/get-item-category-details/:id",
+  "/get-item-category-details/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   ItemCategoryController.getItemCategoryDetails
 );
 router.post(
-  "/get-all-item-categories",
+  "/get-all-item-categories/:selectedEntity",
+  EntityAuth.checkEntity,
   ItemCategoryController.getAllItemCategoryDetails
 );
 router.put(
-  "/update-item-category-status/:id",
+  "/update-item-category-status/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   ItemCategoryController.updateItemCategoryStatus
 );
 router.put(
-  "/delete-item-category/:id",
+  "/delete-item-category/:selectedEntity/:id",
+  EntityAuth.checkEntity,
   ItemCategoryController.deleteItemCategory
 );
 

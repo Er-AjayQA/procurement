@@ -10,14 +10,15 @@ module.exports.createServiceCategory = async (req, res) => {
     // Check if Service-Category already exist
     const isAlreadyExist = await DB.tbl_service_category_master.findOne({
       where: {
-        name: data.name,
+        name: data?.name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
       return res
-        .status(400)
+        .status(409)
         .send({ success: false, message: "Service-Category Already Exist!" });
     } else {
       let code = await generateUniqueCode(
@@ -28,13 +29,13 @@ module.exports.createServiceCategory = async (req, res) => {
       );
       data.service_category_code = code;
 
-      const newServiceCategory = await DB.tbl_service_category_master.create(
-        data
-      );
-      return res.status(200).send({
+      const newServiceCategory = await DB.tbl_service_category_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "Service-Category Created Successfully!",
-        data: newServiceCategory,
       });
     }
   } catch (error) {
@@ -53,6 +54,7 @@ module.exports.updateServiceCategory = async (req, res) => {
       {
         where: {
           id,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       }
@@ -60,13 +62,14 @@ module.exports.updateServiceCategory = async (req, res) => {
 
     if (!isServiceCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Service-Category Not Found!" });
     } else {
       const duplicateDataName = await DB.tbl_service_category_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           name: data.name ? data.name : isServiceCategoryExist.name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -78,10 +81,9 @@ module.exports.updateServiceCategory = async (req, res) => {
         });
       } else {
         const updateServiceCategory = await isServiceCategoryExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Service-Category Updated Successfully!",
-          data: updateServiceCategory,
         });
       }
     }
@@ -98,7 +100,7 @@ module.exports.getServiceCategoryDetails = async (req, res) => {
     const query = `
     SELECT SC.*
     FROM SERVICE_CATEGORY_MASTER AS SC
-    WHERE SC.id=${id} AND SC.isDeleted=false`;
+    WHERE SC.id=${id} AND SC.entity_id=${req?.selectedEntity} AND SC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -106,7 +108,7 @@ module.exports.getServiceCategoryDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Service-Category Not Found!" });
     } else {
       return res.status(200).send({
@@ -128,7 +130,7 @@ module.exports.getAllServiceCategoryDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
@@ -148,7 +150,7 @@ module.exports.getAllServiceCategoryDetails = async (req, res) => {
 
     if (!getAllData || getAllData.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Service-Categories Not Found!" });
     } else {
       return res.status(200).send({
@@ -178,6 +180,7 @@ module.exports.updateServiceCategoryStatus = async (req, res) => {
       {
         where: {
           id,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       }
@@ -185,16 +188,15 @@ module.exports.updateServiceCategoryStatus = async (req, res) => {
 
     if (!isServiceCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Service-Category Not Found!" });
     } else {
       const updateStatus = await isServiceCategoryExist.update({
         status: !isServiceCategoryExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -212,6 +214,7 @@ module.exports.deleteServiceCategory = async (req, res) => {
       {
         where: {
           id,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       }
@@ -219,13 +222,13 @@ module.exports.deleteServiceCategory = async (req, res) => {
 
     if (!isServiceCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Service-Category Not Found!" });
     } else {
       await isServiceCategoryExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Service-Category Deleted Successfully!",
       });

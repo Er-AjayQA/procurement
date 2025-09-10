@@ -11,13 +11,14 @@ module.exports.createTicketCategory = async (req, res) => {
     const isAlreadyExist = await DB.tbl_ticket_category_master.findOne({
       where: {
         ticket_category_name: data?.ticket_category_name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
       return res
-        .status(309)
+        .status(409)
         .send({ success: false, message: "Ticket-Category Already Exist!" });
     } else {
       let code = await generateUniqueCode(
@@ -28,7 +29,10 @@ module.exports.createTicketCategory = async (req, res) => {
       );
       data.ticket_category_code = code;
 
-      const newData = await DB.tbl_ticket_category_master.create(data);
+      const newData = await DB.tbl_ticket_category_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
       return res.status(201).send({
         success: true,
         message: "Ticket-Category Created Successfully!",
@@ -49,6 +53,7 @@ module.exports.updateTicketCategory = async (req, res) => {
     const isDataExist = await DB.tbl_ticket_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -64,6 +69,7 @@ module.exports.updateTicketCategory = async (req, res) => {
           ticket_category_name: data.ticket_category_name
             ? data.ticket_category_name
             : isDataExist.ticket_category_name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -94,7 +100,7 @@ module.exports.getTicketCategoryDetails = async (req, res) => {
     const query = `
     SELECT TC.*
     FROM TICKET_CATEGORY_MASTER AS TC
-    WHERE TC.id=${id} AND TC.isDeleted=false`;
+    WHERE TC.id=${id} AND TC.entity_id=${req?.selectedEntity} AND TC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -124,7 +130,7 @@ module.exports.getAllTicketCategoryDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.ticket_category_name = {
@@ -181,6 +187,7 @@ module.exports.updateTicketCategoryStatus = async (req, res) => {
     const isDataExist = await DB.tbl_ticket_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -193,7 +200,7 @@ module.exports.updateTicketCategoryStatus = async (req, res) => {
       const updateStatus = await isDataExist.update({
         status: !isDataExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
       });
@@ -212,6 +219,7 @@ module.exports.deleteTicketCategory = async (req, res) => {
     const isDataExist = await DB.tbl_ticket_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -224,7 +232,7 @@ module.exports.deleteTicketCategory = async (req, res) => {
       await isDataExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Ticket-Category Removed Successfully!",
       });

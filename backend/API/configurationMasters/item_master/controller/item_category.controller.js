@@ -10,14 +10,15 @@ module.exports.createItemCategory = async (req, res) => {
     // Check if Item-Category already exist
     const isAlreadyExist = await DB.tbl_item_category_master.findOne({
       where: {
-        name: data.name,
+        name: data?.name,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
       return res
-        .status(400)
+        .status(409)
         .send({ success: false, message: "Item-Category Already Exist!" });
     } else {
       let code = await generateUniqueCode(
@@ -28,11 +29,13 @@ module.exports.createItemCategory = async (req, res) => {
       );
       data.item_category_code = code;
 
-      const newItemCategory = await DB.tbl_item_category_master.create(data);
-      return res.status(200).send({
+      const newItemCategory = await DB.tbl_item_category_master.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
+      return res.status(201).send({
         success: true,
         message: "Item-Category Created Successfully!",
-        data: newItemCategory,
       });
     }
   } catch (error) {
@@ -50,19 +53,21 @@ module.exports.updateItemCategory = async (req, res) => {
     const isItemCategoryExist = await DB.tbl_item_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isItemCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Item-Category Not Found!" });
     } else {
       const duplicateDataName = await DB.tbl_item_category_master.findOne({
         where: {
           id: { [DB.Sequelize.Op.ne]: id },
           name: data.name ? data.name : isItemCategoryExist.name,
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -74,10 +79,9 @@ module.exports.updateItemCategory = async (req, res) => {
         });
       } else {
         const updateItemCategory = await isItemCategoryExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Item-Category Updated Successfully!",
-          data: updateItemCategory,
         });
       }
     }
@@ -94,7 +98,7 @@ module.exports.getItemCategoryDetails = async (req, res) => {
     const query = `
     SELECT IC.*
     FROM ITEM_CATEGORY_MASTER AS IC
-    WHERE IC.id=${id} AND IC.isDeleted=false`;
+    WHERE IC.id=${id} AND IC.entity_id=${req?.selectedEntity} AND IC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -102,7 +106,7 @@ module.exports.getItemCategoryDetails = async (req, res) => {
 
     if (getAllData.length < 1) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Item-Category Not Found!" });
     } else {
       return res.status(200).send({
@@ -124,7 +128,7 @@ module.exports.getAllItemCategoryDetails = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false };
+    const whereClause = { entity_id: req?.selectedEntity, isDeleted: false };
 
     if (filter.name !== undefined || filter.name !== "") {
       whereClause.name = { [DB.Sequelize.Op.like]: [`%${filter.name}%`] };
@@ -144,7 +148,7 @@ module.exports.getAllItemCategoryDetails = async (req, res) => {
 
     if (!getAllData || getAllData.length === 0) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Item-Categories Not Found!" });
     } else {
       return res.status(200).send({
@@ -173,22 +177,22 @@ module.exports.updateItemCategoryStatus = async (req, res) => {
     const isItemCategoryExist = await DB.tbl_item_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isItemCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Item-Category Not Found!" });
     } else {
       const updateStatus = await isItemCategoryExist.update({
         status: !isItemCategoryExist.status,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Status Changed Successfully!",
-        data: updateStatus,
       });
     }
   } catch (error) {
@@ -205,19 +209,20 @@ module.exports.deleteItemCategory = async (req, res) => {
     const isItemCategoryExist = await DB.tbl_item_category_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isItemCategoryExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Item-Category Not Found!" });
     } else {
       await isItemCategoryExist.update({
         isDeleted: true,
       });
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Item-Category Deleted Successfully!",
       });
