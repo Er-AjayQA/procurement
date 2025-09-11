@@ -16,8 +16,7 @@ router.put(
   EventCategoryController.updateEventCategory
 );
 router.post(
-  "/get-event-category-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-event-category-details/:id",
   EventCategoryController.getEventCategoryDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   EventCategoryController.getAllEventCategoryDetails
 );
 router.put(
-  "/update-event-category-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-event-category-status/:id",
   EventCategoryController.updateEventCategoryStatus
 );
 router.put(
-  "/delete-event-category/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/delete-event-category/:id",
   EventCategoryController.deleteEventCategory
 );
 

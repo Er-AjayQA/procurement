@@ -15,26 +15,14 @@ router.put(
   EntityAuth.checkEntity,
   ItemController.updateItem
 );
-router.post(
-  "/get-item-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  ItemController.getItemDetails
-);
+router.post("/get-item-details/:id", ItemController.getItemDetails);
 router.post(
   "/get-all-item-details/:selectedEntity",
   EntityAuth.checkEntity,
   ItemController.getAllItemDetails
 );
-router.put(
-  "/update-item-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  ItemController.updateItemStatus
-);
-router.put(
-  "/delete-item/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  ItemController.deleteItem
-);
+router.put("/update-item-status/:id", ItemController.updateItemStatus);
+router.put("/delete-item/:id", ItemController.deleteItem);
 
 // ========== EXPORT ========== //
 module.exports = router;

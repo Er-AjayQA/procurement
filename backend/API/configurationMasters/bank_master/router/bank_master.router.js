@@ -15,26 +15,14 @@ router.put(
   EntityAuth.checkEntity,
   BankController.updateBank
 );
-router.post(
-  "/get-bank-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  BankController.getBankDetails
-);
+router.post("/get-bank-details/:id", BankController.getBankDetails);
 router.post(
   "/get-all-bank-details/:selectedEntity",
   EntityAuth.checkEntity,
   BankController.getAllBankDetails
 );
-router.put(
-  "/update-bank-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  BankController.updateBankStatus
-);
-router.put(
-  "/delete-bank/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  BankController.deleteBank
-);
+router.put("/update-bank-status/:id", BankController.updateBankStatus);
+router.put("/delete-bank/:id", BankController.deleteBank);
 
 // ========== EXPORT ========== //
 module.exports = router;

@@ -17,26 +17,14 @@ router.put(
   EntityAuth.checkEntity,
   EventController.updateEvent
 );
-router.get(
-  "/get-event-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  EventController.getEventDetails
-);
+router.get("/get-event-details/:id", EventController.getEventDetails);
 router.post(
   "/get-all-events-details/:selectedEntity",
   EntityAuth.checkEntity,
   EventController.getAllEventsDetails
 );
-router.put(
-  "/update-event-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  EventController.updateEventStatus
-);
-router.put(
-  "/delete-event/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  EventController.deleteEvent
-);
+router.put("/update-event-status/:id", EventController.updateEventStatus);
+router.put("/delete-event/:id", EventController.deleteEvent);
 
 // ********************* EVENT TICKET MANAGEMENT ********************* //
 router.post(
@@ -50,8 +38,7 @@ router.put(
   EventController.updateEventTickets
 );
 router.post(
-  "/get-event-ticket-detail/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-event-ticket-detail/:id",
   EventController.getEventTicketsDetails
 );
 router.post(
@@ -59,11 +46,7 @@ router.post(
   EntityAuth.checkEntity,
   EventController.getAllEventTicketsDetails
 );
-router.put(
-  "/delete-event-ticket/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  EventController.deleteEventTickets
-);
+router.put("/delete-event-ticket/:id", EventController.deleteEventTickets);
 
 // ********************* EVENT REGISTRATION MANAGEMENT ********************* //
 

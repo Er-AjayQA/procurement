@@ -105,7 +105,7 @@ module.exports.getServiceDetails = async (req, res) => {
     SELECT S.*, SC.name AS service_category_name, SC.service_category_description, SC.service_category_code
     FROM SERVICE_MASTER AS S
     LEFT JOIN SERVICE_CATEGORY_MASTER AS SC ON SC.id=S.service_category_id
-    WHERE S.id=${id} AND S.entity_id=${req?.selectedEntity} AND S.isDeleted=false`;
+    WHERE S.id=${id} AND S.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -198,7 +198,6 @@ module.exports.updateServiceStatus = async (req, res) => {
     const isServiceExist = await DB.tbl_service_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -231,7 +230,6 @@ module.exports.deleteService = async (req, res) => {
     const isServiceExist = await DB.tbl_service_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

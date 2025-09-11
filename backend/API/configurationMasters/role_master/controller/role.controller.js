@@ -88,7 +88,7 @@ module.exports.getRoleDetails = async (req, res) => {
     const query = `
     SELECT R.*
     FROM ROLE_MASTER AS R
-    WHERE R.id=${id} AND R.entity_id=${req?.selectedEntity} AND R.isDeleted=false`;
+    WHERE R.id=${id} AND R.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -186,7 +186,6 @@ module.exports.updateRoleStatus = async (req, res) => {
     const isRoleExist = await DB.tbl_role_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -218,7 +217,6 @@ module.exports.deleteRole = async (req, res) => {
     const isRoleExist = await DB.tbl_role_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

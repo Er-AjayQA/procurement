@@ -114,7 +114,7 @@ module.exports.getBranchDetails = async (req, res) => {
     LEFT JOIN COUNTRY_MASTER AS C ON C.id=B.country_id
     LEFT JOIN STATE_MASTER AS S ON S.id=B.state_id
     LEFT JOIN CITY_MASTER AS CN ON CN.id=B.city_id
-    WHERE B.id=${id} AND B.entity_id=${selectedEntity} AND B.isDeleted=false`;
+    WHERE B.id=${id} AND B.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -222,7 +222,6 @@ module.exports.updateBranchStatus = async (req, res) => {
     const isBranchExist = await DB.tbl_branch_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -254,7 +253,6 @@ module.exports.deleteBranch = async (req, res) => {
     const isBranchExist = await DB.tbl_branch_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

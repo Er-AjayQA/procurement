@@ -12,8 +12,10 @@ import {
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useBranchMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const BranchMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useBranchMasterContext();
   const [codeOptions, setCodeOptions] = useState(null);
@@ -302,15 +304,15 @@ export const BranchMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateBranch(updateId, payload);
+        response = await updateBranch(activeEntity, updateId, payload);
       } else {
-        response = await createBranch(payload);
+        response = await createBranch(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else if (response.success === false) {
         toast.error(response?.message);
       }

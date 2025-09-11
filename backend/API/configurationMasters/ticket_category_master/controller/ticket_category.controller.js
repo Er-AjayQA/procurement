@@ -100,7 +100,7 @@ module.exports.getTicketCategoryDetails = async (req, res) => {
     const query = `
     SELECT TC.*
     FROM TICKET_CATEGORY_MASTER AS TC
-    WHERE TC.id=${id} AND TC.entity_id=${req?.selectedEntity} AND TC.isDeleted=false`;
+    WHERE TC.id=${id} AND TC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -187,7 +187,6 @@ module.exports.updateTicketCategoryStatus = async (req, res) => {
     const isDataExist = await DB.tbl_ticket_category_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -219,7 +218,6 @@ module.exports.deleteTicketCategory = async (req, res) => {
     const isDataExist = await DB.tbl_ticket_category_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

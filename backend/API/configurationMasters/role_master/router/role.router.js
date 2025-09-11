@@ -15,26 +15,14 @@ router.put(
   EntityAuth.checkEntity,
   RoleController.updateRole
 );
-router.post(
-  "/get-role-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  RoleController.getRoleDetails
-);
+router.post("/get-role-details/:id", RoleController.getRoleDetails);
 router.post(
   "/get-all-role-details/:selectedEntity",
   EntityAuth.checkEntity,
   RoleController.getAllRoleDetails
 );
-router.put(
-  "/update-role-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  RoleController.updateRoleStatus
-);
-router.put(
-  "/delete-role/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  RoleController.deleteRole
-);
+router.put("/update-role-status/:id", RoleController.updateRoleStatus);
+router.put("/delete-role/:id", RoleController.deleteRole);
 
 // ========== EXPORT ========== //
 module.exports = router;

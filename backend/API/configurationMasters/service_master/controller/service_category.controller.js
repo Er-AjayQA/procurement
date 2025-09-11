@@ -100,7 +100,7 @@ module.exports.getServiceCategoryDetails = async (req, res) => {
     const query = `
     SELECT SC.*
     FROM SERVICE_CATEGORY_MASTER AS SC
-    WHERE SC.id=${id} AND SC.entity_id=${req?.selectedEntity} AND SC.isDeleted=false`;
+    WHERE SC.id=${id} AND SC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -180,7 +180,6 @@ module.exports.updateServiceCategoryStatus = async (req, res) => {
       {
         where: {
           id,
-          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       }
@@ -214,7 +213,6 @@ module.exports.deleteServiceCategory = async (req, res) => {
       {
         where: {
           id,
-          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       }

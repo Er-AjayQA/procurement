@@ -10,6 +10,7 @@ module.exports.createIdCard = async (req, res) => {
     const isUserExist = await DB.tbl_user_master.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -20,7 +21,7 @@ module.exports.createIdCard = async (req, res) => {
         .send({ success: false, message: "User Not Exist!" });
     } else {
       const checkIfIdGenerated = await DB.tbl_generate_id_card.findOne({
-        where: { user_id: id },
+        where: { user_id: id, entity_id: req?.selectedEntity },
       });
 
       if (checkIfIdGenerated) {
@@ -54,6 +55,7 @@ module.exports.createIdCard = async (req, res) => {
         join_date: getAllData[0]?.start_working_date,
         blood_group: getAllData[0]?.blood_group,
         address: getAllData[0]?.permanent_address,
+        entity_id: req?.selectedEntity,
       });
 
       await DB.tbl_user_master.update(

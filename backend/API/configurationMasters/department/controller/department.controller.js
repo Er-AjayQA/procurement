@@ -98,7 +98,7 @@ module.exports.getDepartmentDetails = async (req, res) => {
     SELECT D.*, U.name AS department_head_name, U.emp_code
     FROM DEPARTMENT_MASTER AS D
     LEFT JOIN USER_MASTER AS U ON U.id= D.department_head_id
-    WHERE D.entity_id=${req?.selectedEntity} AND D.id=${id} AND D.isDeleted=false`;
+    WHERE D.id=${id} AND D.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -195,7 +195,6 @@ module.exports.updateDepartmentStatus = async (req, res) => {
     const isDepartmentExist = await DB.tbl_department_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -227,7 +226,6 @@ module.exports.deleteDepartment = async (req, res) => {
     const isDepartmentExist = await DB.tbl_department_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

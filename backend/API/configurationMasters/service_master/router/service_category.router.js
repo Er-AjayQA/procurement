@@ -16,8 +16,7 @@ router.put(
   ServiceCategoryController.updateServiceCategory
 );
 router.post(
-  "/get-service-category-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-service-category-details/:id",
   ServiceCategoryController.getServiceCategoryDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   ServiceCategoryController.getAllServiceCategoryDetails
 );
 router.put(
-  "/update-service-category-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-service-category-status/:id",
   ServiceCategoryController.updateServiceCategoryStatus
 );
 router.put(
-  "/delete-service-category/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/delete-service-category/:id",
   ServiceCategoryController.deleteServiceCategory
 );
 

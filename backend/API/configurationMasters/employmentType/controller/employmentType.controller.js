@@ -89,7 +89,7 @@ module.exports.getEmploymentTypeDetails = async (req, res) => {
     const query = `
     SELECT E.*
     FROM EMPLOYMENT_TYPE_MASTER AS E
-    WHERE E.id=${id} AND E.entity_id=${req?.selectedEntity} AND E.isDeleted=false`;
+    WHERE E.id=${id} AND E.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -168,7 +168,6 @@ module.exports.updateEmploymentTypeStatus = async (req, res) => {
     const isEmploymentTypeExist = await DB.tbl_employmentType_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -200,7 +199,6 @@ module.exports.deleteEmploymentType = async (req, res) => {
     const isEmploymentTypeExist = await DB.tbl_employmentType_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

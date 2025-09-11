@@ -59,7 +59,7 @@ export const AllowanceMasterListing = () => {
                         <span className="text-green-400 font-bold text-[.8rem] flex gap-2 items-center">
                           <span
                             className="block w-[15px] h-[15px] bg-green-400 rounded-[50%] shadow-lg shadow-green-400 cursor-pointer"
-                            onClick={() => handleActiveInactive(list.id)}
+                            onClick={() => handleActiveInactive(list?.id)}
                           ></span>
                           <span className="text-green-400 font-bold text-[.8rem]">
                             Active
@@ -72,7 +72,7 @@ export const AllowanceMasterListing = () => {
                           </span>
                           <span
                             className="block w-[15px] h-[15px] bg-red-400 rounded-[50%] shadow-lg shadow-red-400 cursor-pointer"
-                            onClick={() => handleActiveInactive(list.id)}
+                            onClick={() => handleActiveInactive(list?.id)}
                           ></span>
                         </span>
                       )}
@@ -82,7 +82,7 @@ export const AllowanceMasterListing = () => {
                         className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                         onClick={() => {
                           handleViewVisibility("open");
-                          setViewId(list.id);
+                          setViewId(list?.id);
                         }}
                       >
                         <FaEye className="hover:fill-white" />
@@ -91,14 +91,14 @@ export const AllowanceMasterListing = () => {
                         className="p-1 hover:bg-green-600 rounded-lg cursor-pointer"
                         onClick={() => {
                           handleFormVisibility("open", "update");
-                          setUpdateId(list.id);
+                          setUpdateId(list?.id);
                         }}
                       >
                         <MdEdit className="hover:fill-white" />
                       </div>
                       <div
                         className="p-1 hover:bg-red-600 rounded-lg cursor-pointer"
-                        onClick={() => setDeleteId(list.id)}
+                        onClick={() => setDeleteId(list?.id)}
                       >
                         <MdDelete className="hover:fill-white" />
                       </div>

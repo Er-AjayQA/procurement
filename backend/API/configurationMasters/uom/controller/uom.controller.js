@@ -90,7 +90,7 @@ module.exports.getUomDetails = async (req, res) => {
     const query = `
     SELECT U.*
     FROM UOM_MASTER AS U
-    WHERE U.id=${id} AND U.entity_id=${req?.selectedEntity} AND U.isDeleted=false`;
+    WHERE U.id=${id} AND U.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -167,7 +167,6 @@ module.exports.updateUomStatus = async (req, res) => {
     const isUomExist = await DB.tbl_uom_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -199,7 +198,6 @@ module.exports.deleteUom = async (req, res) => {
     const isUomExist = await DB.tbl_uom_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { BankMasterContext } from "./bankMasterContext";
 import {
   deleteBank,
@@ -9,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 
 export const BankMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
@@ -22,10 +24,10 @@ export const BankMasterProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllBank({ limit, page, filter });
+      const data = await getAllBank(selectedEntity, { limit, page, filter });
 
       if (data.success) {
         setListing(data.data);
@@ -56,7 +58,7 @@ export const BankMasterProvider = ({ children }) => {
       const response = await deleteBank(deleteId);
       if (response.success) {
         toast(response.message);
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message);
       }
@@ -89,7 +91,7 @@ export const BankMasterProvider = ({ children }) => {
       const response = await updateBankStatus(id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -114,8 +116,10 @@ export const BankMasterProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
 
   // For update operations
   useEffect(() => {

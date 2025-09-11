@@ -16,8 +16,7 @@ router.put(
   EmploymentTypeController.updateEmploymentType
 );
 router.post(
-  "/get-employments-type-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-employments-type-details/:id",
   EmploymentTypeController.getEmploymentTypeDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   EmploymentTypeController.getAllEmploymentTypesDetails
 );
 router.put(
-  "/update-employment-type-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-employment-type-status/:id",
   EmploymentTypeController.updateEmploymentTypeStatus
 );
 router.put(
-  "/delete-employment-type/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/delete-employment-type/:id",
   EmploymentTypeController.deleteEmploymentType
 );
 

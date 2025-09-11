@@ -16,8 +16,7 @@ router.put(
   TransferTypeController.updateTransferType
 );
 router.post(
-  "/get-transferType-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-transferType-details/:id",
   TransferTypeController.getTransferTypeDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   TransferTypeController.getAllTransferTypeDetails
 );
 router.put(
-  "/update-transferType-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-transferType-status/:id",
   TransferTypeController.updateTransferTypeStatus
 );
 router.put(
-  "/delete-transferType/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/delete-transferType/:id",
   TransferTypeController.deleteTransferType
 );
 

@@ -9,11 +9,23 @@ import {
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useAreaMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const AreaMasterForm = ({ onClose }) => {
-  const { formVisibility, formType, getAllData, updateId, data } =
-    useAreaMasterContext();
-  const [departmentOptions, setDepartmentOptions] = useState(null);
+  const { activeEntity } = useSelector((state) => state.auth);
+  const {
+    departmentOptions,
+    getAllDepartmentList,
+    formVisibility,
+    formType,
+    getAllData,
+    updateId,
+    data,
+  } = useAreaMasterContext();
+
+  const [isDepartmentOptionsLoading, setIsDepartmentOptionsLoading] =
+    useState(false);
+
   const {
     register,
     handleSubmit,
@@ -25,63 +37,52 @@ export const AreaMasterForm = ({ onClose }) => {
     defaultValues: {
       // Set default empty values
       name: "",
-      department_head_id: "",
-      dept_head_name: "",
+      dept_id: "",
     },
   });
 
-  // Get All Department List
-  const getAllDepartmentList = async () => {
-    try {
-      const response = await getAllDepartments({ limit: 1000, page: "" });
-
-      if (response.success) {
-        setDepartmentOptions(
-          response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }))
-        );
-      } else {
-        setDepartmentOptions(null);
-      }
-    } catch (error) {
-      setDepartmentOptions(null);
-    }
-  };
-
   // Set form values when in update mode
   useEffect(() => {
-    if (formType === "Update" && data) {
-      reset({
-        name: data.name || data[0]?.name || "",
-      });
+    const setFormValues = async () => {
+      if (formType === "Update" && data) {
+        reset({
+          name: data.name || data[0].name || "",
+        });
 
-      const setDepartmentDropdown = async () => {
-        try {
-          if (!departmentOptions) {
-            await getAllDepartmentList();
-          }
-
-          if (data[0].dept_id) {
-            const departmentOption = departmentOptions.find(
-              (code) => code.value === data[0].dept_id
-            );
-
-            if (departmentOption) {
-              setValue("dept_id", departmentOption);
-            }
-          }
-        } catch (error) {
-          console.error("Error setting dropdown options:", error);
+        // If department options aren't loaded yet, fetch them
+        if (!departmentOptions) {
+          setIsDepartmentOptionsLoading(true);
+          await getAllDepartmentList(activeEntity);
+          setIsDepartmentOptionsLoading(false);
         }
-      };
 
-      setDepartmentDropdown();
-    } else {
-      reset({ name: "", dept_id: "" });
-    }
-  }, [formType, data, reset, setValue, departmentOptions]);
+        // Set department dropdown value
+        const deptId = data.dept_id || data[0]?.dept_id;
+
+        if (deptId && departmentOptions) {
+          const departmentOption = departmentOptions.find(
+            (option) => option.value === String(deptId)
+          );
+
+          if (departmentOption) {
+            setValue("dept_id", departmentOption);
+          }
+        }
+      } else {
+        reset({ name: "", dept_id: null });
+      }
+    };
+
+    setFormValues();
+  }, [
+    formType,
+    data,
+    reset,
+    setValue,
+    departmentOptions,
+    activeEntity,
+    getAllDepartmentList,
+  ]);
 
   // Handle Form Close
   const handleFormClose = () => {
@@ -102,15 +103,15 @@ export const AreaMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateArea(updateId, payload);
+        response = await updateArea(activeEntity, updateId, payload);
       } else {
-        response = await createArea(payload);
+        response = await createArea(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }
@@ -122,8 +123,10 @@ export const AreaMasterForm = ({ onClose }) => {
 
   // Get All Departments on Page Load
   useEffect(() => {
-    getAllDepartmentList();
-  }, []);
+    if (activeEntity) {
+      getAllDepartmentList(activeEntity);
+    }
+  }, [activeEntity]);
 
   const selectStyles = {
     control: (base) => ({

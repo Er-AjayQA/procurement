@@ -15,26 +15,14 @@ router.put(
   EntityAuth.checkEntity,
   UomController.updateUom
 );
-router.post(
-  "/get-uom-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  UomController.getUomDetails
-);
+router.post("/get-uom-details/:id", UomController.getUomDetails);
 router.post(
   "/get-all-uom-details/:selectedEntity",
   EntityAuth.checkEntity,
   UomController.getAllUomDetails
 );
-router.put(
-  "/update-uom-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  UomController.updateUomStatus
-);
-router.put(
-  "/delete-uom/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  UomController.deleteUom
-);
+router.put("/update-uom-status/:id", UomController.updateUomStatus);
+router.put("/delete-uom/:id", UomController.deleteUom);
 
 // ========== EXPORT ========== //
 module.exports = router;

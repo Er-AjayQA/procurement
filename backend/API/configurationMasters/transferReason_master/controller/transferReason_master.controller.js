@@ -88,7 +88,7 @@ module.exports.getTransferReasonDetails = async (req, res) => {
     const query = `
     SELECT TR.*
     FROM TRANSFER_REASON_MASTER AS TR
-    WHERE TR.id=${id} AND TR.entity_id=${req?.selectedEntity} AND TR.isDeleted=false`;
+    WHERE TR.id=${id} AND TR.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -169,7 +169,6 @@ module.exports.updateTransferReasonStatus = async (req, res) => {
     const isDataExist = await DB.tbl_transfer_reason_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -201,7 +200,6 @@ module.exports.deleteTransferReason = async (req, res) => {
     const isDataExist = await DB.tbl_transfer_reason_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
