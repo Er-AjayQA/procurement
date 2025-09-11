@@ -49,16 +49,16 @@ export const DesignationMasterProvider = ({ children }) => {
   };
 
   // Get Data By Id
-  const getDataById = async (selectedEntity) => {
-    const response = await getDesignationById(selectedEntity, updateId);
+  const getDataById = async () => {
+    const response = await getDesignationById(updateId);
     if (response.success) {
       setData(response.data);
     }
   };
 
   // Delete Data By Id
-  const deleteData = async (selectedEntity) => {
-    const response = await deleteDesignation(selectedEntity, deleteId);
+  const deleteData = async () => {
+    const response = await deleteDesignation(deleteId);
     if (response.success) {
       toast(response.message);
       getAllData(activeEntity);
@@ -87,9 +87,9 @@ export const DesignationMasterProvider = ({ children }) => {
   };
 
   // Handle Active/Inactive
-  const handleActiveInactive = async (selectedEntity, id) => {
+  const handleActiveInactive = async (id) => {
     try {
-      const response = await updateDesignationStatus(selectedEntity, id);
+      const response = await updateDesignationStatus(id);
 
       if (response.success) {
         getAllData(activeEntity);
@@ -124,15 +124,15 @@ export const DesignationMasterProvider = ({ children }) => {
 
   // For update operations
   useEffect(() => {
-    if (activeEntity && updateId) {
-      getDataById(activeEntity);
+    if (updateId) {
+      getDataById();
     }
   }, [updateId]);
 
   // For delete operations
   useEffect(() => {
-    if (activeEntity && deleteId) {
-      deleteData(activeEntity);
+    if (deleteId) {
+      deleteData();
     }
   }, [deleteId]);
 

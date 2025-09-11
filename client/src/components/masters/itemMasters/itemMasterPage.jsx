@@ -4,14 +4,13 @@ import { ItemMasterForm } from "./itemMasterForm";
 import { useItemMasterContext } from "../../../contextApis/useMastersContextFile";
 import Select from "react-select";
 import { useEffect, useState } from "react";
-import {
-  getAllDepartments,
-  getAllItemCategory,
-} from "../../../services/master_services/service";
+import { getAllItemCategory } from "../../../services/master_services/service";
 import { ItemMasterView } from "./itemMasterView";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 export const ItemMasterPage = () => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const {
     filter,
     handleFormVisibility,
@@ -25,11 +24,11 @@ export const ItemMasterPage = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   // Get All Item Category List
-  const getAllCategoryList = async () => {
+  const getAllCategoryList = async (selectedEntity) => {
     try {
-      const response = await getAllItemCategory({
+      const response = await getAllItemCategory(selectedEntity, {
         limit: 5000,
-        page: 1,
+        page: "",
         filter: { name: "" },
       });
 
@@ -45,9 +44,12 @@ export const ItemMasterPage = () => {
       toast.error("Failed to load item categories");
     }
   };
+
   useEffect(() => {
-    getAllCategoryList();
-  }, []);
+    if (activeEntity) {
+      getAllCategoryList(activeEntity);
+    }
+  }, [activeEntity]);
 
   return (
     <>

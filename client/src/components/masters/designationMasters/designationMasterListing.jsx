@@ -3,10 +3,8 @@ import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { SkeltonUi } from "../../UI/Skelton";
 import { useDesignationMasterContext } from "../../../contextApis/useMastersContextFile";
-import { useSelector } from "react-redux";
 
 export const DesignationMasterListing = () => {
-  const { activeEntity } = useSelector((state) => state.auth);
   const {
     isLoading,
     listing,
@@ -54,9 +52,7 @@ export const DesignationMasterListing = () => {
                         <span className="text-green-400 font-bold text-[.8rem] flex gap-2 items-center">
                           <span
                             className="block w-[15px] h-[15px] bg-green-400 rounded-[50%] shadow-lg shadow-green-400 cursor-pointer"
-                            onClick={() =>
-                              handleActiveInactive(activeEntity, list?.id)
-                            }
+                            onClick={() => handleActiveInactive(list?.id)}
                           ></span>
                           <span className="text-green-400 font-bold text-[.8rem]">
                             Active
@@ -69,9 +65,7 @@ export const DesignationMasterListing = () => {
                           </span>
                           <span
                             className="block w-[15px] h-[15px] bg-red-400 rounded-[50%] shadow-lg shadow-red-400 cursor-pointer"
-                            onClick={() =>
-                              handleActiveInactive(activeEntity, list?.id)
-                            }
+                            onClick={() => handleActiveInactive(list?.id)}
                           ></span>
                         </span>
                       )}
@@ -88,7 +82,7 @@ export const DesignationMasterListing = () => {
                       </div>
                       <div
                         className="p-1 hover:bg-red-600 rounded-lg cursor-pointer"
-                        onClick={() => setDeleteId(activeEntity, list?.id)}
+                        onClick={() => setDeleteId(list?.id)}
                       >
                         <MdDelete className="hover:fill-white" />
                       </div>

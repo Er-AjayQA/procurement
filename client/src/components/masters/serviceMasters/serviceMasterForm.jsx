@@ -3,18 +3,26 @@ import Select from "react-select";
 import { MdOutlineClose } from "react-icons/md";
 import {
   createService,
-  getAllServiceCategory,
   updateService,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useServiceMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const ServiceMasterForm = ({ onClose }) => {
-  const { formVisibility, formType, getAllData, updateId, data } =
-    useServiceMasterContext();
+  const { activeEntity } = useSelector((state) => state.auth);
+  const {
+    serviceCategoryOptions,
+    setServiceCategoryOptions,
+    formVisibility,
+    formType,
+    getAllData,
+    updateId,
+    data,
+    getAllCategoryList,
+  } = useServiceMasterContext();
 
-  const [serviceCategoryOptions, setServiceCategoryOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -38,35 +46,14 @@ export const ServiceMasterForm = ({ onClose }) => {
     },
   });
 
-  // Get All Service Category List
-  const getAllCategoryList = async () => {
-    try {
-      const response = await getAllServiceCategory({
-        limit: 5000,
-        page: 1,
-        filter: { name: "" },
-      });
-
-      if (response.success) {
-        setServiceCategoryOptions(
-          response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }))
-        );
-      }
-    } catch (error) {
-      toast.error("Failed to load Service categories");
-    }
-  };
-
   // Set form values when in update mode
   useEffect(() => {
     const initializeForm = async () => {
       setIsLoading(true);
       try {
         // Load options if not already loaded
-        if (serviceCategoryOptions.length === 0) await getAllCategoryList();
+        if (serviceCategoryOptions.length === 0)
+          await getAllCategoryList(activeEntity);
 
         if (formType === "Update" && data) {
           const formData = Array.isArray(data) ? data[0] : data;
@@ -120,15 +107,15 @@ export const ServiceMasterForm = ({ onClose }) => {
 
       let response;
       if (formType === "Update") {
-        response = await updateService(updateId, payload);
+        response = await updateService(activeEntity, updateId, payload);
       } else {
-        response = await createService(payload);
+        response = await createService(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }

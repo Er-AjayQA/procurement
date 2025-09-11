@@ -7,8 +7,10 @@ import {
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useServiceCategoryMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const ServiceCategoryMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useServiceCategoryMasterContext();
 
@@ -21,7 +23,6 @@ export const ServiceCategoryMasterForm = ({ onClose }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      // Set default empty values
       name: "",
       service_category_description: "",
     },
@@ -40,7 +41,7 @@ export const ServiceCategoryMasterForm = ({ onClose }) => {
     } else {
       reset({ name: "", service_category_description: "" });
     }
-  }, [formType, data, reset, setValue]);
+  }, [formType, data, reset]);
 
   // Handle Form Close
   const handleFormClose = () => {
@@ -62,15 +63,15 @@ export const ServiceCategoryMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateServiceCategory(updateId, payload);
+        response = await updateServiceCategory(activeEntity, updateId, payload);
       } else {
-        response = await createServiceCategory(payload);
+        response = await createServiceCategory(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }

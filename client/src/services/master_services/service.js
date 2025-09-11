@@ -112,28 +112,22 @@ export const updateDesignation = async (selectedEntity, id, formData) => {
 };
 
 // Update Status
-export const updateDesignationStatus = async (selectedEntity, id) => {
-  const response = await axiosInstance.put(
-    `update-designation-status/${selectedEntity}/${id}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+export const updateDesignationStatus = async (id) => {
+  const response = await axiosInstance.put(`update-designation-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
 
 // Get Master Designations by ID
-export const getDesignationById = async (selectedEntity, id) => {
-  const response = await axiosInstance.post(
-    `get-designation-details/${selectedEntity}/${id}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+export const getDesignationById = async (id) => {
+  const response = await axiosInstance.post(`get-designation-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
 
@@ -152,15 +146,12 @@ export const getAllDesignations = async (selectedEntity, formData) => {
 };
 
 // Delete Designation Master
-export const deleteDesignation = async (selectedEntity, id) => {
-  const response = await axiosInstance.put(
-    `delete-designation/${selectedEntity}/${id}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+export const deleteDesignation = async (id) => {
+  const response = await axiosInstance.put(`delete-designation/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
 
@@ -618,9 +609,9 @@ export const deleteBank = async (id) => {
 
 // **************************** EMPLOYEMENT TYPE MASTER **************************** //
 // Create EmployementType Master
-export const createEmployementType = async (formData) => {
+export const createEmployementType = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "create-employment-type",
+    `create-employment-type/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -632,10 +623,10 @@ export const createEmployementType = async (formData) => {
 };
 
 // Update EmployementType
-export const updateEmployementType = async (id, formData) => {
+export const updateEmployementType = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-employment-type/${id}`,
+      `update-employment-type/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -674,9 +665,9 @@ export const getEmployementTypeById = async (id) => {
 };
 
 // Get All Master EmployementTypes List
-export const getAllEmployementType = async (formData) => {
+export const getAllEmployementType = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-employment-type-details",
+    `get-all-employment-type-details/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -919,19 +910,26 @@ export const deleteShift = async (id) => {
 
 // **************************** UOM MASTER **************************** //
 // Create Uom Master
-export const createUom = async (formData) => {
-  const response = await axiosInstance.post("create-uom", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createUom = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-uom/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Uom
-export const updateUom = async (id, formData) => {
+export const updateUom = async (selectedEntity, id, formData) => {
   try {
-    const response = await axiosInstance.put(`update-uom/${id}`, formData);
+    const response = await axiosInstance.put(
+      `update-uom/${selectedEntity}/${id}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -962,12 +960,16 @@ export const getUomById = async (id) => {
 };
 
 // Get All Master Uom List
-export const getAllUom = async (formData) => {
-  const response = await axiosInstance.post("get-all-uom-details", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const getAllUom = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `get-all-uom-details/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -983,20 +985,24 @@ export const deleteUom = async (id) => {
 
 // **************************** ITEM CATEGORY MASTER **************************** //
 // Create Item Category Master
-export const createItemCategory = async (formData) => {
-  const response = await axiosInstance.post("create-item-category", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createItemCategory = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-item-category/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Item Category
-export const updateItemCategory = async (id, formData) => {
+export const updateItemCategory = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-item-category/${id}`,
+      `update-item-category/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -1032,9 +1038,9 @@ export const getItemCategoryById = async (id) => {
 };
 
 // Get All Master Item Category List
-export const getAllItemCategory = async (formData) => {
+export const getAllItemCategory = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-item-categories",
+    `get-all-item-categories/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1057,19 +1063,26 @@ export const deleteItemCategory = async (id) => {
 
 // **************************** ITEM MASTER **************************** //
 // Create Item Master
-export const createItem = async (formData) => {
-  const response = await axiosInstance.post("create-item", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createItem = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-item/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Item
-export const updateItem = async (id, formData) => {
+export const updateItem = async (selectedEntity, id, formData) => {
   try {
-    const response = await axiosInstance.put(`update-item/${id}`, formData);
+    const response = await axiosInstance.put(
+      `update-item/${selectedEntity}/${id}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -1100,12 +1113,16 @@ export const getItemById = async (id) => {
 };
 
 // Get All Master Item List
-export const getAllItem = async (formData) => {
-  const response = await axiosInstance.post("get-all-item-details", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const getAllItem = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `get-all-item-details/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -1121,9 +1138,9 @@ export const deleteItem = async (id) => {
 
 // **************************** SERVICE CATEGORY MASTER **************************** //
 // Create Service Category Master
-export const createServiceCategory = async (formData) => {
+export const createServiceCategory = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "create-service-category",
+    `create-service-category/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1135,10 +1152,10 @@ export const createServiceCategory = async (formData) => {
 };
 
 // Update Service Category
-export const updateServiceCategory = async (id, formData) => {
+export const updateServiceCategory = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-service-category/${id}`,
+      `update-service-category/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -1177,9 +1194,9 @@ export const getServiceCategoryById = async (id) => {
 };
 
 // Get All Master Service Category List
-export const getAllServiceCategory = async (formData) => {
+export const getAllServiceCategory = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-service-categories",
+    `get-all-service-categories/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1202,19 +1219,26 @@ export const deleteServiceCategory = async (id) => {
 
 // **************************** SERVICE MASTER **************************** //
 // Create Service Master
-export const createService = async (formData) => {
-  const response = await axiosInstance.post("create-service", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createService = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-service/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Service
-export const updateService = async (id, formData) => {
+export const updateService = async (selectedEntity, id, formData) => {
   try {
-    const response = await axiosInstance.put(`update-service/${id}`, formData);
+    const response = await axiosInstance.put(
+      `update-service/${selectedEntity}/${id}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -1245,9 +1269,9 @@ export const getServiceById = async (id) => {
 };
 
 // Get All Master Service List
-export const getAllService = async (formData) => {
+export const getAllService = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-service-details",
+    `get-all-service-details/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1270,9 +1294,9 @@ export const deleteService = async (id) => {
 
 // **************************** COURSE CATEGORY MASTER **************************** //
 // Create Course Category Master
-export const createCourseCategory = async (formData) => {
+export const createCourseCategory = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "create-course_category",
+    `create-course_category/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1284,10 +1308,10 @@ export const createCourseCategory = async (formData) => {
 };
 
 // Update Course Category
-export const updateCourseCategory = async (id, formData) => {
+export const updateCourseCategory = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-course_category/${id}`,
+      `update-course_category/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -1326,9 +1350,9 @@ export const getCourseCategoryById = async (id) => {
 };
 
 // Get All Master Course Category List
-export const getAllCourseCategory = async (formData) => {
+export const getAllCourseCategory = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-course_category-details",
+    `get-all-course_category-details/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1580,20 +1604,24 @@ export const deleteTicketCategory = async (id) => {
 
 // **************************** EVENT CATEGORY MASTER **************************** //
 // Create Event Category Master
-export const createEventCategory = async (formData) => {
-  const response = await axiosInstance.post("create-event-category", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createEventCategory = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-event-category/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Event Category
-export const updateEventCategory = async (id, formData) => {
+export const updateEventCategory = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-event-category/${id}`,
+      `update-event-category/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -1632,9 +1660,9 @@ export const getEventCategoryById = async (id) => {
 };
 
 // Get All Master Event Category List
-export const getAllEventCategory = async (formData) => {
+export const getAllEventCategory = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-event-categories",
+    `get-all-event-categories/${selectedEntity}`,
     formData,
     {
       headers: {

@@ -172,8 +172,6 @@ export const HeaderNav = () => {
     ? entityOptions.filter((option) => userEntityIds.includes(option.value))
     : [];
 
-  console.log("Selected User....", entityOptions);
-
   return (
     <Navbar fluid rounded className="bg-white !px-0 !py-0">
       {/* Menu Container */}

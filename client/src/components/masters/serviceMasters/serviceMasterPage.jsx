@@ -2,17 +2,13 @@ import { AddButton } from "../../UI/addButtonUi";
 import { ServiceMasterListing } from "./serviceMasterListing";
 import { useServiceMasterContext } from "../../../contextApis/useMastersContextFile";
 import Select from "react-select";
-import { useEffect, useState } from "react";
-import {
-  getAllItemCategory,
-  getAllServiceCategory,
-} from "../../../services/master_services/service";
-import { toast } from "react-toastify";
+import { useState } from "react";
 import { ServiceMasterView } from "./serviceMasterView";
 import { ServiceMasterForm } from "./serviceMasterForm";
 
 export const ServiceMasterPage = () => {
   const {
+    serviceCategoryOptions,
     filter,
     handleFormVisibility,
     handleLimitChange,
@@ -21,33 +17,7 @@ export const ServiceMasterPage = () => {
     handleViewVisibility,
   } = useServiceMasterContext();
 
-  const [categoryOptions, setCategoryOptions] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
-  // Get All Item Category List
-  const getAllCategoryList = async () => {
-    try {
-      const response = await getAllServiceCategory({
-        limit: 5000,
-        page: 1,
-        filter: { name: "" },
-      });
-
-      if (response.success) {
-        setCategoryOptions(
-          response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }))
-        );
-      }
-    } catch (error) {
-      toast.error("Failed to load item categories");
-    }
-  };
-  useEffect(() => {
-    getAllCategoryList();
-  }, []);
 
   return (
     <>
@@ -98,7 +68,7 @@ export const ServiceMasterPage = () => {
                     value: selectedOption ? selectedOption.value : "",
                   });
                 }}
-                options={categoryOptions}
+                options={serviceCategoryOptions}
                 placeholder="Search by category..."
                 isClearable
                 isSearchable

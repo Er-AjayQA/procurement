@@ -4,17 +4,27 @@ import { MdOutlineClose, MdDelete } from "react-icons/md";
 import { IoMdAdd } from "react-icons/io";
 import {
   createItem,
-  getAllItemCategory,
-  getAllUom,
   updateItem,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useItemMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const ItemMasterForm = ({ onClose }) => {
-  const { formVisibility, formType, getAllData, updateId, data } =
-    useItemMasterContext();
+  const { activeEntity } = useSelector((state) => state.auth);
+  const {
+    itemCategoryOptions,
+    uomOptions,
+    formVisibility,
+    formType,
+    getAllData,
+    updateId,
+    data,
+    selectStyles,
+    getAllCategoryList,
+    getAllUomList,
+  } = useItemMasterContext();
 
   const [barCodeOptions] = useState([
     { value: 1, label: "Yes" },
@@ -29,10 +39,9 @@ export const ItemMasterForm = ({ onClose }) => {
     { value: "Assets", label: "Assets" },
   ]);
 
-  const [itemCategoryOptions, setItemCategoryOptions] = useState([]);
-  const [uomOptions, setUomOptions] = useState([]);
   const [specifications, setSpecifications] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOptionsLoading, setIsOptionsLoading] = useState(false);
 
   const {
     register,
@@ -55,123 +64,90 @@ export const ItemMasterForm = ({ onClose }) => {
     },
   });
 
-  // Get All Item Category List
-  const getAllCategoryList = async () => {
-    try {
-      const response = await getAllItemCategory({
-        limit: 5000,
-        page: 1,
-        filter: { name: "" },
-      });
-
-      if (response.success) {
-        setItemCategoryOptions(
-          response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }))
-        );
-      }
-    } catch (error) {
-      toast.error("Failed to load item categories");
-    }
-  };
-
-  // Get All UOM List
-  const getAllUomList = async () => {
-    try {
-      const response = await getAllUom({
-        limit: 5000,
-        page: 1,
-        filter: { name: "" },
-      });
-
-      if (response.success) {
-        setUomOptions(
-          response.data.map((data) => ({
-            value: data.id,
-            label: data.name,
-          }))
-        );
-      }
-    } catch (error) {
-      toast.error("Failed to load UOMs");
-    }
-  };
-
   // Set form values when in update mode
   useEffect(() => {
     const initializeForm = async () => {
       setIsLoading(true);
-      try {
-        // Load options if not already loaded
-        if (itemCategoryOptions.length === 0) await getAllCategoryList();
-        if (uomOptions.length === 0) await getAllUomList();
 
-        if (formType === "Update" && data) {
-          const formData = Array.isArray(data) ? data[0] : data;
+      // Load options if not already loaded
+      if (itemCategoryOptions.length === 0 || uomOptions.length === 0) {
+        setIsOptionsLoading(true);
+        await Promise.all([
+          getAllCategoryList(activeEntity),
+          getAllUomList(activeEntity),
+        ]);
+        setIsOptionsLoading(false);
+      }
 
-          reset({
-            name: formData.name || "",
-            mvp: formData.mvp || "",
-            bar_code_type:
-              barCodeOptions.find(
-                (opt) => opt.value === formData.bar_code_type
-              ) || barCodeOptions[1], // Default to "No"
-            manage_by:
-              manageByOptions.find((opt) => opt.value === formData.manage_by) ||
-              manageByOptions[0], // Default to "Batch"
-            item_desc: formData.item_desc || "",
-            threshold_stock: formData.threshold_stock || 0,
-            item_type:
-              itemTypeOptions.find((opt) => opt.value === formData.item_type) ||
-              itemTypeOptions[0], // Default to "Item"
-          });
+      // Wait for options to load before setting values in update mode
+      if (formType === "Update" && data && !isOptionsLoading) {
+        setValue("name", data?.name);
+        setValue("mvp", data?.mvp);
+        setValue(
+          "bar_code_type",
+          barCodeOptions.find((opt) => opt.value === data?.bar_code_type) ||
+            barCodeOptions[1]
+        );
+        setValue(
+          "manage_by",
+          manageByOptions.find((opt) => opt.value === data?.manage_by) ||
+            manageByOptions[0]
+        );
+        setValue("item_desc", data?.item_desc);
+        setValue("threshold_stock", data?.threshold_stock);
+        setValue(
+          "item_type",
+          itemTypeOptions.find((opt) => opt.value === data?.item_type) ||
+            itemTypeOptions[0]
+        );
 
-          // Set Category
-          if (formData.item_category_id) {
-            const categoryOption = itemCategoryOptions.find(
-              (category) => category.value === formData.item_category_id
-            );
-            if (categoryOption) setValue("item_category_id", categoryOption);
-          }
-
-          // Set UOM
-          if (formData.uom_id) {
-            const uomOption = uomOptions.find(
-              (uom) => uom.value === formData.uom_id
-            );
-            if (uomOption) setValue("uom_id", uomOption);
-          }
-
-          setSpecifications(formData.specifications || []);
-        } else {
-          reset({
-            name: "",
-            mvp: "",
-            bar_code_type: barCodeOptions[1], // Default to "No"
-            manage_by: manageByOptions[0], // Default to "Batch"
-            item_desc: "",
-            threshold_stock: 0,
-            item_type: itemTypeOptions[0], // Default to "Item"
-            item_category_id: null,
-            uom_id: null,
-          });
-          setSpecifications([]);
+        // Set Category
+        if (data?.item_category_id) {
+          const categoryOption = itemCategoryOptions.find(
+            (category) => category.value === data?.item_category_id
+          );
+          if (categoryOption) setValue("item_category_id", categoryOption);
         }
-      } catch (error) {
-        console.error("Error initializing form:", error);
-      } finally {
+
+        // Set UOM
+        if (data?.uom_id) {
+          const uomOption = uomOptions.find(
+            (uom) => uom.value === data?.uom_id
+          );
+          if (uomOption) setValue("uom_id", uomOption);
+        }
+
+        setSpecifications(data?.specifications || []);
+        setIsLoading(false);
+      } else {
         setIsLoading(false);
       }
     };
 
     initializeForm();
-  }, [formType, data, reset]);
+  }, [
+    formType,
+    data,
+    setValue,
+    isOptionsLoading,
+    itemCategoryOptions,
+    uomOptions,
+  ]);
 
   // Handle Form Close
   const handleFormClose = () => {
-    reset();
+    reset({
+      name: "",
+      mvp: "",
+      bar_code_type: barCodeOptions[1],
+      manage_by: manageByOptions[0],
+      item_desc: "",
+      threshold_stock: 0,
+      item_type: itemTypeOptions[0],
+      item_category_id: null,
+      uom_id: null,
+    });
+
     setSpecifications([]);
     onClose();
   };
@@ -215,15 +191,15 @@ export const ItemMasterForm = ({ onClose }) => {
 
       let response;
       if (formType === "Update") {
-        response = await updateItem(updateId, payload);
+        response = await updateItem(activeEntity, updateId, payload);
       } else {
-        response = await createItem(payload);
+        response = await createItem(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }
@@ -232,61 +208,6 @@ export const ItemMasterForm = ({ onClose }) => {
       console.error(error);
     }
   };
-
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: "32px",
-      borderRadius: "0.5rem",
-      borderColor: "rgb(78, 79, 80)",
-      fontSize: "0.8rem",
-      paddingLeft: "0.75rem",
-      paddingRight: "0.75rem",
-      paddingTop: "0.5rem",
-      paddingBottom: "0.5rem",
-      "&:hover": {
-        borderColor: "#d1d5db",
-      },
-    }),
-    singleValue: (base) => ({
-      ...base,
-      fontSize: "0.8rem",
-    }),
-    menu: (base) => ({
-      ...base,
-      fontSize: "0.875rem",
-    }),
-    dropdownIndicator: (base) => ({
-      ...base,
-      padding: "3px",
-    }),
-    clearIndicator: (base) => ({
-      ...base,
-      padding: "2px",
-    }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: "0px",
-    }),
-    input: (base) => ({
-      ...base,
-      margin: "0px",
-      paddingBottom: "0px",
-      paddingTop: "0px",
-    }),
-    option: (base) => ({
-      ...base,
-      fontSize: "0.8rem",
-    }),
-  };
-
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
 
   return (
     <>

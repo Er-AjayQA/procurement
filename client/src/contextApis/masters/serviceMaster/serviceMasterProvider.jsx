@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   deleteService,
   getAllService,
+  getAllServiceCategory,
   getServiceById,
   updateServiceStatus,
 } from "../../../services/master_services/service";
@@ -9,6 +11,7 @@ import { toast } from "react-toastify";
 import { ServiceMasterContext } from "./serviceMasterContext";
 
 export const ServiceMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
@@ -22,12 +25,13 @@ export const ServiceMasterProvider = ({ children }) => {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [serviceCategoryOptions, setServiceCategoryOptions] = useState([]);
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllService({ limit, page, filter });
+      const data = await getAllService(selectedEntity, { limit, page, filter });
 
       if (data.success) {
         setListing(data.data);
@@ -58,7 +62,7 @@ export const ServiceMasterProvider = ({ children }) => {
       const response = await deleteService(deleteId);
       if (response.success) {
         toast(response.message);
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message);
       }
@@ -101,7 +105,7 @@ export const ServiceMasterProvider = ({ children }) => {
       const response = await updateServiceStatus(id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -131,10 +135,41 @@ export const ServiceMasterProvider = ({ children }) => {
     }
   };
 
+  // Get All Service Category List
+  const getAllCategoryList = async (selectedEntity) => {
+    try {
+      const response = await getAllServiceCategory(selectedEntity, {
+        limit: 5000,
+        page: 1,
+        filter: { name: "" },
+      });
+
+      if (response.success) {
+        setServiceCategoryOptions(
+          response.data.map((data) => ({
+            value: data.id,
+            label: data.name,
+          }))
+        );
+      }
+    } catch (error) {
+      toast.error("Failed to load Service categories");
+    }
+  };
+
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
+
+  // Fetch Service Categories List on Page Load
+  useEffect(() => {
+    if (activeEntity) {
+      getAllCategoryList(activeEntity);
+    }
+  }, [activeEntity]);
 
   // For update operations
   useEffect(() => {
@@ -202,9 +237,11 @@ export const ServiceMasterProvider = ({ children }) => {
     totalPages,
     page,
     isLoading,
+    serviceCategoryOptions,
     viewVisibility,
     getAllData,
     getDataById,
+    getAllCategoryList,
     deleteData,
     handleFormVisibility,
     handleActiveInactive,
@@ -214,6 +251,7 @@ export const ServiceMasterProvider = ({ children }) => {
     setDeleteId,
     setPage,
     setViewId,
+    setServiceCategoryOptions,
     styledComponent,
     handleViewVisibility,
   };
