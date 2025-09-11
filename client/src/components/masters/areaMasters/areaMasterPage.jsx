@@ -3,8 +3,7 @@ import { AreaMasterListing } from "./areaMasterListing";
 import { AreaMasterForm } from "./areaMasterForm";
 import { useAreaMasterContext } from "../../../contextApis/useMastersContextFile";
 import Select from "react-select";
-import { useEffect, useState } from "react";
-import { getAllDepartments } from "../../../services/master_services/service";
+import { useState } from "react";
 
 export const AreaMasterPage = () => {
   const {
@@ -13,34 +12,10 @@ export const AreaMasterPage = () => {
     handleLimitChange,
     handleChangeFilter,
     styledComponent,
+    departmentOptions,
   } = useAreaMasterContext();
 
-  const [departmentOptions, setDepartmentOptions] = useState(null);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-
-  // Get All Department List
-  const getAllDepartmentList = async () => {
-    try {
-      const response = await getAllDepartments({ limit: 500, page: 1 });
-
-      if (response.success) {
-        setDepartmentOptions(
-          response.data.map((code) => ({
-            value: `${code.id}`,
-            label: `${code.name}`,
-          }))
-        );
-      } else {
-        setDepartmentOptions(null);
-      }
-    } catch (error) {
-      setDepartmentOptions(null);
-    }
-  };
-
-  useEffect(() => {
-    getAllDepartmentList();
-  }, []);
 
   return (
     <>

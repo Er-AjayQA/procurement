@@ -88,7 +88,7 @@ module.exports.getTransferTypeDetails = async (req, res) => {
     const query = `
     SELECT TT.*
     FROM TRANSFER_TYPE_MASTER AS TT
-    WHERE TT.id=${id} AND TT.entity_id=${req?.selectedEntity} AND TT.isDeleted=false`;
+    WHERE TT.id=${id} AND TT.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -169,7 +169,6 @@ module.exports.updateTransferTypeStatus = async (req, res) => {
     const isDataExist = await DB.tbl_transfer_type_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -201,7 +200,6 @@ module.exports.deleteTransferType = async (req, res) => {
     const isDataExist = await DB.tbl_transfer_type_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

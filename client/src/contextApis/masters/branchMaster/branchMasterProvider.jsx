@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { BranchMasterContext } from "./branchMasterContext";
 import {
   deleteBranch,
@@ -9,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 
 export const BranchMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
@@ -31,10 +33,14 @@ export const BranchMasterProvider = ({ children }) => {
     useState(null);
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllBranches({ limit, page, filter });
+      const data = await getAllBranches(selectedEntity, {
+        limit,
+        page,
+        filter,
+      });
 
       if (data.success) {
         setListing(data.data);
@@ -64,7 +70,7 @@ export const BranchMasterProvider = ({ children }) => {
     const response = await deleteBranch(deleteId);
     if (response.success) {
       toast(response.message);
-      getAllData();
+      getAllData(activeEntity);
       setDeleteId(null);
     } else {
       toast.error(response.message);
@@ -95,7 +101,7 @@ export const BranchMasterProvider = ({ children }) => {
       const response = await updateBranchStatus(id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -137,8 +143,10 @@ export const BranchMasterProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
 
   // For update operations
   useEffect(() => {

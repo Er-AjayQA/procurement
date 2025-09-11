@@ -93,7 +93,7 @@ module.exports.getAreaDetails = async (req, res) => {
     SELECT A.*, D.name AS department_name
     FROM AREA_MASTER AS A
     LEFT JOIN DEPARTMENT_MASTER AS D ON D.id=A.dept_id
-    WHERE A.entity_id=${req?.selectedEntity} AND A.id=${id}`;
+    WHERE A.id=${id}`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -183,7 +183,6 @@ module.exports.updateAreaStatus = async (req, res) => {
     const isAreaExist = await DB.tbl_area_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -215,7 +214,6 @@ module.exports.deleteArea = async (req, res) => {
     const isAreaExist = await DB.tbl_area_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

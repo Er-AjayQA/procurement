@@ -2,9 +2,14 @@
 const express = require("express");
 const router = express.Router();
 const IdCardController = require("../controller/generateIdCard.controller");
+const EntityAuth = require("../../../../helper/utilFunctions");
 
 // ========== ROUTES ========== //
-router.post("/create-employee-id-card/:id", IdCardController.createIdCard);
+router.post(
+  "/create-employee-id-card/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  IdCardController.createIdCard
+);
 router.put("/update-employee-id-card/:id", IdCardController.updateIdCard);
 router.post(
   "/get-employee-id-card-details/:id",

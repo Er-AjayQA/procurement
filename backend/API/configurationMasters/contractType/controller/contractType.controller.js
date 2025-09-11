@@ -89,7 +89,7 @@ module.exports.getContractTypeDetails = async (req, res) => {
     const query = `
     SELECT C.*
     FROM CONTRACT_TYPE_MASTER AS C
-    WHERE C.entity_id=${req?.selectedEntity} AND C.id=${id} AND C.isDeleted=false`;
+    WHERE C.id=${id} AND C.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -168,7 +168,6 @@ module.exports.updateContractTypeStatus = async (req, res) => {
     const isContractTypeExist = await DB.tbl_contractType_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -200,7 +199,6 @@ module.exports.deleteContractType = async (req, res) => {
     const isContractTypeExist = await DB.tbl_contractType_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

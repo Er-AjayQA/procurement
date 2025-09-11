@@ -132,7 +132,7 @@ module.exports.getEventDetails = async (req, res) => {
       LEFT JOIN STATE_MASTER AS SM ON SM.id = EM.event_state_id
       LEFT JOIN CITY_MASTER AS CIM ON CIM.id = EM.event_city_id
       LEFT JOIN USER_MASTER AS UM ON UM.id = EM.event_organizer_id
-      WHERE EM.id= ${id} AND EM.entity_id=${req?.selectedEntity} AND EM.isDeleted = false`;
+      WHERE EM.id= ${id} AND EM.isDeleted = false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -273,7 +273,6 @@ module.exports.updateEventStatus = async (req, res) => {
     const isEventExist = await DB.tbl_event_management.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -305,7 +304,6 @@ module.exports.deleteEvent = async (req, res) => {
     const isEventExist = await DB.tbl_event_management.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -584,7 +582,7 @@ module.exports.getEventTicketsDetails = async (req, res) => {
         ETT.*, EM.event_code, EM.event_title
       FROM EVENT_TICKET_TYPES AS ETT
       LEFT JOIN EVENT_MANAGEMENT AS EM ON EM.id = ETT.event_id
-      WHERE ETT.id= ${id} AND ETT.entity_id=${req?.selectedEntity} AND ETT.isDeleted = false`;
+      WHERE ETT.id= ${id} AND ETT.isDeleted = false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -694,7 +692,6 @@ module.exports.deleteEventTickets = async (req, res) => {
     const isTicketExist = await DB.tbl_event_ticket_type.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

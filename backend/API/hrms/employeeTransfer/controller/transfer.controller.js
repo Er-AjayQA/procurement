@@ -10,18 +10,22 @@ module.exports.createTransfer = async (req, res) => {
     const isAlreadyExist = await DB.tbl_employee_transfer.findOne({
       where: {
         requested_for_user_id: data.requested_for_user_id,
+        entity_id: req?.selectedEntity,
         approval_status: `PENDING`,
         isDeleted: false,
       },
     });
 
     if (isAlreadyExist) {
-      return res.status(400).send({
+      return res.status(409).send({
         success: false,
         message: "Transfer for this employee already generated!",
       });
     } else {
-      const newData = await DB.tbl_employee_transfer.create(data);
+      const newData = await DB.tbl_employee_transfer.create({
+        ...data,
+        entity_id: req?.selectedEntity,
+      });
 
       // Creating Approval Details
       if (data.approvers_list && data.approvers_list.length > 0) {
@@ -30,15 +34,15 @@ module.exports.createTransfer = async (req, res) => {
             transfer_id: newData?.id,
             approval_level: `${index + 1}`,
             approver_id: approver?.value,
+            entity_id: req?.selectedEntity,
             approver_status: "PENDING",
           }))
         );
       }
 
-      return res.status(200).send({
+      return res.status(201).send({
         success: true,
         message: "Transfer request generated successfully!",
-        data: newData,
       });
     }
   } catch (error) {
@@ -57,13 +61,14 @@ module.exports.updateTransfer = async (req, res) => {
       where: {
         id,
         approval_status: "PENDING" || "DRAFT",
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
 
     if (!isDataExist) {
       return res
-        .status(400)
+        .status(404)
         .send({ success: false, message: "Transfer details not found!" });
     } else {
       const duplicateData = await DB.tbl_employee_transfer.findOne({
@@ -71,6 +76,7 @@ module.exports.updateTransfer = async (req, res) => {
           id: { [DB.Sequelize.Op.ne]: id },
           requested_for_user_id: data.requested_for_user_id,
           approval_status: "PENDING" | "DRAFT",
+          entity_id: req?.selectedEntity,
           isDeleted: false,
         },
       });
@@ -82,10 +88,9 @@ module.exports.updateTransfer = async (req, res) => {
         });
       } else {
         const updateData = await isDataExist.update(data);
-        return res.status(200).send({
+        return res.status(201).send({
           success: true,
           message: "Transfer request updated successfully!",
-          data: updateData,
         });
       }
     }
@@ -200,7 +205,7 @@ module.exports.getAllTransferDetails = async (req, res) => {
     let countQuery = `
         SELECT COUNT(*) as total 
         FROM EMPLOYEE_TRANSFER AS ET 
-        WHERE ET.requested_by_user_id =${id} AND ET.isDeleted = false`;
+        WHERE ET.requested_by_user_id =${id} AND ET.entity_id=${req?.selectedEntity} AND ET.isDeleted = false`;
 
     let query = `
       SELECT 
@@ -242,7 +247,7 @@ module.exports.getAllTransferDetails = async (req, res) => {
     LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
     LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
     LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ET.requested_by_user_id=${id} AND ET.isDeleted = false`;
+    WHERE ET.requested_by_user_id=${id} AND ET.entity_id=${req?.selectedEntity} AND ET.isDeleted = false`;
 
     if (filter.requested_for_user_id) {
       countQuery += ` AND ET.requested_for_user_id LIKE :requested_for_user_id`;
@@ -378,9 +383,7 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
         SELECT COUNT(*) as total 
         FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA 
         INNER JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
-        WHERE ETA.isDeleted = false 
-        AND ETA.approver_id = :id
-        AND ET.approval_status != 'REJECTED'`;
+        WHERE ETA.entity_id=${req?.selectedEntity} AND ETA.isDeleted = false AND ETA.approver_id = :id AND ET.approval_status != 'REJECTED'`;
 
     let query = `
       SELECT 
@@ -424,14 +427,13 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
     LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
     LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
     LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ETA.approver_id = :id 
-    AND ETA.isDeleted = false
-    AND ET.approval_status != 'REJECTED'`;
+    WHERE ETA.entity_id=${req?.selectedEntity} AND ETA.approver_id = :id AND ETA.isDeleted = false AND ET.approval_status != 'REJECTED'`;
 
     // Additional check to exclude transfers with any previous rejection
     query += ` AND NOT EXISTS (
       SELECT 1 FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA_REJECTED
       WHERE ETA_REJECTED.transfer_id = ET.id
+      AND ETA.entity_id=${req?.selectedEntity}
       AND ETA_REJECTED.approver_status = 'REJECTED'
       AND ETA_REJECTED.isDeleted = false
       AND ETA_REJECTED.approval_level < ETA.approval_level
@@ -440,6 +442,7 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
     countQuery += ` AND NOT EXISTS (
       SELECT 1 FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA_REJECTED
       WHERE ETA_REJECTED.transfer_id = ET.id
+      ETA.entity_id=${req?.selectedEntity}
       AND ETA_REJECTED.approver_status = 'REJECTED'
       AND ETA_REJECTED.isDeleted = false
       AND ETA_REJECTED.approval_level < ETA.approval_level
@@ -449,6 +452,7 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
       SELECT MIN(ETA2.approval_level) 
       FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA2 
       WHERE ETA2.transfer_id = ET.id 
+      ETA.entity_id=${req?.selectedEntity}
       AND ETA2.approver_status = 'PENDING'
       AND ETA2.isDeleted = false
     )`;
@@ -456,7 +460,8 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
     countQuery += ` AND ETA.approval_level = (
       SELECT MIN(ETA2.approval_level) 
       FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA2 
-      WHERE ETA2.transfer_id = ET.id 
+      WHERE ETA2.transfer_id = ET.id
+      ETA.entity_id=${req?.selectedEntity} 
       AND ETA2.approver_status = 'PENDING'
       AND ETA2.isDeleted = false
     )`;
@@ -514,7 +519,11 @@ module.exports.getAllTransferPendingByUserDetails = async (req, res) => {
           try {
             const getWorkflowData =
               await DB.tbl_employee_transfer_approval.findAll({
-                where: { transfer_id: data.id, isDeleted: false },
+                where: {
+                  transfer_id: data.id,
+                  entity_id: req?.selectedEntity,
+                  isDeleted: false,
+                },
                 include: [
                   {
                     model: DB.tbl_user_master,
@@ -568,7 +577,7 @@ module.exports.getAllTransferApprovedByUser = async (req, res) => {
         SELECT COUNT(*) as total 
         FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA 
         INNER JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
-        WHERE ETA.isDeleted = false AND ETA.approver_id = :id`;
+        WHERE ETA.entity_id=${req?.selectedEntity} AND ETA.isDeleted = false AND ETA.approver_id = :id`;
 
     let query = `
       SELECT 
@@ -612,7 +621,7 @@ module.exports.getAllTransferApprovedByUser = async (req, res) => {
     LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
     LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
     LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ETA.approver_id = :id AND ETA.isDeleted = false`;
+    WHERE ETA.entity_id=${req?.selectedEntity} AND ETA.approver_id = :id AND ETA.isDeleted = false`;
 
     // Prepare replacements object
     const replacements = {
@@ -721,7 +730,7 @@ module.exports.getAllTransferRejectedByUser = async (req, res) => {
         SELECT COUNT(*) as total 
         FROM EMPLOYEE_TRANSFER_APPROVAL AS ETA 
         INNER JOIN EMPLOYEE_TRANSFER AS ET ON ET.id = ETA.transfer_id
-        WHERE ETA.isDeleted = false AND ETA.approver_id = :id`;
+        WHERE ETA.entity_id=${req?.selectedEntity} AND ETA.isDeleted = false AND ETA.approver_id = :id`;
 
     let query = `
       SELECT 
@@ -765,7 +774,7 @@ module.exports.getAllTransferRejectedByUser = async (req, res) => {
     LEFT JOIN USER_MASTER AS UM ON UM.id = ET.requested_by_user_id
     LEFT JOIN USER_MASTER AS RUM ON RUM.id = ET.report_to_user_id
     LEFT JOIN USER_MASTER AS CRUM ON CRUM.id = ET.current_report_to_user_id
-    WHERE ETA.approver_id = :id AND ETA.isDeleted = false`;
+    WHERE ETA.entity_id=${req?.selectedEntity} AND ETA.approver_id = :id AND ETA.isDeleted = false`;
 
     // Prepare replacements object
     const replacements = {
@@ -820,7 +829,11 @@ module.exports.getAllTransferRejectedByUser = async (req, res) => {
           try {
             const getWorkflowData =
               await DB.tbl_employee_transfer_approval.findAll({
-                where: { transfer_id: data.id, isDeleted: false },
+                where: {
+                  transfer_id: data.id,
+                  entity_id: req?.selectedEntity,
+                  isDeleted: false,
+                },
                 include: [
                   {
                     model: DB.tbl_user_master,
@@ -873,6 +886,7 @@ module.exports.approvalForTransfer = async (req, res) => {
         transfer_id: id,
         approver_status: "PENDING",
         approver_id: data?.user_id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -885,7 +899,10 @@ module.exports.approvalForTransfer = async (req, res) => {
       // Get Total Number of Workflow Levels
       const totalWorkflowLevels = await DB.tbl_employee_transfer_approval.count(
         {
-          where: { transfer_id: isDataExist?.transfer_id },
+          where: {
+            transfer_id: isDataExist?.transfer_id,
+            entity_id: req?.selectedEntity,
+          },
         }
       );
 

@@ -15,26 +15,14 @@ router.put(
   EntityAuth.checkEntity,
   ServiceController.updateService
 );
-router.post(
-  "/get-service-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  ServiceController.getServiceDetails
-);
+router.post("/get-service-details/:id", ServiceController.getServiceDetails);
 router.post(
   "/get-all-service-details/:selectedEntity",
   EntityAuth.checkEntity,
   ServiceController.getAllServiceDetails
 );
-router.put(
-  "/update-service-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  ServiceController.updateServiceStatus
-);
-router.put(
-  "/delete-service/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  ServiceController.deleteService
-);
+router.put("/update-service-status/:id", ServiceController.updateServiceStatus);
+router.put("/delete-service/:id", ServiceController.deleteService);
 
 // ========== EXPORT ========== //
 module.exports = router;

@@ -180,9 +180,9 @@ export const createDepartment = async (selectedEntity, formData) => {
 };
 
 // Update Department
-export const updateDepartment = async (id, formData) => {
+export const updateDepartment = async (selectedEntity, id, formData) => {
   const response = await axiosInstance.put(
-    `update-department/${id}`,
+    `update-department/${selectedEntity}/${id}`,
     formData,
     {
       headers: {
@@ -194,22 +194,28 @@ export const updateDepartment = async (id, formData) => {
 };
 
 // Update Status
-export const updateDepartmentStatus = async (id) => {
-  const response = await axiosInstance.put(`update-department-status/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const updateDepartmentStatus = async (selectedEntity, id) => {
+  const response = await axiosInstance.put(
+    `update-department-status/${selectedEntity}/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Get Master Departments by ID
-export const getDepartmentById = async (id) => {
-  const response = await axiosInstance.post(`get-department-details/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const getDepartmentById = async (selectedEntity, id) => {
+  const response = await axiosInstance.post(
+    `get-department-details/${selectedEntity}/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -228,12 +234,15 @@ export const getAllDepartments = async (selectedEntity, formData) => {
 };
 
 // Delete Department Master
-export const deleteDepartment = async (id) => {
-  const response = await axiosInstance.put(`delete-department/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const deleteDepartment = async (selectedEntity, id) => {
+  const response = await axiosInstance.put(
+    `delete-department/${selectedEntity}/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -386,22 +395,30 @@ export const getAllCities = async (formData) => {
 
 // **************************** BRANCH MASTER **************************** //
 // Create Branch Master
-export const createBranch = async (formData) => {
-  const response = await axiosInstance.post("create-branch", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createBranch = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-branch/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Branch
-export const updateBranch = async (id, formData) => {
-  const response = await axiosInstance.put(`update-branch/${id}`, formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const updateBranch = async (selectedEntity, id, formData) => {
+  const response = await axiosInstance.put(
+    `update-branch/${selectedEntity}/${id}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -426,9 +443,9 @@ export const getBranchById = async (id) => {
 };
 
 // Get All Master Branches List
-export const getAllBranches = async (formData) => {
+export const getAllBranches = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-branch-details",
+    `get-all-branch-details/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -451,19 +468,26 @@ export const deleteBranch = async (id) => {
 
 // **************************** AREA MASTER **************************** //
 // Create Area Master
-export const createArea = async (formData) => {
-  const response = await axiosInstance.post("create-area", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createArea = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-area/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Area
-export const updateArea = async (id, formData) => {
+export const updateArea = async (selectedEntity, id, formData) => {
   try {
-    const response = await axiosInstance.put(`update-area/${id}`, formData);
+    const response = await axiosInstance.put(
+      `update-area/${selectedEntity}/${id}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -494,12 +518,16 @@ export const getAreaById = async (id) => {
 };
 
 // Get All Master Areas List
-export const getAllArea = async (formData) => {
-  const response = await axiosInstance.post("get-all-area-details", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const getAllArea = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `get-all-area-details/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -515,19 +543,26 @@ export const deleteArea = async (id) => {
 
 // **************************** BANK MASTER **************************** //
 // Create Bank Master
-export const createBank = async (formData) => {
-  const response = await axiosInstance.post("create-bank", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createBank = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-bank/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Bank
-export const updateBank = async (id, formData) => {
+export const updateBank = async (selectedEntity, id, formData) => {
   try {
-    const response = await axiosInstance.put(`update-bank/${id}`, formData);
+    const response = await axiosInstance.put(
+      `update-bank/${selectedEntity}/${id}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -558,12 +593,16 @@ export const getBankById = async (id) => {
 };
 
 // Get All Master Banks List
-export const getAllBank = async (formData) => {
-  const response = await axiosInstance.post("get-all-bank-details", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const getAllBank = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `get-all-bank-details/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -660,20 +699,24 @@ export const deleteEmployementType = async (id) => {
 
 // **************************** ALLOWANCE MASTER **************************** //
 // Create Allowance Master
-export const createAllowance = async (formData) => {
-  const response = await axiosInstance.post("create-allowance", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createAllowance = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-allowance/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Allowance
-export const updateAllowance = async (id, formData) => {
+export const updateAllowance = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-allowance/${id}`,
+      `update-allowance/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -706,9 +749,9 @@ export const getAllowanceById = async (id) => {
 };
 
 // Get All Master Allowance List
-export const getAllAllowance = async (formData) => {
+export const getAllAllowance = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-allowance-details",
+    `get-all-allowance-details/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -731,20 +774,24 @@ export const deleteAllowance = async (id) => {
 
 // **************************** CONTRACT TYPE MASTER **************************** //
 // Create ContractType Master
-export const createContractType = async (formData) => {
-  const response = await axiosInstance.post("create-contract-type", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createContractType = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-contract-type/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update ContractType
-export const updateContractType = async (id, formData) => {
+export const updateContractType = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-contract-type/${id}`,
+      `update-contract-type/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -783,9 +830,9 @@ export const getContractTypeById = async (id) => {
 };
 
 // Get All Master ContractType List
-export const getAllContractType = async (formData) => {
+export const getAllContractType = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-contract-type-details",
+    `get-all-contract-type-details/${selectedEntity}`,
     formData,
     {
       headers: {

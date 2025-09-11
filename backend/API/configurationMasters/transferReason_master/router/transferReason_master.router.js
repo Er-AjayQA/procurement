@@ -16,8 +16,7 @@ router.put(
   TransferReasonController.updateTransferReason
 );
 router.post(
-  "/get-transferReason-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-transferReason-details/:id",
   TransferReasonController.getTransferReasonDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   TransferReasonController.getAllTransferReasonDetails
 );
 router.put(
-  "/update-transferReason-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-transferReason-status/:id",
   TransferReasonController.updateTransferReasonStatus
 );
 router.put(
-  "/delete-transferReason/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/delete-transferReason/:id",
   TransferReasonController.deleteTransferReason
 );
 

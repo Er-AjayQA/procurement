@@ -88,7 +88,7 @@ module.exports.getAllowanceDetails = async (req, res) => {
     const query = `
     SELECT A.*
     FROM ALLOWANCE_MASTER AS A
-    WHERE A.entity_id=${req?.selectedEntity} AND A.id=${id} AND A.isDeleted=false`;
+    WHERE A.id=${id} AND A.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -171,7 +171,6 @@ module.exports.updateAllowanceStatus = async (req, res) => {
     const isAllowanceExist = await DB.tbl_allowance_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -203,7 +202,6 @@ module.exports.deleteAllowance = async (req, res) => {
     const isAllowanceExist = await DB.tbl_allowance_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

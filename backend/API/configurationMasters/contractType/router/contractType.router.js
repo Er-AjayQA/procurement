@@ -16,8 +16,7 @@ router.put(
   ContractTypeController.updateContractType
 );
 router.post(
-  "/get-contracts-type-details/:selectedEntity/:id",
-  EntityAuth?.checkEntity,
+  "/get-contracts-type-details/:id",
   ContractTypeController.getContractTypeDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   ContractTypeController.getAllContractTypesDetails
 );
 router.put(
-  "/update-contract-type-status/:selectedEntity/:id",
-  EntityAuth?.checkEntity,
+  "/update-contract-type-status/:id",
   ContractTypeController.updateContractTypeStatus
 );
 router.put(
-  "/delete-contract-type/:selectedEntity/:id",
-  EntityAuth?.checkEntity,
+  "/delete-contract-type/:id",
   ContractTypeController.deleteContractType
 );
 

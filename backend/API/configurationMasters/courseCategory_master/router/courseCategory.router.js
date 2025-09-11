@@ -16,8 +16,7 @@ router.put(
   CourseCategoryController.updateCourseCategory
 );
 router.post(
-  "/get-course_category-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-course_category-details/:id",
   CourseCategoryController.getCourseCategoryDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   CourseCategoryController.getAllCourseCategoryDetails
 );
 router.put(
-  "/update-course_category-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-course_category-status/:id",
   CourseCategoryController.updateCourseCategoryStatus
 );
 router.put(
-  "/delete-course_category/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/delete-course_category/:id",
   CourseCategoryController.deleteCourseCategory
 );
 

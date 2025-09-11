@@ -16,8 +16,7 @@ router.put(
   DepartmentController.updateDepartment
 );
 router.post(
-  "/get-department-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-department-details/:id",
   DepartmentController.getDepartmentDetails
 );
 router.post(
@@ -26,15 +25,10 @@ router.post(
   DepartmentController.getAllDepartmentDetails
 );
 router.put(
-  "/update-department-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-department-status/:id",
   DepartmentController.updateDepartmentStatus
 );
-router.put(
-  "/delete-department/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  DepartmentController.deleteDepartment
-);
+router.put("/delete-department/:id", DepartmentController.deleteDepartment);
 
 // ========== EXPORT ========== //
 module.exports = router;

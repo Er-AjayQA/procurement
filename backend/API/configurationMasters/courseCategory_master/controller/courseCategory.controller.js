@@ -90,7 +90,7 @@ module.exports.getCourseCategoryDetails = async (req, res) => {
     const query = `
     SELECT CC.*
     FROM COURSE_CATEGORY AS CC
-    WHERE CC.entity_id=${req?.selectedEntity} AND CC.id=${id} AND CC.isDeleted=false`;
+    WHERE CC.id=${id} AND CC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -167,7 +167,6 @@ module.exports.updateCourseCategoryStatus = async (req, res) => {
     const isCategoryExist = await DB.tbl_course_category.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -199,7 +198,6 @@ module.exports.deleteCourseCategory = async (req, res) => {
     const isCategoryExist = await DB.tbl_course_category.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

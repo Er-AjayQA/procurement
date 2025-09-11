@@ -8,8 +8,10 @@ import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 import { useDepartmentMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const DepartmentMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useDepartmentMasterContext();
   const {
@@ -33,7 +35,8 @@ export const DepartmentMasterForm = ({ onClose }) => {
     if (formType === "Update" && data) {
       reset({
         name: data.name || data[0]?.name || "",
-        department_head_id: data[0].department_head_id || "",
+        department_head_id:
+          data.department_head_id || data[0].department_head_id || "",
         dept_head_name: data[0].dept_head_name || "",
       });
     } else {
@@ -60,15 +63,15 @@ export const DepartmentMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateDepartment(updateId, payload);
+        response = await updateDepartment(activeEntity, updateId, payload);
       } else {
-        response = await createDepartment(payload);
+        response = await createDepartment(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
         reset();
       } else {
         toast.error(response.message);

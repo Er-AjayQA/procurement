@@ -43,19 +43,19 @@ export const DepartmentMasterProvider = ({ children }) => {
   };
 
   // Get Data By Id
-  const getDataById = async () => {
-    const response = await getDepartmentById(updateId);
+  const getDataById = async (selectedEntity) => {
+    const response = await getDepartmentById(selectedEntity, updateId);
     if (response.success) {
       setData(response.data);
     }
   };
 
   // Delete Data By Id
-  const deleteData = async () => {
-    const response = await deleteDepartment(deleteId);
+  const deleteData = async (selectedEntity) => {
+    const response = await deleteDepartment(selectedEntity, deleteId);
     if (response.success) {
       toast(response.message);
-      getAllData();
+      getAllData(selectedEntity);
       setDeleteId(null);
     } else {
       toast.error(response.message);
@@ -81,12 +81,12 @@ export const DepartmentMasterProvider = ({ children }) => {
   };
 
   // Handle Active/Inactive
-  const handleActiveInactive = async (id) => {
+  const handleActiveInactive = async (selectedEntity, id) => {
     try {
-      const response = await updateDepartmentStatus(id);
+      const response = await updateDepartmentStatus(selectedEntity, id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -118,15 +118,15 @@ export const DepartmentMasterProvider = ({ children }) => {
 
   // For update operations
   useEffect(() => {
-    if (updateId) {
-      getDataById();
+    if (activeEntity && updateId) {
+      getDataById(activeEntity);
     }
   }, [updateId]);
 
   // For delete operations
   useEffect(() => {
-    if (deleteId) {
-      deleteData();
+    if (activeEntity && deleteId) {
+      deleteData(activeEntity);
     }
   }, [deleteId]);
 

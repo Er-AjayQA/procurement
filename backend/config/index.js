@@ -1194,6 +1194,23 @@ db.tbl_rbac_assign_module_master.belongsTo(db.tbl_role_master, {
   foreignKey: "role_id",
 });
 
+// ========================================== TRANSFER MANAGEMENT ========================================== //
+// Relation B/W Entity Master and Employee Transfer Tables
+db.tbl_entity_configuration.hasMany(db.tbl_employee_transfer, {
+  foreignKey: "entity_id",
+});
+db.tbl_employee_transfer.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// Relation B/W Entity Master and Employee Transfer Approval Tables
+db.tbl_entity_configuration.hasMany(db.tbl_employee_transfer_approval, {
+  foreignKey: "entity_id",
+});
+db.tbl_employee_transfer_approval.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
 // Relation B/W Employee Master and Employee Transfer Tables (Requested for User ID)
 db.tbl_user_master.hasMany(db.tbl_employee_transfer, {
   foreignKey: "requested_for_user_id",
@@ -1322,6 +1339,15 @@ db.tbl_employee_transfer_approval.belongsTo(db.tbl_user_master, {
   foreignKey: "approver_id",
 });
 
+// ========================================== GENERATE ID CARD MANAGEMENT ========================================== //
+// Relation B/W UEntityser Master and Generate ID Card Table
+db.tbl_entity_configuration.hasMany(db.tbl_generate_id_card, {
+  foreignKey: "entity_id",
+});
+db.tbl_generate_id_card.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
 // Relation B/W User Master and Employee ID Table
 db.tbl_user_master.hasMany(db.tbl_generate_id_card, {
   foreignKey: "user_id",
@@ -1331,6 +1357,22 @@ db.tbl_generate_id_card.belongsTo(db.tbl_user_master, {
 });
 
 // ========================================== TICKET MANAGEMENT ========================================== //
+// Relation B/W Entity Master and Ticket Management Tables
+db.tbl_entity_configuration.hasMany(db.tbl_ticket_management, {
+  foreignKey: "entity_id",
+});
+db.tbl_ticket_management.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// Relation B/W Entity Master and Ticket Allocation Tables
+db.tbl_entity_configuration.hasMany(db.tbl_ticket_allocation, {
+  foreignKey: "entity_id",
+});
+db.tbl_ticket_allocation.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
 // Relation B/W User Master and Ticket Management Tables (Created By User)
 db.tbl_user_master.hasMany(db.tbl_ticket_management, {
   foreignKey: "created_by_user_id",

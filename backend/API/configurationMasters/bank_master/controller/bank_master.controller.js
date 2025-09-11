@@ -97,7 +97,7 @@ module.exports.getBankDetails = async (req, res) => {
     const query = `
     SELECT B.*
     FROM BANK_MASTER AS B
-    WHERE B.entity_id=${req?.selectedEntity} AND B.id=${id} AND B.isDeleted=false`;
+    WHERE B.id=${id} AND B.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -174,7 +174,6 @@ module.exports.updateBankStatus = async (req, res) => {
     const isBankExist = await DB.tbl_bank_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -206,7 +205,6 @@ module.exports.deleteBank = async (req, res) => {
     const isBankExist = await DB.tbl_bank_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

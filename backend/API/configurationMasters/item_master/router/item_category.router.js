@@ -16,8 +16,7 @@ router.put(
   ItemCategoryController.updateItemCategory
 );
 router.post(
-  "/get-item-category-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-item-category-details/:id",
   ItemCategoryController.getItemCategoryDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   ItemCategoryController.getAllItemCategoryDetails
 );
 router.put(
-  "/update-item-category-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-item-category-status/:id",
   ItemCategoryController.updateItemCategoryStatus
 );
 router.put(
-  "/delete-item-category/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/delete-item-category/:id",
   ItemCategoryController.deleteItemCategory
 );
 

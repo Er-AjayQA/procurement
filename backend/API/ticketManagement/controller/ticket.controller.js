@@ -13,6 +13,7 @@ module.exports.createTicket = async (req, res) => {
         created_by_user_id: data?.created_by_user_id,
         ticket_category_id: data?.ticket_category_id,
         created_for_dept_id: data?.created_for_dept_id,
+        entity_id: req?.selectedEntity,
         ticket_status: `OPEN`,
         isDeleted: false,
       },
@@ -20,15 +21,18 @@ module.exports.createTicket = async (req, res) => {
     });
 
     if (isAlreadyExist) {
-      return res.status(400).send({
+      return res.status(409).send({
         success: false,
         message:
           "Ticket for selected department with this category already exist!",
       });
     } else {
-      const newData = await DB.tbl_ticket_management.create(data, {
-        transaction,
-      });
+      const newData = await DB.tbl_ticket_management.create(
+        { ...data, entity_id: req?.selectedEntity },
+        {
+          transaction,
+        }
+      );
 
       // Get Creator Details
       const getUserDetails = await DB.tbl_user_master.findOne({
@@ -56,26 +60,26 @@ module.exports.createTicket = async (req, res) => {
         { transaction }
       );
 
-      // Generating Notification
-      const getEmployeeListOfDepartment = await DB.tbl_user_master.findAll({
-        attributes: ["id"],
-        where: { dep_id: data?.created_for_dept_id, isDeleted: false },
-        transaction,
-      });
+      // // Generating Notification
+      // const getEmployeeListOfDepartment = await DB.tbl_user_master.findAll({
+      //   attributes: ["id"],
+      //   where: { dep_id: data?.created_for_dept_id, isDeleted: false },
+      //   transaction,
+      // });
 
-      if (
-        getEmployeeListOfDepartment &&
-        getEmployeeListOfDepartment.length > 0
-      ) {
-        await DB.tbl_notification_master.bulkCreate(
-          getEmployeeListOfDepartment.map((emp) => ({
-            title: "New Ticket Raised!",
-            message: `The ticket is raised by ${getUserDetails?.title} ${getUserDetails?.name}. The issue is registered for ${data?.ticket_subject}`,
-            user_id: emp?.id,
-          })),
-          { transaction }
-        );
-      }
+      // if (
+      //   getEmployeeListOfDepartment &&
+      //   getEmployeeListOfDepartment.length > 0
+      // ) {
+      //   await DB.tbl_notification_master.bulkCreate(
+      //     getEmployeeListOfDepartment.map((emp) => ({
+      //       title: "New Ticket Raised!",
+      //       message: `The ticket is raised by ${getUserDetails?.title} ${getUserDetails?.name}. The issue is registered for ${data?.ticket_subject}`,
+      //       user_id: emp?.id,
+      //     })),
+      //     { transaction }
+      //   );
+      // }
 
       await transaction.commit();
 
@@ -101,6 +105,7 @@ module.exports.updateTicket = async (req, res) => {
     const isDataExist = await DB.tbl_ticket_management.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         ticket_status: "OPEN",
         isDeleted: false,
       },
@@ -163,6 +168,7 @@ module.exports.escalateTicket = async (req, res) => {
     const isAlreadyExist = await DB.tbl_ticket_management.findOne({
       where: {
         id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
       transaction,
@@ -193,6 +199,7 @@ module.exports.escalateTicket = async (req, res) => {
           approver_status: "PENDING",
           allocated_to_user_id: data?.allocated_to_user_id,
           ticket_id: id,
+          entity_id: req?.selectedEntity,
         },
         { transaction }
       );
@@ -316,7 +323,7 @@ module.exports.getAllTicketDetails = async (req, res) => {
     let countQuery = `
         SELECT COUNT(*) as total 
         FROM TICKET_MANAGEMENT AS TM
-        WHERE TM.isDeleted = false`;
+        WHERE TM.entity_id=${req?.selectedEntity} AND TM.isDeleted = false`;
 
     let query = `
       SELECT 
@@ -327,24 +334,24 @@ module.exports.getAllTicketDetails = async (req, res) => {
     LEFT JOIN USER_MASTER AS UUM ON UUM.id=TM.user_id
     LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
     LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
-    WHERE TM.isDeleted = false`;
+    WHERE TM.entity_id=${req?.selectedEntity} AND TM.isDeleted = false`;
 
-    if (filter.user_id) {
+    if (filter?.user_id) {
       countQuery += ` AND TM.user_id LIKE :user_id`;
       query += ` AND TM.user_id LIKE :user_id`;
     }
 
-    if (filter.created_for_dept_id) {
+    if (filter?.created_for_dept_id) {
       countQuery += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
       query += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
     }
 
-    if (filter.ticket_category_id) {
+    if (filter?.ticket_category_id) {
       countQuery += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
       query += ` AND TM.ticket_category_id LIKE :ticket_category_id`;
     }
 
-    if (filter.ticket_status) {
+    if (filter?.ticket_status) {
       countQuery += ` AND TM.ticket_status LIKE :ticket_status`;
       query += ` AND TM.ticket_status LIKE :ticket_status`;
     }
@@ -411,7 +418,7 @@ module.exports.getAllTicketsGeneratedByUserDetails = async (req, res) => {
     let countQuery = `
         SELECT COUNT(*) as total 
         FROM TICKET_MANAGEMENT AS TM
-        WHERE TM.created_by_user_id =${id} AND TM.isDeleted = false`;
+        WHERE TM.created_by_user_id =${id} AND TM.entity_id=${req?.selectedEntity} AND TM.isDeleted = false`;
 
     let query = `
       SELECT
@@ -422,7 +429,7 @@ module.exports.getAllTicketsGeneratedByUserDetails = async (req, res) => {
     LEFT JOIN USER_MASTER AS UM ON UM.id=TM.created_by_user_id
     LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
     LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
-    WHERE TM.created_by_user_id=${id} AND TM.isDeleted = false`;
+    WHERE TM.created_by_user_id=${id} AND TM.entity_id=${req?.selectedEntity} AND TM.isDeleted = false`;
 
     if (filter.created_for_dept_id) {
       countQuery += ` AND TM.created_for_dept_id LIKE :created_for_dept_id`;
@@ -529,7 +536,7 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
         SELECT COUNT(*) as total 
         FROM TICKET_ALLOCATION AS TA
         LEFT JOIN TICKET_MANAGEMENT AS TM ON TM.id= TA.ticket_id
-        WHERE TA.allocated_to_user_id= :id AND TA.isDeleted = false`;
+        WHERE TA.allocated_to_user_id= :id AND TA.entity_id=${req?.selectedEntity} AND TA.isDeleted = false`;
 
     let query = `
       SELECT 
@@ -541,7 +548,7 @@ module.exports.getAllTicketAllocatedToUserDetails = async (req, res) => {
     LEFT JOIN USER_MASTER AS UUM ON UUM.id=TM.user_id
     LEFT JOIN DEPARTMENT_MASTER AS DM ON DM.id=TM.created_for_dept_id
     LEFT JOIN TICKET_CATEGORY_MASTER AS TCM ON TCM.id=TM.ticket_category_id
-    WHERE TA.allocated_to_user_id= :id AND TA.isDeleted = false`;
+    WHERE TA.allocated_to_user_id= :id AND TA.entity_id=${req?.selectedEntity} AND TA.isDeleted = false`;
 
     // Prepare replacements object
     const replacements = {
@@ -628,6 +635,7 @@ module.exports.approvalForTicket = async (req, res) => {
         id,
         approver_status: "PENDING",
         allocated_to_user_id: user_id,
+        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
       transaction,
@@ -717,6 +725,7 @@ module.exports.approvalForTicket = async (req, res) => {
         {
           approver_status: "PENDING",
           allocated_to_user_id: data.allocated_to_user_id,
+          entity_id: req?.selectedEntity,
           ticket_id: isDataExist.ticket_id,
         },
         { transaction }

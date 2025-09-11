@@ -89,7 +89,7 @@ module.exports.getDesignationDetails = async (req, res) => {
     const query = `
     SELECT D.*
     FROM DESIGNATION_MASTER AS D
-    WHERE D.id=${id} AND D.entity_id=${req?.selectedEntity} AND D.isDeleted=false`;
+    WHERE D.id=${id} AND D.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -186,7 +186,6 @@ module.exports.updateDesignationStatus = async (req, res) => {
     const isDesignationExist = await DB.tbl_designation_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -218,7 +217,6 @@ module.exports.deleteDesignation = async (req, res) => {
     const isDesignationExist = await DB.tbl_designation_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

@@ -98,7 +98,7 @@ module.exports.getItemCategoryDetails = async (req, res) => {
     const query = `
     SELECT IC.*
     FROM ITEM_CATEGORY_MASTER AS IC
-    WHERE IC.id=${id} AND IC.entity_id=${req?.selectedEntity} AND IC.isDeleted=false`;
+    WHERE IC.id=${id} AND IC.isDeleted=false`;
 
     const getAllData = await DB.sequelize.query(query, {
       type: DB.sequelize.QueryTypes.SELECT,
@@ -177,7 +177,6 @@ module.exports.updateItemCategoryStatus = async (req, res) => {
     const isItemCategoryExist = await DB.tbl_item_category_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -209,7 +208,6 @@ module.exports.deleteItemCategory = async (req, res) => {
     const isItemCategoryExist = await DB.tbl_item_category_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });

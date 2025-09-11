@@ -16,8 +16,7 @@ router.put(
   AllowanceController.updateAllowance
 );
 router.post(
-  "/get-allowance-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-allowance-details/:id",
   AllowanceController.getAllowanceDetails
 );
 router.post(
@@ -26,15 +25,10 @@ router.post(
   AllowanceController.getAllAllowanceDetails
 );
 router.put(
-  "/update-allowance-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-allowance-status/:id",
   AllowanceController.updateAllowanceStatus
 );
-router.put(
-  "/delete-allowance/:selectedEntity/:id",
-  EntityAuth.checkEntity,
-  AllowanceController.deleteAllowance
-);
+router.put("/delete-allowance/:id", AllowanceController.deleteAllowance);
 
 // ========== EXPORT ========== //
 module.exports = router;

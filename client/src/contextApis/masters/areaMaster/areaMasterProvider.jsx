@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { AreaMasterContext } from "./areaMasterContext";
 import {
   deleteArea,
@@ -10,7 +11,9 @@ import {
 import { toast } from "react-toastify";
 
 export const AreaMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
+  const [departmentOptions, setDepartmentOptions] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
   const [data, setData] = useState(null);
@@ -23,10 +26,10 @@ export const AreaMasterProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllArea({ limit, page, filter });
+      const data = await getAllArea(selectedEntity, { limit, page, filter });
 
       if (data.success) {
         setListing(data.data);
@@ -57,7 +60,7 @@ export const AreaMasterProvider = ({ children }) => {
       const response = await deleteArea(deleteId);
       if (response.success) {
         toast(response.message);
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message);
       }
@@ -90,7 +93,7 @@ export const AreaMasterProvider = ({ children }) => {
       const response = await updateAreaStatus(id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -120,10 +123,42 @@ export const AreaMasterProvider = ({ children }) => {
     }
   };
 
+  // Get All Department List
+  const getAllDepartmentList = async (selectedEntity) => {
+    try {
+      const response = await getAllDepartments(selectedEntity, {
+        limit: 500,
+        page: 1,
+      });
+
+      if (response.success) {
+        setDepartmentOptions(
+          response.data.map((code) => ({
+            value: `${code.id}`,
+            label: `${code.name}`,
+          }))
+        );
+      } else {
+        setDepartmentOptions(null);
+      }
+    } catch (error) {
+      setDepartmentOptions(null);
+    }
+  };
+
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
+
+  // Get Department options on page load
+  useEffect(() => {
+    if (activeEntity) {
+      getAllDepartmentList(activeEntity);
+    }
+  }, [activeEntity]);
 
   // For update operations
   useEffect(() => {
@@ -189,6 +224,7 @@ export const AreaMasterProvider = ({ children }) => {
     totalPages,
     page,
     isLoading,
+    departmentOptions,
     getAllData,
     getDataById,
     deleteData,
@@ -196,6 +232,7 @@ export const AreaMasterProvider = ({ children }) => {
     handleActiveInactive,
     handleLimitChange,
     handleChangeFilter,
+    getAllDepartmentList,
     setUpdateId,
     setDeleteId,
     setPage,

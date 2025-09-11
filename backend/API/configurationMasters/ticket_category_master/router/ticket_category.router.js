@@ -16,8 +16,7 @@ router.put(
   TicketCategoryController.updateTicketCategory
 );
 router.post(
-  "/get-ticket-category-details/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/get-ticket-category-details/:id",
   TicketCategoryController.getTicketCategoryDetails
 );
 router.post(
@@ -26,13 +25,11 @@ router.post(
   TicketCategoryController.getAllTicketCategoryDetails
 );
 router.put(
-  "/update-ticket-category-status/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/update-ticket-category-status/:id",
   TicketCategoryController.updateTicketCategoryStatus
 );
 router.put(
-  "/delete-ticket-category/:selectedEntity/:id",
-  EntityAuth.checkEntity,
+  "/delete-ticket-category/:id",
   TicketCategoryController.deleteTicketCategory
 );
 

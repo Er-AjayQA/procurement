@@ -7,8 +7,10 @@ import {
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useAllowanceMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const AllowanceMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useAllowanceMasterContext();
 
@@ -74,15 +76,15 @@ export const AllowanceMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateAllowance(updateId, payload);
+        response = await updateAllowance(activeEntity, updateId, payload);
       } else {
-        response = await createAllowance(payload);
+        response = await createAllowance(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }

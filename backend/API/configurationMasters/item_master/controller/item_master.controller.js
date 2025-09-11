@@ -137,7 +137,7 @@ module.exports.getItemDetails = async (req, res) => {
     LEFT JOIN UOM_MASTER AS U ON U.id=IM.uom_id
     LEFT JOIN ITEM_SPECIFICATION AS ISS ON ISS.item_id=IM.id
     LEFT JOIN ITEM_CATEGORY_MASTER AS IC ON IC.id=IM.item_category_id
-    WHERE IM.id=${id} AND IM.entity_id=${req?.selectedEntity} AND IM.isDeleted=false
+    WHERE IM.id=${id} AND IM.isDeleted=false
     GROUP BY IM.id`;
 
     const getAllData = await DB.sequelize.query(query, {
@@ -234,7 +234,6 @@ module.exports.updateItemStatus = async (req, res) => {
     const isItemExist = await DB.tbl_item_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
@@ -267,7 +266,6 @@ module.exports.deleteItem = async (req, res) => {
     const isItemExist = await DB.tbl_item_master.findOne({
       where: {
         id,
-        entity_id: req?.selectedEntity,
         isDeleted: false,
       },
     });
