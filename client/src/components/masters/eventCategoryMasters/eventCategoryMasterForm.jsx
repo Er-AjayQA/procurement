@@ -7,8 +7,10 @@ import {
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useEventCategoryMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const EventCategoryMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useEventCategoryMasterContext();
 
@@ -21,7 +23,6 @@ export const EventCategoryMasterForm = ({ onClose }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      // Set default empty values
       event_category_name: "",
       event_category_description: "",
     },
@@ -62,15 +63,15 @@ export const EventCategoryMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateEventCategory(updateId, payload);
+        response = await updateEventCategory(activeEntity, updateId, payload);
       } else {
-        response = await createEventCategory(payload);
+        response = await createEventCategory(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }

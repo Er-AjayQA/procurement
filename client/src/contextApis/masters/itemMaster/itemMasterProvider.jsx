@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { ItemMasterContext } from "./itemMasterContext";
 import {
   deleteItem,
   getAllItem,
+  getAllItemCategory,
+  getAllUom,
   getItemById,
   updateItemStatus,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 
 export const ItemMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
@@ -22,33 +26,42 @@ export const ItemMasterProvider = ({ children }) => {
   const [totalPages, setTotalPages] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [itemCategoryOptions, setItemCategoryOptions] = useState([]);
+  const [uomOptions, setUomOptions] = useState([]);
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllItem({ limit, page, filter });
+      const data = await getAllItem(selectedEntity, { limit, page, filter });
 
-      if (data.success) {
-        setListing(data.data);
+      if (data?.success) {
+        setIsLoading(false);
+        setListing(data?.data);
         setTotalPages(data.pagination.totalPages);
       } else {
+        setIsLoading(false);
         setListing(null);
         setTotalPages(null);
       }
     } catch (error) {
+      setIsLoading(false);
       setListing(null);
       setTotalPages(null);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   // Get Data By Id
   const getDataById = async (id) => {
-    const response = await getItemById(id);
-    if (response.success) {
-      setData(response.data[0]);
+    try {
+      const response = await getItemById(id);
+      if (response?.success) {
+        setData(response?.data[0]);
+      } else {
+        setData(null);
+      }
+    } catch (error) {
+      toast.error(error.message || "Item details not found!");
     }
   };
 
@@ -58,7 +71,7 @@ export const ItemMasterProvider = ({ children }) => {
       const response = await deleteItem(deleteId);
       if (response.success) {
         toast(response.message);
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message);
       }
@@ -101,7 +114,7 @@ export const ItemMasterProvider = ({ children }) => {
       const response = await updateItemStatus(id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -131,10 +144,57 @@ export const ItemMasterProvider = ({ children }) => {
     }
   };
 
+  // Get All Item Category List
+  const getAllCategoryList = async (selectedEntity) => {
+    try {
+      let formData = {
+        limit: 5000,
+        page: 1,
+        filter: { name: "" },
+      };
+      const response = await getAllItemCategory(selectedEntity, formData);
+
+      if (response.success) {
+        setItemCategoryOptions(
+          response.data.map((data) => ({
+            value: data.id,
+            label: data.name,
+          }))
+        );
+      }
+    } catch (error) {
+      setItemCategoryOptions([]);
+    }
+  };
+
+  // Get All UOM List
+  const getAllUomList = async (selectedEntity) => {
+    try {
+      const response = await getAllUom(selectedEntity, {
+        limit: 5000,
+        page: 1,
+        filter: { name: "" },
+      });
+
+      if (response.success) {
+        setUomOptions(
+          response.data.map((data) => ({
+            value: data.id,
+            label: data.name,
+          }))
+        );
+      }
+    } catch (error) {
+      setUomOptions([]);
+    }
+  };
+
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
 
   // For update operations
   useEffect(() => {
@@ -150,6 +210,14 @@ export const ItemMasterProvider = ({ children }) => {
       deleteData();
     }
   }, [deleteId]);
+
+  // Fetching Item Cateogry and Item on initial loading
+  useEffect(() => {
+    if (activeEntity) {
+      getAllCategoryList(activeEntity);
+      getAllUomList(activeEntity);
+    }
+  }, [activeEntity]);
 
   const styledComponent = {
     control: (base) => ({
@@ -189,10 +257,58 @@ export const ItemMasterProvider = ({ children }) => {
     }),
   };
 
+  const selectStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "32px",
+      borderRadius: "0.5rem",
+      borderColor: "rgb(78, 79, 80)",
+      fontSize: "0.8rem",
+      paddingLeft: "0.75rem",
+      paddingRight: "0.75rem",
+      paddingTop: "0.5rem",
+      paddingBottom: "0.5rem",
+      "&:hover": {
+        borderColor: "#d1d5db",
+      },
+    }),
+    singleValue: (base) => ({
+      ...base,
+      fontSize: "0.8rem",
+    }),
+    menu: (base) => ({
+      ...base,
+      fontSize: "0.875rem",
+    }),
+    dropdownIndicator: (base) => ({
+      ...base,
+      padding: "3px",
+    }),
+    clearIndicator: (base) => ({
+      ...base,
+      padding: "2px",
+    }),
+    valueContainer: (base) => ({
+      ...base,
+      padding: "0px",
+    }),
+    input: (base) => ({
+      ...base,
+      margin: "0px",
+      paddingBottom: "0px",
+      paddingTop: "0px",
+    }),
+    option: (base) => ({
+      ...base,
+      fontSize: "0.8rem",
+    }),
+  };
+
   const contextValue = {
     listing,
     formVisibility,
     formType,
+    selectStyles,
     data,
     viewId,
     updateId,
@@ -205,6 +321,8 @@ export const ItemMasterProvider = ({ children }) => {
     viewVisibility,
     getAllData,
     getDataById,
+    getAllCategoryList,
+    getAllUomList,
     deleteData,
     handleFormVisibility,
     handleActiveInactive,
@@ -215,6 +333,8 @@ export const ItemMasterProvider = ({ children }) => {
     setPage,
     setViewId,
     styledComponent,
+    itemCategoryOptions,
+    uomOptions,
     handleViewVisibility,
   };
 

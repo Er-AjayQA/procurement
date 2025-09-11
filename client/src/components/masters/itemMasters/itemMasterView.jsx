@@ -148,9 +148,12 @@ export const ItemMasterView = ({ onClose }) => {
                 </div>
               </div>
               {data?.specifications.length > 0 ? (
-                data.specifications.map((spec) => {
+                data.specifications.map((spec, index) => {
                   return (
-                    <div className="grid grid-cols-2 border-b border-b-gray-300 ">
+                    <div
+                      key={index}
+                      className="grid grid-cols-2 border-b border-b-gray-300 "
+                    >
                       <div className="p-3 border-e border-e-gray-300">
                         <span>{spec.type}</span>
                       </div>

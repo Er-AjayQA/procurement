@@ -22,7 +22,6 @@ export const DepartmentMasterForm = ({ onClose }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      // Set default empty values
       name: "",
       department_head_id: "",
       dept_head_name: "",

@@ -9,7 +9,7 @@ export const NotificationListing = () => {
 
   const handleDelete = (id) => {
     setDeletingId(id);
-    setTimeout(() => setDeleteId(id), 300);
+    setTimeout(() => setDeleteId(id), 30000);
   };
 
   return (

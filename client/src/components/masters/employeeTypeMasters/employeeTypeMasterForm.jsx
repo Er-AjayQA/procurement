@@ -1,20 +1,18 @@
 import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import {
-  createBank,
   createEmployementType,
-  updateBank,
   updateEmployementType,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useEmployeeTypeMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const EmployeeTypeMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useEmployeeTypeMasterContext();
-
-  console.log(data);
 
   const {
     register,
@@ -25,7 +23,6 @@ export const EmployeeTypeMasterForm = ({ onClose }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      // Set default empty values
       name: "",
     },
   });
@@ -58,15 +55,15 @@ export const EmployeeTypeMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateEmployementType(updateId, payload);
+        response = await updateEmployementType(activeEntity, updateId, payload);
       } else {
-        response = await createEmployementType(payload);
+        response = await createEmployementType(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }
@@ -74,53 +71,6 @@ export const EmployeeTypeMasterForm = ({ onClose }) => {
       toast.error(error.message || "An error occurred");
       throw new Error(error.message);
     }
-  };
-
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: "32px",
-      borderRadius: "0.5rem",
-      borderColor: "rgb(78, 79, 80)",
-      fontSize: "0.8rem",
-      paddingLeft: "0.75rem",
-      paddingRight: "0.75rem",
-      paddingTop: "0.5rem",
-      paddingBottom: "0.5rem",
-      "&:hover": {
-        borderColor: "#d1d5db",
-      },
-    }),
-    singleValue: (base) => ({
-      ...base,
-      fontSize: "0.8rem",
-    }),
-    menu: (base) => ({
-      ...base,
-      fontSize: "0.875rem",
-    }),
-    dropdownIndicator: (base) => ({
-      ...base,
-      padding: "3px",
-    }),
-    clearIndicator: (base) => ({
-      ...base,
-      padding: "2px",
-    }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: "0px",
-    }),
-    input: (base) => ({
-      ...base,
-      margin: "0px",
-      paddingBottom: "0px",
-      paddingTop: "0px",
-    }),
-    option: (base) => ({
-      ...base,
-      fontSize: "0.8rem",
-    }),
   };
 
   return (
