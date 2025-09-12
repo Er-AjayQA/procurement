@@ -14,6 +14,7 @@ import {
 } from "../../../services/eventManagement_services/service";
 
 export const RegisteredEventsForm = () => {
+  const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const {
     data,
     updateId,
@@ -65,7 +66,6 @@ export const RegisteredEventsForm = () => {
     },
   });
 
-  const { userDetails } = useSelector((state) => state.auth);
   const [statesOptions, setStatesOptions] = useState(null);
   const [citiesOptions, setCitiesOptions] = useState(null);
   const selectedCountry = watch("event_country_id");
@@ -198,8 +198,8 @@ export const RegisteredEventsForm = () => {
       };
 
       const response = isEditMode
-        ? await updateEvent(updateId, payload)
-        : await createEvent(payload);
+        ? await updateEvent(activeEntity, updateId, payload)
+        : await createEvent(activeEntity, payload);
 
       if (response.success) {
         toast.success(response.message);

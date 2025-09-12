@@ -5,14 +5,12 @@ import Select from "react-select";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import {
-  allocateTicket,
-  approvalForTicket,
-} from "../../../services/ticket_services/service";
+import { approvalForTicket } from "../../../services/ticket_services/service";
 import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
 import { useEffect } from "react";
 
 export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { allocationData, data, setViewId, refreshData, formSelectStyles } =
     useMyTicketsInboxContext();
 
@@ -105,6 +103,7 @@ export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
       }
 
       response = await approvalForTicket(
+        activeEntity,
         allocationData?.approval_id,
         allocationData?.current_allocated_user_id,
         payload

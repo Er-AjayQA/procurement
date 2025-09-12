@@ -416,6 +416,26 @@ db.tbl_user_registered_entities =
     Sequelize
   );
 
+// RBAC Module Master Table
+db.tbl_rbac_module_master =
+  require("../API/rbac_management/model/module_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+// RBAC SubModule Master Table
+db.tbl_rbac_submodule_master =
+  require("../API/rbac_management/model/subModule_master.model")(
+    sequelize,
+    Sequelize
+  );
+
+db.tbl_rbac_assign_module_master =
+  require("../API/rbac_management/model/assign_module_master.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 
 // ========================================== DEPARTMENT MASTER RELATIONS ========================================== //
@@ -1134,26 +1154,6 @@ db.tbl_notification_master.belongsTo(db.tbl_user_master, {
 });
 
 // **************************** RBAC **************************** //
-// RBAC Module Master Table
-db.tbl_rbac_module_master =
-  require("../API/rbac_management/model/module_master.model")(
-    sequelize,
-    Sequelize
-  );
-
-// RBAC SubModule Master Table
-db.tbl_rbac_submodule_master =
-  require("../API/rbac_management/model/subModule_master.model")(
-    sequelize,
-    Sequelize
-  );
-
-db.tbl_rbac_assign_module_master =
-  require("../API/rbac_management/model/assign_module_master.model")(
-    sequelize,
-    Sequelize
-  );
-
 // Relation B/W RBAC Module Master and RBAC SubModule Master Tables
 db.tbl_rbac_module_master.hasMany(db.tbl_rbac_submodule_master, {
   foreignKey: "rbac_module_id",
@@ -1181,9 +1181,11 @@ db.tbl_rbac_assign_module_master.belongsTo(db.tbl_rbac_submodule_master, {
 // Relation B/W User Master and Assigned Module Tables
 db.tbl_user_master.hasMany(db.tbl_rbac_assign_module_master, {
   foreignKey: "user_id",
+  allowNull: true,
 });
 db.tbl_rbac_assign_module_master.belongsTo(db.tbl_user_master, {
   foreignKey: "user_id",
+  allowNull: true,
 });
 
 // Relation B/W Role Master and Assigned Module Tables
@@ -1192,6 +1194,14 @@ db.tbl_role_master.hasMany(db.tbl_rbac_assign_module_master, {
 });
 db.tbl_rbac_assign_module_master.belongsTo(db.tbl_role_master, {
   foreignKey: "role_id",
+});
+
+// Relation B/W Entity Master and RBAC Assign Modules Master Tables
+db.tbl_entity_configuration.hasMany(db.tbl_rbac_assign_module_master, {
+  foreignKey: "entity_id",
+});
+db.tbl_rbac_assign_module_master.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
 });
 
 // ========================================== TRANSFER MANAGEMENT ========================================== //
@@ -1435,6 +1445,14 @@ db.tbl_entity_configuration.hasMany(db.tbl_event_management, {
   foreignKey: "entity_id",
 });
 db.tbl_event_management.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// Relation B/W Entity Master Master And Event Registration Tables
+db.tbl_entity_configuration.hasMany(db.tbl_event_registration, {
+  foreignKey: "entity_id",
+});
+db.tbl_event_registration.belongsTo(db.tbl_entity_configuration, {
   foreignKey: "entity_id",
 });
 

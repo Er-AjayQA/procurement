@@ -16,7 +16,7 @@ import {
 } from "../../../services/ticket_services/service";
 
 export const ResolvedTicketProvider = ({ children }) => {
-  const { userDetails } = useSelector((state) => state.auth);
+  const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [loginUserData, setLoginUserData] = useState(null);
   const [approvalByMeListing, setApprovalByMeListing] = useState(null);
@@ -47,10 +47,10 @@ export const ResolvedTicketProvider = ({ children }) => {
   };
 
   // Get All Tickets
-  const getAllTicketsData = async () => {
+  const getAllTicketsData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllTicketsDetails({
+      const data = await getAllTicketsDetails(selectedEntity, {
         limit,
         page,
         filter: { ...filter, ticket_status: "CLOSE" },
@@ -143,9 +143,9 @@ export const ResolvedTicketProvider = ({ children }) => {
   };
 
   // Get All Ticket Category List
-  const getAllTicketCategoryOptions = async () => {
+  const getAllTicketCategoryOptions = async (selectedEntity) => {
     try {
-      const response = await getAllTicketCategory({
+      const response = await getAllTicketCategory(selectedEntity, {
         limit: 5000,
         page: "",
         filter: {
@@ -197,9 +197,9 @@ export const ResolvedTicketProvider = ({ children }) => {
   };
 
   // Get All Department List
-  const getAllDepartmentOptions = async () => {
+  const getAllDepartmentOptions = async (selectedEntity) => {
     try {
-      const response = await getAllDepartments({
+      const response = await getAllDepartments(selectedEntity, {
         limit: 500,
         page: "",
         filter: "",
@@ -230,10 +230,12 @@ export const ResolvedTicketProvider = ({ children }) => {
 
   // Get Filter Options Data
   useEffect(() => {
-    getAllTicketCategoryOptions();
-    getAllUsersOptions();
-    getAllDepartmentOptions();
-  }, []);
+    if (activeEntity) {
+      getAllTicketCategoryOptions(activeEntity);
+      getAllUsersOptions();
+      getAllDepartmentOptions(activeEntity);
+    }
+  }, [activeEntity]);
 
   // Get Login User Details
   useEffect(() => {
@@ -243,8 +245,18 @@ export const ResolvedTicketProvider = ({ children }) => {
   }, [userDetails]);
 
   useEffect(() => {
-    getAllTicketsData();
-  }, [limit, page, filter, refreshTrigger, componentType, loginUserData]);
+    if (activeEntity) {
+      getAllTicketsData(activeEntity);
+    }
+  }, [
+    limit,
+    page,
+    filter,
+    refreshTrigger,
+    componentType,
+    loginUserData,
+    activeEntity,
+  ]);
 
   const styledComponent = {
     control: (base) => ({

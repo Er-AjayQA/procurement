@@ -2,22 +2,30 @@ import axiosInstance from "../axisInstance";
 
 // **************************** EVENT MANAGEMENT **************************** //
 // Create Event
-export const createEvent = async (formData) => {
-  const response = await axiosInstance.post("create-event", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createEvent = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-event/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Event
-export const updateEvent = async (id, formData) => {
-  const response = await axiosInstance.put(`update-event/${id}`, formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const updateEvent = async (selectedEntity, id, formData) => {
+  const response = await axiosInstance.put(
+    `update-event/${selectedEntity}/${id}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -46,9 +54,9 @@ export const getEventById = async (id) => {
 };
 
 // Get All Events Details
-export const getAllEventsList = async (formData) => {
+export const getAllEventsList = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    `get-all-events-details`,
+    `get-all-events-details/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -71,19 +79,28 @@ export const deleteEvent = async (id) => {
 
 // **************************** EVENT TICKET MANAGEMENT **************************** //
 // Create Event Ticket
-export const createEventTicket = async (formData) => {
-  const response = await axiosInstance.post("create-event-tickets", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createEventTicket = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-event-tickets/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Event Ticket
-export const updateEventTicket = async (event_id, id, formData) => {
+export const updateEventTicket = async (
+  selectedEntity,
+  event_id,
+  id,
+  formData
+) => {
   const response = await axiosInstance.put(
-    `update-event-tickets/${event_id}/${id}`,
+    `update-event-tickets/${selectedEntity}/${event_id}/${id}`,
     formData,
     {
       headers: {
@@ -105,12 +122,16 @@ export const getEventTicketById = async (id) => {
 };
 
 // Get All Events Tickets Details
-export const getAllEventsTicketList = async (formData) => {
-  const response = await axiosInstance.post(`get-all-event-tickets`, formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const getAllEventsTicketList = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `get-all-event-tickets/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 

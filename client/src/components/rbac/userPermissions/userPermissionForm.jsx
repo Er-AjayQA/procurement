@@ -10,9 +10,11 @@ import {
   assignModuleToUserService,
   checkUserAlreadyAssigned,
 } from "../../../services/rbac_services/service";
+import { useSelector } from "react-redux";
 
 // Main Form Component
 export const UserPermissionForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const {
     getAllData,
     data,
@@ -43,8 +45,8 @@ export const UserPermissionForm = ({ onClose }) => {
   });
 
   // Get Updated User Assigned Module details
-  const getUserAssignedModules = async () => {
-    const response = await allUsersModuleAccessService({
+  const getUserAssignedModules = async (activeEntity) => {
+    const response = await allUsersModuleAccessService(activeEntity, {
       limit: 1000,
       page: "",
       filter: { user_id: updateId },
@@ -56,9 +58,9 @@ export const UserPermissionForm = ({ onClose }) => {
   };
 
   // Check if User Already Assigned
-  const checkUserAlreadyAssignedModule = async (id) => {
+  const checkUserAlreadyAssignedModule = async (activeEntity, id) => {
     try {
-      const response = await checkUserAlreadyAssigned(id);
+      const response = await checkUserAlreadyAssigned(activeEntity, id);
 
       if (response.success) {
         toast.error(response.message);
@@ -202,12 +204,12 @@ export const UserPermissionForm = ({ onClose }) => {
 
       console.log(payload);
 
-      let response = await assignModuleToUserService(payload);
+      let response = await assignModuleToUserService(activeEntity, payload);
 
       if (response.success) {
         toast.success(response.message);
         onClose();
-        getAllData();
+        getAllData(activeEntity);
       }
     } catch (error) {
       toast.error(error.message || "An error occurred");
@@ -285,12 +287,14 @@ export const UserPermissionForm = ({ onClose }) => {
 
   // Get User Assigned Module
   useEffect(() => {
-    getUserAssignedModules();
-  }, [updateId]);
+    if (activeEntity) {
+      getUserAssignedModules(activeEntity);
+    }
+  }, [updateId, activeEntity]);
 
   useEffect(() => {
-    if (selectedUser && !updateId) {
-      checkUserAlreadyAssignedModule(selectedUser.value);
+    if (activeEntity && selectedUser && !updateId) {
+      checkUserAlreadyAssignedModule(activeEntity, selectedUser.value);
     }
   }, [selectedUser]);
 

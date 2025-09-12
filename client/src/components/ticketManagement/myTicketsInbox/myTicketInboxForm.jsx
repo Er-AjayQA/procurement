@@ -12,6 +12,7 @@ import {
 } from "../../../services/ticket_services/service";
 
 export const MyTicketInboxForm = () => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const {
     data,
     tabType,
@@ -143,9 +144,9 @@ export const MyTicketInboxForm = () => {
       };
 
       if (updateId) {
-        response = await updateTicket(updateId, payload);
+        response = await updateTicket(activeEntity, updateId, payload);
       } else {
-        response = await createTicket(payload);
+        response = await createTicket(activeEntity, payload);
       }
 
       if (response.success) {

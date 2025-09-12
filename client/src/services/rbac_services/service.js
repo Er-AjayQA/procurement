@@ -12,31 +12,38 @@ export const moduleService = async () => {
 };
 
 // Assign Modules Service
-export const assignModuleToUserService = async (formData) => {
-  const response = await axiosInstance.post("/assign-module", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const assignModuleToUserService = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `/assign-module/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   return response.data;
 };
 
 // Get RBAC Access Module Service
-export const moduleAccessService = async (id) => {
-  const response = await axiosInstance.post(`/get-all-assigned-module/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const moduleAccessService = async (selectedEntity, id) => {
+  const response = await axiosInstance.post(
+    `/get-all-assigned-module/${selectedEntity}/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   return response.data;
 };
 
 // Get RBAC All Users Access Module Service
-export const allUsersModuleAccessService = async (formData) => {
+export const allUsersModuleAccessService = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    `/get-all-users-assigned-module`,
+    `/get-all-users-assigned-module/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -49,9 +56,9 @@ export const allUsersModuleAccessService = async (formData) => {
 };
 
 // Check if User Have Already Assigned
-export const checkUserAlreadyAssigned = async (id) => {
+export const checkUserAlreadyAssigned = async (selectedEntity, id) => {
   const response = await axiosInstance.post(
-    `/check-user-already-assigned/${id}`,
+    `/check-user-already-assigned/${selectedEntity}/${id}`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -63,12 +70,15 @@ export const checkUserAlreadyAssigned = async (id) => {
 };
 
 // Revoke User Permissions
-export const revokeUserPermissions = async (id) => {
-  const response = await axiosInstance.post(`/revoke-user-permissions/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const revokeUserPermissions = async (selectedEntity, id) => {
+  const response = await axiosInstance.post(
+    `/revoke-user-permissions/${selectedEntity}/${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   return response.data;
 };

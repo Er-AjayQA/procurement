@@ -464,6 +464,7 @@ module.exports.assignModule = async (req, res) => {
             read: data.read,
             write: data.write,
             delete: data.delete,
+            entity_id: req?.selectedEntity,
           },
           transaction
         );
@@ -500,7 +501,7 @@ module.exports.getAssignModule = async (req, res) => {
 
     const getAllAssignedModules =
       await DB.tbl_rbac_assign_module_master.findAll({
-        where: { user_id: id },
+        where: { user_id: id, entity_id: req?.selectedEntity },
         include: [
           {
             model: DB.tbl_rbac_module_master,
@@ -577,7 +578,11 @@ module.exports.getAllAssignModule = async (req, res) => {
     const offset = (page - 1) * limit;
     const filter = req.body.filter || null;
 
-    const whereClause = { isDeleted: false, status: true };
+    const whereClause = {
+      entity_id: req?.selectedEntity,
+      isDeleted: false,
+      status: true,
+    };
 
     // Check if user_id exists and is a valid value
     if (
@@ -721,7 +726,7 @@ module.exports.checkIfAlreadyAssign = async (req, res) => {
     }
 
     const alreadyExist = await DB.tbl_rbac_assign_module_master.findOne({
-      where: { user_id },
+      where: { user_id, entity_id: req?.selectedEntity },
       transaction,
     });
 
@@ -764,7 +769,7 @@ module.exports.revokePermissions = async (req, res) => {
     }
 
     const alreadyExist = await DB.tbl_rbac_assign_module_master.findOne({
-      where: { user_id },
+      where: { user_id, entity_id: req?.selectedEntity },
       transaction,
     });
 

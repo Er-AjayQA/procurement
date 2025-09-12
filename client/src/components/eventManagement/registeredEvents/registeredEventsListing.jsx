@@ -10,8 +10,10 @@ import { DeleteIcon } from "../../UI/deleteIcon";
 import { useRegisteredEventsContext } from "../../../contextApis/useEventContextFile";
 import { updateEventStatus } from "../../../services/eventManagement_services/service";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 export const RegisteredEventsListing = ({ componentType }) => {
+  const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const {
     isLoading,
     listing,
@@ -40,7 +42,7 @@ export const RegisteredEventsListing = ({ componentType }) => {
       const response = await updateEventStatus(id, { status: e.target.value });
       if (response.success) {
         toast.success(response.message);
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message);
       }
