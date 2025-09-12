@@ -14,7 +14,7 @@ import {
 } from "../../../services/ticket_services/service";
 
 export const MyTicketInboxProvider = ({ children }) => {
-  const { userDetails } = useSelector((state) => state.auth);
+  const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [approvalByMeListing, setApprovalByMeListing] = useState(null);
   const [data, setData] = useState(null);
@@ -50,10 +50,10 @@ export const MyTicketInboxProvider = ({ children }) => {
   };
 
   // Get All Tickets
-  const getAllTicketsData = async (id) => {
+  const getAllTicketsData = async (selectedEntity, id) => {
     try {
       setIsLoading(true);
-      const data = await getAllTicketsAllocatedToUser(id, {
+      const data = await getAllTicketsAllocatedToUser(selectedEntity, id, {
         limit,
         page,
         filter,
@@ -146,9 +146,9 @@ export const MyTicketInboxProvider = ({ children }) => {
   };
 
   // Get All Ticket Category List
-  const getAllTicketCategoryOptions = async () => {
+  const getAllTicketCategoryOptions = async (selectedEntity) => {
     try {
-      const response = await getAllTicketCategory({
+      const response = await getAllTicketCategory(selectedEntity, {
         limit: 5000,
         page: "",
         filter: {
@@ -200,9 +200,9 @@ export const MyTicketInboxProvider = ({ children }) => {
   };
 
   // Get All Department List
-  const getAllDepartmentOptions = async () => {
+  const getAllDepartmentOptions = async (selectedEntity) => {
     try {
-      const response = await getAllDepartments({
+      const response = await getAllDepartments(selectedEntity, {
         limit: 500,
         page: "",
         filter: "",
@@ -225,10 +225,10 @@ export const MyTicketInboxProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    if (componentType === "listing") {
-      getAllTicketsData(userDetails?.id);
+    if (activeEntity && componentType === "listing") {
+      getAllTicketsData(activeEntity, userDetails?.id);
     }
-  }, [limit, page, filter, refreshTrigger, componentType]);
+  }, [limit, page, filter, refreshTrigger, componentType, activeEntity]);
 
   // For View operations
   useEffect(() => {
@@ -240,10 +240,12 @@ export const MyTicketInboxProvider = ({ children }) => {
 
   // Get Filter Options Data
   useEffect(() => {
-    getAllTicketCategoryOptions();
-    getAllUsersOptions();
-    getAllDepartmentOptions();
-  }, []);
+    if (activeEntity) {
+      getAllTicketCategoryOptions(activeEntity);
+      getAllUsersOptions();
+      getAllDepartmentOptions(activeEntity);
+    }
+  }, [activeEntity]);
 
   const styledComponent = {
     control: (base) => ({
@@ -347,8 +349,6 @@ export const MyTicketInboxProvider = ({ children }) => {
       })
       .replace(",", "");
   };
-
-  console.log("Data", allocationData);
 
   const contextValue = {
     listing,

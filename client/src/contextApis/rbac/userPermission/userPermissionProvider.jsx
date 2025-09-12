@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { UserPermissionContext } from "./userPermissionContext";
 import { getAllRoles } from "../../../services/master_services/service";
 import {
@@ -10,6 +11,7 @@ import { getAllEmployeeDetails } from "../../../services/employeeDetails_service
 import { toast } from "react-toastify";
 
 export const UserPermissionProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [usersList, setUsersList] = useState(null);
   const [rolesList, setRolesList] = useState(null);
@@ -54,9 +56,9 @@ export const UserPermissionProvider = ({ children }) => {
   };
 
   // Get All Roles List
-  const getAllRolesList = async () => {
+  const getAllRolesList = async (selectedEntity) => {
     try {
-      const response = await getAllRoles({
+      const response = await getAllRoles(selectedEntity, {
         limit: 500,
         page,
         filter: null,
@@ -93,10 +95,14 @@ export const UserPermissionProvider = ({ children }) => {
   };
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await allUsersModuleAccessService({ limit, page, filter });
+      const data = await allUsersModuleAccessService(selectedEntity, {
+        limit,
+        page,
+        filter,
+      });
 
       if (data.success) {
         setListing(data.data);
@@ -114,10 +120,10 @@ export const UserPermissionProvider = ({ children }) => {
   };
 
   // Revoke User Permissions
-  const revokeAllUserPermissions = async (id) => {
+  const revokeAllUserPermissions = async (selectedEntity, id) => {
     try {
       setIsLoading(true);
-      const data = await revokeUserPermissions(id);
+      const data = await revokeUserPermissions(selectedEntity, id);
 
       if (data.success) {
         toast.success(data.message);
@@ -131,9 +137,9 @@ export const UserPermissionProvider = ({ children }) => {
   };
 
   // Get Data By Id
-  const getDataById = async (id) => {
+  const getDataById = async (selectedEntity, id) => {
     try {
-      const response = await allUsersModuleAccessService({
+      const response = await allUsersModuleAccessService(selectedEntity, {
         limit,
         page,
         filter: { user_id: id },
@@ -212,14 +218,16 @@ export const UserPermissionProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter, updateId, deleteId]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, updateId, deleteId, activeEntity]);
 
   // For update operations
   useEffect(() => {
-    if (updateId || viewId) {
+    if (activeEntity && (updateId || viewId)) {
       const id = updateId || viewId;
-      getDataById(id);
+      getDataById(activeEntity, id);
     }
   }, [updateId, viewId]);
 
@@ -230,8 +238,10 @@ export const UserPermissionProvider = ({ children }) => {
 
   // Get Role list
   useEffect(() => {
-    getAllRolesList();
-  }, [updateId]);
+    if (activeEntity) {
+      getAllRolesList(activeEntity);
+    }
+  }, [updateId, activeEntity]);
 
   // Get All Modules List
   useEffect(() => {
@@ -239,7 +249,9 @@ export const UserPermissionProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (deleteId) revokeAllUserPermissions(deleteId);
+    if (activeEntity && deleteId) {
+      revokeAllUserPermissions(activeEntity, deleteId);
+    }
   }, [deleteId]);
 
   const styledComponent = {

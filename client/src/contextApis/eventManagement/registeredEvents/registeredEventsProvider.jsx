@@ -11,14 +11,14 @@ import {
   getEmployeeDetails,
 } from "../../../services/employeeDetails_services/services";
 import { useSelector } from "react-redux";
-import { deleteTicket } from "../../../services/ticket_services/service";
 import {
+  deleteEvent,
   getAllEventsList,
   getEventById,
 } from "../../../services/eventManagement_services/service";
 
 export const RegisteredEventsProvider = ({ children }) => {
-  const { userDetails } = useSelector((state) => state.auth);
+  const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [loginUserData, setLoginUserData] = useState(null);
   const [approvalByMeListing, setApprovalByMeListing] = useState(null);
@@ -71,10 +71,10 @@ export const RegisteredEventsProvider = ({ children }) => {
   };
 
   // Get All Events
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllEventsList({
+      const data = await getAllEventsList(selectedEntity, {
         limit,
         page,
         filter,
@@ -165,14 +165,15 @@ export const RegisteredEventsProvider = ({ children }) => {
     setViewId(null);
   };
 
-  // Handle User Delete Functionality
+  // Handle Event Delete Functionality
   const handleDelete = async (id) => {
     try {
-      const response = await deleteTicket(id);
+      const response = await deleteEvent(id);
 
       if (response.success) {
         toast.success(response.message);
         setDeleteId(null);
+        getAllData(activeEntity);
       } else {
         toast.error(response.message);
       }
@@ -201,9 +202,9 @@ export const RegisteredEventsProvider = ({ children }) => {
   };
 
   // Get All Event Category List
-  const getAllEventCategoryOptions = async () => {
+  const getAllEventCategoryOptions = async (selectedEntity) => {
     try {
-      const response = await getAllEventCategory({
+      const response = await getAllEventCategory(selectedEntity, {
         limit: 5000,
         page: "",
         filter: {
@@ -279,14 +280,26 @@ export const RegisteredEventsProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData(userDetails?.id);
-  }, [limit, page, filter, refreshTrigger, userDetails?.id, deleteId]);
+    if (activeEntity) {
+      getAllData(activeEntity, userDetails?.id);
+    }
+  }, [
+    limit,
+    page,
+    filter,
+    refreshTrigger,
+    userDetails?.id,
+    deleteId,
+    activeEntity,
+  ]);
 
   useEffect(() => {
-    getAllUsersOptions();
-    getAllEventCategoryOptions();
-    getAllCountryOptions();
-  }, [updateId, deleteId, refreshTrigger]);
+    if (activeEntity) {
+      getAllUsersOptions();
+      getAllEventCategoryOptions(activeEntity);
+      getAllCountryOptions();
+    }
+  }, [updateId, deleteId, refreshTrigger, activeEntity]);
 
   // For update operations
   useEffect(() => {

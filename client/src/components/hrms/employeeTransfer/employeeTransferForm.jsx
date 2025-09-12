@@ -60,7 +60,7 @@ export const EmployeeTransferForm = () => {
     },
   });
 
-  const { userDetails } = useSelector((state) => state.auth);
+  const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const selectedUser = watch("requested_for_user_id");
 
   const handleCancel = () => {
@@ -151,7 +151,11 @@ export const EmployeeTransferForm = () => {
           acted_on: new Date().toISOString(),
         };
 
-        response = await approvalForTransfer(updateId, approvalPayload);
+        response = await approvalForTransfer(
+          activeEntity,
+          updateId,
+          approvalPayload
+        );
         if (response.success) {
           toast.success(response.message);
 
@@ -208,9 +212,9 @@ export const EmployeeTransferForm = () => {
       console.log("Approvers List...", formData?.approvers_list);
 
       if (updateId) {
-        response = await updateTransfer(updateId, payload);
+        response = await updateTransfer(activeEntity, updateId, payload);
       } else {
-        response = await createTransfer(payload);
+        response = await createTransfer(activeEntity, payload);
       }
 
       if (response.success) {

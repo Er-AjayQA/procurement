@@ -1,15 +1,12 @@
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import Select from "react-select";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import { FaRegHandLizard } from "react-icons/fa6";
 import { useState } from "react";
 import { TicketHistoryPopup } from "./historyPopup";
 import { useResolvedTicketsContext } from "../../../contextApis/useTicketContextFile";
 import { SkeltonUi } from "../../UI/Skelton";
 import { ViewIcon } from "../../UI/viewIconUi";
 import { useSelector } from "react-redux";
-import { allocateTicket } from "../../../services/ticket_services/service";
-import { toast } from "react-toastify";
 
 export const ResolvedTicketListing = ({ componentType }) => {
   const {
@@ -23,46 +20,15 @@ export const ResolvedTicketListing = ({ componentType }) => {
     departmentOptions,
     ticketCategoryOptions,
     styledComponent,
-    refreshData,
-    getAllTicketsData,
     handleLimitChange,
     handleChangeFilter,
     handleComponentView,
   } = useResolvedTicketsContext();
-  const { userDetails } = useSelector((state) => state.auth);
+
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showApproverPopup, setShowApproverPopup] = useState(false);
-  const [showActionPopup, setShowActionPopup] = useState(false);
-
-  // Handle Pick Ticket
-  const handlePickTicket = async (id, e) => {
-    try {
-      e.preventDefault();
-      let response;
-
-      const payload = {
-        allocated_to_user_id: userDetails?.id,
-        action_by_user_id: userDetails?.id,
-        status: "PICK",
-      };
-
-      response = await allocateTicket(id, payload);
-
-      if (response.success) {
-        toast.success(response.message);
-        if (typeof refreshData === "function") {
-          refreshData();
-        }
-        getAllTicketsData();
-      } else {
-        toast.error(response.message || "Operation failed");
-      }
-    } catch (error) {
-      toast.error(error.message || "An error occurred");
-    }
-  };
 
   return (
     <>
@@ -228,17 +194,6 @@ export const ResolvedTicketListing = ({ componentType }) => {
                           setViewId(list?.id);
                         }}
                       />
-
-                      {list?.ticket_status === "OPEN" && (
-                        <div
-                          className="p-1 hover:bg-blue-600 rounded-lg cursor-pointer"
-                          onClick={(e) => {
-                            handlePickTicket(list?.id, e);
-                          }}
-                        >
-                          <FaRegHandLizard className="cursor-pointer hover:fill-white" />
-                        </div>
-                      )}
                     </div>
                   </div>
                 );
