@@ -46,13 +46,14 @@ export const RoleMasterForm = ({ onClose }) => {
   // Handle Form Submit
   const onSubmit = async (data) => {
     try {
+      const payload = {
+        name: data?.name,
+      };
       let response = "";
       if (formType === "Update") {
-        response = await updateRole(activeEntity, updateId, {
-          name: data.name,
-        });
+        response = await updateRole(activeEntity, updateId, payload);
       } else {
-        response = await createRole(activeEntity, { name: data.name });
+        response = await createRole(activeEntity, payload);
       }
 
       if (response.success) {

@@ -13,7 +13,7 @@ import {
 } from "../../../services/ticket_services/service";
 
 export const AllTicketProvider = ({ children }) => {
-  const { userDetails } = useSelector((state) => state.auth);
+  const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [approvalByMeListing, setApprovalByMeListing] = useState(null);
   const [data, setData] = useState(null);
@@ -47,10 +47,10 @@ export const AllTicketProvider = ({ children }) => {
   };
 
   // Get All Tickets
-  const getAllTicketsData = async (id) => {
+  const getAllTicketsData = async (selectedEntity, id) => {
     try {
       setIsLoading(true);
-      const data = await getAllTicketsDetails({
+      const data = await getAllTicketsDetails(selectedEntity, {
         limit,
         page,
         filter,
@@ -128,9 +128,9 @@ export const AllTicketProvider = ({ children }) => {
   };
 
   // Get All Ticket Category List
-  const getAllTicketCategoryOptions = async () => {
+  const getAllTicketCategoryOptions = async (selectedEntity) => {
     try {
-      const response = await getAllTicketCategory({
+      const response = await getAllTicketCategory(selectedEntity, {
         limit: 5000,
         page: "",
         filter: {
@@ -182,9 +182,9 @@ export const AllTicketProvider = ({ children }) => {
   };
 
   // Get All Department List
-  const getAllDepartmentOptions = async () => {
+  const getAllDepartmentOptions = async (selectedEntity) => {
     try {
-      const response = await getAllDepartments({
+      const response = await getAllDepartments(selectedEntity, {
         limit: 500,
         page: "",
         filter: "",
@@ -207,10 +207,10 @@ export const AllTicketProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    if (componentType === "listing") {
-      getAllTicketsData();
+    if (activeEntity && componentType === "listing") {
+      getAllTicketsData(activeEntity);
     }
-  }, [limit, page, filter, refreshTrigger, componentType]);
+  }, [limit, page, filter, refreshTrigger, componentType, activeEntity]);
 
   // For View operations
   useEffect(() => {
@@ -222,10 +222,12 @@ export const AllTicketProvider = ({ children }) => {
 
   // Get Filter Options Data
   useEffect(() => {
-    getAllTicketCategoryOptions();
-    getAllUsersOptions();
-    getAllDepartmentOptions();
-  }, []);
+    if (activeEntity) {
+      getAllTicketCategoryOptions(activeEntity);
+      getAllUsersOptions();
+      getAllDepartmentOptions(activeEntity);
+    }
+  }, [activeEntity]);
 
   const styledComponent = {
     control: (base) => ({

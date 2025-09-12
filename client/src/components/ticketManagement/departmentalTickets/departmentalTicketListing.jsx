@@ -12,6 +12,7 @@ import { allocateTicket } from "../../../services/ticket_services/service";
 import { toast } from "react-toastify";
 
 export const DepartmentalTicketListing = ({ componentType }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const {
     isLoading,
     listing,
@@ -48,14 +49,14 @@ export const DepartmentalTicketListing = ({ componentType }) => {
         status: "PICK",
       };
 
-      response = await allocateTicket(id, payload);
+      response = await allocateTicket(activeEntity, id, payload);
 
       if (response.success) {
         toast.success(response.message);
         if (typeof refreshData === "function") {
           refreshData();
         }
-        getAllTicketsData();
+        getAllTicketsData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }

@@ -10,6 +10,7 @@ import { getAllEmployeeDetails } from "../../../services/employeeDetails_service
 import { useEffect } from "react";
 
 export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { data, setViewId, refreshData, formSelectStyles } =
     useAllTicketsContext();
 
@@ -86,7 +87,7 @@ export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
         status: "ASSIGNED",
       };
 
-      response = await allocateTicket(data?.id, payload);
+      response = await allocateTicket(activeEntity, data?.id, payload);
 
       if (response.success) {
         toast.success(response.message);
