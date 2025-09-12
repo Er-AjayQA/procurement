@@ -8,8 +8,10 @@ import {
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useTicketCategoryMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const TicketCategoryMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const {
     selectStyles,
     formVisibility,
@@ -90,9 +92,9 @@ export const TicketCategoryMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateTicketCategory(updateId, payload);
+        response = await updateTicketCategory(activeEntity, updateId, payload);
       } else {
-        response = await createTicketCategory(payload);
+        response = await createTicketCategory(activeEntity, payload);
       }
 
       if (response.success) {

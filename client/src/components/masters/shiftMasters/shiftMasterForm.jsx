@@ -7,8 +7,10 @@ import {
 import { toast } from "react-toastify";
 import { useCallback, useEffect } from "react";
 import { useShiftMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const ShiftMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useShiftMasterContext();
 
@@ -158,15 +160,15 @@ export const ShiftMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateShift(updateId, payload);
+        response = await updateShift(activeEntity, updateId, payload);
       } else {
-        response = await createShift(payload);
+        response = await createShift(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }

@@ -11,7 +11,6 @@ export const ShiftMasterPage = () => {
     handleFormVisibility,
     handleLimitChange,
     handleChangeFilter,
-    styledComponent,
     handleViewVisibility,
   } = useShiftMasterContext();
 

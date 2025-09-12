@@ -846,19 +846,26 @@ export const deleteContractType = async (id) => {
 
 // **************************** SHIFT MASTER **************************** //
 // Create Shift Master
-export const createShift = async (formData) => {
-  const response = await axiosInstance.post("create-shift", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createShift = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-shift/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Shift
-export const updateShift = async (id, formData) => {
+export const updateShift = async (selectedEntity, id, formData) => {
   try {
-    const response = await axiosInstance.put(`update-shift/${id}`, formData);
+    const response = await axiosInstance.put(
+      `update-shift/${selectedEntity}/${id}`,
+      formData
+    );
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -889,12 +896,16 @@ export const getShiftById = async (id) => {
 };
 
 // Get All Master Shift List
-export const getAllShift = async (formData) => {
-  const response = await axiosInstance.post("get-all-shift-details", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const getAllShift = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `get-all-shift-details/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
@@ -1375,20 +1386,24 @@ export const deleteCourseCategory = async (id) => {
 
 // **************************** TRANSFER TYPE MASTER **************************** //
 // Create Transfer Type Master
-export const createTransferType = async (formData) => {
-  const response = await axiosInstance.post("create-transferType", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createTransferType = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-transferType/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Transfer Type
-export const updateTransferType = async (id, formData) => {
+export const updateTransferType = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-transferType/${id}`,
+      `update-transferType/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -1421,9 +1436,9 @@ export const getTransferTypeById = async (id) => {
 };
 
 // Get All Master Transfer Type List
-export const getAllTransferType = async (formData) => {
+export const getAllTransferType = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-transferType-details",
+    `get-all-transferType-details/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1446,20 +1461,24 @@ export const deleteTransferType = async (id) => {
 
 // **************************** TRANSFER REASON MASTER **************************** //
 // Create Transfer Reason Master
-export const createTransferReason = async (formData) => {
-  const response = await axiosInstance.post("create-transferReason", formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+export const createTransferReason = async (selectedEntity, formData) => {
+  const response = await axiosInstance.post(
+    `create-transferReason/${selectedEntity}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return response.data;
 };
 
 // Update Transfer Reason
-export const updateTransferReason = async (id, formData) => {
+export const updateTransferReason = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-transferReason/${id}`,
+      `update-transferReason/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -1498,9 +1517,9 @@ export const getTransferReasonById = async (id) => {
 };
 
 // Get All Master Transfer Reason List
-export const getAllTransferReason = async (formData) => {
+export const getAllTransferReason = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-transferReason-details",
+    `get-all-transferReason-details/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1523,9 +1542,9 @@ export const deleteTransferReason = async (id) => {
 
 // **************************** TICKET CATEGORY MASTER **************************** //
 // Create Ticket Category Master
-export const createTicketCategory = async (formData) => {
+export const createTicketCategory = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "create-ticket-category",
+    `create-ticket-category/${selectedEntity}`,
     formData,
     {
       headers: {
@@ -1537,10 +1556,10 @@ export const createTicketCategory = async (formData) => {
 };
 
 // Update Ticket Category
-export const updateTicketCategory = async (id, formData) => {
+export const updateTicketCategory = async (selectedEntity, id, formData) => {
   try {
     const response = await axiosInstance.put(
-      `update-ticket-category/${id}`,
+      `update-ticket-category/${selectedEntity}/${id}`,
       formData
     );
     return response.data;
@@ -1579,9 +1598,9 @@ export const getTicketCategoryById = async (id) => {
 };
 
 // Get All Master Ticket Category List
-export const getAllTicketCategory = async (formData) => {
+export const getAllTicketCategory = async (selectedEntity, formData) => {
   const response = await axiosInstance.post(
-    "get-all-ticket-categories",
+    `get-all-ticket-categories/${selectedEntity}`,
     formData,
     {
       headers: {
