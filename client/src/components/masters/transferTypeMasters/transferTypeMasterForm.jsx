@@ -7,8 +7,10 @@ import {
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useTransferTypeMasterContext } from "../../../contextApis/useMastersContextFile";
+import { useSelector } from "react-redux";
 
 export const TransferTypeMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useTransferTypeMasterContext();
 
@@ -54,15 +56,15 @@ export const TransferTypeMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateTransferType(updateId, payload);
+        response = await updateTransferType(activeEntity, updateId, payload);
       } else {
-        response = await createTransferType(payload);
+        response = await createTransferType(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }
@@ -70,53 +72,6 @@ export const TransferTypeMasterForm = ({ onClose }) => {
       toast.error(error.message || "An error occurred");
       throw new Error(error.message);
     }
-  };
-
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: "32px",
-      borderRadius: "0.5rem",
-      borderColor: "rgb(78, 79, 80)",
-      fontSize: "0.8rem",
-      paddingLeft: "0.75rem",
-      paddingRight: "0.75rem",
-      paddingTop: "0.5rem",
-      paddingBottom: "0.5rem",
-      "&:hover": {
-        borderColor: "#d1d5db",
-      },
-    }),
-    singleValue: (base) => ({
-      ...base,
-      fontSize: "0.8rem",
-    }),
-    menu: (base) => ({
-      ...base,
-      fontSize: "0.875rem",
-    }),
-    dropdownIndicator: (base) => ({
-      ...base,
-      padding: "3px",
-    }),
-    clearIndicator: (base) => ({
-      ...base,
-      padding: "2px",
-    }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: "0px",
-    }),
-    input: (base) => ({
-      ...base,
-      margin: "0px",
-      paddingBottom: "0px",
-      paddingTop: "0px",
-    }),
-    option: (base) => ({
-      ...base,
-      fontSize: "0.8rem",
-    }),
   };
 
   return (

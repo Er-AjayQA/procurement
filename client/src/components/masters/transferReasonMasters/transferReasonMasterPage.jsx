@@ -44,8 +44,8 @@ export const TransferReasonMasterPage = () => {
             <div className="flex items-center gap-5">
               <input
                 type="search"
-                name="transfer_type"
-                value={filter.transfer_type}
+                name="reason_type"
+                value={filter.reason_type}
                 placeholder="Search here.."
                 className="py-1 px-2 rounded-md text-sm border-borders-light"
                 onChange={(e) => handleChangeFilter(e)}

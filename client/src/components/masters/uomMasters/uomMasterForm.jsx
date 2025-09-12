@@ -1,16 +1,16 @@
 import { useForm } from "react-hook-form";
 import { MdOutlineClose } from "react-icons/md";
 import {
-  createBank,
   createUom,
-  updateBank,
   updateUom,
 } from "../../../services/master_services/service";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useUomMasterContext } from "../../../contextApis/useMastersContextFile";
 
 export const UomMasterForm = ({ onClose }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { formVisibility, formType, getAllData, updateId, data } =
     useUomMasterContext();
 
@@ -23,7 +23,6 @@ export const UomMasterForm = ({ onClose }) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      // Set default empty values
       name: "",
       uom_description: "",
     },
@@ -60,15 +59,15 @@ export const UomMasterForm = ({ onClose }) => {
 
       let response = "";
       if (formType === "Update") {
-        response = await updateUom(updateId, payload);
+        response = await updateUom(activeEntity, updateId, payload);
       } else {
-        response = await createUom(payload);
+        response = await createUom(activeEntity, payload);
       }
 
       if (response.success) {
         toast.success(response.message);
         handleFormClose();
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message || "Operation failed");
       }

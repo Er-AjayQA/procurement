@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { TransferTypeMasterContext } from "./transferTypeMasterContext";
 import {
   deleteTransferType,
@@ -9,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 
 export const TransferTypeMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [formType, setFormType] = useState("Add");
@@ -22,10 +24,14 @@ export const TransferTypeMasterProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllTransferType({ limit, page, filter });
+      const data = await getAllTransferType(selectedEntity, {
+        limit,
+        page,
+        filter,
+      });
 
       if (data.success) {
         setListing(data.data);
@@ -56,7 +62,7 @@ export const TransferTypeMasterProvider = ({ children }) => {
       const response = await deleteTransferType(deleteId);
       if (response.success) {
         toast(response.message);
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message);
       }
@@ -89,7 +95,7 @@ export const TransferTypeMasterProvider = ({ children }) => {
       const response = await updateTransferTypeStatus(id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -114,8 +120,10 @@ export const TransferTypeMasterProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
 
   // For update operations
   useEffect(() => {

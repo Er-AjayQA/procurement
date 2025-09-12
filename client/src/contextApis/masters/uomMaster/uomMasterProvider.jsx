@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { UomMasterContext } from "./uomMasterContext";
 import {
   deleteUom,
@@ -9,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 
 export const UomMasterProvider = ({ children }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [formVisibility, setFormVisibility] = useState(false);
   const [viewVisibility, setViewVisibility] = useState(false);
@@ -24,10 +26,10 @@ export const UomMasterProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get All Master Data
-  const getAllData = async () => {
+  const getAllData = async (selectedEntity) => {
     try {
       setIsLoading(true);
-      const data = await getAllUom({ limit, page, filter });
+      const data = await getAllUom(selectedEntity, { limit, page, filter });
 
       if (data.success) {
         setListing(data.data);
@@ -58,7 +60,7 @@ export const UomMasterProvider = ({ children }) => {
       const response = await deleteUom(deleteId);
       if (response.success) {
         toast(response.message);
-        getAllData();
+        getAllData(activeEntity);
       } else {
         toast.error(response.message);
       }
@@ -101,7 +103,7 @@ export const UomMasterProvider = ({ children }) => {
       const response = await updateUomStatus(id);
 
       if (response.success) {
-        getAllData();
+        getAllData(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -126,8 +128,10 @@ export const UomMasterProvider = ({ children }) => {
 
   // For initial load and filter/pagination changes
   useEffect(() => {
-    getAllData();
-  }, [limit, page, filter]);
+    if (activeEntity) {
+      getAllData(activeEntity);
+    }
+  }, [limit, page, filter, activeEntity]);
 
   // For update operations
   useEffect(() => {
