@@ -6,16 +6,20 @@ const EntityAuth = require("../../../helper/utilFunctions");
 
 // ========== ROUTES ========== //
 router.post(
-  "/create-ticket",
+  "/create-ticket/:selectedEntity",
   EntityAuth.checkEntity,
   TicketController.createTicket
 );
 router.put(
-  "/update-ticket/:id",
+  "/update-ticket/:selectedEntity/:id",
   EntityAuth.checkEntity,
   TicketController.updateTicket
 );
-router.put("/escalate-ticket/:id", TicketController.escalateTicket);
+router.put(
+  "/escalate-ticket/:selectedEntity/:id",
+  EntityAuth.checkEntity,
+  TicketController.escalateTicket
+);
 router.post("/get-ticket-details-by-id/:id", TicketController.getTicketDetails);
 router.post(
   "/get-all-ticket-generated-by-user/:selectedEntity/:id",

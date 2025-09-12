@@ -16,7 +16,7 @@ import {
 } from "../../../services/ticket_services/service";
 
 export const DepartmentalTicketProvider = ({ children }) => {
-  const { userDetails } = useSelector((state) => state.auth);
+  const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [loginUserData, setLoginUserData] = useState(null);
   const [approvalByMeListing, setApprovalByMeListing] = useState(null);
@@ -46,7 +46,7 @@ export const DepartmentalTicketProvider = ({ children }) => {
   };
 
   // Get All Tickets
-  const getAllTicketsData = async () => {
+  const getAllTicketsData = async (selectedEntity) => {
     try {
       // Only fetch tickets if we have login user data with department ID
       if (!loginUserData?.dep_id) {
@@ -56,7 +56,7 @@ export const DepartmentalTicketProvider = ({ children }) => {
       }
 
       setIsLoading(true);
-      const data = await getAllTicketsDetails({
+      const data = await getAllTicketsDetails(selectedEntity, {
         limit,
         page,
         filter,
@@ -149,9 +149,9 @@ export const DepartmentalTicketProvider = ({ children }) => {
   };
 
   // Get All Ticket Category List
-  const getAllTicketCategoryOptions = async () => {
+  const getAllTicketCategoryOptions = async (selectedEntity) => {
     try {
-      const response = await getAllTicketCategory({
+      const response = await getAllTicketCategory(selectedEntity, {
         limit: 5000,
         page: "",
         filter: {
@@ -203,9 +203,9 @@ export const DepartmentalTicketProvider = ({ children }) => {
   };
 
   // Get All Department List
-  const getAllDepartmentOptions = async () => {
+  const getAllDepartmentOptions = async (selectedEntity) => {
     try {
-      const response = await getAllDepartments({
+      const response = await getAllDepartments(selectedEntity, {
         limit: 500,
         page: "",
         filter: "",
@@ -236,10 +236,12 @@ export const DepartmentalTicketProvider = ({ children }) => {
 
   // Get Filter Options Data
   useEffect(() => {
-    getAllTicketCategoryOptions();
-    getAllUsersOptions();
-    getAllDepartmentOptions();
-  }, []);
+    if (activeEntity) {
+      getAllTicketCategoryOptions(activeEntity);
+      getAllUsersOptions();
+      getAllDepartmentOptions(activeEntity);
+    }
+  }, [activeEntity]);
 
   // Get Login User Details
   useEffect(() => {
@@ -260,10 +262,18 @@ export const DepartmentalTicketProvider = ({ children }) => {
 
   // Fetch tickets only when we have login user data with department ID
   useEffect(() => {
-    if (loginUserData?.dep_id) {
-      getAllTicketsData();
+    if (activeEntity && loginUserData?.dep_id) {
+      getAllTicketsData(activeEntity);
     }
-  }, [limit, page, filter, refreshTrigger, componentType, loginUserData]);
+  }, [
+    limit,
+    page,
+    filter,
+    refreshTrigger,
+    componentType,
+    loginUserData,
+    activeEntity,
+  ]);
 
   const styledComponent = {
     control: (base) => ({

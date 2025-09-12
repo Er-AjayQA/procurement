@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useHelpDeskContext } from "../../../contextApis/useEssContextFile";
 
 export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const { allocationData, data, setViewId, refreshData, formSelectStyles } =
     useHelpDeskContext();
 
@@ -102,6 +103,7 @@ export const TicketActionPopup = ({ showActionPopup, setShowActionPopup }) => {
       }
 
       response = await approvalForTicket(
+        activeEntity,
         allocationData?.approval_id,
         allocationData?.current_allocated_user_id,
         payload

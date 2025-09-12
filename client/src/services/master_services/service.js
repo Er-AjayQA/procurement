@@ -30,28 +30,22 @@ export const updateRole = async (selectedEntity, id, formData) => {
 };
 
 // Update Status
-export const updateRoleStatus = async (selectedEntity, id) => {
-  const response = await axiosInstance.put(
-    `update-role-status/${selectedEntity}/${id}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+export const updateRoleStatus = async (id) => {
+  const response = await axiosInstance.put(`update-role-status/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
 
 // Get Master Roles by ID
-export const getRoleById = async (selectedEntity, id) => {
-  const response = await axiosInstance.post(
-    `get-role-details/${selectedEntity}/${id}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+export const getRoleById = async (id) => {
+  const response = await axiosInstance.post(`get-role-details/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
 
@@ -70,15 +64,12 @@ export const getAllRoles = async (selectedEntity, formData) => {
 };
 
 // Delete Role Master
-export const deleteRole = async (selectedEntity, id) => {
-  const response = await axiosInstance.put(
-    `delete-role/${selectedEntity}/${id}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+export const deleteRole = async (id) => {
+  const response = await axiosInstance.put(`delete-role/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response.data;
 };
 

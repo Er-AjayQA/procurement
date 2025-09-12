@@ -39,19 +39,19 @@ export const RoleMasterProvider = ({ children }) => {
   };
 
   // Get Role Data By Id
-  const getRoleDataById = async (selectedEntity) => {
-    const response = await getRoleById(selectedEntity, updateId);
+  const getRoleDataById = async () => {
+    const response = await getRoleById(updateId);
     if (response.success) {
       setData(response.data);
     }
   };
 
   // Delete Role By Id
-  const deleteRoleMaster = async (selectedEntity) => {
-    const response = await deleteRole(selectedEntity, deleteId);
+  const deleteRoleMaster = async () => {
+    const response = await deleteRole(deleteId);
     if (response.success) {
       toast(response.message);
-      getAllMasters();
+      getAllMasters(activeEntity);
       setDeleteId(null);
     } else {
       toast.error(response.message);
@@ -77,12 +77,12 @@ export const RoleMasterProvider = ({ children }) => {
   };
 
   // Handle Role Active/Inactive
-  const handleRoleActiveInactive = async (selectedEntity, id) => {
+  const handleRoleActiveInactive = async (id) => {
     try {
-      const response = await updateRoleStatus(selectedEntity, id);
+      const response = await updateRoleStatus(id);
 
       if (response.success) {
-        getAllMasters(selectedEntity);
+        getAllMasters(activeEntity);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -114,15 +114,15 @@ export const RoleMasterProvider = ({ children }) => {
 
   // For update operations
   useEffect(() => {
-    if (activeEntity && updateId) {
-      getRoleDataById(activeEntity);
+    if (updateId) {
+      getRoleDataById();
     }
   }, [updateId]);
 
   // For delete operations
   useEffect(() => {
-    if (activeEntity && deleteId) {
-      deleteRoleMaster(activeEntity);
+    if (deleteId) {
+      deleteRoleMaster();
     }
   }, [deleteId]);
 

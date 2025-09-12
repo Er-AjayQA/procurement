@@ -21,6 +21,7 @@ const TICKET_TYPE_OPTIONS = [
 ];
 
 export const HelpDeskForm = () => {
+  const { activeEntity } = useSelector((state) => state.auth);
   const {
     data,
     updateId,
@@ -201,8 +202,8 @@ export const HelpDeskForm = () => {
       };
 
       const response = isEditMode
-        ? await updateTicket(updateId, payload)
-        : await createTicket(payload);
+        ? await updateTicket(activeEntity, updateId, payload)
+        : await createTicket(activeEntity, payload);
 
       if (response.success) {
         toast.success(response.message);
