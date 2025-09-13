@@ -29,7 +29,7 @@ router.post(
   RbacController.assignModule
 );
 router.post(
-  "/get-all-assigned-module/selectedEntity/:id",
+  "/get-all-assigned-module/:selectedEntity/:id",
   EntityAuth.checkEntity,
   RbacController.getAssignModule
 );

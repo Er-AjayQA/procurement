@@ -36,10 +36,13 @@ export const loginUser = createAsyncThunk(
       if (response.data.success) {
         const userDetails = getUserDetailsFromToken(response.data.token);
 
-        const modulesData = await moduleAccessService(userDetails.id);
+        const modulesData = await moduleAccessService(
+          userDetails?.primary_entity_id,
+          userDetails?.id
+        );
 
         if (modulesData.success) {
-          dispatch(setAssignedModules({ assignedModules: modulesData.data }));
+          dispatch(setAssignedModules({ assignedModules: modulesData?.data }));
           dispatch(setUserDetails({ userDetails }));
           dispatch(
             setActiveEntity({ activeEntity: userDetails?.primary_entity_id })

@@ -484,7 +484,6 @@ module.exports.assignModule = async (req, res) => {
 
 // ========== GET USER ASSIGN MODULE CONTROLLER ========== //
 module.exports.getAssignModule = async (req, res) => {
-  const transaction = await DB.sequelize.transaction();
   try {
     const { id } = req.params;
 
@@ -565,7 +564,6 @@ module.exports.getAssignModule = async (req, res) => {
       data: groupedModulesArray,
     });
   } catch (error) {
-    await transaction.rollback();
     return res.status(500).send({ success: false, message: error.message });
   }
 };

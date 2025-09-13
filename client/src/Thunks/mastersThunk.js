@@ -8,7 +8,6 @@ export const getAllMastersList = createAsyncThunk(
   async ({ dispatch }) => {
     try {
       const response = await getAllRoles();
-      console.log(response);
 
       if (response.success) {
         return {
