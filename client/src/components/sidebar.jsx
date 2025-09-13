@@ -14,6 +14,9 @@ export const SidebarMenu = () => {
 
   // Handle Menu Click
   const handleMenuClick = (module, firstSubmodule) => {
+    if (activeModule === "Dashboard") {
+      setOpenMenuId(null);
+    }
     setOpenMenuId((prev) => (prev === module.id ? null : module.id));
     dispatch(setActiveModule({ activeModule: module.name }));
 
@@ -31,7 +34,10 @@ export const SidebarMenu = () => {
   };
 
   useEffect(() => {
-    if (activeSubmodule) {
+    if (activeSubmodule === null) {
+      setOpenMenuId(null);
+    }
+    if (activeSubmodule !== null) {
       const parentModule = assignedModules.find((module) =>
         module.submodules?.some((sub) => sub.name === activeSubmodule)
       );

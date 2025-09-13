@@ -10,16 +10,26 @@ import {
   NavbarToggle,
 } from "flowbite-react";
 import Select from "react-select";
-import { Link, useNavigate } from "react-router-dom";
-import { logout, setActiveEntity } from "../ReduxToolkit/authSlice";
+import { useNavigate } from "react-router-dom";
+import {
+  logout,
+  setActiveEntity,
+  setActiveModule,
+  setActiveSubmodule,
+  setAssignedModules,
+} from "../ReduxToolkit/authSlice";
 import { useEffect, useState } from "react";
 import { NotificationContainer } from "./notificationManagement/notificationContainer";
 import { useNotificationContext } from "../contextApis/useNotificationContextFile";
 import { getAllEntityList } from "../services/entityManagement_services/service";
 import { getEmployeeDetails } from "../services/employeeDetails_services/services";
+import { moduleAccessService } from "../services/rbac_services/service";
+import { toast } from "react-toastify";
 
 export const HeaderNav = () => {
-  const { userDetails, activeModule } = useSelector((state) => state.auth);
+  const { userDetails, activeModule, activeSubmodule } = useSelector(
+    (state) => state.auth
+  );
   const [userData, setUserData] = useState(null);
   const [displayModule, setDisplayModule] = useState(activeModule);
   const { newNotificationsCount, handleNotificationVisibility, viewId } =
@@ -85,6 +95,11 @@ export const HeaderNav = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle Change Entity Selection
+  const handleChangeEntity = async (selectedOption) => {
+    setSelectedEntity(selectedOption);
   };
 
   useEffect(() => {
@@ -162,9 +177,24 @@ export const HeaderNav = () => {
   };
 
   useEffect(() => {
-    if (selectedEntity) {
-      dispatch(setActiveEntity({ activeEntity: selectedEntity?.value }));
-    }
+    const fetchModulesForEntity = async () => {
+      if (selectedEntity && userDetails?.id) {
+        const modulesData = await moduleAccessService(
+          selectedEntity.value,
+          userDetails.id
+        );
+        if (modulesData.success) {
+          dispatch(setAssignedModules({ assignedModules: modulesData?.data }));
+          dispatch(setActiveModule({ activeModule: "Dashboard" }));
+          dispatch(setActiveSubmodule({ activeSubmodule: null }));
+          navigate("/procurement/dashboard");
+        } else {
+          toast.warn(Response.message);
+        }
+      }
+    };
+
+    fetchModulesForEntity();
   }, [selectedEntity]);
 
   // Filter entities to only show the ones the user has access to
@@ -209,12 +239,9 @@ export const HeaderNav = () => {
           </label>
           <Select
             value={selectedEntity}
-            onChange={(selectedOption) => {
-              setSelectedEntity(selectedOption);
-            }}
+            onChange={handleChangeEntity}
             options={filteredEntityOptions}
             placeholder="Select Entity..."
-            isSearchable
             className="react-select-container"
             classNamePrefix="react-select"
             styles={styledComponent}
