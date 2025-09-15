@@ -436,6 +436,12 @@ db.tbl_rbac_assign_module_master =
     Sequelize
   );
 
+db.tbl_project_management =
+  require("../API/projectManagement/projects/model/projectManagement.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 
 // ========================================== DEPARTMENT MASTER RELATIONS ========================================== //
@@ -518,8 +524,8 @@ db.tbl_course_category.belongsTo(db.tbl_entity_configuration, {
   foreignKey: "entity_id",
 });
 
-// ========================================== EMPLOYEMENT TYPE MASTER RELATIONS ========================================== //
-// Relation B/W Entity Master and Employement Type Master Tables
+// ========================================== EMPLOYMENT TYPE MASTER RELATIONS ========================================== //
+// Relation B/W Entity Master and Employment Type Master Tables
 db.tbl_entity_configuration.hasMany(db.tbl_employmentType_master, {
   foreignKey: "entity_id",
 });
@@ -1550,7 +1556,22 @@ db.tbl_event_registration_payment_transactions.belongsTo(
   }
 );
 
-// ========================================== ENTITY MANAGEMENT ========================================== //
+// ========================================== PROJECT MANAGEMENT ========================================== //
+// Relation B/W Entity Master And Project Management Tables
+db.tbl_entity_configuration.hasMany(db.tbl_project_management, {
+  foreignKey: "entity_id",
+});
+db.tbl_project_management.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// Relation B/W User Master And Project Management Tables
+db.tbl_user_master.hasMany(db.tbl_project_management, {
+  foreignKey: "project_manager_id",
+});
+db.tbl_project_management.belongsTo(db.tbl_user_master, {
+  foreignKey: "project_manager_id",
+});
 
 // ========== EXPORTS ========== //
 module.exports = db;

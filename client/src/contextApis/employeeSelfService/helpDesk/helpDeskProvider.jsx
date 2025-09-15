@@ -353,10 +353,10 @@ export const HelpDeskProvider = ({ children }) => {
   useEffect(() => {
     if (activeEntity) {
       getAllDepartmentOptions(activeEntity);
-      getAllUsersOptions(activeEntity);
+      getAllUsersOptions();
       getAllTicketCategoryOptions(activeEntity);
     }
-  }, [updateId, deleteId, activeEntity]);
+  }, [activeEntity]);
 
   // For update operations
   useEffect(() => {
