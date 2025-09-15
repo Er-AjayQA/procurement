@@ -100,6 +100,7 @@ export const HeaderNav = () => {
   // Handle Change Entity Selection
   const handleChangeEntity = async (selectedOption) => {
     setSelectedEntity(selectedOption);
+    dispatch(setActiveEntity({ activeEntity: selectedOption?.value }));
   };
 
   useEffect(() => {
