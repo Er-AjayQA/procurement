@@ -442,6 +442,12 @@ db.tbl_project_management =
     Sequelize
   );
 
+db.tbl_project_employee_mapping =
+  require("../API/projectManagement/projects/model/projectEmployeeMapping.model")(
+    sequelize,
+    Sequelize
+  );
+
 // ========== RELATIONS ========== //
 
 // ========================================== DEPARTMENT MASTER RELATIONS ========================================== //
@@ -1571,6 +1577,22 @@ db.tbl_user_master.hasMany(db.tbl_project_management, {
 });
 db.tbl_project_management.belongsTo(db.tbl_user_master, {
   foreignKey: "project_manager_id",
+});
+
+// Relation B/W Project Management And Project Employee Mapping Tables
+db.tbl_project_management.hasMany(db.tbl_project_employee_mapping, {
+  foreignKey: "project_id",
+});
+db.tbl_project_employee_mapping.belongsTo(db.tbl_project_management, {
+  foreignKey: "project_id",
+});
+
+// Relation B/W Project Employee Mapping And User Master Tables
+db.tbl_user_master.hasMany(db.tbl_project_employee_mapping, {
+  foreignKey: "user_id",
+});
+db.tbl_project_employee_mapping.belongsTo(db.tbl_user_master, {
+  foreignKey: "user_id",
 });
 
 // ========== EXPORTS ========== //

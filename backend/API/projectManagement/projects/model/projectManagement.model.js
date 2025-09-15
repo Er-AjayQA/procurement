@@ -58,9 +58,9 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: false,
       },
       status: {
-        type: Sequelize.ENUM("DRAFT", "In-Progress", "Completed", "Delivered"),
+        type: Sequelize.ENUM("Draft", "In-Progress", "Completed", "Delivered"),
         allowNull: false,
-        defaultValue: "DRAFT",
+        defaultValue: "Draft",
       },
     },
     { freezeTableName: true }
