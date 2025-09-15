@@ -32,6 +32,7 @@ import { MasterTransferReasonPage } from "../pages/Masters/transferReasonMaster"
 import { MasterTransferTypePage } from "../pages/Masters/transferTypeMaster";
 import { MasterUomPage } from "../pages/Masters/uomMaster";
 import { WorkflowPage } from "../pages/Masters/workflowPage";
+import { MainProjectPage } from "../pages/ProjectManagement/projects";
 import { MasterRolePage } from "../pages/RbacManagement/roleMaster";
 import { MasterUserPermissionPage } from "../pages/RbacManagement/userPermission";
 import { MainAllTicketPage } from "../pages/TicketManagement/allTickets";
@@ -70,6 +71,9 @@ export const moduleComponents = {
   },
   "entity-management": {
     "entity-configurations": MainEntityConfigPage,
+  },
+  "project-management": {
+    "project-configurations": MainProjectPage,
   },
   masters: {
     "designation-master": MasterDesignationPage,
