@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_project_management
+// db.tbl_project_employee_mapping
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
