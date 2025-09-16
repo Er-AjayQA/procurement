@@ -1,11 +1,13 @@
 import { useContext } from "react";
-import { ProjectContext } from "./projectManagement/projects/projectContext";
+import { ProjectConfigurationsContext } from "./projectManagement/projectsConfigurations/projectConfigurationsContext";
 
 // Use Project Config Context
-export const useProjectContext = () => {
-  const context = useContext(ProjectContext);
+export const useProjectConfigurationsContext = () => {
+  const context = useContext(ProjectConfigurationsContext);
   if (context === undefined) {
-    throw new Error("useProjectContext must be used within a ProjectProvider");
+    throw new Error(
+      "useProjectConfigurationsContext must be used within a ProjectConfigurationsProvider"
+    );
   }
   return context;
 };

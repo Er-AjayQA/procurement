@@ -7,12 +7,12 @@ import { useState } from "react";
 import { ViewIcon } from "../../UI/viewIconUi";
 import { EditIcon } from "../../UI/editIconUi";
 import { DeleteIcon } from "../../UI/deleteIcon";
-import { useRegisteredEventsContext } from "../../../contextApis/useEventContextFile";
 import { updateEventStatus } from "../../../services/eventManagement_services/service";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import { useProjectConfigurationsContext } from "../../../contextApis/useProjectContextFile";
 
-export const RegisteredEventsListing = ({ componentType }) => {
+export const ProjectConfigurationsListing = ({ componentType }) => {
   const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const {
     isLoading,
@@ -32,7 +32,7 @@ export const RegisteredEventsListing = ({ componentType }) => {
     handleChangeFilter,
     handleComponentView,
     getAllData,
-  } = useRegisteredEventsContext();
+  } = useProjectConfigurationsContext();
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -80,6 +80,8 @@ export const RegisteredEventsListing = ({ componentType }) => {
             </select>
           </div>
           {/* Sorting Element End */}
+
+          {/* Filter Element Start */}
           <div className="flex items-center gap-5">
             <Select
               value={selectedCategory}
@@ -116,10 +118,11 @@ export const RegisteredEventsListing = ({ componentType }) => {
               styles={styledComponent}
             />
           </div>
+          {/* Filter Element End */}
         </div>
         {componentType === "listing" ? (
           <div onClick={() => handleComponentView("form")}>
-            <AddButton text="Generate Event" />
+            <AddButton text="Generate Project" />
           </div>
         ) : (
           ""
@@ -128,7 +131,7 @@ export const RegisteredEventsListing = ({ componentType }) => {
 
       <div className="shadow-lg rounded-md border border-gray-300 h-full flex flex-col">
         <div className="bg-button-hover py-2 px-2 rounded-t-md">
-          <h3 className="text-white text-xs font-bold">Events Listing</h3>
+          <h3 className="text-white text-xs font-bold">Projects Listing</h3>
         </div>
 
         {/* List Form */}
@@ -140,15 +143,17 @@ export const RegisteredEventsListing = ({ componentType }) => {
             <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[150px]">
               Code
             </div>
-            <div className="text-[.8rem] font-bold p-2 w-[200px]">Category</div>
-            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[150px]">
-              Event Type
+            <div className="text-[.8rem] font-bold p-2 w-[250px] text-center">
+              Name
+            </div>
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[250px]">
+              Client
             </div>
             <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[250px]">
               Start Date
             </div>
-            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[200px]">
-              Registration
+            <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[250px]">
+              Estimated End Date
             </div>
             <div className="flex justify-center items-center text-[.8rem] font-bold p-2 text-center w-[200px]">
               Status
@@ -163,13 +168,13 @@ export const RegisteredEventsListing = ({ componentType }) => {
             ) : listing?.length > 0 ? (
               listing?.map((list, i) => {
                 const myListStatusColor =
-                  list?.status === "DRAFT"
-                    ? "text-yellow-600"
-                    : list?.status === "PUBLISHED"
-                    ? "text-green-600"
-                    : list?.status === "CANCELLED"
+                  list?.status === "Draft"
                     ? "text-red-600"
-                    : "text-blue-600";
+                    : list?.status === "In-Progress"
+                    ? "text-blue-600"
+                    : list?.status === "Completed"
+                    ? "text-green-600"
+                    : "text-yellow-600";
 
                 return (
                   <div
@@ -180,21 +185,23 @@ export const RegisteredEventsListing = ({ componentType }) => {
                       {i + 1}.
                     </div>
                     <div className="flex items-center justify-center p-2 text-[.8rem] w-[150px]">
-                      {list?.event_code || "N/A"}
-                    </div>
-                    <div className="flex items-center p-2 text-[.8rem] w-[200px]">
-                      {list?.event_category_name || "N/A"}
-                    </div>
-                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[150px]">
-                      {list?.event_type || "N/A"}
+                      {list?.project_code || "N/A"}
                     </div>
                     <div className="flex items-center justify-center p-2 text-[.8rem] w-[250px]">
-                      {list?.event_start_date
-                        ? formatDateTime(list?.event_start_date)
+                      {list?.project_title || "N/A"}
+                    </div>
+                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[250px]">
+                      {list?.client_name || "N/A"}
+                    </div>
+                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[250px]">
+                      {list?.project_start_date
+                        ? formatDateTime(list?.project_start_date)
                         : "N/A"}
                     </div>
-                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[200px]">
-                      {list?.is_paid ? "Required" : "Not-Required"}
+                    <div className="flex items-center justify-center p-2 text-[.8rem] w-[250px]">
+                      {list?.target_end_date
+                        ? formatDateTime(list?.target_end_date)
+                        : "N/A"}
                     </div>
                     <div
                       className={`flex items-center justify-center p-2 text-[.8rem] cursor-pointer text-xs w-[200px] font-bold ${myListStatusColor}`}

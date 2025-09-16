@@ -57,7 +57,9 @@ module.exports.createProject = async (req, res) => {
         await DB.tbl_project_employee_mapping.bulkCreate(
           data?.assignedUsersList.map((data) => ({
             project_id: createData?.id,
-            user_id: data?.id,
+            dep_id: data?.dep_id,
+            user_id: data?.user_id,
+            unique_code: data?.id,
             assigned_date: new Date(),
             removed_date: "",
           })),
@@ -135,7 +137,9 @@ module.exports.updateProject = async (req, res) => {
         await DB.tbl_project_employee_mapping.bulkCreate(
           data?.assignedUsersList.map((data) => ({
             project_id: checkAlreadyExist?.id,
-            user_id: data?.id,
+            dep_id: data?.dep_id,
+            user_id: data?.user_id,
+            unique_code: data?.id,
             assigned_date: new Date(),
             removed_date: "",
           })),

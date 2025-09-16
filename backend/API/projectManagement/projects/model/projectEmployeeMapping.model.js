@@ -9,6 +9,14 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
       },
 
+      unique_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      dep_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       assigned_date: {
         type: Sequelize.DATE,
         allowNull: true,
