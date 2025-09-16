@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { getAllPhoneCodes } from "../../../services/master_services/service";
+import {
+  getAllDepartments,
+  getAllPhoneCodes,
+} from "../../../services/master_services/service";
 import { toast } from "react-toastify";
-import { ProjectContext } from "./projectContext";
+import { ProjectConfigurationsContext } from "./projectConfigurationsContext";
 import {
   getAllEmployeeDetails,
   getEmployeeDetails,
@@ -13,7 +16,7 @@ import {
   getProjectById,
 } from "../../../services/projectManagement_services/service";
 
-export const ProjectProvider = ({ children }) => {
+export const ProjectConfigurationsProvider = ({ children }) => {
   const { userDetails, activeEntity } = useSelector((state) => state.auth);
   const [listing, setListing] = useState(null);
   const [loginUserData, setLoginUserData] = useState(null);
@@ -35,6 +38,7 @@ export const ProjectProvider = ({ children }) => {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [userOptions, setUserOptions] = useState([]);
+  const [departmentOptions, setDepartmentOptions] = useState([]);
   const [countryCodeOptions, setCountryCodeOptions] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [statusOptions, setStatusOptions] = useState([
@@ -78,7 +82,7 @@ export const ProjectProvider = ({ children }) => {
     try {
       const response = await getProjectById(id);
       if (response.success) {
-        setData(response.data[0]);
+        setData(response.data);
       } else {
         toast.error(response.message);
         throw new Error(response.message);
@@ -206,6 +210,32 @@ export const ProjectProvider = ({ children }) => {
     }
   };
 
+  // Get All Department List
+  const getAllDepartmentsOptions = async (selectedEntity) => {
+    try {
+      const response = await getAllDepartments(selectedEntity, {
+        limit: 5000,
+        page: "",
+        filter: {
+          name: "",
+        },
+      });
+
+      if (response.success) {
+        setDepartmentOptions(
+          response?.data.map((data) => ({
+            value: data?.id,
+            label: data?.name,
+          }))
+        );
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      setDepartmentOptions(null);
+    }
+  };
+
   // Get All Country List
   const getAllCountryCodeOptions = async () => {
     try {
@@ -249,6 +279,7 @@ export const ProjectProvider = ({ children }) => {
     if (activeEntity) {
       getAllUsersOptions();
       getAllCountryCodeOptions();
+      getAllDepartmentsOptions(activeEntity);
     }
   }, [updateId, deleteId, refreshTrigger, activeEntity]);
 
@@ -371,9 +402,6 @@ export const ProjectProvider = ({ children }) => {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
       })
       .replace(",", "");
   };
@@ -398,6 +426,7 @@ export const ProjectProvider = ({ children }) => {
     formSelectStyles,
     styledComponent,
     userOptions,
+    departmentOptions,
     statusOptions,
     countryCodeOptions,
     loginUserData,
@@ -424,8 +453,8 @@ export const ProjectProvider = ({ children }) => {
   };
 
   return (
-    <ProjectContext.Provider value={contextValue}>
+    <ProjectConfigurationsContext.Provider value={contextValue}>
       {children}
-    </ProjectContext.Provider>
+    </ProjectConfigurationsContext.Provider>
   );
 };
