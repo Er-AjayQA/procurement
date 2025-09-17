@@ -6,7 +6,7 @@ export const ProjectBasicDetails = () => {
     <>
       <div className="flex flex-col gap-3">
         <div className="bg-button-hover py-2 px-1 rounded-t-md">
-          <h3 className="text-white text-xs">Basic Details</h3>
+          <h3 className="text-white text-xs font-bold">Basic Details</h3>
         </div>
         <div className="grid grid-cols-3 gap-5 basis-[80%] justify-around shadow-lg rounded-md px-3 pb-4">
           <div className="flex flex-col gap-2 justify-center">

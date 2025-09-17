@@ -3,13 +3,13 @@ import Select from "react-select";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { useEffect, useCallback, useState } from "react";
-import {
-  createEvent,
-  updateEvent,
-} from "../../../services/eventManagement_services/service";
 import { useProjectConfigurationsContext } from "../../../contextApis/useProjectContextFile";
 import { IoMdAdd } from "react-icons/io";
 import { AddUsersItem } from "./addUsersForm";
+import {
+  createProject,
+  updateProject,
+} from "../../../services/projectManagement_services/service";
 
 export const ProjectConfigurationsForm = () => {
   const { userDetails, activeEntity } = useSelector((state) => state.auth);
@@ -188,17 +188,19 @@ export const ProjectConfigurationsForm = () => {
         project_title: formData?.project_title,
         project_description: formData?.project_description,
         project_start_date: formData?.project_start_date,
+        project_manager_id: formData?.project_manager_id,
         target_end_date: formData?.target_end_date,
         client_name: formData?.client_name,
         client_contact_person: formData?.client_contact_person,
         client_email: formData?.client_email,
         client_contact_country_code: formData?.client_contact_country_code,
         client_contact_no: formData?.client_contact_no,
+        assignedUsersList: assignedUsersList,
       };
 
       const response = isEditMode
-        ? await updateEvent(activeEntity, updateId, payload)
-        : await createEvent(activeEntity, payload);
+        ? await updateProject(activeEntity, updateId, payload)
+        : await createProject(activeEntity, payload);
 
       if (response.success) {
         toast.success(response.message);
@@ -334,7 +336,6 @@ export const ProjectConfigurationsForm = () => {
                           placeholder="Select project manager..."
                           isClearable
                           isSearchable
-                          isMulti
                           className="react-select-container"
                           classNamePrefix="react-select"
                           styles={formSelectStyles}
@@ -543,7 +544,7 @@ export const ProjectConfigurationsForm = () => {
                     (user) => !user.dep_id || !user.user_id
                   )) && (
                   <div className="text-red-500 text-sm p-2 bg-red-50 rounded-md">
-                    Please fix all user assignment errors before submitting
+                    Users row can't be empty!
                   </div>
                 )}
 
