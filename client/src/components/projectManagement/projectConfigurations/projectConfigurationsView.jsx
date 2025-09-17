@@ -1,4 +1,5 @@
 import { useProjectConfigurationsContext } from "../../../contextApis/useProjectContextFile";
+import { ProjectAssignedUserDetails } from "./projectConfigurationsViewComponents/projectAssignedUserDetails";
 import { ProjectBasicDetails } from "./projectConfigurationsViewComponents/projectBasicDetails";
 import { ProjectClientDetails } from "./projectConfigurationsViewComponents/projectClientDetails";
 import { ProjectDescription } from "./projectConfigurationsViewComponents/projectDescription";
@@ -17,9 +18,7 @@ export const ProjectConfigurationsView = () => {
       <div className="flex flex-col">
         <div className="flex justify-between items-center py-3 border-b border-gray-400">
           <div>
-            <p className="text-sm">
-              <span className="font-bold">Project:</span> {data?.project_title}
-            </p>
+            <p className="text-sm font-bold">{data?.project_title}</p>
           </div>
           <button
             className="py-2 px-4 bg-red-600 rounded-md text-white text-sm hover:bg-red-700 transition-all duration=[.3s]"
@@ -43,6 +42,11 @@ export const ProjectConfigurationsView = () => {
           {/* Project Description Details Sections */}
           <div className="py-5">
             <ProjectDescription />
+          </div>
+
+          {/* Project Assigned User Details Sections */}
+          <div className="py-5">
+            <ProjectAssignedUserDetails />
           </div>
         </div>
       </div>
