@@ -18,7 +18,7 @@ export const createProject = async (selectedEntity, formData) => {
 // Update Project
 export const updateProject = async (selectedEntity, id, formData) => {
   const response = await axiosInstance.put(
-    `update-event/${selectedEntity}/${id}`,
+    `update-project/${selectedEntity}/${id}`,
     formData,
     {
       headers: {

@@ -18,6 +18,10 @@ export const ProjectBasicDetails = () => {
             <p className="text-[.7rem]">{data?.project_title || "N/A"}</p>
           </div>
           <div className="flex flex-col gap-2 justify-center">
+            <label className="text-[.8rem]">Development Mode</label>
+            <p className="text-[.7rem]">{data?.development_mode || "N/A"}</p>
+          </div>
+          <div className="flex flex-col gap-2 justify-center">
             <label className="text-[.8rem]">Started From</label>
             <p className="text-[.7rem]">
               {data?.project_start_date

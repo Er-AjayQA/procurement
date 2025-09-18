@@ -52,6 +52,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      development_mode: {
+        type: Sequelize.ENUM("New", "Maintenance"),
+        allowNull: false,
+        defaultValue: "New",
+      },
 
       isDeleted: {
         type: Sequelize.BOOLEAN,

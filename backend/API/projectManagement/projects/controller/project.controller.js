@@ -37,6 +37,7 @@ module.exports.createProject = async (req, res) => {
         {
           project_code: code,
           project_title: data?.project_title,
+          development_mode: data?.development_mode,
           project_description: data?.project_description,
           project_start_date: data?.project_start_date,
           target_end_date: data?.target_end_date,
@@ -186,6 +187,7 @@ module.exports.getProjectDetails = async (req, res) => {
           attributes: [
             "id",
             "user_id",
+            "dep_id",
             "project_id",
             "assigned_date",
             "removed_date",
@@ -215,6 +217,7 @@ module.exports.getProjectDetails = async (req, res) => {
           assignedUsersList: getAssignedUsersList.flatMap((user) => ({
             id: user?.id,
             user_id: user?.user_id,
+            dep_id: user?.dep_id,
             project_id: user?.project_id,
             assigned_date: user?.assigned_date,
             removed_date: user?.removed_date,
