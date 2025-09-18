@@ -1,4 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
+import moment from "moment";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -22,6 +23,7 @@ export const ProjectConfigurationsForm = () => {
     loginUserData,
     userOptions,
     countryCodeOptions,
+    developmentTypeOptions,
     refreshData,
     formSelectStyles,
   } = useProjectConfigurationsContext();
@@ -152,18 +154,22 @@ export const ProjectConfigurationsForm = () => {
           // Format dates for datetime-local inputs
           const formatDateForInput = (dateString) => {
             if (!dateString) return "";
-            const date = new Date(dateString);
-            return date.toISOString().slice(0, 16);
+            return moment(dateString).format("YYYY-MM-DD");
           };
 
           setValue("project_title", data?.project_title);
+          setValue("development_mode", data?.development_mode);
+          setValue("project_manager_id", data?.project_manager_id);
           setValue("project_description", data?.project_description);
-          setValue("project_start_date", data?.project_start_date);
+          setValue(
+            "project_start_date",
+            formatDateForInput(data?.project_start_date)
+          );
           setValue(
             "target_end_date",
             formatDateForInput(data?.target_end_date)
           );
-          setValue("client_name", formatDateForInput(data?.client_name));
+          setValue("client_name", data?.client_name);
           setValue("client_contact_person", data?.client_contact_person);
           setValue("client_email", data?.client_email);
           setValue(
@@ -171,6 +177,7 @@ export const ProjectConfigurationsForm = () => {
             data?.client_contact_country_code
           );
           setValue("client_contact_no", data?.client_contact_no);
+          setAssignedUsersList(data?.assignedUsersList);
         } catch (error) {
           console.error("Error setting update data:", error);
           toast.error("Failed to load ticket data");
@@ -186,6 +193,7 @@ export const ProjectConfigurationsForm = () => {
     try {
       const payload = {
         project_title: formData?.project_title,
+        development_mode: formData?.development_mode,
         project_description: formData?.project_description,
         project_start_date: formData?.project_start_date,
         project_manager_id: formData?.project_manager_id,
@@ -349,6 +357,45 @@ export const ProjectConfigurationsForm = () => {
                     )}
                   </div>
 
+                  {/* Development Mode Dropdown */}
+                  <div className="col-span-4 flex flex-col gap-3">
+                    <label htmlFor="development_mode" className="text-sm">
+                      Development Mode
+                    </label>
+                    <Controller
+                      name="development_mode"
+                      control={control}
+                      rules={{ required: "Development mode is required!" }}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={developmentTypeOptions}
+                          value={findSelectedOption(
+                            developmentTypeOptions,
+                            field.value
+                          )}
+                          onChange={(selected) =>
+                            field.onChange(selected?.value || "")
+                          }
+                          placeholder="Select development mode..."
+                          isClearable
+                          isSearchable
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          styles={formSelectStyles}
+                        />
+                      )}
+                    />
+                    {errors.project_manager_id && (
+                      <p className="text-red-500 text-[.7rem]">
+                        {errors.project_manager_id.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Row - 3 */}
+                <div className="grid grid-cols-12 gap-3">
                   {/* Project Description */}
                   <div className="col-span-8 flex flex-col gap-2">
                     <label htmlFor="project_description" className="text-sm">
@@ -574,6 +621,7 @@ export const ProjectConfigurationsForm = () => {
                         userError={userError}
                         onChange={handleAssignedUserChange}
                         onRemove={handleRemoveAssignedUser}
+                        isEditMode={isEditMode}
                       />
                     ))}
                   </div>

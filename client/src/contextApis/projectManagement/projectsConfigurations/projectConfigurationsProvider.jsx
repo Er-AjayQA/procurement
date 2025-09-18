@@ -47,6 +47,10 @@ export const ProjectConfigurationsProvider = ({ children }) => {
     { value: "Completed", label: "Completed" },
     { value: "Delivered", label: "Delivered" },
   ]);
+  const [developmentTypeOptions, setDevelopmentTypeOptions] = useState([
+    { value: "New", label: "New" },
+    { value: "Maintenance", label: "Maintenance" },
+  ]);
 
   const refreshData = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -429,6 +433,7 @@ export const ProjectConfigurationsProvider = ({ children }) => {
     departmentOptions,
     statusOptions,
     countryCodeOptions,
+    developmentTypeOptions,
     loginUserData,
     formatDateTime,
     refreshData,

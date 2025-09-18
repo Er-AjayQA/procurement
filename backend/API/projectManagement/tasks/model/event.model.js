@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const tbl_event_management = sequelize.define(
-    "EVENT_MANAGEMENT",
+  const tbl_task_management = sequelize.define(
+    "TASK_MANAGEMENT",
     {
       id: {
         type: Sequelize.INTEGER,
@@ -9,106 +9,57 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
       },
 
-      // BASIC DETAILS
-      event_code: {
+      task_title: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      event_title: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      event_description: {
+      task_description: {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      event_start_date: {
+      start_date: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      event_end_date: {
+      end_date: {
         type: Sequelize.DATE,
         allowNull: false,
+      },
+      priority: {
+        type: Sequelize.ENUM("Critical", "High", "Medium", "Low", "Lowest"),
+        allowNull: false,
+        defaultValue: "Lowest",
+      },
+      severity: {
+        type: Sequelize.ENUM(
+          "Blocker",
+          "Critical",
+          "Major",
+          "Minor",
+          "Trivial"
+        ),
+        allowNull: false,
+        defaultValue: "Trivial",
       },
 
-      // VENUE INFORMATION
-      event_type: {
-        type: Sequelize.ENUM("In-Person", "Online", "Hybrid"),
-        allowNull: false,
-        defaultValue: "In-Person",
-      },
-      venue_name: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        set(value) {
-          this.setDataValue("venue_name", value === "" ? null : value);
-        },
-      },
-      event_address: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-        set(value) {
-          this.setDataValue("event_address", value === "" ? null : value);
-        },
-      },
-      zip_code: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        set(value) {
-          this.setDataValue("zip_code", value === "" ? null : value);
-        },
-      },
-      event_meet_link: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        set(value) {
-          this.setDataValue("event_meet_link", value === "" ? null : value);
-        },
-      },
-
-      // REGISTRATION
-      is_paid: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      },
-      sitting_type: {
-        type: Sequelize.ENUM("Unlimited", "Limited"),
-        allowNull: false,
-        defaultValue: "Unlimited",
-      },
-      sitting_capacity: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        set(value) {
-          this.setDataValue("sitting_capacity", value === "" ? null : value);
-        },
-      },
-      registration_deadline: {
-        type: Sequelize.DATE,
-        allowNull: true,
-        set(value) {
-          this.setDataValue(
-            "registration_deadline",
-            value === "" ? null : value
-          );
-        },
-      },
-      base_ticket_price: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: false,
-        defaultValue: 0,
-      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
       status: {
-        type: Sequelize.ENUM("DRAFT", "PUBLISHED", "CANCELLED", "FINISHED"),
-        defaultValue: "DRAFT",
+        type: Sequelize.ENUM(
+          "Backlog",
+          "Blocked",
+          "To-DO",
+          "In-Progress",
+          "On-Hold",
+          "Cancelled",
+          "Completed"
+        ),
+        defaultValue: "Backlog",
       },
     },
     { freezeTableName: true }
   );
-  return tbl_event_management;
+  return tbl_task_management;
 };

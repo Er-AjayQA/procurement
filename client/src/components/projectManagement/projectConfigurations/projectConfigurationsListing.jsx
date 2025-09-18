@@ -80,45 +80,6 @@ export const ProjectConfigurationsListing = ({ componentType }) => {
             </select>
           </div>
           {/* Sorting Element End */}
-
-          {/* Filter Element Start */}
-          <div className="flex items-center gap-5">
-            <Select
-              value={selectedCategory}
-              onChange={(selectedOption) => {
-                setSelectedCategory(selectedOption);
-                handleChangeFilter("dropdown", {
-                  field: "ticket_category_id",
-                  value: selectedOption ? selectedOption.value : "",
-                });
-              }}
-              options={ticketCategoryOptions}
-              placeholder="Search by category..."
-              isClearable
-              isSearchable
-              className="react-select-container"
-              classNamePrefix="react-select"
-              styles={styledComponent}
-            />
-            <Select
-              value={selectedDepartment}
-              onChange={(selectedOption) => {
-                setSelectedDepartment(selectedOption);
-                handleChangeFilter("dropdown", {
-                  field: "created_for_dept_id",
-                  value: selectedOption ? selectedOption.value : "",
-                });
-              }}
-              options={departmentOptions}
-              placeholder="Search by department..."
-              isClearable
-              isSearchable
-              className="react-select-container"
-              classNamePrefix="react-select"
-              styles={styledComponent}
-            />
-          </div>
-          {/* Filter Element End */}
         </div>
         {componentType === "listing" ? (
           <div onClick={() => handleComponentView("form")}>
@@ -136,7 +97,7 @@ export const ProjectConfigurationsListing = ({ componentType }) => {
 
         {/* List Form */}
         <div className="p-3 h-[86%]">
-          <div className="flex border-b border-gray-300 gap-2 bg-gray-200">
+          <div className="flex border-b border-gray-300 gap-2 bg-gray-200 ">
             <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[80px]">
               S.No.
             </div>
@@ -150,10 +111,10 @@ export const ProjectConfigurationsListing = ({ componentType }) => {
               Client
             </div>
             <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[250px]">
-              Start Date
+              Development Mode
             </div>
             <div className="flex justify-center items-center text-[.8rem] font-bold p-2 w-[250px]">
-              Estimated End Date
+              Targeted End Date
             </div>
             <div className="flex justify-center items-center text-[.8rem] font-bold p-2 text-center w-[200px]">
               Status
@@ -194,9 +155,7 @@ export const ProjectConfigurationsListing = ({ componentType }) => {
                       {list?.client_name || "N/A"}
                     </div>
                     <div className="flex items-center justify-center p-2 text-[.8rem] w-[250px]">
-                      {list?.project_start_date
-                        ? formatDateTime(list?.project_start_date)
-                        : "N/A"}
+                      {list?.development_mode || "N/A"}
                     </div>
                     <div className="flex items-center justify-center p-2 text-[.8rem] w-[250px]">
                       {list?.target_end_date
@@ -234,16 +193,14 @@ export const ProjectConfigurationsListing = ({ componentType }) => {
                         }}
                       />
 
-                      {list?.status === "DRAFT" && (
-                        <EditIcon
-                          onClick={() => {
-                            handleComponentView("form");
-                            setUpdateId(list?.id);
-                          }}
-                        />
-                      )}
+                      <EditIcon
+                        onClick={() => {
+                          handleComponentView("form");
+                          setUpdateId(list?.id);
+                        }}
+                      />
 
-                      {list?.status === "DRAFT" ? (
+                      {list?.status === "Draft" ? (
                         <DeleteIcon
                           onClick={() => {
                             setDeleteId(list?.id);

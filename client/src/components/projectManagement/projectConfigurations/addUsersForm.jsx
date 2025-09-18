@@ -4,6 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { useProjectConfigurationsContext } from "../../../contextApis/useProjectContextFile";
 import { useCallback, useEffect, useState } from "react";
 import { getAllEmployeeDetails } from "../../../services/employeeDetails_services/services";
+import { toast } from "react-toastify";
 
 export const AddUsersItem = ({
   user,
@@ -12,8 +13,9 @@ export const AddUsersItem = ({
   onRemove,
   assignedUsersList,
   userError,
+  isEditMode,
 }) => {
-  const { departmentOptions, formSelectStyles } =
+  const { data, updateId, departmentOptions, formSelectStyles } =
     useProjectConfigurationsContext();
 
   const {
@@ -25,7 +27,12 @@ export const AddUsersItem = ({
     reset,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      dep_id: isEditMode ? user.dep_id || "" : "",
+      user_id: isEditMode ? user.user_id || "" : "",
+    },
+  });
 
   const selectedDepartment = watch("dep_id");
   const [usersListOption, setUsersListOption] = useState(null);
@@ -75,6 +82,23 @@ export const AddUsersItem = ({
       setUsersListOption(null);
     }
   };
+
+  // Set form values when in update mode - FIXED VERSION
+  useEffect(() => {
+    if (isEditMode && data) {
+      const setUpdateDefaultData = async () => {
+        try {
+          setValue("dep_id", user.dep_id || "");
+          setValue("user_id", user.user_id || "");
+        } catch (error) {
+          console.error("Error setting update data:", error);
+          toast.error("Failed to load ticket data");
+        }
+      };
+
+      setUpdateDefaultData();
+    }
+  }, [isEditMode, data, setValue]);
 
   // Fetching the users list on selecting department
   useEffect(() => {
