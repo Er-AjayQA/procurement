@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // ========== DB SYNC ========== //
-// db.tbl_project_management
+// db.tbl_task_management
 //   .sync({ alter: true })
 //   .then(() => {
 //     console.log("DB Sync Successfully............");
@@ -62,6 +62,7 @@ const ticketRoute = require("./API/ticketManagement/router/ticket.router");
 const eventCategoryRoute = require("./API/configurationMasters/eventCategory_master/router/eventCategory.router");
 const eventManagementRoute = require("./API/eventManagement/router/event.router");
 const projectManagementRoute = require("./API/projectManagement/projects/router/projects.router");
+const taskManagementRoute = require("./API/projectManagement/tasks/router/task.router");
 
 // ========== ROUTES ========== //
 app.get("/", (req, res) => {
@@ -109,6 +110,7 @@ app.use("/api/v1/procurement", ticketRoute);
 app.use("/api/v1/procurement", eventCategoryRoute);
 app.use("/api/v1/procurement", eventManagementRoute);
 app.use("/api/v1/procurement", projectManagementRoute);
+app.use("/api/v1/procurement", taskManagementRoute);
 
 // ========== LISTEN TO SERVER ========== //
 app.listen(PORT, (err) => {

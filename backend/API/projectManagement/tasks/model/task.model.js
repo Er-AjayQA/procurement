@@ -42,6 +42,15 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: "Trivial",
       },
 
+      parent_task_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: "TASK_MANAGEMENT",
+          key: "id",
+        },
+      },
+
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
@@ -50,7 +59,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.ENUM(
           "Backlog",
           "Blocked",
-          "To-DO",
+          "ToDo",
           "In-Progress",
           "On-Hold",
           "Cancelled",

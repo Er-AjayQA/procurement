@@ -448,6 +448,18 @@ db.tbl_project_employee_mapping =
     Sequelize
   );
 
+db.tbl_task_management =
+  require("../API/projectManagement/tasks/model/task.model")(
+    sequelize,
+    Sequelize
+  );
+
+// db.tbl_subtask_management =
+//   require("../API/projectManagement/tasks/model/subTask.model")(
+//     sequelize,
+//     Sequelize
+//   );
+
 // ========== RELATIONS ========== //
 
 // ========================================== DEPARTMENT MASTER RELATIONS ========================================== //
@@ -1593,6 +1605,31 @@ db.tbl_user_master.hasMany(db.tbl_project_employee_mapping, {
 });
 db.tbl_project_employee_mapping.belongsTo(db.tbl_user_master, {
   foreignKey: "user_id",
+});
+
+// ========================================== PROJECT MANAGEMENT ========================================== //
+// Relation B/W Project Management And Task Management Tables
+db.tbl_project_management.hasMany(db.tbl_task_management, {
+  foreignKey: "project_id",
+});
+db.tbl_task_management.belongsTo(db.tbl_project_management, {
+  foreignKey: "project_id",
+});
+
+// Relation B/W Entity Management And Task Management Tables
+db.tbl_entity_configuration.hasMany(db.tbl_task_management, {
+  foreignKey: "entity_id",
+});
+db.tbl_task_management.belongsTo(db.tbl_entity_configuration, {
+  foreignKey: "entity_id",
+});
+
+// Relation B/W Project Management And Task Management Tables
+db.tbl_task_management.hasMany(db.tbl_task_management, {
+  foreignKey: "parent_task_id",
+});
+db.tbl_task_management.belongsTo(db.tbl_task_management, {
+  foreignKey: "parent_task_id",
 });
 
 // ========== EXPORTS ========== //
