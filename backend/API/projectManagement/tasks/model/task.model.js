@@ -9,6 +9,10 @@ module.exports = (sequelize, Sequelize) => {
         primaryKey: true,
       },
 
+      task_code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       task_title: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -48,6 +52,9 @@ module.exports = (sequelize, Sequelize) => {
         references: {
           model: "TASK_MANAGEMENT",
           key: "id",
+        },
+        set(value) {
+          this.setDataValue("parent_task_id", value === "" ? null : value);
         },
       },
 

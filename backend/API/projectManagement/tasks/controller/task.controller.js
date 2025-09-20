@@ -24,7 +24,9 @@ module.exports.createTask = async (req, res) => {
       const createData = await DB.tbl_task_management.create(
         {
           project_id,
-          entity_id: req?.entity_id,
+          entity_id: req?.selectedEntity,
+          parent_task_id: data?.parent_task_id,
+          task_code: data?.task_code,
           task_title: data?.task_title,
           task_description: data?.task_description,
           start_date: data?.start_date,
@@ -124,10 +126,17 @@ module.exports.getTaskDetails = async (req, res) => {
         .status(404)
         .send({ success: false, message: "Task not found!" });
     } else {
+      const getAllDirectSubtask = await DB.tbl_task_management.findAll({
+        where: {
+          parent_task_id: getAllData[0].parent_task_id,
+          isDeleted: false,
+        },
+      });
+
       return res.status(200).send({
         success: true,
         status: "Get task Data successfully!",
-        data: getAllData,
+        data: { mainTask: getAllData[0], subtasks: getAllDirectSubtask },
       });
     }
   } catch (error) {
